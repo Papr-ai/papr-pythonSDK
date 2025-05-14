@@ -1,11 +1,11 @@
 [project]
 name = "papr_memory"
-version = "0.0.1-alpha.0"
-description = "The official Python library for the papr-memory API"
+version = "1.0.0"
+description = "The official Python library for the papr API"
 dynamic = ["readme"]
 license = "Apache-2.0"
 authors = [
-{ name = "Papr Memory", email = "" },
+{ name = "Papr", email = "support@papr.ai" },
 ]
 dependencies = [
     "httpx>=0.23.0, <1",
@@ -34,8 +34,8 @@ classifiers = [
 ]
 
 [project.urls]
-Homepage = "https://github.com/stainless-sdks/papr-memory-python"
-Repository = "https://github.com/stainless-sdks/papr-memory-python"
+Homepage = "https://github.com/Papr-ai/papr-pythonSDK"
+Repository = "https://github.com/Papr-ai/papr-pythonSDK"
 
 
 [tool.rye]
@@ -121,7 +121,7 @@ path = "README.md"
 [[tool.hatch.metadata.hooks.fancy-pypi-readme.substitutions]]
 # replace relative links with absolute links
 pattern = '\[(.+?)\]\(((?!https?://)\S+?)\)'
-replacement = '[\1](https://github.com/stainless-sdks/papr-memory-python/tree/main/\g<2>)'
+replacement = '[\1](https://github.com/Papr-ai/papr-pythonSDK/tree/main/\g<2>)'
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]

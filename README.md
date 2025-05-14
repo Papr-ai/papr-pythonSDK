@@ -1,8 +1,8 @@
-# Papr Memory Python API library
+# Papr Python API library
 
 [![PyPI version](https://img.shields.io/pypi/v/papr_memory.svg)](https://pypi.org/project/papr_memory/)
 
-The Papr Memory Python library provides convenient access to the Papr Memory REST API from any Python 3.8+
+The Papr Python library provides convenient access to the Papr REST API from any Python 3.8+
 application. The library includes type definitions for all request params and response fields,
 and offers both synchronous and asynchronous clients powered by [httpx](https://github.com/encode/httpx).
 
@@ -10,17 +10,14 @@ It is generated with [Stainless](https://www.stainless.com/).
 
 ## Documentation
 
-The full API of this library can be found in [api.md](api.md).
+The REST API documentation can be found on [platform.papr.ai](https://platform.papr.ai). The full API of this library can be found in [api.md](api.md).
 
 ## Installation
 
 ```sh
-# install from this staging repo
-pip install git+ssh://git@github.com/stainless-sdks/papr-memory-python.git
+# install from PyPI
+pip install papr_memory
 ```
-
-> [!NOTE]
-> Once this package is [published to PyPI](https://app.stainless.com/docs/guides/publish), this will become: `pip install --pre papr_memory`
 
 ## Usage
 
@@ -28,9 +25,9 @@ The full API of this library can be found in [api.md](api.md).
 
 ```python
 import os
-from papr_memory import PaprMemory
+from papr_memory import Papr
 
-client = PaprMemory(
+client = Papr(
     api_key=os.environ.get("PAPR_MEMORY_API_KEY"),  # This is the default and can be omitted
     bearer_token=os.environ.get(
         "PAPR_MEMORY_BEARER_TOKEN"
@@ -50,14 +47,14 @@ so that your API Key is not stored in source control.
 
 ## Async usage
 
-Simply import `AsyncPaprMemory` instead of `PaprMemory` and use `await` with each API call:
+Simply import `AsyncPapr` instead of `Papr` and use `await` with each API call:
 
 ```python
 import os
 import asyncio
-from papr_memory import AsyncPaprMemory
+from papr_memory import AsyncPapr
 
-client = AsyncPaprMemory(
+client = AsyncPapr(
     api_key=os.environ.get("PAPR_MEMORY_API_KEY"),  # This is the default and can be omitted
     bearer_token=os.environ.get(
         "PAPR_MEMORY_BEARER_TOKEN"
@@ -91,23 +88,23 @@ Typed requests and responses provide autocomplete and documentation within your 
 Nested parameters are dictionaries, typed using `TypedDict`, for example:
 
 ```python
-from papr_memory import PaprMemory
+from papr_memory import Papr
 
-client = PaprMemory()
+client = Papr()
 
-add_memory_response = client.memory.create(
-    content="Meeting notes from the product planning session",
+memory = client.memory.update(
+    memory_id="memory_id",
     metadata={
-        "conversation_id": "conv-123",
-        "created_at": "2024-03-21T10:00:00Z",
-        "emoji_tags": "ðŸ“Š,ðŸ’¡,ðŸ“",
-        "emotion_tags": "focused, productive",
+        "conversation_id": "conversationId",
+        "created_at": "createdAt",
+        "emoji_tags": "ðŸ“Š,ðŸ’¡,ðŸ“,âœ¨",
+        "emotion_tags": "focused, productive, satisfied",
         "hierarchical_structures": "hierarchical_structures",
-        "location": "Conference Room A",
+        "location": "location",
         "role_read_access": ["string"],
         "role_write_access": ["string"],
-        "source_url": "https://meeting-notes.example.com/123",
-        "topics": "product, planning",
+        "source_url": "sourceUrl",
+        "topics": "product, planning, updates",
         "user_id": "user_id",
         "user_read_access": ["string"],
         "user_write_access": ["string"],
@@ -115,7 +112,7 @@ add_memory_response = client.memory.create(
         "workspace_write_access": ["string"],
     },
 )
-print(add_memory_response.metadata)
+print(memory.metadata)
 ```
 
 ## Handling errors
@@ -129,9 +126,9 @@ All errors inherit from `papr_memory.APIError`.
 
 ```python
 import papr_memory
-from papr_memory import PaprMemory
+from papr_memory import Papr
 
-client = PaprMemory()
+client = Papr()
 
 try:
     client.user.create(
@@ -170,10 +167,10 @@ Connection errors (for example, due to a network connectivity problem), 408 Requ
 You can use the `max_retries` option to configure or disable retry settings:
 
 ```python
-from papr_memory import PaprMemory
+from papr_memory import Papr
 
 # Configure the default for all requests:
-client = PaprMemory(
+client = Papr(
     # default is 2
     max_retries=0,
 )
@@ -190,16 +187,16 @@ By default requests time out after 1 minute. You can configure this with a `time
 which accepts a float or an [`httpx.Timeout`](https://www.python-httpx.org/advanced/#fine-tuning-the-configuration) object:
 
 ```python
-from papr_memory import PaprMemory
+from papr_memory import Papr
 
 # Configure the default for all requests:
-client = PaprMemory(
+client = Papr(
     # 20 seconds (default is 1 minute)
     timeout=20.0,
 )
 
 # More granular control:
-client = PaprMemory(
+client = Papr(
     timeout=httpx.Timeout(60.0, read=5.0, write=10.0, connect=2.0),
 )
 
@@ -219,10 +216,10 @@ Note that requests that time out are [retried twice by default](#retries).
 
 We use the standard library [`logging`](https://docs.python.org/3/library/logging.html) module.
 
-You can enable logging by setting the environment variable `PAPR_MEMORY_LOG` to `info`.
+You can enable logging by setting the environment variable `PAPR_LOG` to `info`.
 
 ```shell
-$ export PAPR_MEMORY_LOG=info
+$ export PAPR_LOG=info
 ```
 
 Or to `debug` for more verbose logging.
@@ -244,9 +241,9 @@ if response.my_field is None:
 The "raw" Response object can be accessed by prefixing `.with_raw_response.` to any HTTP method call, e.g.,
 
 ```py
-from papr_memory import PaprMemory
+from papr_memory import Papr
 
-client = PaprMemory()
+client = Papr()
 response = client.user.with_raw_response.create(
     external_id="user123",
 )
@@ -256,9 +253,9 @@ user = response.parse()  # get the object that `user.create()` would have return
 print(user.external_id)
 ```
 
-These methods return an [`APIResponse`](https://github.com/stainless-sdks/papr-memory-python/tree/main/src/papr_memory/_response.py) object.
+These methods return an [`APIResponse`](https://github.com/Papr-ai/papr-pythonSDK/tree/main/src/papr_memory/_response.py) object.
 
-The async client returns an [`AsyncAPIResponse`](https://github.com/stainless-sdks/papr-memory-python/tree/main/src/papr_memory/_response.py) with the same structure, the only difference being `await`able methods for reading the response content.
+The async client returns an [`AsyncAPIResponse`](https://github.com/Papr-ai/papr-pythonSDK/tree/main/src/papr_memory/_response.py) with the same structure, the only difference being `await`able methods for reading the response content.
 
 #### `.with_streaming_response`
 
@@ -322,10 +319,10 @@ You can directly override the [httpx client](https://www.python-httpx.org/api/#c
 
 ```python
 import httpx
-from papr_memory import PaprMemory, DefaultHttpxClient
+from papr_memory import Papr, DefaultHttpxClient
 
-client = PaprMemory(
-    # Or use the `PAPR_MEMORY_BASE_URL` env var
+client = Papr(
+    # Or use the `PAPR_BASE_URL` env var
     base_url="http://my.test.server.example.com:8083",
     http_client=DefaultHttpxClient(
         proxy="http://my.test.proxy.example.com",
@@ -345,9 +342,9 @@ client.with_options(http_client=DefaultHttpxClient(...))
 By default the library closes underlying HTTP connections whenever the client is [garbage collected](https://docs.python.org/3/reference/datamodel.html#object.__del__). You can manually close the client using the `.close()` method if desired, or with a context manager that closes when exiting.
 
 ```py
-from papr_memory import PaprMemory
+from papr_memory import Papr
 
-with PaprMemory() as client:
+with Papr() as client:
   # make requests here
   ...
 
@@ -364,7 +361,7 @@ This package generally follows [SemVer](https://semver.org/spec/v2.0.0.html) con
 
 We take backwards-compatibility seriously and work hard to ensure you can rely on a smooth upgrade experience.
 
-We are keen for your feedback; please open an [issue](https://www.github.com/stainless-sdks/papr-memory-python/issues) with questions, bugs, or suggestions.
+We are keen for your feedback; please open an [issue](https://www.github.com/Papr-ai/papr-pythonSDK/issues) with questions, bugs, or suggestions.
 
 ### Determining the installed version
 

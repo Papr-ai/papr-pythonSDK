@@ -18,11 +18,11 @@ __all__ = [
 ]
 
 
-class PaprMemoryError(Exception):
+class PaprError(Exception):
     pass
 
 
-class APIError(PaprMemoryError):
+class APIError(PaprError):
     message: str
     request: httpx.Request
 
