@@ -14,6 +14,7 @@ class MemoryMetadataParamTyped(TypedDict, total=False):
     conversation_id: Annotated[Optional[str], PropertyInfo(alias="conversationId")]
 
     created_at: Annotated[Optional[str], PropertyInfo(alias="createdAt")]
+    """ISO datetime when the memory was created"""
 
     emoji_tags: Annotated[Optional[str], PropertyInfo(alias="emoji tags")]
 

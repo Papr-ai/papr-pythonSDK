@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+from typing import Optional
 from typing_extensions import Required, Annotated, TypedDict
 
 from .._utils import PropertyInfo
@@ -31,6 +32,12 @@ class MemorySearchParams(TypedDict, total=False):
     Default is false because results are already ranked when using an LLM for search
     (recommended approach). Only enable this if you're not using an LLM in your
     search pipeline and need additional result ranking.
+    """
+
+    user_id: Optional[str]
+    """Optional user ID to filter search results by a specific user.
+
+    If not provided, results are not filtered by user.
     """
 
     accept_encoding: Annotated[str, PropertyInfo(alias="Accept-Encoding")]

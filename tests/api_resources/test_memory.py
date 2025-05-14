@@ -422,6 +422,7 @@ class TestMemory:
             max_memories=1,
             max_nodes=1,
             rank_results=True,
+            user_id="user123",
             accept_encoding="Accept-Encoding",
         )
         assert_matches_type(SearchResponse, memory, path=["response"])
@@ -855,6 +856,7 @@ class TestAsyncMemory:
             max_memories=1,
             max_nodes=1,
             rank_results=True,
+            user_id="user123",
             accept_encoding="Accept-Encoding",
         )
         assert_matches_type(SearchResponse, memory, path=["response"])
