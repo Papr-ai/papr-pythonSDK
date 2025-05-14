@@ -97,7 +97,7 @@ memory = client.memory.update(
     metadata={
         "conversation_id": "conversationId",
         "created_at": "createdAt",
-        "emoji_tags": "ðŸ“Š,ðŸ’¡,ðŸ“,âœ¨",
+        "emoji_tags": "📊,💡,📝,✨",
         "emotion_tags": "focused, productive, satisfied",
         "hierarchical_structures": "hierarchical_structures",
         "location": "location",
