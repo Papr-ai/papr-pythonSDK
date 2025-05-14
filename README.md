@@ -15,12 +15,9 @@ The REST API documentation can be found on [platform.papr.ai](https://platform.p
 ## Installation
 
 ```sh
-# install from the production repo
-pip install git+ssh://git@github.com/Papr-ai/papr-pythonSDK.git
+# install from PyPI
+pip install --pre papr_memory
 ```
-
-> [!NOTE]
-> Once this package is [published to PyPI](https://app.stainless.com/docs/guides/publish), this will become: `pip install --pre papr_memory`
 
 ## Usage
 
