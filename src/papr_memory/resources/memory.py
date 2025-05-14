@@ -370,6 +370,7 @@ class MemoryResource(SyncAPIResource):
         max_memories: int | NotGiven = NOT_GIVEN,
         max_nodes: int | NotGiven = NOT_GIVEN,
         rank_results: bool | NotGiven = NOT_GIVEN,
+        user_id: Optional[str] | NotGiven = NOT_GIVEN,
         accept_encoding: str | NotGiven = NOT_GIVEN,
         # Use the following arguments if you need to pass additional parameters to the API that aren't available via kwargs.
         # The extra values given here take precedence over values defined on the client or passed to this method.
@@ -410,6 +411,9 @@ class MemoryResource(SyncAPIResource):
               Only enable this if you're not using an LLM in your search pipeline and need
               additional result ranking.
 
+          user_id: Optional user ID to filter search results by a specific user. If not provided,
+              results are not filtered by user.
+
           extra_headers: Send extra headers
 
           extra_query: Add additional query parameters to the request
@@ -425,6 +429,7 @@ class MemoryResource(SyncAPIResource):
                 {
                     "query": query,
                     "rank_results": rank_results,
+                    "user_id": user_id,
                 },
                 memory_search_params.MemorySearchParams,
             ),
@@ -776,6 +781,7 @@ class AsyncMemoryResource(AsyncAPIResource):
         max_memories: int | NotGiven = NOT_GIVEN,
         max_nodes: int | NotGiven = NOT_GIVEN,
         rank_results: bool | NotGiven = NOT_GIVEN,
+        user_id: Optional[str] | NotGiven = NOT_GIVEN,
         accept_encoding: str | NotGiven = NOT_GIVEN,
         # Use the following arguments if you need to pass additional parameters to the API that aren't available via kwargs.
         # The extra values given here take precedence over values defined on the client or passed to this method.
@@ -816,6 +822,9 @@ class AsyncMemoryResource(AsyncAPIResource):
               Only enable this if you're not using an LLM in your search pipeline and need
               additional result ranking.
 
+          user_id: Optional user ID to filter search results by a specific user. If not provided,
+              results are not filtered by user.
+
           extra_headers: Send extra headers
 
           extra_query: Add additional query parameters to the request
@@ -831,6 +840,7 @@ class AsyncMemoryResource(AsyncAPIResource):
                 {
                     "query": query,
                     "rank_results": rank_results,
+                    "user_id": user_id,
                 },
                 memory_search_params.MemorySearchParams,
             ),
