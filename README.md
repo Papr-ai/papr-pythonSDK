@@ -95,19 +95,19 @@ from papr_memory import PaprMemory
 
 client = PaprMemory()
 
-add_memory_response = client.memory.create(
-    content="Meeting notes from the product planning session",
+memory = client.memory.update(
+    memory_id="memory_id",
     metadata={
-        "conversation_id": "conv-123",
-        "created_at": "2024-03-21T10:00:00Z",
-        "emoji_tags": "ðŸ“Š,ðŸ’¡,ðŸ“",
-        "emotion_tags": "focused, productive",
+        "conversation_id": "conversationId",
+        "created_at": "createdAt",
+        "emoji_tags": "ðŸ“Š,ðŸ’¡,ðŸ“,âœ¨",
+        "emotion_tags": "focused, productive, satisfied",
         "hierarchical_structures": "hierarchical_structures",
-        "location": "Conference Room A",
+        "location": "location",
         "role_read_access": ["string"],
         "role_write_access": ["string"],
-        "source_url": "https://meeting-notes.example.com/123",
-        "topics": "product, planning",
+        "source_url": "sourceUrl",
+        "topics": "product, planning, updates",
         "user_id": "user_id",
         "user_read_access": ["string"],
         "user_write_access": ["string"],
@@ -115,7 +115,7 @@ add_memory_response = client.memory.create(
         "workspace_write_access": ["string"],
     },
 )
-print(add_memory_response.metadata)
+print(memory.metadata)
 ```
 
 ## Handling errors

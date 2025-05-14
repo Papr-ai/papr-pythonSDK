@@ -10,10 +10,10 @@ from .context_item_param import ContextItemParam
 from .memory_metadata_param import MemoryMetadataParam
 from .relationship_item_param import RelationshipItemParam
 
-__all__ = ["MemoryCreateParams"]
+__all__ = ["MemoryAddParams"]
 
 
-class MemoryCreateParams(TypedDict, total=False):
+class MemoryAddParams(TypedDict, total=False):
     content: Required[str]
     """The content of the memory item you want to add to memory"""
 

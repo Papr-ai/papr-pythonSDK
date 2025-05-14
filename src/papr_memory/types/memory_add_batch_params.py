@@ -7,10 +7,10 @@ from typing_extensions import Required, TypedDict
 
 from .add_memory_param import AddMemoryParam
 
-__all__ = ["MemoryCreateBatchParams"]
+__all__ = ["MemoryAddBatchParams"]
 
 
-class MemoryCreateBatchParams(TypedDict, total=False):
+class MemoryAddBatchParams(TypedDict, total=False):
     memories: Required[Iterable[AddMemoryParam]]
     """List of memory items to add in batch"""
 

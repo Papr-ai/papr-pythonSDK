@@ -71,48 +71,6 @@ class TestUser:
 
     @pytest.mark.skip()
     @parametrize
-    def test_method_retrieve(self, client: PaprMemory) -> None:
-        user = client.user.retrieve(
-            "user_id",
-        )
-        assert_matches_type(UserResponse, user, path=["response"])
-
-    @pytest.mark.skip()
-    @parametrize
-    def test_raw_response_retrieve(self, client: PaprMemory) -> None:
-        response = client.user.with_raw_response.retrieve(
-            "user_id",
-        )
-
-        assert response.is_closed is True
-        assert response.http_request.headers.get("X-Stainless-Lang") == "python"
-        user = response.parse()
-        assert_matches_type(UserResponse, user, path=["response"])
-
-    @pytest.mark.skip()
-    @parametrize
-    def test_streaming_response_retrieve(self, client: PaprMemory) -> None:
-        with client.user.with_streaming_response.retrieve(
-            "user_id",
-        ) as response:
-            assert not response.is_closed
-            assert response.http_request.headers.get("X-Stainless-Lang") == "python"
-
-            user = response.parse()
-            assert_matches_type(UserResponse, user, path=["response"])
-
-        assert cast(Any, response.is_closed) is True
-
-    @pytest.mark.skip()
-    @parametrize
-    def test_path_params_retrieve(self, client: PaprMemory) -> None:
-        with pytest.raises(ValueError, match=r"Expected a non-empty value for `user_id` but received ''"):
-            client.user.with_raw_response.retrieve(
-                "",
-            )
-
-    @pytest.mark.skip()
-    @parametrize
     def test_method_update(self, client: PaprMemory) -> None:
         user = client.user.update(
             user_id="user_id",
@@ -249,6 +207,48 @@ class TestUser:
                 "",
             )
 
+    @pytest.mark.skip()
+    @parametrize
+    def test_method_get(self, client: PaprMemory) -> None:
+        user = client.user.get(
+            "user_id",
+        )
+        assert_matches_type(UserResponse, user, path=["response"])
+
+    @pytest.mark.skip()
+    @parametrize
+    def test_raw_response_get(self, client: PaprMemory) -> None:
+        response = client.user.with_raw_response.get(
+            "user_id",
+        )
+
+        assert response.is_closed is True
+        assert response.http_request.headers.get("X-Stainless-Lang") == "python"
+        user = response.parse()
+        assert_matches_type(UserResponse, user, path=["response"])
+
+    @pytest.mark.skip()
+    @parametrize
+    def test_streaming_response_get(self, client: PaprMemory) -> None:
+        with client.user.with_streaming_response.get(
+            "user_id",
+        ) as response:
+            assert not response.is_closed
+            assert response.http_request.headers.get("X-Stainless-Lang") == "python"
+
+            user = response.parse()
+            assert_matches_type(UserResponse, user, path=["response"])
+
+        assert cast(Any, response.is_closed) is True
+
+    @pytest.mark.skip()
+    @parametrize
+    def test_path_params_get(self, client: PaprMemory) -> None:
+        with pytest.raises(ValueError, match=r"Expected a non-empty value for `user_id` but received ''"):
+            client.user.with_raw_response.get(
+                "",
+            )
+
 
 class TestAsyncUser:
     parametrize = pytest.mark.parametrize("async_client", [False, True], indirect=True, ids=["loose", "strict"])
@@ -300,48 +300,6 @@ class TestAsyncUser:
             assert_matches_type(UserResponse, user, path=["response"])
 
         assert cast(Any, response.is_closed) is True
-
-    @pytest.mark.skip()
-    @parametrize
-    async def test_method_retrieve(self, async_client: AsyncPaprMemory) -> None:
-        user = await async_client.user.retrieve(
-            "user_id",
-        )
-        assert_matches_type(UserResponse, user, path=["response"])
-
-    @pytest.mark.skip()
-    @parametrize
-    async def test_raw_response_retrieve(self, async_client: AsyncPaprMemory) -> None:
-        response = await async_client.user.with_raw_response.retrieve(
-            "user_id",
-        )
-
-        assert response.is_closed is True
-        assert response.http_request.headers.get("X-Stainless-Lang") == "python"
-        user = await response.parse()
-        assert_matches_type(UserResponse, user, path=["response"])
-
-    @pytest.mark.skip()
-    @parametrize
-    async def test_streaming_response_retrieve(self, async_client: AsyncPaprMemory) -> None:
-        async with async_client.user.with_streaming_response.retrieve(
-            "user_id",
-        ) as response:
-            assert not response.is_closed
-            assert response.http_request.headers.get("X-Stainless-Lang") == "python"
-
-            user = await response.parse()
-            assert_matches_type(UserResponse, user, path=["response"])
-
-        assert cast(Any, response.is_closed) is True
-
-    @pytest.mark.skip()
-    @parametrize
-    async def test_path_params_retrieve(self, async_client: AsyncPaprMemory) -> None:
-        with pytest.raises(ValueError, match=r"Expected a non-empty value for `user_id` but received ''"):
-            await async_client.user.with_raw_response.retrieve(
-                "",
-            )
 
     @pytest.mark.skip()
     @parametrize
@@ -478,5 +436,47 @@ class TestAsyncUser:
     async def test_path_params_delete(self, async_client: AsyncPaprMemory) -> None:
         with pytest.raises(ValueError, match=r"Expected a non-empty value for `user_id` but received ''"):
             await async_client.user.with_raw_response.delete(
+                "",
+            )
+
+    @pytest.mark.skip()
+    @parametrize
+    async def test_method_get(self, async_client: AsyncPaprMemory) -> None:
+        user = await async_client.user.get(
+            "user_id",
+        )
+        assert_matches_type(UserResponse, user, path=["response"])
+
+    @pytest.mark.skip()
+    @parametrize
+    async def test_raw_response_get(self, async_client: AsyncPaprMemory) -> None:
+        response = await async_client.user.with_raw_response.get(
+            "user_id",
+        )
+
+        assert response.is_closed is True
+        assert response.http_request.headers.get("X-Stainless-Lang") == "python"
+        user = await response.parse()
+        assert_matches_type(UserResponse, user, path=["response"])
+
+    @pytest.mark.skip()
+    @parametrize
+    async def test_streaming_response_get(self, async_client: AsyncPaprMemory) -> None:
+        async with async_client.user.with_streaming_response.get(
+            "user_id",
+        ) as response:
+            assert not response.is_closed
+            assert response.http_request.headers.get("X-Stainless-Lang") == "python"
+
+            user = await response.parse()
+            assert_matches_type(UserResponse, user, path=["response"])
+
+        assert cast(Any, response.is_closed) is True
+
+    @pytest.mark.skip()
+    @parametrize
+    async def test_path_params_get(self, async_client: AsyncPaprMemory) -> None:
+        with pytest.raises(ValueError, match=r"Expected a non-empty value for `user_id` but received ''"):
+            await async_client.user.with_raw_response.get(
                 "",
             )

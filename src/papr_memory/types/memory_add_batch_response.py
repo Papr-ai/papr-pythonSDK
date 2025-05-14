@@ -5,7 +5,7 @@ from typing import List, Optional
 from .._models import BaseModel
 from .add_memory_response import AddMemoryResponse
 
-__all__ = ["MemoryCreateBatchResponse", "Error"]
+__all__ = ["MemoryAddBatchResponse", "Error"]
 
 
 class Error(BaseModel):
@@ -20,7 +20,7 @@ class Error(BaseModel):
     status: Optional[str] = None
 
 
-class MemoryCreateBatchResponse(BaseModel):
+class MemoryAddBatchResponse(BaseModel):
     code: Optional[int] = None
     """HTTP status code for the batch operation"""
 
