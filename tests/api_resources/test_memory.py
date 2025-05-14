@@ -50,7 +50,7 @@ class TestMemory:
             metadata={
                 "conversation_id": "conversationId",
                 "created_at": "createdAt",
-                "emoji_tags": "ðŸ“Š,ðŸ’¡,ðŸ“,âœ¨",
+                "emoji_tags": "📊,💡,📝,✨",
                 "emotion_tags": "focused, productive, satisfied",
                 "hierarchical_structures": "hierarchical_structures",
                 "location": "location",
@@ -188,7 +188,7 @@ class TestMemory:
             metadata={
                 "conversation_id": "conv-123",
                 "created_at": "2024-03-21T10:00:00Z",
-                "emoji_tags": "ðŸ“Š,ðŸ’¡,ðŸ“",
+                "emoji_tags": "📊,💡,📝",
                 "emotion_tags": "focused, productive",
                 "hierarchical_structures": "hierarchical_structures",
                 "location": "Conference Room A",
@@ -267,7 +267,7 @@ class TestMemory:
                     "metadata": {
                         "conversation_id": "conversationId",
                         "created_at": "2024-03-21T10:00:00Z",
-                        "emoji_tags": "ðŸ“Š,ðŸ’¡,ðŸ“",
+                        "emoji_tags": "📊,💡,📝",
                         "emotion_tags": "focused, productive",
                         "hierarchical_structures": "hierarchical_structures",
                         "location": "location",
@@ -302,7 +302,7 @@ class TestMemory:
                     "metadata": {
                         "conversation_id": "conversationId",
                         "created_at": "2024-03-21T11:00:00Z",
-                        "emoji_tags": "âœ…,ðŸ“‹",
+                        "emoji_tags": "✅,📋",
                         "emotion_tags": "organized",
                         "hierarchical_structures": "hierarchical_structures",
                         "location": "location",
@@ -484,7 +484,7 @@ class TestAsyncMemory:
             metadata={
                 "conversation_id": "conversationId",
                 "created_at": "createdAt",
-                "emoji_tags": "ðŸ“Š,ðŸ’¡,ðŸ“,âœ¨",
+                "emoji_tags": "📊,💡,📝,✨",
                 "emotion_tags": "focused, productive, satisfied",
                 "hierarchical_structures": "hierarchical_structures",
                 "location": "location",
@@ -622,7 +622,7 @@ class TestAsyncMemory:
             metadata={
                 "conversation_id": "conv-123",
                 "created_at": "2024-03-21T10:00:00Z",
-                "emoji_tags": "ðŸ“Š,ðŸ’¡,ðŸ“",
+                "emoji_tags": "📊,💡,📝",
                 "emotion_tags": "focused, productive",
                 "hierarchical_structures": "hierarchical_structures",
                 "location": "Conference Room A",
@@ -701,7 +701,7 @@ class TestAsyncMemory:
                     "metadata": {
                         "conversation_id": "conversationId",
                         "created_at": "2024-03-21T10:00:00Z",
-                        "emoji_tags": "ðŸ“Š,ðŸ’¡,ðŸ“",
+                        "emoji_tags": "📊,💡,📝",
                         "emotion_tags": "focused, productive",
                         "hierarchical_structures": "hierarchical_structures",
                         "location": "location",
@@ -736,7 +736,7 @@ class TestAsyncMemory:
                     "metadata": {
                         "conversation_id": "conversationId",
                         "created_at": "2024-03-21T11:00:00Z",
-                        "emoji_tags": "âœ…,ðŸ“‹",
+                        "emoji_tags": "✅,📋",
                         "emotion_tags": "organized",
                         "hierarchical_structures": "hierarchical_structures",
                         "location": "location",
