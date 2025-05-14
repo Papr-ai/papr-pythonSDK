@@ -1,5 +1,5 @@
 [project]
-name = "papr-memory"
+name = "papr_memory"
 version = "1.0.0"
 description = "The official Python library for the papr API"
 dynamic = ["readme"]
