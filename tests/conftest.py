@@ -7,7 +7,7 @@ from typing import TYPE_CHECKING, Iterator, AsyncIterator
 import pytest
 from pytest_asyncio import is_async_test
 
-from papr_memory import PaprMemory, AsyncPaprMemory
+from papr_memory import Papr, AsyncPapr
 
 if TYPE_CHECKING:
     from _pytest.fixtures import FixtureRequest  # pyright: ignore[reportPrivateImportUsage]
@@ -33,24 +33,24 @@ bearer_token = "My Bearer Token"
 
 
 @pytest.fixture(scope="session")
-def client(request: FixtureRequest) -> Iterator[PaprMemory]:
+def client(request: FixtureRequest) -> Iterator[Papr]:
     strict = getattr(request, "param", True)
     if not isinstance(strict, bool):
         raise TypeError(f"Unexpected fixture parameter type {type(strict)}, expected {bool}")
 
-    with PaprMemory(
+    with Papr(
         base_url=base_url, api_key=api_key, bearer_token=bearer_token, _strict_response_validation=strict
     ) as client:
         yield client
 
 
 @pytest.fixture(scope="session")
-async def async_client(request: FixtureRequest) -> AsyncIterator[AsyncPaprMemory]:
+async def async_client(request: FixtureRequest) -> AsyncIterator[AsyncPapr]:
     strict = getattr(request, "param", True)
     if not isinstance(strict, bool):
         raise TypeError(f"Unexpected fixture parameter type {type(strict)}, expected {bool}")
 
-    async with AsyncPaprMemory(
+    async with AsyncPapr(
         base_url=base_url, api_key=api_key, bearer_token=bearer_token, _strict_response_validation=strict
     ) as client:
         yield client

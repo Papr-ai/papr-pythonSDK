@@ -1,11 +1,11 @@
 [project]
 name = "papr_memory"
 version = "0.0.1-alpha.0"
-description = "The official Python library for the papr-memory API"
+description = "The official Python library for the papr API"
 dynamic = ["readme"]
 license = "Apache-2.0"
 authors = [
-{ name = "Papr Memory", email = "" },
+{ name = "Papr", email = "support@papr.ai" },
 ]
 dependencies = [
     "httpx>=0.23.0, <1",
