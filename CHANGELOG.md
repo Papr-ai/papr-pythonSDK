@@ -1,5 +1,13 @@
 # Changelog
 
+## 1.0.1 (2025-05-14)
+
+Full Changelog: [v1.0.0...v1.0.1](https://github.com/Papr-ai/papr-pythonSDK/compare/v1.0.0...v1.0.1)
+
+### Chores
+
+* update SDK settings ([2215a2e](https://github.com/Papr-ai/papr-pythonSDK/commit/2215a2e2cad17a560707314ba43ecdbe4b2aaf68))
+
 ## 1.0.0 (2025-05-14)
 
 Full Changelog: [v0.0.1-alpha.0...v1.0.0](https://github.com/Papr-ai/papr-pythonSDK/compare/v0.0.1-alpha.0...v1.0.0)
