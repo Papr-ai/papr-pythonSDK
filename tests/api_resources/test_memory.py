@@ -7,7 +7,7 @@ from typing import Any, cast
 
 import pytest
 
-from papr_memory import PaprMemory, AsyncPaprMemory
+from papr_memory import Papr, AsyncPapr
 from tests.utils import assert_matches_type
 from papr_memory.types import (
     SearchResponse,
@@ -25,7 +25,7 @@ class TestMemory:
 
     @pytest.mark.skip()
     @parametrize
-    def test_method_update(self, client: PaprMemory) -> None:
+    def test_method_update(self, client: Papr) -> None:
         memory = client.memory.update(
             memory_id="memory_id",
         )
@@ -33,7 +33,7 @@ class TestMemory:
 
     @pytest.mark.skip()
     @parametrize
-    def test_method_update_with_all_params(self, client: PaprMemory) -> None:
+    def test_method_update_with_all_params(self, client: Papr) -> None:
         memory = client.memory.update(
             memory_id="memory_id",
             content="Updated meeting notes from the product planning session",
@@ -78,7 +78,7 @@ class TestMemory:
 
     @pytest.mark.skip()
     @parametrize
-    def test_raw_response_update(self, client: PaprMemory) -> None:
+    def test_raw_response_update(self, client: Papr) -> None:
         response = client.memory.with_raw_response.update(
             memory_id="memory_id",
         )
@@ -90,7 +90,7 @@ class TestMemory:
 
     @pytest.mark.skip()
     @parametrize
-    def test_streaming_response_update(self, client: PaprMemory) -> None:
+    def test_streaming_response_update(self, client: Papr) -> None:
         with client.memory.with_streaming_response.update(
             memory_id="memory_id",
         ) as response:
@@ -104,7 +104,7 @@ class TestMemory:
 
     @pytest.mark.skip()
     @parametrize
-    def test_path_params_update(self, client: PaprMemory) -> None:
+    def test_path_params_update(self, client: Papr) -> None:
         with pytest.raises(ValueError, match=r"Expected a non-empty value for `memory_id` but received ''"):
             client.memory.with_raw_response.update(
                 memory_id="",
@@ -112,7 +112,7 @@ class TestMemory:
 
     @pytest.mark.skip()
     @parametrize
-    def test_method_delete(self, client: PaprMemory) -> None:
+    def test_method_delete(self, client: Papr) -> None:
         memory = client.memory.delete(
             memory_id="memory_id",
         )
@@ -120,7 +120,7 @@ class TestMemory:
 
     @pytest.mark.skip()
     @parametrize
-    def test_method_delete_with_all_params(self, client: PaprMemory) -> None:
+    def test_method_delete_with_all_params(self, client: Papr) -> None:
         memory = client.memory.delete(
             memory_id="memory_id",
             skip_parse=True,
@@ -129,7 +129,7 @@ class TestMemory:
 
     @pytest.mark.skip()
     @parametrize
-    def test_raw_response_delete(self, client: PaprMemory) -> None:
+    def test_raw_response_delete(self, client: Papr) -> None:
         response = client.memory.with_raw_response.delete(
             memory_id="memory_id",
         )
@@ -141,7 +141,7 @@ class TestMemory:
 
     @pytest.mark.skip()
     @parametrize
-    def test_streaming_response_delete(self, client: PaprMemory) -> None:
+    def test_streaming_response_delete(self, client: Papr) -> None:
         with client.memory.with_streaming_response.delete(
             memory_id="memory_id",
         ) as response:
@@ -155,7 +155,7 @@ class TestMemory:
 
     @pytest.mark.skip()
     @parametrize
-    def test_path_params_delete(self, client: PaprMemory) -> None:
+    def test_path_params_delete(self, client: Papr) -> None:
         with pytest.raises(ValueError, match=r"Expected a non-empty value for `memory_id` but received ''"):
             client.memory.with_raw_response.delete(
                 memory_id="",
@@ -163,7 +163,7 @@ class TestMemory:
 
     @pytest.mark.skip()
     @parametrize
-    def test_method_add(self, client: PaprMemory) -> None:
+    def test_method_add(self, client: Papr) -> None:
         memory = client.memory.add(
             content="Meeting notes from the product planning session",
         )
@@ -171,7 +171,7 @@ class TestMemory:
 
     @pytest.mark.skip()
     @parametrize
-    def test_method_add_with_all_params(self, client: PaprMemory) -> None:
+    def test_method_add_with_all_params(self, client: Papr) -> None:
         memory = client.memory.add(
             content="Meeting notes from the product planning session",
             skip_background_processing=True,
@@ -216,7 +216,7 @@ class TestMemory:
 
     @pytest.mark.skip()
     @parametrize
-    def test_raw_response_add(self, client: PaprMemory) -> None:
+    def test_raw_response_add(self, client: Papr) -> None:
         response = client.memory.with_raw_response.add(
             content="Meeting notes from the product planning session",
         )
@@ -228,7 +228,7 @@ class TestMemory:
 
     @pytest.mark.skip()
     @parametrize
-    def test_streaming_response_add(self, client: PaprMemory) -> None:
+    def test_streaming_response_add(self, client: Papr) -> None:
         with client.memory.with_streaming_response.add(
             content="Meeting notes from the product planning session",
         ) as response:
@@ -242,7 +242,7 @@ class TestMemory:
 
     @pytest.mark.skip()
     @parametrize
-    def test_method_add_batch(self, client: PaprMemory) -> None:
+    def test_method_add_batch(self, client: Papr) -> None:
         memory = client.memory.add_batch(
             memories=[
                 {"content": "Meeting notes from the product planning session"},
@@ -253,7 +253,7 @@ class TestMemory:
 
     @pytest.mark.skip()
     @parametrize
-    def test_method_add_batch_with_all_params(self, client: PaprMemory) -> None:
+    def test_method_add_batch_with_all_params(self, client: Papr) -> None:
         memory = client.memory.add_batch(
             memories=[
                 {
@@ -334,7 +334,7 @@ class TestMemory:
 
     @pytest.mark.skip()
     @parametrize
-    def test_raw_response_add_batch(self, client: PaprMemory) -> None:
+    def test_raw_response_add_batch(self, client: Papr) -> None:
         response = client.memory.with_raw_response.add_batch(
             memories=[
                 {"content": "Meeting notes from the product planning session"},
@@ -349,7 +349,7 @@ class TestMemory:
 
     @pytest.mark.skip()
     @parametrize
-    def test_streaming_response_add_batch(self, client: PaprMemory) -> None:
+    def test_streaming_response_add_batch(self, client: Papr) -> None:
         with client.memory.with_streaming_response.add_batch(
             memories=[
                 {"content": "Meeting notes from the product planning session"},
@@ -366,7 +366,7 @@ class TestMemory:
 
     @pytest.mark.skip()
     @parametrize
-    def test_method_get(self, client: PaprMemory) -> None:
+    def test_method_get(self, client: Papr) -> None:
         memory = client.memory.get(
             "memory_id",
         )
@@ -374,7 +374,7 @@ class TestMemory:
 
     @pytest.mark.skip()
     @parametrize
-    def test_raw_response_get(self, client: PaprMemory) -> None:
+    def test_raw_response_get(self, client: Papr) -> None:
         response = client.memory.with_raw_response.get(
             "memory_id",
         )
@@ -386,7 +386,7 @@ class TestMemory:
 
     @pytest.mark.skip()
     @parametrize
-    def test_streaming_response_get(self, client: PaprMemory) -> None:
+    def test_streaming_response_get(self, client: Papr) -> None:
         with client.memory.with_streaming_response.get(
             "memory_id",
         ) as response:
@@ -400,7 +400,7 @@ class TestMemory:
 
     @pytest.mark.skip()
     @parametrize
-    def test_path_params_get(self, client: PaprMemory) -> None:
+    def test_path_params_get(self, client: Papr) -> None:
         with pytest.raises(ValueError, match=r"Expected a non-empty value for `memory_id` but received ''"):
             client.memory.with_raw_response.get(
                 "",
@@ -408,7 +408,7 @@ class TestMemory:
 
     @pytest.mark.skip()
     @parametrize
-    def test_method_search(self, client: PaprMemory) -> None:
+    def test_method_search(self, client: Papr) -> None:
         memory = client.memory.search(
             query="Find recurring customer complaints about API performance from the last month. Focus on issues where customers specifically mentioned timeout errors or slow response times in their conversations.",
         )
@@ -416,7 +416,7 @@ class TestMemory:
 
     @pytest.mark.skip()
     @parametrize
-    def test_method_search_with_all_params(self, client: PaprMemory) -> None:
+    def test_method_search_with_all_params(self, client: Papr) -> None:
         memory = client.memory.search(
             query="Find recurring customer complaints about API performance from the last month. Focus on issues where customers specifically mentioned timeout errors or slow response times in their conversations.",
             max_memories=1,
@@ -428,7 +428,7 @@ class TestMemory:
 
     @pytest.mark.skip()
     @parametrize
-    def test_raw_response_search(self, client: PaprMemory) -> None:
+    def test_raw_response_search(self, client: Papr) -> None:
         response = client.memory.with_raw_response.search(
             query="Find recurring customer complaints about API performance from the last month. Focus on issues where customers specifically mentioned timeout errors or slow response times in their conversations.",
         )
@@ -440,7 +440,7 @@ class TestMemory:
 
     @pytest.mark.skip()
     @parametrize
-    def test_streaming_response_search(self, client: PaprMemory) -> None:
+    def test_streaming_response_search(self, client: Papr) -> None:
         with client.memory.with_streaming_response.search(
             query="Find recurring customer complaints about API performance from the last month. Focus on issues where customers specifically mentioned timeout errors or slow response times in their conversations.",
         ) as response:
@@ -458,7 +458,7 @@ class TestAsyncMemory:
 
     @pytest.mark.skip()
     @parametrize
-    async def test_method_update(self, async_client: AsyncPaprMemory) -> None:
+    async def test_method_update(self, async_client: AsyncPapr) -> None:
         memory = await async_client.memory.update(
             memory_id="memory_id",
         )
@@ -466,7 +466,7 @@ class TestAsyncMemory:
 
     @pytest.mark.skip()
     @parametrize
-    async def test_method_update_with_all_params(self, async_client: AsyncPaprMemory) -> None:
+    async def test_method_update_with_all_params(self, async_client: AsyncPapr) -> None:
         memory = await async_client.memory.update(
             memory_id="memory_id",
             content="Updated meeting notes from the product planning session",
@@ -511,7 +511,7 @@ class TestAsyncMemory:
 
     @pytest.mark.skip()
     @parametrize
-    async def test_raw_response_update(self, async_client: AsyncPaprMemory) -> None:
+    async def test_raw_response_update(self, async_client: AsyncPapr) -> None:
         response = await async_client.memory.with_raw_response.update(
             memory_id="memory_id",
         )
@@ -523,7 +523,7 @@ class TestAsyncMemory:
 
     @pytest.mark.skip()
     @parametrize
-    async def test_streaming_response_update(self, async_client: AsyncPaprMemory) -> None:
+    async def test_streaming_response_update(self, async_client: AsyncPapr) -> None:
         async with async_client.memory.with_streaming_response.update(
             memory_id="memory_id",
         ) as response:
@@ -537,7 +537,7 @@ class TestAsyncMemory:
 
     @pytest.mark.skip()
     @parametrize
-    async def test_path_params_update(self, async_client: AsyncPaprMemory) -> None:
+    async def test_path_params_update(self, async_client: AsyncPapr) -> None:
         with pytest.raises(ValueError, match=r"Expected a non-empty value for `memory_id` but received ''"):
             await async_client.memory.with_raw_response.update(
                 memory_id="",
@@ -545,7 +545,7 @@ class TestAsyncMemory:
 
     @pytest.mark.skip()
     @parametrize
-    async def test_method_delete(self, async_client: AsyncPaprMemory) -> None:
+    async def test_method_delete(self, async_client: AsyncPapr) -> None:
         memory = await async_client.memory.delete(
             memory_id="memory_id",
         )
@@ -553,7 +553,7 @@ class TestAsyncMemory:
 
     @pytest.mark.skip()
     @parametrize
-    async def test_method_delete_with_all_params(self, async_client: AsyncPaprMemory) -> None:
+    async def test_method_delete_with_all_params(self, async_client: AsyncPapr) -> None:
         memory = await async_client.memory.delete(
             memory_id="memory_id",
             skip_parse=True,
@@ -562,7 +562,7 @@ class TestAsyncMemory:
 
     @pytest.mark.skip()
     @parametrize
-    async def test_raw_response_delete(self, async_client: AsyncPaprMemory) -> None:
+    async def test_raw_response_delete(self, async_client: AsyncPapr) -> None:
         response = await async_client.memory.with_raw_response.delete(
             memory_id="memory_id",
         )
@@ -574,7 +574,7 @@ class TestAsyncMemory:
 
     @pytest.mark.skip()
     @parametrize
-    async def test_streaming_response_delete(self, async_client: AsyncPaprMemory) -> None:
+    async def test_streaming_response_delete(self, async_client: AsyncPapr) -> None:
         async with async_client.memory.with_streaming_response.delete(
             memory_id="memory_id",
         ) as response:
@@ -588,7 +588,7 @@ class TestAsyncMemory:
 
     @pytest.mark.skip()
     @parametrize
-    async def test_path_params_delete(self, async_client: AsyncPaprMemory) -> None:
+    async def test_path_params_delete(self, async_client: AsyncPapr) -> None:
         with pytest.raises(ValueError, match=r"Expected a non-empty value for `memory_id` but received ''"):
             await async_client.memory.with_raw_response.delete(
                 memory_id="",
@@ -596,7 +596,7 @@ class TestAsyncMemory:
 
     @pytest.mark.skip()
     @parametrize
-    async def test_method_add(self, async_client: AsyncPaprMemory) -> None:
+    async def test_method_add(self, async_client: AsyncPapr) -> None:
         memory = await async_client.memory.add(
             content="Meeting notes from the product planning session",
         )
@@ -604,7 +604,7 @@ class TestAsyncMemory:
 
     @pytest.mark.skip()
     @parametrize
-    async def test_method_add_with_all_params(self, async_client: AsyncPaprMemory) -> None:
+    async def test_method_add_with_all_params(self, async_client: AsyncPapr) -> None:
         memory = await async_client.memory.add(
             content="Meeting notes from the product planning session",
             skip_background_processing=True,
@@ -649,7 +649,7 @@ class TestAsyncMemory:
 
     @pytest.mark.skip()
     @parametrize
-    async def test_raw_response_add(self, async_client: AsyncPaprMemory) -> None:
+    async def test_raw_response_add(self, async_client: AsyncPapr) -> None:
         response = await async_client.memory.with_raw_response.add(
             content="Meeting notes from the product planning session",
         )
@@ -661,7 +661,7 @@ class TestAsyncMemory:
 
     @pytest.mark.skip()
     @parametrize
-    async def test_streaming_response_add(self, async_client: AsyncPaprMemory) -> None:
+    async def test_streaming_response_add(self, async_client: AsyncPapr) -> None:
         async with async_client.memory.with_streaming_response.add(
             content="Meeting notes from the product planning session",
         ) as response:
@@ -675,7 +675,7 @@ class TestAsyncMemory:
 
     @pytest.mark.skip()
     @parametrize
-    async def test_method_add_batch(self, async_client: AsyncPaprMemory) -> None:
+    async def test_method_add_batch(self, async_client: AsyncPapr) -> None:
         memory = await async_client.memory.add_batch(
             memories=[
                 {"content": "Meeting notes from the product planning session"},
@@ -686,7 +686,7 @@ class TestAsyncMemory:
 
     @pytest.mark.skip()
     @parametrize
-    async def test_method_add_batch_with_all_params(self, async_client: AsyncPaprMemory) -> None:
+    async def test_method_add_batch_with_all_params(self, async_client: AsyncPapr) -> None:
         memory = await async_client.memory.add_batch(
             memories=[
                 {
@@ -767,7 +767,7 @@ class TestAsyncMemory:
 
     @pytest.mark.skip()
     @parametrize
-    async def test_raw_response_add_batch(self, async_client: AsyncPaprMemory) -> None:
+    async def test_raw_response_add_batch(self, async_client: AsyncPapr) -> None:
         response = await async_client.memory.with_raw_response.add_batch(
             memories=[
                 {"content": "Meeting notes from the product planning session"},
@@ -782,7 +782,7 @@ class TestAsyncMemory:
 
     @pytest.mark.skip()
     @parametrize
-    async def test_streaming_response_add_batch(self, async_client: AsyncPaprMemory) -> None:
+    async def test_streaming_response_add_batch(self, async_client: AsyncPapr) -> None:
         async with async_client.memory.with_streaming_response.add_batch(
             memories=[
                 {"content": "Meeting notes from the product planning session"},
@@ -799,7 +799,7 @@ class TestAsyncMemory:
 
     @pytest.mark.skip()
     @parametrize
-    async def test_method_get(self, async_client: AsyncPaprMemory) -> None:
+    async def test_method_get(self, async_client: AsyncPapr) -> None:
         memory = await async_client.memory.get(
             "memory_id",
         )
@@ -807,7 +807,7 @@ class TestAsyncMemory:
 
     @pytest.mark.skip()
     @parametrize
-    async def test_raw_response_get(self, async_client: AsyncPaprMemory) -> None:
+    async def test_raw_response_get(self, async_client: AsyncPapr) -> None:
         response = await async_client.memory.with_raw_response.get(
             "memory_id",
         )
@@ -819,7 +819,7 @@ class TestAsyncMemory:
 
     @pytest.mark.skip()
     @parametrize
-    async def test_streaming_response_get(self, async_client: AsyncPaprMemory) -> None:
+    async def test_streaming_response_get(self, async_client: AsyncPapr) -> None:
         async with async_client.memory.with_streaming_response.get(
             "memory_id",
         ) as response:
@@ -833,7 +833,7 @@ class TestAsyncMemory:
 
     @pytest.mark.skip()
     @parametrize
-    async def test_path_params_get(self, async_client: AsyncPaprMemory) -> None:
+    async def test_path_params_get(self, async_client: AsyncPapr) -> None:
         with pytest.raises(ValueError, match=r"Expected a non-empty value for `memory_id` but received ''"):
             await async_client.memory.with_raw_response.get(
                 "",
@@ -841,7 +841,7 @@ class TestAsyncMemory:
 
     @pytest.mark.skip()
     @parametrize
-    async def test_method_search(self, async_client: AsyncPaprMemory) -> None:
+    async def test_method_search(self, async_client: AsyncPapr) -> None:
         memory = await async_client.memory.search(
             query="Find recurring customer complaints about API performance from the last month. Focus on issues where customers specifically mentioned timeout errors or slow response times in their conversations.",
         )
@@ -849,7 +849,7 @@ class TestAsyncMemory:
 
     @pytest.mark.skip()
     @parametrize
-    async def test_method_search_with_all_params(self, async_client: AsyncPaprMemory) -> None:
+    async def test_method_search_with_all_params(self, async_client: AsyncPapr) -> None:
         memory = await async_client.memory.search(
             query="Find recurring customer complaints about API performance from the last month. Focus on issues where customers specifically mentioned timeout errors or slow response times in their conversations.",
             max_memories=1,
@@ -861,7 +861,7 @@ class TestAsyncMemory:
 
     @pytest.mark.skip()
     @parametrize
-    async def test_raw_response_search(self, async_client: AsyncPaprMemory) -> None:
+    async def test_raw_response_search(self, async_client: AsyncPapr) -> None:
         response = await async_client.memory.with_raw_response.search(
             query="Find recurring customer complaints about API performance from the last month. Focus on issues where customers specifically mentioned timeout errors or slow response times in their conversations.",
         )
@@ -873,7 +873,7 @@ class TestAsyncMemory:
 
     @pytest.mark.skip()
     @parametrize
-    async def test_streaming_response_search(self, async_client: AsyncPaprMemory) -> None:
+    async def test_streaming_response_search(self, async_client: AsyncPapr) -> None:
         async with async_client.memory.with_streaming_response.search(
             query="Find recurring customer complaints about API performance from the last month. Focus on issues where customers specifically mentioned timeout errors or slow response times in their conversations.",
         ) as response:
