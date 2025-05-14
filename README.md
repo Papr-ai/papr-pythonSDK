@@ -16,7 +16,7 @@ The REST API documentation can be found on [platform.papr.ai](https://platform.p
 
 ```sh
 # install from PyPI
-pip install --pre papr_memory
+pip install papr_memory
 ```
 
 ## Usage
