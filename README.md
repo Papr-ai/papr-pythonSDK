@@ -1,6 +1,6 @@
 # Papr Python API library
 
-[![PyPI version](https://img.shields.io/pypi/v/papr-memory.svg)](https://pypi.org/project/papr-memory/)
+[![PyPI version](https://img.shields.io/pypi/v/papr_memory.svg)](https://pypi.org/project/papr_memory/)
 
 The Papr Python library provides convenient access to the Papr REST API from any Python 3.8+
 application. The library includes type definitions for all request params and response fields,
@@ -16,7 +16,7 @@ The REST API documentation can be found on [platform.papr.ai](https://platform.p
 
 ```sh
 # install from PyPI
-pip install papr-memory
+pip install papr_memory
 ```
 
 ## Usage
