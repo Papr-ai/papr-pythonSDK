@@ -26,7 +26,7 @@ from papr_memory._types import Omit
 from papr_memory._utils import maybe_transform
 from papr_memory._models import BaseModel, FinalRequestOptions
 from papr_memory._constants import RAW_RESPONSE_HEADER
-from papr_memory._exceptions import APIStatusError, APITimeoutError, APIResponseValidationError
+from papr_memory._exceptions import PaprError, APIStatusError, APITimeoutError, APIResponseValidationError
 from papr_memory._base_client import (
     DEFAULT_TIMEOUT,
     HTTPX_DEFAULT_TIMEOUT,
@@ -333,17 +333,10 @@ class TestPapr:
         request = client._build_request(FinalRequestOptions(method="get", url="/foo"))
         assert request.headers.get("X-API-Key") == api_key
 
-        with update_env(**{"PAPR_MEMORY_API_KEY": Omit()}):
-            client2 = Papr(base_url=base_url, api_key=None, _strict_response_validation=True)
-
-        with pytest.raises(
-            TypeError,
-            match="Could not resolve authentication method. Expected either api_key or bearer_token to be set. Or for one of the `X-API-Key` or `Authorization` headers to be explicitly omitted",
-        ):
-            client2._build_request(FinalRequestOptions(method="get", url="/foo"))
-
-        request2 = client2._build_request(FinalRequestOptions(method="get", url="/foo", headers={"X-API-Key": Omit()}))
-        assert request2.headers.get("X-API-Key") is None
+        with pytest.raises(PaprError):
+            with update_env(**{"PAPR_MEMORY_API_KEY": Omit()}):
+                client2 = Papr(base_url=base_url, api_key=None, _strict_response_validation=True)
+            _ = client2
 
     def test_default_query_option(self) -> None:
         client = Papr(
@@ -1104,17 +1097,10 @@ class TestAsyncPapr:
         request = client._build_request(FinalRequestOptions(method="get", url="/foo"))
         assert request.headers.get("X-API-Key") == api_key
 
-        with update_env(**{"PAPR_MEMORY_API_KEY": Omit()}):
-            client2 = AsyncPapr(base_url=base_url, api_key=None, _strict_response_validation=True)
-
-        with pytest.raises(
-            TypeError,
-            match="Could not resolve authentication method. Expected either api_key or bearer_token to be set. Or for one of the `X-API-Key` or `Authorization` headers to be explicitly omitted",
-        ):
-            client2._build_request(FinalRequestOptions(method="get", url="/foo"))
-
-        request2 = client2._build_request(FinalRequestOptions(method="get", url="/foo", headers={"X-API-Key": Omit()}))
-        assert request2.headers.get("X-API-Key") is None
+        with pytest.raises(PaprError):
+            with update_env(**{"PAPR_MEMORY_API_KEY": Omit()}):
+                client2 = AsyncPapr(base_url=base_url, api_key=None, _strict_response_validation=True)
+            _ = client2
 
     def test_default_query_option(self) -> None:
         client = AsyncPapr(
