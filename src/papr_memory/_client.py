@@ -93,7 +93,7 @@ class Papr(SyncAPIClient):
         if base_url is None:
             base_url = os.environ.get("PAPR_BASE_URL")
         if base_url is None:
-            base_url = f"https://api.example.com"
+            base_url = f"https://memory.papr.ai"
 
         super().__init__(
             version=__version__,
@@ -288,7 +288,7 @@ class AsyncPapr(AsyncAPIClient):
         if base_url is None:
             base_url = os.environ.get("PAPR_BASE_URL")
         if base_url is None:
-            base_url = f"https://api.example.com"
+            base_url = f"https://memory.papr.ai"
 
         super().__init__(
             version=__version__,
