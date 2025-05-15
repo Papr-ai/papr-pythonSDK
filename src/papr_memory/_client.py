@@ -13,7 +13,6 @@ from ._qs import Querystring
 from ._types import (
     NOT_GIVEN,
     Omit,
-    Headers,
     Timeout,
     NotGiven,
     Transport,
@@ -24,7 +23,7 @@ from ._utils import is_given, get_async_library
 from ._version import __version__
 from .resources import user, memory, document
 from ._streaming import Stream as Stream, AsyncStream as AsyncStream
-from ._exceptions import APIStatusError
+from ._exceptions import PaprError, APIStatusError
 from ._base_client import (
     DEFAULT_MAX_RETRIES,
     SyncAPIClient,
@@ -42,7 +41,7 @@ class Papr(SyncAPIClient):
     with_streaming_response: PaprWithStreamedResponse
 
     # client options
-    api_key: str | None
+    api_key: str
     bearer_token: str | None
 
     def __init__(
@@ -77,6 +76,10 @@ class Papr(SyncAPIClient):
         """
         if api_key is None:
             api_key = os.environ.get("PAPR_MEMORY_API_KEY")
+        if api_key is None:
+            raise PaprError(
+                "The api_key client option must be set either by passing api_key to the client or by setting the PAPR_MEMORY_API_KEY environment variable"
+            )
         self.api_key = api_key
 
         if bearer_token is None:
@@ -118,8 +121,6 @@ class Papr(SyncAPIClient):
     @property
     def _api_key_header(self) -> dict[str, str]:
         api_key = self.api_key
-        if api_key is None:
-            return {}
         return {"X-API-Key": api_key}
 
     @property
@@ -137,22 +138,6 @@ class Papr(SyncAPIClient):
             "X-Stainless-Async": "false",
             **self._custom_headers,
         }
-
-    @override
-    def _validate_headers(self, headers: Headers, custom_headers: Headers) -> None:
-        if self.api_key and headers.get("X-API-Key"):
-            return
-        if isinstance(custom_headers.get("X-API-Key"), Omit):
-            return
-
-        if self.bearer_token and headers.get("Authorization"):
-            return
-        if isinstance(custom_headers.get("Authorization"), Omit):
-            return
-
-        raise TypeError(
-            '"Could not resolve authentication method. Expected either api_key or bearer_token to be set. Or for one of the `X-API-Key` or `Authorization` headers to be explicitly omitted"'
-        )
 
     def copy(
         self,
@@ -249,7 +234,7 @@ class AsyncPapr(AsyncAPIClient):
     with_streaming_response: AsyncPaprWithStreamedResponse
 
     # client options
-    api_key: str | None
+    api_key: str
     bearer_token: str | None
 
     def __init__(
@@ -284,6 +269,10 @@ class AsyncPapr(AsyncAPIClient):
         """
         if api_key is None:
             api_key = os.environ.get("PAPR_MEMORY_API_KEY")
+        if api_key is None:
+            raise PaprError(
+                "The api_key client option must be set either by passing api_key to the client or by setting the PAPR_MEMORY_API_KEY environment variable"
+            )
         self.api_key = api_key
 
         if bearer_token is None:
@@ -325,8 +314,6 @@ class AsyncPapr(AsyncAPIClient):
     @property
     def _api_key_header(self) -> dict[str, str]:
         api_key = self.api_key
-        if api_key is None:
-            return {}
         return {"X-API-Key": api_key}
 
     @property
@@ -344,22 +331,6 @@ class AsyncPapr(AsyncAPIClient):
             "X-Stainless-Async": f"async:{get_async_library()}",
             **self._custom_headers,
         }
-
-    @override
-    def _validate_headers(self, headers: Headers, custom_headers: Headers) -> None:
-        if self.api_key and headers.get("X-API-Key"):
-            return
-        if isinstance(custom_headers.get("X-API-Key"), Omit):
-            return
-
-        if self.bearer_token and headers.get("Authorization"):
-            return
-        if isinstance(custom_headers.get("Authorization"), Omit):
-            return
-
-        raise TypeError(
-            '"Could not resolve authentication method. Expected either api_key or bearer_token to be set. Or for one of the `X-API-Key` or `Authorization` headers to be explicitly omitted"'
-        )
 
     def copy(
         self,
