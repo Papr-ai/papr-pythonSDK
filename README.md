@@ -29,9 +29,6 @@ from papr_memory import Papr
 
 client = Papr(
     api_key=os.environ.get("PAPR_MEMORY_API_KEY"),  # This is the default and can be omitted
-    bearer_token=os.environ.get(
-        "PAPR_MEMORY_BEARER_TOKEN"
-    ),  # This is the default and can be omitted
 )
 
 user_response = client.user.create(
@@ -56,9 +53,6 @@ from papr_memory import AsyncPapr
 
 client = AsyncPapr(
     api_key=os.environ.get("PAPR_MEMORY_API_KEY"),  # This is the default and can be omitted
-    bearer_token=os.environ.get(
-        "PAPR_MEMORY_BEARER_TOKEN"
-    ),  # This is the default and can be omitted
 )
 
 
@@ -97,7 +91,7 @@ memory = client.memory.update(
     metadata={
         "conversation_id": "conversationId",
         "created_at": "createdAt",
-        "emoji_tags": "ðŸ“Š,ðŸ’¡,ðŸ“,âœ¨",
+        "emoji_tags": "📊,💡,📝,✨",
         "emotion_tags": "focused, productive, satisfied",
         "hierarchical_structures": "hierarchical_structures",
         "location": "location",

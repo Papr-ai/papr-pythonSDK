@@ -375,17 +375,12 @@ class TestPapr:
         client = Papr(base_url=base_url, api_key=api_key, bearer_token=bearer_token, _strict_response_validation=True)
         request = client._build_request(FinalRequestOptions(method="get", url="/foo"))
         assert request.headers.get("X-API-Key") == api_key
-        request = client._build_request(FinalRequestOptions(method="get", url="/foo"))
-        assert request.headers.get("Authorization") == f"Bearer {bearer_token}"
 
         with pytest.raises(PaprError):
-            with update_env(
-                **{
-                    "PAPR_MEMORY_API_KEY": Omit(),
-                    "PAPR_MEMORY_BEARER_TOKEN": Omit(),
-                }
-            ):
-                client2 = Papr(base_url=base_url, api_key=None, bearer_token=None, _strict_response_validation=True)
+            with update_env(**{"PAPR_MEMORY_API_KEY": Omit()}):
+                client2 = Papr(
+                    base_url=base_url, api_key=None, bearer_token=bearer_token, _strict_response_validation=True
+                )
             _ = client2
 
     def test_default_query_option(self) -> None:
@@ -1217,18 +1212,11 @@ class TestAsyncPapr:
         )
         request = client._build_request(FinalRequestOptions(method="get", url="/foo"))
         assert request.headers.get("X-API-Key") == api_key
-        request = client._build_request(FinalRequestOptions(method="get", url="/foo"))
-        assert request.headers.get("Authorization") == f"Bearer {bearer_token}"
 
         with pytest.raises(PaprError):
-            with update_env(
-                **{
-                    "PAPR_MEMORY_API_KEY": Omit(),
-                    "PAPR_MEMORY_BEARER_TOKEN": Omit(),
-                }
-            ):
+            with update_env(**{"PAPR_MEMORY_API_KEY": Omit()}):
                 client2 = AsyncPapr(
-                    base_url=base_url, api_key=None, bearer_token=None, _strict_response_validation=True
+                    base_url=base_url, api_key=None, bearer_token=bearer_token, _strict_response_validation=True
                 )
             _ = client2
 
