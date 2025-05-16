@@ -1,5 +1,13 @@
 # Changelog
 
+## 2.3.1 (2025-05-16)
+
+Full Changelog: [v2.3.0...v2.3.1](https://github.com/Papr-ai/papr-pythonSDK/compare/v2.3.0...v2.3.1)
+
+### Chores
+
+* **ci:** fix installation instructions ([a603af0](https://github.com/Papr-ai/papr-pythonSDK/commit/a603af04ae32f18947e815ebac9b7d0d2d8e9a37))
+
 ## 2.3.0 (2025-05-15)
 
 Full Changelog: [v2.2.0...v2.3.0](https://github.com/Papr-ai/papr-pythonSDK/compare/v2.2.0...v2.3.0)
