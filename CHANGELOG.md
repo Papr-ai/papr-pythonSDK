@@ -1,5 +1,21 @@
 # Changelog
 
+## 2.4.0 (2025-06-03)
+
+Full Changelog: [v2.3.0...v2.4.0](https://github.com/Papr-ai/papr-pythonSDK/compare/v2.3.0...v2.4.0)
+
+### Features
+
+* **client:** add follow_redirects request option ([4577c2e](https://github.com/Papr-ai/papr-pythonSDK/commit/4577c2e8287c951b898750a9ced105509aba7932))
+
+
+### Chores
+
+* **ci:** fix installation instructions ([a603af0](https://github.com/Papr-ai/papr-pythonSDK/commit/a603af04ae32f18947e815ebac9b7d0d2d8e9a37))
+* **docs:** grammar improvements ([dffdbe6](https://github.com/Papr-ai/papr-pythonSDK/commit/dffdbe6b3113736f9ce175956d2bc1875c97d5bf))
+* **docs:** remove reference to rye shell ([581d32b](https://github.com/Papr-ai/papr-pythonSDK/commit/581d32ba64ba96b359edb40cc85842b3eb0c9048))
+* **docs:** remove unnecessary param examples ([e37fd8c](https://github.com/Papr-ai/papr-pythonSDK/commit/e37fd8c11691838dcb3aee45865afcde0df5432e))
+
 ## 2.3.0 (2025-05-15)
 
 Full Changelog: [v2.2.0...v2.3.0](https://github.com/Papr-ai/papr-pythonSDK/compare/v2.2.0...v2.3.0)
