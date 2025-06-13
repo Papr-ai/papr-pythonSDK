@@ -16,14 +16,6 @@ from .memory import (
     MemoryResourceWithStreamingResponse,
     AsyncMemoryResourceWithStreamingResponse,
 )
-from .document import (
-    DocumentResource,
-    AsyncDocumentResource,
-    DocumentResourceWithRawResponse,
-    AsyncDocumentResourceWithRawResponse,
-    DocumentResourceWithStreamingResponse,
-    AsyncDocumentResourceWithStreamingResponse,
-)
 
 __all__ = [
     "UserResource",
@@ -38,10 +30,4 @@ __all__ = [
     "AsyncMemoryResourceWithRawResponse",
     "MemoryResourceWithStreamingResponse",
     "AsyncMemoryResourceWithStreamingResponse",
-    "DocumentResource",
-    "AsyncDocumentResource",
-    "DocumentResourceWithRawResponse",
-    "AsyncDocumentResourceWithRawResponse",
-    "DocumentResourceWithStreamingResponse",
-    "AsyncDocumentResourceWithStreamingResponse",
 ]

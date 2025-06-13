@@ -89,9 +89,9 @@ client = Papr()
 memory = client.memory.update(
     memory_id="memory_id",
     metadata={
-        "emoji_tags": "📊,💡,📝,✨",
-        "emotion_tags": "focused, productive, satisfied",
-        "topics": "product, planning, updates",
+        "emoji_tags": ["string"],
+        "emotion_tags": ["string"],
+        "topics": ["string"],
     },
 )
 print(memory.metadata)

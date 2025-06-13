@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from typing import Optional
+from typing import Dict, Optional
 
 import httpx
 
@@ -51,7 +51,7 @@ class UserResource(SyncAPIResource):
         *,
         external_id: str,
         email: Optional[str] | NotGiven = NOT_GIVEN,
-        metadata: Optional[object] | NotGiven = NOT_GIVEN,
+        metadata: Optional[Dict[str, object]] | NotGiven = NOT_GIVEN,
         type: UserType | NotGiven = NOT_GIVEN,
         # Use the following arguments if you need to pass additional parameters to the API that aren't available via kwargs.
         # The extra values given here take precedence over values defined on the client or passed to this method.
@@ -95,7 +95,7 @@ class UserResource(SyncAPIResource):
         *,
         email: Optional[str] | NotGiven = NOT_GIVEN,
         external_id: Optional[str] | NotGiven = NOT_GIVEN,
-        metadata: Optional[object] | NotGiven = NOT_GIVEN,
+        metadata: Optional[Dict[str, object]] | NotGiven = NOT_GIVEN,
         type: Optional[UserType] | NotGiven = NOT_GIVEN,
         # Use the following arguments if you need to pass additional parameters to the API that aren't available via kwargs.
         # The extra values given here take precedence over values defined on the client or passed to this method.
@@ -193,8 +193,8 @@ class UserResource(SyncAPIResource):
         timeout: float | httpx.Timeout | None | NotGiven = NOT_GIVEN,
     ) -> UserDeleteResponse:
         """
-        Delete user association with developer and the user itself by user_id
-        (\\__User.objectId)
+        Delete user association with developer and the user itself by , assume external
+        user_id is provided, and resolve to internal user_id (\\__User.objectId)
 
         Args:
           extra_headers: Send extra headers
@@ -274,7 +274,7 @@ class AsyncUserResource(AsyncAPIResource):
         *,
         external_id: str,
         email: Optional[str] | NotGiven = NOT_GIVEN,
-        metadata: Optional[object] | NotGiven = NOT_GIVEN,
+        metadata: Optional[Dict[str, object]] | NotGiven = NOT_GIVEN,
         type: UserType | NotGiven = NOT_GIVEN,
         # Use the following arguments if you need to pass additional parameters to the API that aren't available via kwargs.
         # The extra values given here take precedence over values defined on the client or passed to this method.
@@ -318,7 +318,7 @@ class AsyncUserResource(AsyncAPIResource):
         *,
         email: Optional[str] | NotGiven = NOT_GIVEN,
         external_id: Optional[str] | NotGiven = NOT_GIVEN,
-        metadata: Optional[object] | NotGiven = NOT_GIVEN,
+        metadata: Optional[Dict[str, object]] | NotGiven = NOT_GIVEN,
         type: Optional[UserType] | NotGiven = NOT_GIVEN,
         # Use the following arguments if you need to pass additional parameters to the API that aren't available via kwargs.
         # The extra values given here take precedence over values defined on the client or passed to this method.
@@ -416,8 +416,8 @@ class AsyncUserResource(AsyncAPIResource):
         timeout: float | httpx.Timeout | None | NotGiven = NOT_GIVEN,
     ) -> UserDeleteResponse:
         """
-        Delete user association with developer and the user itself by user_id
-        (\\__User.objectId)
+        Delete user association with developer and the user itself by , assume external
+        user_id is provided, and resolve to internal user_id (\\__User.objectId)
 
         Args:
           extra_headers: Send extra headers
