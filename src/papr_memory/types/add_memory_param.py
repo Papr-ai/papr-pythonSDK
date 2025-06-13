@@ -17,6 +17,9 @@ class AddMemoryParam(TypedDict, total=False):
     content: Required[str]
     """The content of the memory item you want to add to memory"""
 
+    type: Required[MemoryType]
+    """Valid memory types"""
+
     context: Optional[Iterable[ContextItemParam]]
     """Context can be conversation history or any relevant context for a memory item"""
 
@@ -25,6 +28,3 @@ class AddMemoryParam(TypedDict, total=False):
 
     relationships_json: Optional[Iterable[RelationshipItemParam]]
     """Array of relationships that we can use in Graph DB (neo4J)"""
-
-    type: MemoryType
-    """Content type of the memory item"""

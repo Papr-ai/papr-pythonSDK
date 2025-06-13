@@ -50,17 +50,24 @@ class TestMemory:
             metadata={
                 "conversation_id": "conversationId",
                 "created_at": "createdAt",
-                "emoji_tags": "📊,💡,📝,✨",
-                "emotion_tags": "focused, productive, satisfied",
+                "custom_metadata": {"foo": "string"},
+                "emoji_tags": ["string"],
+                "emotion_tags": ["string"],
+                "external_user_id": "external_user_id",
+                "external_user_read_access": ["string"],
+                "external_user_write_access": ["string"],
                 "hierarchical_structures": "hierarchical_structures",
                 "location": "location",
+                "page_id": "pageId",
                 "role_read_access": ["string"],
                 "role_write_access": ["string"],
+                "source_type": "sourceType",
                 "source_url": "sourceUrl",
-                "topics": "product, planning, updates",
+                "topics": ["string"],
                 "user_id": "user_id",
                 "user_read_access": ["string"],
                 "user_write_access": ["string"],
+                "workspace_id": "workspace_id",
                 "workspace_read_access": ["string"],
                 "workspace_write_access": ["string"],
             },
@@ -69,7 +76,7 @@ class TestMemory:
                     "related_item_id": "previous_memory_item_id",
                     "related_item_type": "TextMemoryItem",
                     "relation_type": "updates",
-                    "metadata": {"relevance": "high"},
+                    "metadata": {"relevance": "bar"},
                 }
             ],
             type="text",
@@ -166,6 +173,7 @@ class TestMemory:
     def test_method_add(self, client: Papr) -> None:
         memory = client.memory.add(
             content="Meeting notes from the product planning session",
+            type="text",
         )
         assert_matches_type(AddMemoryResponse, memory, path=["response"])
 
@@ -174,6 +182,7 @@ class TestMemory:
     def test_method_add_with_all_params(self, client: Papr) -> None:
         memory = client.memory.add(
             content="Meeting notes from the product planning session",
+            type="text",
             skip_background_processing=True,
             context=[
                 {
@@ -188,17 +197,24 @@ class TestMemory:
             metadata={
                 "conversation_id": "conv-123",
                 "created_at": "2024-03-21T10:00:00Z",
-                "emoji_tags": "📊,💡,📝",
-                "emotion_tags": "focused, productive",
-                "hierarchical_structures": "hierarchical_structures",
+                "custom_metadata": {"foo": "string"},
+                "emoji_tags": ["string"],
+                "emotion_tags": ["string"],
+                "external_user_id": "external_user_123",
+                "external_user_read_access": ["external_user_123", "external_user_789"],
+                "external_user_write_access": ["external_user_123"],
+                "hierarchical_structures": "Business/Planning/Product",
                 "location": "Conference Room A",
+                "page_id": "pageId",
                 "role_read_access": ["string"],
                 "role_write_access": ["string"],
+                "source_type": "sourceType",
                 "source_url": "https://meeting-notes.example.com/123",
-                "topics": "product, planning",
+                "topics": ["string"],
                 "user_id": "user_id",
                 "user_read_access": ["string"],
                 "user_write_access": ["string"],
+                "workspace_id": "workspace_id",
                 "workspace_read_access": ["string"],
                 "workspace_write_access": ["string"],
             },
@@ -207,10 +223,9 @@ class TestMemory:
                     "related_item_id": "previous_memory_item_id",
                     "related_item_type": "TextMemoryItem",
                     "relation_type": "follows",
-                    "metadata": {"relevance": "high"},
+                    "metadata": {"relevance": "bar"},
                 }
             ],
-            type="text",
         )
         assert_matches_type(AddMemoryResponse, memory, path=["response"])
 
@@ -219,6 +234,7 @@ class TestMemory:
     def test_raw_response_add(self, client: Papr) -> None:
         response = client.memory.with_raw_response.add(
             content="Meeting notes from the product planning session",
+            type="text",
         )
 
         assert response.is_closed is True
@@ -231,6 +247,7 @@ class TestMemory:
     def test_streaming_response_add(self, client: Papr) -> None:
         with client.memory.with_streaming_response.add(
             content="Meeting notes from the product planning session",
+            type="text",
         ) as response:
             assert not response.is_closed
             assert response.http_request.headers.get("X-Stainless-Lang") == "python"
@@ -245,8 +262,14 @@ class TestMemory:
     def test_method_add_batch(self, client: Papr) -> None:
         memory = client.memory.add_batch(
             memories=[
-                {"content": "Meeting notes from the product planning session"},
-                {"content": "Follow-up tasks from the planning meeting"},
+                {
+                    "content": "Meeting notes from the product planning session",
+                    "type": "text",
+                },
+                {
+                    "content": "Follow-up tasks from the planning meeting",
+                    "type": "text",
+                },
             ],
         )
         assert_matches_type(MemoryAddBatchResponse, memory, path=["response"])
@@ -258,6 +281,7 @@ class TestMemory:
             memories=[
                 {
                     "content": "Meeting notes from the product planning session",
+                    "type": "text",
                     "context": [
                         {
                             "content": "content",
@@ -267,17 +291,24 @@ class TestMemory:
                     "metadata": {
                         "conversation_id": "conversationId",
                         "created_at": "2024-03-21T10:00:00Z",
-                        "emoji_tags": "📊,💡,📝",
-                        "emotion_tags": "focused, productive",
+                        "custom_metadata": {"foo": "string"},
+                        "emoji_tags": ["string"],
+                        "emotion_tags": ["string"],
+                        "external_user_id": "external_user_id",
+                        "external_user_read_access": ["string"],
+                        "external_user_write_access": ["string"],
                         "hierarchical_structures": "hierarchical_structures",
                         "location": "location",
+                        "page_id": "pageId",
                         "role_read_access": ["string"],
                         "role_write_access": ["string"],
+                        "source_type": "sourceType",
                         "source_url": "sourceUrl",
-                        "topics": "product, planning",
+                        "topics": ["string"],
                         "user_id": "user_id",
                         "user_read_access": ["string"],
                         "user_write_access": ["string"],
+                        "workspace_id": "workspace_id",
                         "workspace_read_access": ["string"],
                         "workspace_write_access": ["string"],
                     },
@@ -286,13 +317,13 @@ class TestMemory:
                             "related_item_id": "TextMemoryItem",
                             "related_item_type": "TextMemoryItem",
                             "relation_type": "relation_type",
-                            "metadata": {},
+                            "metadata": {"foo": "bar"},
                         }
                     ],
-                    "type": "text",
                 },
                 {
                     "content": "Follow-up tasks from the planning meeting",
+                    "type": "text",
                     "context": [
                         {
                             "content": "content",
@@ -302,17 +333,24 @@ class TestMemory:
                     "metadata": {
                         "conversation_id": "conversationId",
                         "created_at": "2024-03-21T11:00:00Z",
-                        "emoji_tags": "✅,📋",
-                        "emotion_tags": "organized",
+                        "custom_metadata": {"foo": "string"},
+                        "emoji_tags": ["string"],
+                        "emotion_tags": ["string"],
+                        "external_user_id": "external_user_id",
+                        "external_user_read_access": ["string"],
+                        "external_user_write_access": ["string"],
                         "hierarchical_structures": "hierarchical_structures",
                         "location": "location",
+                        "page_id": "pageId",
                         "role_read_access": ["string"],
                         "role_write_access": ["string"],
+                        "source_type": "sourceType",
                         "source_url": "sourceUrl",
-                        "topics": "tasks, planning",
+                        "topics": ["string"],
                         "user_id": "user_id",
                         "user_read_access": ["string"],
                         "user_write_access": ["string"],
+                        "workspace_id": "workspace_id",
                         "workspace_read_access": ["string"],
                         "workspace_write_access": ["string"],
                     },
@@ -321,14 +359,15 @@ class TestMemory:
                             "related_item_id": "TextMemoryItem",
                             "related_item_type": "TextMemoryItem",
                             "relation_type": "relation_type",
-                            "metadata": {},
+                            "metadata": {"foo": "bar"},
                         }
                     ],
-                    "type": "text",
                 },
             ],
             skip_background_processing=True,
             batch_size=10,
+            external_user_id="external_user_abcde",
+            user_id="internal_user_id_12345",
         )
         assert_matches_type(MemoryAddBatchResponse, memory, path=["response"])
 
@@ -337,8 +376,14 @@ class TestMemory:
     def test_raw_response_add_batch(self, client: Papr) -> None:
         response = client.memory.with_raw_response.add_batch(
             memories=[
-                {"content": "Meeting notes from the product planning session"},
-                {"content": "Follow-up tasks from the planning meeting"},
+                {
+                    "content": "Meeting notes from the product planning session",
+                    "type": "text",
+                },
+                {
+                    "content": "Follow-up tasks from the planning meeting",
+                    "type": "text",
+                },
             ],
         )
 
@@ -352,8 +397,14 @@ class TestMemory:
     def test_streaming_response_add_batch(self, client: Papr) -> None:
         with client.memory.with_streaming_response.add_batch(
             memories=[
-                {"content": "Meeting notes from the product planning session"},
-                {"content": "Follow-up tasks from the planning meeting"},
+                {
+                    "content": "Meeting notes from the product planning session",
+                    "type": "text",
+                },
+                {
+                    "content": "Follow-up tasks from the planning meeting",
+                    "type": "text",
+                },
             ],
         ) as response:
             assert not response.is_closed
@@ -410,7 +461,7 @@ class TestMemory:
     @parametrize
     def test_method_search(self, client: Papr) -> None:
         memory = client.memory.search(
-            query="Find recurring customer complaints about API performance from the last month. Focus on issues where customers specifically mentioned timeout errors or slow response times in their conversations.",
+            query="Find recurring customer complaints about API performance from the last month. Focus on issues that multiple customers have mentioned and any specific feature requests or workflow improvements they've suggested.",
         )
         assert_matches_type(SearchResponse, memory, path=["response"])
 
@@ -418,9 +469,34 @@ class TestMemory:
     @parametrize
     def test_method_search_with_all_params(self, client: Papr) -> None:
         memory = client.memory.search(
-            query="Find recurring customer complaints about API performance from the last month. Focus on issues where customers specifically mentioned timeout errors or slow response times in their conversations.",
+            query="Find recurring customer complaints about API performance from the last month. Focus on issues that multiple customers have mentioned and any specific feature requests or workflow improvements they've suggested.",
             max_memories=1,
             max_nodes=1,
+            external_user_id="external_abc",
+            metadata={
+                "conversation_id": "conversationId",
+                "created_at": "createdAt",
+                "custom_metadata": {"priority": "high"},
+                "emoji_tags": ["string"],
+                "emotion_tags": ["string"],
+                "external_user_id": "external_user_id",
+                "external_user_read_access": ["string"],
+                "external_user_write_access": ["string"],
+                "hierarchical_structures": "hierarchical_structures",
+                "location": "US",
+                "page_id": "pageId",
+                "role_read_access": ["string"],
+                "role_write_access": ["string"],
+                "source_type": "sourceType",
+                "source_url": "sourceUrl",
+                "topics": ["string"],
+                "user_id": "user_id",
+                "user_read_access": ["string"],
+                "user_write_access": ["string"],
+                "workspace_id": "workspace_id",
+                "workspace_read_access": ["string"],
+                "workspace_write_access": ["string"],
+            },
             rank_results=True,
             user_id="user123",
             accept_encoding="Accept-Encoding",
@@ -431,7 +507,7 @@ class TestMemory:
     @parametrize
     def test_raw_response_search(self, client: Papr) -> None:
         response = client.memory.with_raw_response.search(
-            query="Find recurring customer complaints about API performance from the last month. Focus on issues where customers specifically mentioned timeout errors or slow response times in their conversations.",
+            query="Find recurring customer complaints about API performance from the last month. Focus on issues that multiple customers have mentioned and any specific feature requests or workflow improvements they've suggested.",
         )
 
         assert response.is_closed is True
@@ -443,7 +519,7 @@ class TestMemory:
     @parametrize
     def test_streaming_response_search(self, client: Papr) -> None:
         with client.memory.with_streaming_response.search(
-            query="Find recurring customer complaints about API performance from the last month. Focus on issues where customers specifically mentioned timeout errors or slow response times in their conversations.",
+            query="Find recurring customer complaints about API performance from the last month. Focus on issues that multiple customers have mentioned and any specific feature requests or workflow improvements they've suggested.",
         ) as response:
             assert not response.is_closed
             assert response.http_request.headers.get("X-Stainless-Lang") == "python"
@@ -484,17 +560,24 @@ class TestAsyncMemory:
             metadata={
                 "conversation_id": "conversationId",
                 "created_at": "createdAt",
-                "emoji_tags": "📊,💡,📝,✨",
-                "emotion_tags": "focused, productive, satisfied",
+                "custom_metadata": {"foo": "string"},
+                "emoji_tags": ["string"],
+                "emotion_tags": ["string"],
+                "external_user_id": "external_user_id",
+                "external_user_read_access": ["string"],
+                "external_user_write_access": ["string"],
                 "hierarchical_structures": "hierarchical_structures",
                 "location": "location",
+                "page_id": "pageId",
                 "role_read_access": ["string"],
                 "role_write_access": ["string"],
+                "source_type": "sourceType",
                 "source_url": "sourceUrl",
-                "topics": "product, planning, updates",
+                "topics": ["string"],
                 "user_id": "user_id",
                 "user_read_access": ["string"],
                 "user_write_access": ["string"],
+                "workspace_id": "workspace_id",
                 "workspace_read_access": ["string"],
                 "workspace_write_access": ["string"],
             },
@@ -503,7 +586,7 @@ class TestAsyncMemory:
                     "related_item_id": "previous_memory_item_id",
                     "related_item_type": "TextMemoryItem",
                     "relation_type": "updates",
-                    "metadata": {"relevance": "high"},
+                    "metadata": {"relevance": "bar"},
                 }
             ],
             type="text",
@@ -600,6 +683,7 @@ class TestAsyncMemory:
     async def test_method_add(self, async_client: AsyncPapr) -> None:
         memory = await async_client.memory.add(
             content="Meeting notes from the product planning session",
+            type="text",
         )
         assert_matches_type(AddMemoryResponse, memory, path=["response"])
 
@@ -608,6 +692,7 @@ class TestAsyncMemory:
     async def test_method_add_with_all_params(self, async_client: AsyncPapr) -> None:
         memory = await async_client.memory.add(
             content="Meeting notes from the product planning session",
+            type="text",
             skip_background_processing=True,
             context=[
                 {
@@ -622,17 +707,24 @@ class TestAsyncMemory:
             metadata={
                 "conversation_id": "conv-123",
                 "created_at": "2024-03-21T10:00:00Z",
-                "emoji_tags": "📊,💡,📝",
-                "emotion_tags": "focused, productive",
-                "hierarchical_structures": "hierarchical_structures",
+                "custom_metadata": {"foo": "string"},
+                "emoji_tags": ["string"],
+                "emotion_tags": ["string"],
+                "external_user_id": "external_user_123",
+                "external_user_read_access": ["external_user_123", "external_user_789"],
+                "external_user_write_access": ["external_user_123"],
+                "hierarchical_structures": "Business/Planning/Product",
                 "location": "Conference Room A",
+                "page_id": "pageId",
                 "role_read_access": ["string"],
                 "role_write_access": ["string"],
+                "source_type": "sourceType",
                 "source_url": "https://meeting-notes.example.com/123",
-                "topics": "product, planning",
+                "topics": ["string"],
                 "user_id": "user_id",
                 "user_read_access": ["string"],
                 "user_write_access": ["string"],
+                "workspace_id": "workspace_id",
                 "workspace_read_access": ["string"],
                 "workspace_write_access": ["string"],
             },
@@ -641,10 +733,9 @@ class TestAsyncMemory:
                     "related_item_id": "previous_memory_item_id",
                     "related_item_type": "TextMemoryItem",
                     "relation_type": "follows",
-                    "metadata": {"relevance": "high"},
+                    "metadata": {"relevance": "bar"},
                 }
             ],
-            type="text",
         )
         assert_matches_type(AddMemoryResponse, memory, path=["response"])
 
@@ -653,6 +744,7 @@ class TestAsyncMemory:
     async def test_raw_response_add(self, async_client: AsyncPapr) -> None:
         response = await async_client.memory.with_raw_response.add(
             content="Meeting notes from the product planning session",
+            type="text",
         )
 
         assert response.is_closed is True
@@ -665,6 +757,7 @@ class TestAsyncMemory:
     async def test_streaming_response_add(self, async_client: AsyncPapr) -> None:
         async with async_client.memory.with_streaming_response.add(
             content="Meeting notes from the product planning session",
+            type="text",
         ) as response:
             assert not response.is_closed
             assert response.http_request.headers.get("X-Stainless-Lang") == "python"
@@ -679,8 +772,14 @@ class TestAsyncMemory:
     async def test_method_add_batch(self, async_client: AsyncPapr) -> None:
         memory = await async_client.memory.add_batch(
             memories=[
-                {"content": "Meeting notes from the product planning session"},
-                {"content": "Follow-up tasks from the planning meeting"},
+                {
+                    "content": "Meeting notes from the product planning session",
+                    "type": "text",
+                },
+                {
+                    "content": "Follow-up tasks from the planning meeting",
+                    "type": "text",
+                },
             ],
         )
         assert_matches_type(MemoryAddBatchResponse, memory, path=["response"])
@@ -692,6 +791,7 @@ class TestAsyncMemory:
             memories=[
                 {
                     "content": "Meeting notes from the product planning session",
+                    "type": "text",
                     "context": [
                         {
                             "content": "content",
@@ -701,17 +801,24 @@ class TestAsyncMemory:
                     "metadata": {
                         "conversation_id": "conversationId",
                         "created_at": "2024-03-21T10:00:00Z",
-                        "emoji_tags": "📊,💡,📝",
-                        "emotion_tags": "focused, productive",
+                        "custom_metadata": {"foo": "string"},
+                        "emoji_tags": ["string"],
+                        "emotion_tags": ["string"],
+                        "external_user_id": "external_user_id",
+                        "external_user_read_access": ["string"],
+                        "external_user_write_access": ["string"],
                         "hierarchical_structures": "hierarchical_structures",
                         "location": "location",
+                        "page_id": "pageId",
                         "role_read_access": ["string"],
                         "role_write_access": ["string"],
+                        "source_type": "sourceType",
                         "source_url": "sourceUrl",
-                        "topics": "product, planning",
+                        "topics": ["string"],
                         "user_id": "user_id",
                         "user_read_access": ["string"],
                         "user_write_access": ["string"],
+                        "workspace_id": "workspace_id",
                         "workspace_read_access": ["string"],
                         "workspace_write_access": ["string"],
                     },
@@ -720,13 +827,13 @@ class TestAsyncMemory:
                             "related_item_id": "TextMemoryItem",
                             "related_item_type": "TextMemoryItem",
                             "relation_type": "relation_type",
-                            "metadata": {},
+                            "metadata": {"foo": "bar"},
                         }
                     ],
-                    "type": "text",
                 },
                 {
                     "content": "Follow-up tasks from the planning meeting",
+                    "type": "text",
                     "context": [
                         {
                             "content": "content",
@@ -736,17 +843,24 @@ class TestAsyncMemory:
                     "metadata": {
                         "conversation_id": "conversationId",
                         "created_at": "2024-03-21T11:00:00Z",
-                        "emoji_tags": "✅,📋",
-                        "emotion_tags": "organized",
+                        "custom_metadata": {"foo": "string"},
+                        "emoji_tags": ["string"],
+                        "emotion_tags": ["string"],
+                        "external_user_id": "external_user_id",
+                        "external_user_read_access": ["string"],
+                        "external_user_write_access": ["string"],
                         "hierarchical_structures": "hierarchical_structures",
                         "location": "location",
+                        "page_id": "pageId",
                         "role_read_access": ["string"],
                         "role_write_access": ["string"],
+                        "source_type": "sourceType",
                         "source_url": "sourceUrl",
-                        "topics": "tasks, planning",
+                        "topics": ["string"],
                         "user_id": "user_id",
                         "user_read_access": ["string"],
                         "user_write_access": ["string"],
+                        "workspace_id": "workspace_id",
                         "workspace_read_access": ["string"],
                         "workspace_write_access": ["string"],
                     },
@@ -755,14 +869,15 @@ class TestAsyncMemory:
                             "related_item_id": "TextMemoryItem",
                             "related_item_type": "TextMemoryItem",
                             "relation_type": "relation_type",
-                            "metadata": {},
+                            "metadata": {"foo": "bar"},
                         }
                     ],
-                    "type": "text",
                 },
             ],
             skip_background_processing=True,
             batch_size=10,
+            external_user_id="external_user_abcde",
+            user_id="internal_user_id_12345",
         )
         assert_matches_type(MemoryAddBatchResponse, memory, path=["response"])
 
@@ -771,8 +886,14 @@ class TestAsyncMemory:
     async def test_raw_response_add_batch(self, async_client: AsyncPapr) -> None:
         response = await async_client.memory.with_raw_response.add_batch(
             memories=[
-                {"content": "Meeting notes from the product planning session"},
-                {"content": "Follow-up tasks from the planning meeting"},
+                {
+                    "content": "Meeting notes from the product planning session",
+                    "type": "text",
+                },
+                {
+                    "content": "Follow-up tasks from the planning meeting",
+                    "type": "text",
+                },
             ],
         )
 
@@ -786,8 +907,14 @@ class TestAsyncMemory:
     async def test_streaming_response_add_batch(self, async_client: AsyncPapr) -> None:
         async with async_client.memory.with_streaming_response.add_batch(
             memories=[
-                {"content": "Meeting notes from the product planning session"},
-                {"content": "Follow-up tasks from the planning meeting"},
+                {
+                    "content": "Meeting notes from the product planning session",
+                    "type": "text",
+                },
+                {
+                    "content": "Follow-up tasks from the planning meeting",
+                    "type": "text",
+                },
             ],
         ) as response:
             assert not response.is_closed
@@ -844,7 +971,7 @@ class TestAsyncMemory:
     @parametrize
     async def test_method_search(self, async_client: AsyncPapr) -> None:
         memory = await async_client.memory.search(
-            query="Find recurring customer complaints about API performance from the last month. Focus on issues where customers specifically mentioned timeout errors or slow response times in their conversations.",
+            query="Find recurring customer complaints about API performance from the last month. Focus on issues that multiple customers have mentioned and any specific feature requests or workflow improvements they've suggested.",
         )
         assert_matches_type(SearchResponse, memory, path=["response"])
 
@@ -852,9 +979,34 @@ class TestAsyncMemory:
     @parametrize
     async def test_method_search_with_all_params(self, async_client: AsyncPapr) -> None:
         memory = await async_client.memory.search(
-            query="Find recurring customer complaints about API performance from the last month. Focus on issues where customers specifically mentioned timeout errors or slow response times in their conversations.",
+            query="Find recurring customer complaints about API performance from the last month. Focus on issues that multiple customers have mentioned and any specific feature requests or workflow improvements they've suggested.",
             max_memories=1,
             max_nodes=1,
+            external_user_id="external_abc",
+            metadata={
+                "conversation_id": "conversationId",
+                "created_at": "createdAt",
+                "custom_metadata": {"priority": "high"},
+                "emoji_tags": ["string"],
+                "emotion_tags": ["string"],
+                "external_user_id": "external_user_id",
+                "external_user_read_access": ["string"],
+                "external_user_write_access": ["string"],
+                "hierarchical_structures": "hierarchical_structures",
+                "location": "US",
+                "page_id": "pageId",
+                "role_read_access": ["string"],
+                "role_write_access": ["string"],
+                "source_type": "sourceType",
+                "source_url": "sourceUrl",
+                "topics": ["string"],
+                "user_id": "user_id",
+                "user_read_access": ["string"],
+                "user_write_access": ["string"],
+                "workspace_id": "workspace_id",
+                "workspace_read_access": ["string"],
+                "workspace_write_access": ["string"],
+            },
             rank_results=True,
             user_id="user123",
             accept_encoding="Accept-Encoding",
@@ -865,7 +1017,7 @@ class TestAsyncMemory:
     @parametrize
     async def test_raw_response_search(self, async_client: AsyncPapr) -> None:
         response = await async_client.memory.with_raw_response.search(
-            query="Find recurring customer complaints about API performance from the last month. Focus on issues where customers specifically mentioned timeout errors or slow response times in their conversations.",
+            query="Find recurring customer complaints about API performance from the last month. Focus on issues that multiple customers have mentioned and any specific feature requests or workflow improvements they've suggested.",
         )
 
         assert response.is_closed is True
@@ -877,7 +1029,7 @@ class TestAsyncMemory:
     @parametrize
     async def test_streaming_response_search(self, async_client: AsyncPapr) -> None:
         async with async_client.memory.with_streaming_response.search(
-            query="Find recurring customer complaints about API performance from the last month. Focus on issues where customers specifically mentioned timeout errors or slow response times in their conversations.",
+            query="Find recurring customer complaints about API performance from the last month. Focus on issues that multiple customers have mentioned and any specific feature requests or workflow improvements they've suggested.",
         ) as response:
             assert not response.is_closed
             assert response.http_request.headers.get("X-Stainless-Lang") == "python"

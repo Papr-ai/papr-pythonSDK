@@ -47,9 +47,5 @@ Methods:
 Types:
 
 ```python
-from papr_memory.types import AddMemoryItem, DocumentUploadResponse
+from papr_memory.types import AddMemoryItem
 ```
-
-Methods:
-
-- <code title="post /v1/document">client.document.<a href="./src/papr_memory/resources/document.py">upload</a>(\*\*<a href="src/papr_memory/types/document_upload_params.py">params</a>) -> <a href="./src/papr_memory/types/document_upload_response.py">DocumentUploadResponse</a></code>

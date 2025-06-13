@@ -19,3 +19,15 @@ class MemoryAddBatchParams(TypedDict, total=False):
 
     batch_size: Optional[int]
     """Number of items to process in parallel"""
+
+    external_user_id: Optional[str]
+    """External user ID for all memories in the batch.
+
+    If provided and user_id is not, will be resolved to internal user ID.
+    """
+
+    user_id: Optional[str]
+    """Internal user ID for all memories in the batch.
+
+    If not provided, developer's user ID will be used.
+    """

@@ -21,7 +21,7 @@ from ._types import (
 )
 from ._utils import is_given, get_async_library
 from ._version import __version__
-from .resources import user, memory, document
+from .resources import user, memory
 from ._streaming import Stream as Stream, AsyncStream as AsyncStream
 from ._exceptions import PaprError, APIStatusError
 from ._base_client import (
@@ -36,7 +36,6 @@ __all__ = ["Timeout", "Transport", "ProxiesTypes", "RequestOptions", "Papr", "As
 class Papr(SyncAPIClient):
     user: user.UserResource
     memory: memory.MemoryResource
-    document: document.DocumentResource
     with_raw_response: PaprWithRawResponse
     with_streaming_response: PaprWithStreamedResponse
 
@@ -104,7 +103,6 @@ class Papr(SyncAPIClient):
 
         self.user = user.UserResource(self)
         self.memory = memory.MemoryResource(self)
-        self.document = document.DocumentResource(self)
         self.with_raw_response = PaprWithRawResponse(self)
         self.with_streaming_response = PaprWithStreamedResponse(self)
 
@@ -229,7 +227,6 @@ class Papr(SyncAPIClient):
 class AsyncPapr(AsyncAPIClient):
     user: user.AsyncUserResource
     memory: memory.AsyncMemoryResource
-    document: document.AsyncDocumentResource
     with_raw_response: AsyncPaprWithRawResponse
     with_streaming_response: AsyncPaprWithStreamedResponse
 
@@ -297,7 +294,6 @@ class AsyncPapr(AsyncAPIClient):
 
         self.user = user.AsyncUserResource(self)
         self.memory = memory.AsyncMemoryResource(self)
-        self.document = document.AsyncDocumentResource(self)
         self.with_raw_response = AsyncPaprWithRawResponse(self)
         self.with_streaming_response = AsyncPaprWithStreamedResponse(self)
 
@@ -423,28 +419,24 @@ class PaprWithRawResponse:
     def __init__(self, client: Papr) -> None:
         self.user = user.UserResourceWithRawResponse(client.user)
         self.memory = memory.MemoryResourceWithRawResponse(client.memory)
-        self.document = document.DocumentResourceWithRawResponse(client.document)
 
 
 class AsyncPaprWithRawResponse:
     def __init__(self, client: AsyncPapr) -> None:
         self.user = user.AsyncUserResourceWithRawResponse(client.user)
         self.memory = memory.AsyncMemoryResourceWithRawResponse(client.memory)
-        self.document = document.AsyncDocumentResourceWithRawResponse(client.document)
 
 
 class PaprWithStreamedResponse:
     def __init__(self, client: Papr) -> None:
         self.user = user.UserResourceWithStreamingResponse(client.user)
         self.memory = memory.MemoryResourceWithStreamingResponse(client.memory)
-        self.document = document.DocumentResourceWithStreamingResponse(client.document)
 
 
 class AsyncPaprWithStreamedResponse:
     def __init__(self, client: AsyncPapr) -> None:
         self.user = user.AsyncUserResourceWithStreamingResponse(client.user)
         self.memory = memory.AsyncMemoryResourceWithStreamingResponse(client.memory)
-        self.document = document.AsyncDocumentResourceWithStreamingResponse(client.document)
 
 
 Client = Papr

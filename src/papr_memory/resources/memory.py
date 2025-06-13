@@ -182,11 +182,11 @@ class MemoryResource(SyncAPIResource):
         self,
         *,
         content: str,
+        type: MemoryType,
         skip_background_processing: bool | NotGiven = NOT_GIVEN,
         context: Optional[Iterable[ContextItemParam]] | NotGiven = NOT_GIVEN,
         metadata: Optional[MemoryMetadataParam] | NotGiven = NOT_GIVEN,
         relationships_json: Optional[Iterable[RelationshipItemParam]] | NotGiven = NOT_GIVEN,
-        type: MemoryType | NotGiven = NOT_GIVEN,
         # Use the following arguments if you need to pass additional parameters to the API that aren't available via kwargs.
         # The extra values given here take precedence over values defined on the client or passed to this method.
         extra_headers: Headers | None = None,
@@ -213,6 +213,8 @@ class MemoryResource(SyncAPIResource):
         Args:
           content: The content of the memory item you want to add to memory
 
+          type: Valid memory types
+
           skip_background_processing: If True, skips adding background tasks for processing
 
           context: Context can be conversation history or any relevant context for a memory item
@@ -220,8 +222,6 @@ class MemoryResource(SyncAPIResource):
           metadata: Metadata for memory request
 
           relationships_json: Array of relationships that we can use in Graph DB (neo4J)
-
-          type: Content type of the memory item
 
           extra_headers: Send extra headers
 
@@ -236,10 +236,10 @@ class MemoryResource(SyncAPIResource):
             body=maybe_transform(
                 {
                     "content": content,
+                    "type": type,
                     "context": context,
                     "metadata": metadata,
                     "relationships_json": relationships_json,
-                    "type": type,
                 },
                 memory_add_params.MemoryAddParams,
             ),
@@ -261,6 +261,8 @@ class MemoryResource(SyncAPIResource):
         memories: Iterable[AddMemoryParam],
         skip_background_processing: bool | NotGiven = NOT_GIVEN,
         batch_size: Optional[int] | NotGiven = NOT_GIVEN,
+        external_user_id: Optional[str] | NotGiven = NOT_GIVEN,
+        user_id: Optional[str] | NotGiven = NOT_GIVEN,
         # Use the following arguments if you need to pass additional parameters to the API that aren't available via kwargs.
         # The extra values given here take precedence over values defined on the client or passed to this method.
         extra_headers: Headers | None = None,
@@ -291,6 +293,12 @@ class MemoryResource(SyncAPIResource):
 
           batch_size: Number of items to process in parallel
 
+          external_user_id: External user ID for all memories in the batch. If provided and user_id is not,
+              will be resolved to internal user ID.
+
+          user_id: Internal user ID for all memories in the batch. If not provided, developer's
+              user ID will be used.
+
           extra_headers: Send extra headers
 
           extra_query: Add additional query parameters to the request
@@ -305,6 +313,8 @@ class MemoryResource(SyncAPIResource):
                 {
                     "memories": memories,
                     "batch_size": batch_size,
+                    "external_user_id": external_user_id,
+                    "user_id": user_id,
                 },
                 memory_add_batch_params.MemoryAddBatchParams,
             ),
@@ -369,6 +379,8 @@ class MemoryResource(SyncAPIResource):
         query: str,
         max_memories: int | NotGiven = NOT_GIVEN,
         max_nodes: int | NotGiven = NOT_GIVEN,
+        external_user_id: Optional[str] | NotGiven = NOT_GIVEN,
+        metadata: Optional[MemoryMetadataParam] | NotGiven = NOT_GIVEN,
         rank_results: bool | NotGiven = NOT_GIVEN,
         user_id: Optional[str] | NotGiven = NOT_GIVEN,
         accept_encoding: str | NotGiven = NOT_GIVEN,
@@ -395,6 +407,11 @@ class MemoryResource(SyncAPIResource):
 
             The API supports response compression for improved performance. Responses larger than 1KB will be automatically compressed when this header is present.
 
+            **User Resolution Precedence:**
+            - If both user_id and external_user_id are provided, user_id takes precedence.
+            - If only external_user_id is provided, it will be resolved to the internal user.
+            - If neither is provided, the authenticated user is used.
+
         Args:
           query: Detailed search query describing what you're looking for. For best results,
               write 2-3 sentences that include specific details, context, and time frame. For
@@ -406,13 +423,19 @@ class MemoryResource(SyncAPIResource):
 
           max_nodes: Maximum number of neo nodes to return
 
+          external_user_id: Optional external user ID to filter search results by a specific external user.
+              If both user_id and external_user_id are provided, user_id takes precedence.
+
+          metadata: Metadata for memory request
+
           rank_results: Whether to enable additional ranking of search results. Default is false because
               results are already ranked when using an LLM for search (recommended approach).
               Only enable this if you're not using an LLM in your search pipeline and need
               additional result ranking.
 
-          user_id: Optional user ID to filter search results by a specific user. If not provided,
-              results are not filtered by user.
+          user_id: Optional internal user ID to filter search results by a specific user. If not
+              provided, results are not filtered by user. If both user_id and external_user_id
+              are provided, user_id takes precedence.
 
           extra_headers: Send extra headers
 
@@ -428,6 +451,8 @@ class MemoryResource(SyncAPIResource):
             body=maybe_transform(
                 {
                     "query": query,
+                    "external_user_id": external_user_id,
+                    "metadata": metadata,
                     "rank_results": rank_results,
                     "user_id": user_id,
                 },
@@ -593,11 +618,11 @@ class AsyncMemoryResource(AsyncAPIResource):
         self,
         *,
         content: str,
+        type: MemoryType,
         skip_background_processing: bool | NotGiven = NOT_GIVEN,
         context: Optional[Iterable[ContextItemParam]] | NotGiven = NOT_GIVEN,
         metadata: Optional[MemoryMetadataParam] | NotGiven = NOT_GIVEN,
         relationships_json: Optional[Iterable[RelationshipItemParam]] | NotGiven = NOT_GIVEN,
-        type: MemoryType | NotGiven = NOT_GIVEN,
         # Use the following arguments if you need to pass additional parameters to the API that aren't available via kwargs.
         # The extra values given here take precedence over values defined on the client or passed to this method.
         extra_headers: Headers | None = None,
@@ -624,6 +649,8 @@ class AsyncMemoryResource(AsyncAPIResource):
         Args:
           content: The content of the memory item you want to add to memory
 
+          type: Valid memory types
+
           skip_background_processing: If True, skips adding background tasks for processing
 
           context: Context can be conversation history or any relevant context for a memory item
@@ -631,8 +658,6 @@ class AsyncMemoryResource(AsyncAPIResource):
           metadata: Metadata for memory request
 
           relationships_json: Array of relationships that we can use in Graph DB (neo4J)
-
-          type: Content type of the memory item
 
           extra_headers: Send extra headers
 
@@ -647,10 +672,10 @@ class AsyncMemoryResource(AsyncAPIResource):
             body=await async_maybe_transform(
                 {
                     "content": content,
+                    "type": type,
                     "context": context,
                     "metadata": metadata,
                     "relationships_json": relationships_json,
-                    "type": type,
                 },
                 memory_add_params.MemoryAddParams,
             ),
@@ -672,6 +697,8 @@ class AsyncMemoryResource(AsyncAPIResource):
         memories: Iterable[AddMemoryParam],
         skip_background_processing: bool | NotGiven = NOT_GIVEN,
         batch_size: Optional[int] | NotGiven = NOT_GIVEN,
+        external_user_id: Optional[str] | NotGiven = NOT_GIVEN,
+        user_id: Optional[str] | NotGiven = NOT_GIVEN,
         # Use the following arguments if you need to pass additional parameters to the API that aren't available via kwargs.
         # The extra values given here take precedence over values defined on the client or passed to this method.
         extra_headers: Headers | None = None,
@@ -702,6 +729,12 @@ class AsyncMemoryResource(AsyncAPIResource):
 
           batch_size: Number of items to process in parallel
 
+          external_user_id: External user ID for all memories in the batch. If provided and user_id is not,
+              will be resolved to internal user ID.
+
+          user_id: Internal user ID for all memories in the batch. If not provided, developer's
+              user ID will be used.
+
           extra_headers: Send extra headers
 
           extra_query: Add additional query parameters to the request
@@ -716,6 +749,8 @@ class AsyncMemoryResource(AsyncAPIResource):
                 {
                     "memories": memories,
                     "batch_size": batch_size,
+                    "external_user_id": external_user_id,
+                    "user_id": user_id,
                 },
                 memory_add_batch_params.MemoryAddBatchParams,
             ),
@@ -780,6 +815,8 @@ class AsyncMemoryResource(AsyncAPIResource):
         query: str,
         max_memories: int | NotGiven = NOT_GIVEN,
         max_nodes: int | NotGiven = NOT_GIVEN,
+        external_user_id: Optional[str] | NotGiven = NOT_GIVEN,
+        metadata: Optional[MemoryMetadataParam] | NotGiven = NOT_GIVEN,
         rank_results: bool | NotGiven = NOT_GIVEN,
         user_id: Optional[str] | NotGiven = NOT_GIVEN,
         accept_encoding: str | NotGiven = NOT_GIVEN,
@@ -806,6 +843,11 @@ class AsyncMemoryResource(AsyncAPIResource):
 
             The API supports response compression for improved performance. Responses larger than 1KB will be automatically compressed when this header is present.
 
+            **User Resolution Precedence:**
+            - If both user_id and external_user_id are provided, user_id takes precedence.
+            - If only external_user_id is provided, it will be resolved to the internal user.
+            - If neither is provided, the authenticated user is used.
+
         Args:
           query: Detailed search query describing what you're looking for. For best results,
               write 2-3 sentences that include specific details, context, and time frame. For
@@ -817,13 +859,19 @@ class AsyncMemoryResource(AsyncAPIResource):
 
           max_nodes: Maximum number of neo nodes to return
 
+          external_user_id: Optional external user ID to filter search results by a specific external user.
+              If both user_id and external_user_id are provided, user_id takes precedence.
+
+          metadata: Metadata for memory request
+
           rank_results: Whether to enable additional ranking of search results. Default is false because
               results are already ranked when using an LLM for search (recommended approach).
               Only enable this if you're not using an LLM in your search pipeline and need
               additional result ranking.
 
-          user_id: Optional user ID to filter search results by a specific user. If not provided,
-              results are not filtered by user.
+          user_id: Optional internal user ID to filter search results by a specific user. If not
+              provided, results are not filtered by user. If both user_id and external_user_id
+              are provided, user_id takes precedence.
 
           extra_headers: Send extra headers
 
@@ -839,6 +887,8 @@ class AsyncMemoryResource(AsyncAPIResource):
             body=await async_maybe_transform(
                 {
                     "query": query,
+                    "external_user_id": external_user_id,
+                    "metadata": metadata,
                     "rank_results": rank_results,
                     "user_id": user_id,
                 },
