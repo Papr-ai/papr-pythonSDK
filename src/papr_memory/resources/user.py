@@ -2,11 +2,11 @@
 
 from __future__ import annotations
 
-from typing import Dict, Optional
+from typing import Dict, Iterable, Optional
 
 import httpx
 
-from ..types import UserType, user_list_params, user_create_params, user_update_params
+from ..types import UserType, user_list_params, user_create_params, user_update_params, user_create_batch_params
 from .._types import NOT_GIVEN, Body, Query, Headers, NotGiven
 from .._utils import maybe_transform, async_maybe_transform
 from .._compat import cached_property
@@ -22,6 +22,7 @@ from ..types.user_type import UserType
 from ..types.user_response import UserResponse
 from ..types.user_list_response import UserListResponse
 from ..types.user_delete_response import UserDeleteResponse
+from ..types.user_create_batch_response import UserCreateBatchResponse
 
 __all__ = ["UserResource", "AsyncUserResource"]
 
@@ -213,6 +214,39 @@ class UserResource(SyncAPIResource):
                 extra_headers=extra_headers, extra_query=extra_query, extra_body=extra_body, timeout=timeout
             ),
             cast_to=UserDeleteResponse,
+        )
+
+    def create_batch(
+        self,
+        *,
+        users: Iterable[user_create_batch_params.User],
+        # Use the following arguments if you need to pass additional parameters to the API that aren't available via kwargs.
+        # The extra values given here take precedence over values defined on the client or passed to this method.
+        extra_headers: Headers | None = None,
+        extra_query: Query | None = None,
+        extra_body: Body | None = None,
+        timeout: float | httpx.Timeout | None | NotGiven = NOT_GIVEN,
+    ) -> UserCreateBatchResponse:
+        """
+        Create multiple users or link existing users to developer, and add each to the
+        developer's workspace (if one exists).
+
+        Args:
+          extra_headers: Send extra headers
+
+          extra_query: Add additional query parameters to the request
+
+          extra_body: Add additional JSON properties to the request
+
+          timeout: Override the client-level default timeout for this request, in seconds
+        """
+        return self._post(
+            "/v1/user/batch",
+            body=maybe_transform({"users": users}, user_create_batch_params.UserCreateBatchParams),
+            options=make_request_options(
+                extra_headers=extra_headers, extra_query=extra_query, extra_body=extra_body, timeout=timeout
+            ),
+            cast_to=UserCreateBatchResponse,
         )
 
     def get(
@@ -438,6 +472,39 @@ class AsyncUserResource(AsyncAPIResource):
             cast_to=UserDeleteResponse,
         )
 
+    async def create_batch(
+        self,
+        *,
+        users: Iterable[user_create_batch_params.User],
+        # Use the following arguments if you need to pass additional parameters to the API that aren't available via kwargs.
+        # The extra values given here take precedence over values defined on the client or passed to this method.
+        extra_headers: Headers | None = None,
+        extra_query: Query | None = None,
+        extra_body: Body | None = None,
+        timeout: float | httpx.Timeout | None | NotGiven = NOT_GIVEN,
+    ) -> UserCreateBatchResponse:
+        """
+        Create multiple users or link existing users to developer, and add each to the
+        developer's workspace (if one exists).
+
+        Args:
+          extra_headers: Send extra headers
+
+          extra_query: Add additional query parameters to the request
+
+          extra_body: Add additional JSON properties to the request
+
+          timeout: Override the client-level default timeout for this request, in seconds
+        """
+        return await self._post(
+            "/v1/user/batch",
+            body=await async_maybe_transform({"users": users}, user_create_batch_params.UserCreateBatchParams),
+            options=make_request_options(
+                extra_headers=extra_headers, extra_query=extra_query, extra_body=extra_body, timeout=timeout
+            ),
+            cast_to=UserCreateBatchResponse,
+        )
+
     async def get(
         self,
         user_id: str,
@@ -488,6 +555,9 @@ class UserResourceWithRawResponse:
         self.delete = to_raw_response_wrapper(
             user.delete,
         )
+        self.create_batch = to_raw_response_wrapper(
+            user.create_batch,
+        )
         self.get = to_raw_response_wrapper(
             user.get,
         )
@@ -508,6 +578,9 @@ class AsyncUserResourceWithRawResponse:
         )
         self.delete = async_to_raw_response_wrapper(
             user.delete,
+        )
+        self.create_batch = async_to_raw_response_wrapper(
+            user.create_batch,
         )
         self.get = async_to_raw_response_wrapper(
             user.get,
@@ -530,6 +603,9 @@ class UserResourceWithStreamingResponse:
         self.delete = to_streamed_response_wrapper(
             user.delete,
         )
+        self.create_batch = to_streamed_response_wrapper(
+            user.create_batch,
+        )
         self.get = to_streamed_response_wrapper(
             user.get,
         )
@@ -550,6 +626,9 @@ class AsyncUserResourceWithStreamingResponse:
         )
         self.delete = async_to_streamed_response_wrapper(
             user.delete,
+        )
+        self.create_batch = async_to_streamed_response_wrapper(
+            user.create_batch,
         )
         self.get = async_to_streamed_response_wrapper(
             user.get,
