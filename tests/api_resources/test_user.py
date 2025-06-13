@@ -13,6 +13,7 @@ from papr_memory.types import (
     UserResponse,
     UserListResponse,
     UserDeleteResponse,
+    UserCreateBatchResponse,
 )
 
 base_url = os.environ.get("TEST_API_BASE_URL", "http://127.0.0.1:4010")
@@ -206,6 +207,40 @@ class TestUser:
             client.user.with_raw_response.delete(
                 "",
             )
+
+    @pytest.mark.skip()
+    @parametrize
+    def test_method_create_batch(self, client: Papr) -> None:
+        user = client.user.create_batch(
+            users=[{"external_id": "user123"}],
+        )
+        assert_matches_type(UserCreateBatchResponse, user, path=["response"])
+
+    @pytest.mark.skip()
+    @parametrize
+    def test_raw_response_create_batch(self, client: Papr) -> None:
+        response = client.user.with_raw_response.create_batch(
+            users=[{"external_id": "user123"}],
+        )
+
+        assert response.is_closed is True
+        assert response.http_request.headers.get("X-Stainless-Lang") == "python"
+        user = response.parse()
+        assert_matches_type(UserCreateBatchResponse, user, path=["response"])
+
+    @pytest.mark.skip()
+    @parametrize
+    def test_streaming_response_create_batch(self, client: Papr) -> None:
+        with client.user.with_streaming_response.create_batch(
+            users=[{"external_id": "user123"}],
+        ) as response:
+            assert not response.is_closed
+            assert response.http_request.headers.get("X-Stainless-Lang") == "python"
+
+            user = response.parse()
+            assert_matches_type(UserCreateBatchResponse, user, path=["response"])
+
+        assert cast(Any, response.is_closed) is True
 
     @pytest.mark.skip()
     @parametrize
@@ -438,6 +473,40 @@ class TestAsyncUser:
             await async_client.user.with_raw_response.delete(
                 "",
             )
+
+    @pytest.mark.skip()
+    @parametrize
+    async def test_method_create_batch(self, async_client: AsyncPapr) -> None:
+        user = await async_client.user.create_batch(
+            users=[{"external_id": "user123"}],
+        )
+        assert_matches_type(UserCreateBatchResponse, user, path=["response"])
+
+    @pytest.mark.skip()
+    @parametrize
+    async def test_raw_response_create_batch(self, async_client: AsyncPapr) -> None:
+        response = await async_client.user.with_raw_response.create_batch(
+            users=[{"external_id": "user123"}],
+        )
+
+        assert response.is_closed is True
+        assert response.http_request.headers.get("X-Stainless-Lang") == "python"
+        user = await response.parse()
+        assert_matches_type(UserCreateBatchResponse, user, path=["response"])
+
+    @pytest.mark.skip()
+    @parametrize
+    async def test_streaming_response_create_batch(self, async_client: AsyncPapr) -> None:
+        async with async_client.user.with_streaming_response.create_batch(
+            users=[{"external_id": "user123"}],
+        ) as response:
+            assert not response.is_closed
+            assert response.http_request.headers.get("X-Stainless-Lang") == "python"
+
+            user = await response.parse()
+            assert_matches_type(UserCreateBatchResponse, user, path=["response"])
+
+        assert cast(Any, response.is_closed) is True
 
     @pytest.mark.skip()
     @parametrize

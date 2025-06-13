@@ -6,7 +6,6 @@ from .user_type import UserType as UserType
 from .memory_type import MemoryType as MemoryType
 from .context_item import ContextItem as ContextItem
 from .user_response import UserResponse as UserResponse
-from .add_memory_item import AddMemoryItem as AddMemoryItem
 from .memory_metadata import MemoryMetadata as MemoryMetadata
 from .search_response import SearchResponse as SearchResponse
 from .add_memory_param import AddMemoryParam as AddMemoryParam
@@ -26,4 +25,6 @@ from .memory_delete_response import MemoryDeleteResponse as MemoryDeleteResponse
 from .memory_update_response import MemoryUpdateResponse as MemoryUpdateResponse
 from .memory_add_batch_params import MemoryAddBatchParams as MemoryAddBatchParams
 from .relationship_item_param import RelationshipItemParam as RelationshipItemParam
+from .user_create_batch_params import UserCreateBatchParams as UserCreateBatchParams
 from .memory_add_batch_response import MemoryAddBatchResponse as MemoryAddBatchResponse
+from .user_create_batch_response import UserCreateBatchResponse as UserCreateBatchResponse
