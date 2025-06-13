@@ -4,8 +4,10 @@ from __future__ import annotations
 
 from .user_type import UserType as UserType
 from .memory_type import MemoryType as MemoryType
+from .context_item import ContextItem as ContextItem
 from .user_response import UserResponse as UserResponse
 from .add_memory_item import AddMemoryItem as AddMemoryItem
+from .memory_metadata import MemoryMetadata as MemoryMetadata
 from .search_response import SearchResponse as SearchResponse
 from .add_memory_param import AddMemoryParam as AddMemoryParam
 from .user_list_params import UserListParams as UserListParams
@@ -20,10 +22,8 @@ from .memory_search_params import MemorySearchParams as MemorySearchParams
 from .memory_update_params import MemoryUpdateParams as MemoryUpdateParams
 from .user_delete_response import UserDeleteResponse as UserDeleteResponse
 from .memory_metadata_param import MemoryMetadataParam as MemoryMetadataParam
-from .document_upload_params import DocumentUploadParams as DocumentUploadParams
 from .memory_delete_response import MemoryDeleteResponse as MemoryDeleteResponse
 from .memory_update_response import MemoryUpdateResponse as MemoryUpdateResponse
 from .memory_add_batch_params import MemoryAddBatchParams as MemoryAddBatchParams
 from .relationship_item_param import RelationshipItemParam as RelationshipItemParam
-from .document_upload_response import DocumentUploadResponse as DocumentUploadResponse
 from .memory_add_batch_response import MemoryAddBatchResponse as MemoryAddBatchResponse

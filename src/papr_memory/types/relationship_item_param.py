@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+from typing import Dict
 from typing_extensions import Literal, Required, TypedDict
 
 __all__ = ["RelationshipItemParam"]
@@ -14,4 +15,4 @@ class RelationshipItemParam(TypedDict, total=False):
 
     relation_type: Required[str]
 
-    metadata: object
+    metadata: Dict[str, object]

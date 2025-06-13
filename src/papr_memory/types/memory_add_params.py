@@ -17,6 +17,9 @@ class MemoryAddParams(TypedDict, total=False):
     content: Required[str]
     """The content of the memory item you want to add to memory"""
 
+    type: Required[MemoryType]
+    """Valid memory types"""
+
     skip_background_processing: bool
     """If True, skips adding background tasks for processing"""
 
@@ -28,6 +31,3 @@ class MemoryAddParams(TypedDict, total=False):
 
     relationships_json: Optional[Iterable[RelationshipItemParam]]
     """Array of relationships that we can use in Graph DB (neo4J)"""
-
-    type: MemoryType
-    """Content type of the memory item"""

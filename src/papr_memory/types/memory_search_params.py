@@ -6,6 +6,7 @@ from typing import Optional
 from typing_extensions import Required, Annotated, TypedDict
 
 from .._utils import PropertyInfo
+from .memory_metadata_param import MemoryMetadataParam
 
 __all__ = ["MemorySearchParams"]
 
@@ -26,6 +27,15 @@ class MemorySearchParams(TypedDict, total=False):
     max_nodes: int
     """Maximum number of neo nodes to return"""
 
+    external_user_id: Optional[str]
+    """Optional external user ID to filter search results by a specific external user.
+
+    If both user_id and external_user_id are provided, user_id takes precedence.
+    """
+
+    metadata: Optional[MemoryMetadataParam]
+    """Metadata for memory request"""
+
     rank_results: bool
     """Whether to enable additional ranking of search results.
 
@@ -35,9 +45,10 @@ class MemorySearchParams(TypedDict, total=False):
     """
 
     user_id: Optional[str]
-    """Optional user ID to filter search results by a specific user.
+    """Optional internal user ID to filter search results by a specific user.
 
-    If not provided, results are not filtered by user.
+    If not provided, results are not filtered by user. If both user_id and
+    external_user_id are provided, user_id takes precedence.
     """
 
     accept_encoding: Annotated[str, PropertyInfo(alias="Accept-Encoding")]

@@ -1,5 +1,28 @@
 # Changelog
 
+## 2.4.0 (2025-06-13)
+
+Full Changelog: [v2.3.0...v2.4.0](https://github.com/Papr-ai/papr-pythonSDK/compare/v2.3.0...v2.4.0)
+
+### Features
+
+* **api:** update via SDK Studio ([ba10eec](https://github.com/Papr-ai/papr-pythonSDK/commit/ba10eec0af063ad741af0587dffb13cf5dde3b03))
+* **client:** add follow_redirects request option ([4577c2e](https://github.com/Papr-ai/papr-pythonSDK/commit/4577c2e8287c951b898750a9ced105509aba7932))
+
+
+### Bug Fixes
+
+* **client:** correctly parse binary response | stream ([0099bdf](https://github.com/Papr-ai/papr-pythonSDK/commit/0099bdf924204499dffe06cbe61b99d1bea0323a))
+
+
+### Chores
+
+* **ci:** fix installation instructions ([a603af0](https://github.com/Papr-ai/papr-pythonSDK/commit/a603af04ae32f18947e815ebac9b7d0d2d8e9a37))
+* **docs:** grammar improvements ([dffdbe6](https://github.com/Papr-ai/papr-pythonSDK/commit/dffdbe6b3113736f9ce175956d2bc1875c97d5bf))
+* **docs:** remove reference to rye shell ([581d32b](https://github.com/Papr-ai/papr-pythonSDK/commit/581d32ba64ba96b359edb40cc85842b3eb0c9048))
+* **docs:** remove unnecessary param examples ([e37fd8c](https://github.com/Papr-ai/papr-pythonSDK/commit/e37fd8c11691838dcb3aee45865afcde0df5432e))
+* **tests:** run tests in parallel ([fad0271](https://github.com/Papr-ai/papr-pythonSDK/commit/fad02716979bf41b5ce16733622d3e77e17b7a26))
+
 ## 2.3.0 (2025-05-15)
 
 Full Changelog: [v2.2.0...v2.3.0](https://github.com/Papr-ai/papr-pythonSDK/compare/v2.2.0...v2.3.0)

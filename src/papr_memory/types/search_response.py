@@ -7,6 +7,7 @@ from typing_extensions import Literal, TypeAlias
 from pydantic import Field as FieldInfo
 
 from .._models import BaseModel
+from .context_item import ContextItem
 
 __all__ = [
     "SearchResponse",
@@ -37,13 +38,21 @@ class DataMemory(BaseModel):
 
     user_id: str
 
-    context: Optional[str] = None
+    context: Optional[List[ContextItem]] = None
 
     conversation_id: Optional[str] = None
 
     created_at: Optional[datetime] = None
 
     current_step: Optional[str] = None
+
+    custom_metadata: Optional[Dict[str, object]] = FieldInfo(alias="customMetadata", default=None)
+
+    external_user_id: Optional[str] = None
+
+    external_user_read_access: Optional[List[str]] = None
+
+    external_user_write_access: Optional[List[str]] = None
 
     file_url: Optional[str] = None
 
@@ -53,11 +62,15 @@ class DataMemory(BaseModel):
 
     location: Optional[str] = None
 
-    metadata: Union[str, object, None] = None
+    metadata: Union[str, Dict[str, object], None] = None
 
     page: Optional[str] = None
 
     page_number: Optional[int] = None
+
+    role_read_access: Optional[List[str]] = None
+
+    role_write_access: Optional[List[str]] = None
 
     source_document_id: Optional[str] = None
 
@@ -79,7 +92,15 @@ class DataMemory(BaseModel):
 
     updated_at: Optional[datetime] = None
 
+    user_read_access: Optional[List[str]] = None
+
+    user_write_access: Optional[List[str]] = None
+
     workspace_id: Optional[str] = None
+
+    workspace_read_access: Optional[List[str]] = None
+
+    workspace_write_access: Optional[List[str]] = None
 
     if TYPE_CHECKING:
         # Stub to indicate that arbitrary properties are accepted.
@@ -108,6 +129,10 @@ class DataNodePropertiesPaprMemoryNodeProperties(BaseModel):
     created_at: Optional[datetime] = FieldInfo(alias="createdAt", default=None)
 
     emoji_tags: Optional[List[str]] = None
+
+    external_user_read_access: Optional[List[str]] = None
+
+    external_user_write_access: Optional[List[str]] = None
 
     hierarchical_structures: Optional[str] = None
 
@@ -151,6 +176,10 @@ class DataNodePropertiesPersonNodeProperties(BaseModel):
 
     created_at: Optional[datetime] = FieldInfo(alias="createdAt", default=None)
 
+    external_user_read_access: Optional[List[str]] = None
+
+    external_user_write_access: Optional[List[str]] = None
+
     page_id: Optional[str] = FieldInfo(alias="pageId", default=None)
 
     role_read_access: Optional[List[str]] = None
@@ -186,6 +215,10 @@ class DataNodePropertiesCompanyNodeProperties(BaseModel):
     conversation_id: Optional[str] = FieldInfo(alias="conversationId", default=None)
 
     created_at: Optional[datetime] = FieldInfo(alias="createdAt", default=None)
+
+    external_user_read_access: Optional[List[str]] = None
+
+    external_user_write_access: Optional[List[str]] = None
 
     page_id: Optional[str] = FieldInfo(alias="pageId", default=None)
 
@@ -224,6 +257,10 @@ class DataNodePropertiesProjectNodeProperties(BaseModel):
     conversation_id: Optional[str] = FieldInfo(alias="conversationId", default=None)
 
     created_at: Optional[datetime] = FieldInfo(alias="createdAt", default=None)
+
+    external_user_read_access: Optional[List[str]] = None
+
+    external_user_write_access: Optional[List[str]] = None
 
     page_id: Optional[str] = FieldInfo(alias="pageId", default=None)
 
@@ -264,6 +301,13 @@ class DataNodePropertiesTaskNodeProperties(BaseModel):
     conversation_id: Optional[str] = FieldInfo(alias="conversationId", default=None)
 
     created_at: Optional[datetime] = FieldInfo(alias="createdAt", default=None)
+
+    date: Optional[datetime] = None
+    """Due date for the task in ISO 8601 format"""
+
+    external_user_read_access: Optional[List[str]] = None
+
+    external_user_write_access: Optional[List[str]] = None
 
     page_id: Optional[str] = FieldInfo(alias="pageId", default=None)
 
@@ -306,6 +350,10 @@ class DataNodePropertiesInsightNodeProperties(BaseModel):
     conversation_id: Optional[str] = FieldInfo(alias="conversationId", default=None)
 
     created_at: Optional[datetime] = FieldInfo(alias="createdAt", default=None)
+
+    external_user_read_access: Optional[List[str]] = None
+
+    external_user_write_access: Optional[List[str]] = None
 
     page_id: Optional[str] = FieldInfo(alias="pageId", default=None)
 
@@ -357,6 +405,10 @@ class DataNodePropertiesMeetingNodeProperties(BaseModel):
 
     created_at: Optional[datetime] = FieldInfo(alias="createdAt", default=None)
 
+    external_user_read_access: Optional[List[str]] = None
+
+    external_user_write_access: Optional[List[str]] = None
+
     page_id: Optional[str] = FieldInfo(alias="pageId", default=None)
 
     role_read_access: Optional[List[str]] = None
@@ -403,6 +455,10 @@ class DataNodePropertiesOpportunityNodeProperties(BaseModel):
 
     created_at: Optional[datetime] = FieldInfo(alias="createdAt", default=None)
 
+    external_user_read_access: Optional[List[str]] = None
+
+    external_user_write_access: Optional[List[str]] = None
+
     page_id: Optional[str] = FieldInfo(alias="pageId", default=None)
 
     role_read_access: Optional[List[str]] = None
@@ -440,6 +496,10 @@ class DataNodePropertiesCodeNodeProperties(BaseModel):
     conversation_id: Optional[str] = FieldInfo(alias="conversationId", default=None)
 
     created_at: Optional[datetime] = FieldInfo(alias="createdAt", default=None)
+
+    external_user_read_access: Optional[List[str]] = None
+
+    external_user_write_access: Optional[List[str]] = None
 
     page_id: Optional[str] = FieldInfo(alias="pageId", default=None)
 

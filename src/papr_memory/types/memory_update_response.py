@@ -6,6 +6,7 @@ from datetime import datetime
 from pydantic import Field as FieldInfo
 
 from .._models import BaseModel
+from .memory_metadata import MemoryMetadata
 
 __all__ = ["MemoryUpdateResponse", "MemoryItem", "StatusObj"]
 
@@ -20,6 +21,9 @@ class MemoryItem(BaseModel):
     content: Optional[str] = None
 
     memory_chunk_ids: Optional[List[str]] = FieldInfo(alias="memoryChunkIds", default=None)
+
+    metadata: Optional[MemoryMetadata] = None
+    """Metadata for memory request"""
 
 
 class StatusObj(BaseModel):

@@ -89,21 +89,9 @@ client = Papr()
 memory = client.memory.update(
     memory_id="memory_id",
     metadata={
-        "conversation_id": "conversationId",
-        "created_at": "createdAt",
-        "emoji_tags": "📊,💡,📝,✨",
-        "emotion_tags": "focused, productive, satisfied",
-        "hierarchical_structures": "hierarchical_structures",
-        "location": "location",
-        "role_read_access": ["string"],
-        "role_write_access": ["string"],
-        "source_url": "sourceUrl",
-        "topics": "product, planning, updates",
-        "user_id": "user_id",
-        "user_read_access": ["string"],
-        "user_write_access": ["string"],
-        "workspace_read_access": ["string"],
-        "workspace_write_access": ["string"],
+        "emoji_tags": ["string"],
+        "emotion_tags": ["string"],
+        "topics": ["string"],
     },
 )
 print(memory.metadata)
