@@ -2,11 +2,18 @@
 
 from __future__ import annotations
 
-from typing import Dict, Iterable, Optional
+from typing import Iterable, Optional
 
 import httpx
 
-from ..types import UserType, user_list_params, user_create_params, user_update_params, user_create_batch_params
+from ..types import (
+    UserType,
+    user_list_params,
+    user_create_params,
+    user_delete_params,
+    user_update_params,
+    user_create_batch_params,
+)
 from .._types import NOT_GIVEN, Body, Query, Headers, NotGiven
 from .._utils import maybe_transform, async_maybe_transform
 from .._compat import cached_property
@@ -52,7 +59,7 @@ class UserResource(SyncAPIResource):
         *,
         external_id: str,
         email: Optional[str] | NotGiven = NOT_GIVEN,
-        metadata: Optional[Dict[str, object]] | NotGiven = NOT_GIVEN,
+        metadata: Optional[object] | NotGiven = NOT_GIVEN,
         type: UserType | NotGiven = NOT_GIVEN,
         # Use the following arguments if you need to pass additional parameters to the API that aren't available via kwargs.
         # The extra values given here take precedence over values defined on the client or passed to this method.
@@ -96,7 +103,7 @@ class UserResource(SyncAPIResource):
         *,
         email: Optional[str] | NotGiven = NOT_GIVEN,
         external_id: Optional[str] | NotGiven = NOT_GIVEN,
-        metadata: Optional[Dict[str, object]] | NotGiven = NOT_GIVEN,
+        metadata: Optional[object] | NotGiven = NOT_GIVEN,
         type: Optional[UserType] | NotGiven = NOT_GIVEN,
         # Use the following arguments if you need to pass additional parameters to the API that aren't available via kwargs.
         # The extra values given here take precedence over values defined on the client or passed to this method.
@@ -186,6 +193,7 @@ class UserResource(SyncAPIResource):
         self,
         user_id: str,
         *,
+        is_external: bool | NotGiven = NOT_GIVEN,
         # Use the following arguments if you need to pass additional parameters to the API that aren't available via kwargs.
         # The extra values given here take precedence over values defined on the client or passed to this method.
         extra_headers: Headers | None = None,
@@ -198,6 +206,8 @@ class UserResource(SyncAPIResource):
         user_id is provided, and resolve to internal user_id (\\__User.objectId)
 
         Args:
+          is_external: Is this an external user ID?
+
           extra_headers: Send extra headers
 
           extra_query: Add additional query parameters to the request
@@ -211,7 +221,11 @@ class UserResource(SyncAPIResource):
         return self._delete(
             f"/v1/user/{user_id}",
             options=make_request_options(
-                extra_headers=extra_headers, extra_query=extra_query, extra_body=extra_body, timeout=timeout
+                extra_headers=extra_headers,
+                extra_query=extra_query,
+                extra_body=extra_body,
+                timeout=timeout,
+                query=maybe_transform({"is_external": is_external}, user_delete_params.UserDeleteParams),
             ),
             cast_to=UserDeleteResponse,
         )
@@ -308,7 +322,7 @@ class AsyncUserResource(AsyncAPIResource):
         *,
         external_id: str,
         email: Optional[str] | NotGiven = NOT_GIVEN,
-        metadata: Optional[Dict[str, object]] | NotGiven = NOT_GIVEN,
+        metadata: Optional[object] | NotGiven = NOT_GIVEN,
         type: UserType | NotGiven = NOT_GIVEN,
         # Use the following arguments if you need to pass additional parameters to the API that aren't available via kwargs.
         # The extra values given here take precedence over values defined on the client or passed to this method.
@@ -352,7 +366,7 @@ class AsyncUserResource(AsyncAPIResource):
         *,
         email: Optional[str] | NotGiven = NOT_GIVEN,
         external_id: Optional[str] | NotGiven = NOT_GIVEN,
-        metadata: Optional[Dict[str, object]] | NotGiven = NOT_GIVEN,
+        metadata: Optional[object] | NotGiven = NOT_GIVEN,
         type: Optional[UserType] | NotGiven = NOT_GIVEN,
         # Use the following arguments if you need to pass additional parameters to the API that aren't available via kwargs.
         # The extra values given here take precedence over values defined on the client or passed to this method.
@@ -442,6 +456,7 @@ class AsyncUserResource(AsyncAPIResource):
         self,
         user_id: str,
         *,
+        is_external: bool | NotGiven = NOT_GIVEN,
         # Use the following arguments if you need to pass additional parameters to the API that aren't available via kwargs.
         # The extra values given here take precedence over values defined on the client or passed to this method.
         extra_headers: Headers | None = None,
@@ -454,6 +469,8 @@ class AsyncUserResource(AsyncAPIResource):
         user_id is provided, and resolve to internal user_id (\\__User.objectId)
 
         Args:
+          is_external: Is this an external user ID?
+
           extra_headers: Send extra headers
 
           extra_query: Add additional query parameters to the request
@@ -467,7 +484,11 @@ class AsyncUserResource(AsyncAPIResource):
         return await self._delete(
             f"/v1/user/{user_id}",
             options=make_request_options(
-                extra_headers=extra_headers, extra_query=extra_query, extra_body=extra_body, timeout=timeout
+                extra_headers=extra_headers,
+                extra_query=extra_query,
+                extra_body=extra_body,
+                timeout=timeout,
+                query=await async_maybe_transform({"is_external": is_external}, user_delete_params.UserDeleteParams),
             ),
             cast_to=UserDeleteResponse,
         )

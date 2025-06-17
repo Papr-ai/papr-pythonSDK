@@ -13,6 +13,7 @@ from .user_list_params import UserListParams as UserListParams
 from .memory_add_params import MemoryAddParams as MemoryAddParams
 from .context_item_param import ContextItemParam as ContextItemParam
 from .user_create_params import UserCreateParams as UserCreateParams
+from .user_delete_params import UserDeleteParams as UserDeleteParams
 from .user_list_response import UserListResponse as UserListResponse
 from .user_update_params import UserUpdateParams as UserUpdateParams
 from .add_memory_response import AddMemoryResponse as AddMemoryResponse

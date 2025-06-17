@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from typing import Dict, Optional
+from typing import Optional
 from typing_extensions import Required, TypedDict
 
 from .user_type import UserType
@@ -15,6 +15,6 @@ class UserCreateParams(TypedDict, total=False):
 
     email: Optional[str]
 
-    metadata: Optional[Dict[str, object]]
+    metadata: Optional[object]
 
     type: UserType

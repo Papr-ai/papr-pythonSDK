@@ -76,7 +76,7 @@ class TestMemory:
                     "related_item_id": "previous_memory_item_id",
                     "related_item_type": "TextMemoryItem",
                     "relation_type": "updates",
-                    "metadata": {"relevance": "bar"},
+                    "metadata": {"relevance": "high"},
                 }
             ],
             type="text",
@@ -223,7 +223,7 @@ class TestMemory:
                     "related_item_id": "previous_memory_item_id",
                     "related_item_type": "TextMemoryItem",
                     "relation_type": "follows",
-                    "metadata": {"relevance": "bar"},
+                    "metadata": {"relevance": "high"},
                 }
             ],
         )
@@ -317,7 +317,7 @@ class TestMemory:
                             "related_item_id": "TextMemoryItem",
                             "related_item_type": "TextMemoryItem",
                             "relation_type": "relation_type",
-                            "metadata": {"foo": "bar"},
+                            "metadata": {},
                         }
                     ],
                 },
@@ -359,7 +359,7 @@ class TestMemory:
                             "related_item_id": "TextMemoryItem",
                             "related_item_type": "TextMemoryItem",
                             "relation_type": "relation_type",
-                            "metadata": {"foo": "bar"},
+                            "metadata": {},
                         }
                     ],
                 },
@@ -472,6 +472,7 @@ class TestMemory:
             query="Find recurring customer complaints about API performance from the last month. Focus on issues that multiple customers have mentioned and any specific feature requests or workflow improvements they've suggested.",
             max_memories=1,
             max_nodes=1,
+            enable_agentic_graph=False,
             external_user_id="external_abc",
             metadata={
                 "conversation_id": "conversationId",
@@ -586,7 +587,7 @@ class TestAsyncMemory:
                     "related_item_id": "previous_memory_item_id",
                     "related_item_type": "TextMemoryItem",
                     "relation_type": "updates",
-                    "metadata": {"relevance": "bar"},
+                    "metadata": {"relevance": "high"},
                 }
             ],
             type="text",
@@ -733,7 +734,7 @@ class TestAsyncMemory:
                     "related_item_id": "previous_memory_item_id",
                     "related_item_type": "TextMemoryItem",
                     "relation_type": "follows",
-                    "metadata": {"relevance": "bar"},
+                    "metadata": {"relevance": "high"},
                 }
             ],
         )
@@ -827,7 +828,7 @@ class TestAsyncMemory:
                             "related_item_id": "TextMemoryItem",
                             "related_item_type": "TextMemoryItem",
                             "relation_type": "relation_type",
-                            "metadata": {"foo": "bar"},
+                            "metadata": {},
                         }
                     ],
                 },
@@ -869,7 +870,7 @@ class TestAsyncMemory:
                             "related_item_id": "TextMemoryItem",
                             "related_item_type": "TextMemoryItem",
                             "relation_type": "relation_type",
-                            "metadata": {"foo": "bar"},
+                            "metadata": {},
                         }
                     ],
                 },
@@ -982,6 +983,7 @@ class TestAsyncMemory:
             query="Find recurring customer complaints about API performance from the last month. Focus on issues that multiple customers have mentioned and any specific feature requests or workflow improvements they've suggested.",
             max_memories=1,
             max_nodes=1,
+            enable_agentic_graph=False,
             external_user_id="external_abc",
             metadata={
                 "conversation_id": "conversationId",

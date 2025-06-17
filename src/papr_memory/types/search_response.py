@@ -46,7 +46,7 @@ class DataMemory(BaseModel):
 
     current_step: Optional[str] = None
 
-    custom_metadata: Optional[Dict[str, object]] = FieldInfo(alias="customMetadata", default=None)
+    custom_metadata: Optional[object] = FieldInfo(alias="customMetadata", default=None)
 
     external_user_id: Optional[str] = None
 
@@ -62,7 +62,7 @@ class DataMemory(BaseModel):
 
     location: Optional[str] = None
 
-    metadata: Union[str, Dict[str, object], None] = None
+    metadata: Union[str, object, None] = None
 
     page: Optional[str] = None
 
@@ -310,6 +310,8 @@ class DataNodePropertiesTaskNodeProperties(BaseModel):
     external_user_write_access: Optional[List[str]] = None
 
     page_id: Optional[str] = FieldInfo(alias="pageId", default=None)
+
+    priority: Optional[Literal["low", "medium", "high", "urgent"]] = None
 
     role_read_access: Optional[List[str]] = None
 

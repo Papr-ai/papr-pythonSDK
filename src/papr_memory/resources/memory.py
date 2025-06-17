@@ -379,6 +379,7 @@ class MemoryResource(SyncAPIResource):
         query: str,
         max_memories: int | NotGiven = NOT_GIVEN,
         max_nodes: int | NotGiven = NOT_GIVEN,
+        enable_agentic_graph: bool | NotGiven = NOT_GIVEN,
         external_user_id: Optional[str] | NotGiven = NOT_GIVEN,
         metadata: Optional[MemoryMetadataParam] | NotGiven = NOT_GIVEN,
         rank_results: bool | NotGiven = NOT_GIVEN,
@@ -423,6 +424,9 @@ class MemoryResource(SyncAPIResource):
 
           max_nodes: Maximum number of neo nodes to return
 
+          enable_agentic_graph: Whether to enable agentic graph search. Default is false (graph search is
+              skipped). Set to true to use agentic graph search.
+
           external_user_id: Optional external user ID to filter search results by a specific external user.
               If both user_id and external_user_id are provided, user_id takes precedence.
 
@@ -451,6 +455,7 @@ class MemoryResource(SyncAPIResource):
             body=maybe_transform(
                 {
                     "query": query,
+                    "enable_agentic_graph": enable_agentic_graph,
                     "external_user_id": external_user_id,
                     "metadata": metadata,
                     "rank_results": rank_results,
@@ -815,6 +820,7 @@ class AsyncMemoryResource(AsyncAPIResource):
         query: str,
         max_memories: int | NotGiven = NOT_GIVEN,
         max_nodes: int | NotGiven = NOT_GIVEN,
+        enable_agentic_graph: bool | NotGiven = NOT_GIVEN,
         external_user_id: Optional[str] | NotGiven = NOT_GIVEN,
         metadata: Optional[MemoryMetadataParam] | NotGiven = NOT_GIVEN,
         rank_results: bool | NotGiven = NOT_GIVEN,
@@ -859,6 +865,9 @@ class AsyncMemoryResource(AsyncAPIResource):
 
           max_nodes: Maximum number of neo nodes to return
 
+          enable_agentic_graph: Whether to enable agentic graph search. Default is false (graph search is
+              skipped). Set to true to use agentic graph search.
+
           external_user_id: Optional external user ID to filter search results by a specific external user.
               If both user_id and external_user_id are provided, user_id takes precedence.
 
@@ -887,6 +896,7 @@ class AsyncMemoryResource(AsyncAPIResource):
             body=await async_maybe_transform(
                 {
                     "query": query,
+                    "enable_agentic_graph": enable_agentic_graph,
                     "external_user_id": external_user_id,
                     "metadata": metadata,
                     "rank_results": rank_results,
