@@ -1,6 +1,6 @@
 # File generated from our OpenAPI spec by Stainless. See CONTRIBUTING.md for details.
 
-from typing import Dict, Optional
+from typing import Optional
 
 from .._models import BaseModel
 
@@ -24,7 +24,7 @@ class UserResponse(BaseModel):
 
     external_id: Optional[str] = None
 
-    metadata: Optional[Dict[str, object]] = None
+    metadata: Optional[object] = None
 
     updated_at: Optional[str] = None
 

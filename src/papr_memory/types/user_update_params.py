@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from typing import Dict, Optional
+from typing import Optional
 from typing_extensions import TypedDict
 
 from .user_type import UserType
@@ -15,6 +15,6 @@ class UserUpdateParams(TypedDict, total=False):
 
     external_id: Optional[str]
 
-    metadata: Optional[Dict[str, object]]
+    metadata: Optional[object]
 
     type: Optional[UserType]
