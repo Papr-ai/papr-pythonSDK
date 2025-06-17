@@ -1,5 +1,20 @@
 # Changelog
 
+## 2.6.0 (2025-06-17)
+
+Full Changelog: [v2.5.0...v2.6.0](https://github.com/Papr-ai/papr-pythonSDK/compare/v2.5.0...v2.6.0)
+
+### Features
+
+* **api:** update via SDK Studio ([66558c4](https://github.com/Papr-ai/papr-pythonSDK/commit/66558c421ab198628831947858d224280c299ad9))
+
+
+### Chores
+
+* **ci:** enable for pull requests ([7f7e6c5](https://github.com/Papr-ai/papr-pythonSDK/commit/7f7e6c52ede6a229780741ac401f74a71e26adac))
+* **internal:** update conftest.py ([2a36c9b](https://github.com/Papr-ai/papr-pythonSDK/commit/2a36c9b4fc019b48aaf8a2da4d71421fe1f088e2))
+* **tests:** add tests for httpx client instantiation & proxies ([1d6ed96](https://github.com/Papr-ai/papr-pythonSDK/commit/1d6ed963119ab35164818c5d2b2af2451fcbe9ac))
+
 ## 2.5.0 (2025-06-13)
 
 Full Changelog: [v2.4.0...v2.5.0](https://github.com/Papr-ai/papr-pythonSDK/compare/v2.4.0...v2.5.0)

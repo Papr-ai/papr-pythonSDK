@@ -27,6 +27,13 @@ class MemorySearchParams(TypedDict, total=False):
     max_nodes: int
     """Maximum number of neo nodes to return"""
 
+    enable_agentic_graph: bool
+    """Whether to enable agentic graph search.
+
+    Default is false (graph search is skipped). Set to true to use agentic graph
+    search.
+    """
+
     external_user_id: Optional[str]
     """Optional external user ID to filter search results by a specific external user.
 
