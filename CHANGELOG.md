@@ -1,5 +1,18 @@
 # Changelog
 
+## 2.6.1 (2025-06-18)
+
+Full Changelog: [v2.6.0...v2.6.1](https://github.com/Papr-ai/papr-pythonSDK/compare/v2.6.0...v2.6.1)
+
+### Bug Fixes
+
+* **tests:** fix: tests which call HTTP endpoints directly with the example parameters ([6c2abba](https://github.com/Papr-ai/papr-pythonSDK/commit/6c2abbae26a7da899e4c73606197485d50349e3a))
+
+
+### Chores
+
+* **readme:** update badges ([1dd9392](https://github.com/Papr-ai/papr-pythonSDK/commit/1dd93927116479e91960234c04e7bf72eff32444))
+
 ## 2.6.0 (2025-06-17)
 
 Full Changelog: [v2.5.0...v2.6.0](https://github.com/Papr-ai/papr-pythonSDK/compare/v2.5.0...v2.6.0)
