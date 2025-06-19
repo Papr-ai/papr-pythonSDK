@@ -1,5 +1,13 @@
 # Changelog
 
+## 2.6.2 (2025-06-19)
+
+Full Changelog: [v2.6.1...v2.6.2](https://github.com/Papr-ai/papr-pythonSDK/compare/v2.6.1...v2.6.2)
+
+### Documentation
+
+* **client:** fix httpx.Timeout documentation reference ([ca31f17](https://github.com/Papr-ai/papr-pythonSDK/commit/ca31f172bbc9d054a3400f2fc50e4c2639f17a46))
+
 ## 2.6.1 (2025-06-18)
 
 Full Changelog: [v2.6.0...v2.6.1](https://github.com/Papr-ai/papr-pythonSDK/compare/v2.6.0...v2.6.1)
