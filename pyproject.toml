@@ -1,6 +1,6 @@
 [project]
 name = "papr_memory"
-version = "2.6.1"
+version = "2.6.2"
 description = "The official Python library for the papr API"
 dynamic = ["readme"]
 license = "Apache-2.0"
