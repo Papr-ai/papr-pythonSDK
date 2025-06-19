@@ -1,5 +1,13 @@
 # Changelog
 
+## 2.7.0 (2025-06-19)
+
+Full Changelog: [v2.6.2...v2.7.0](https://github.com/Papr-ai/papr-pythonSDK/compare/v2.6.2...v2.7.0)
+
+### Features
+
+* **api:** update via SDK Studio ([994c0a4](https://github.com/Papr-ai/papr-pythonSDK/commit/994c0a421b63de3288db729bfcbf1cc31e302615))
+
 ## 2.6.2 (2025-06-19)
 
 Full Changelog: [v2.6.1...v2.6.2](https://github.com/Papr-ai/papr-pythonSDK/compare/v2.6.1...v2.6.2)
