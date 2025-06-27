@@ -1,5 +1,23 @@
 # Changelog
 
+## 2.8.0 (2025-06-27)
+
+Full Changelog: [v2.7.0...v2.8.0](https://github.com/Papr-ai/papr-pythonSDK/compare/v2.7.0...v2.8.0)
+
+### Features
+
+* **client:** add support for aiohttp ([e8ea941](https://github.com/Papr-ai/papr-pythonSDK/commit/e8ea941c4f3b3fca4b5d3c8a9355a0ce9c9dd92b))
+
+
+### Bug Fixes
+
+* **ci:** release-doctor — report correct token name ([cd2d26b](https://github.com/Papr-ai/papr-pythonSDK/commit/cd2d26be6032e09b380ab46efe4bfe67f08b4690))
+
+
+### Chores
+
+* **tests:** skip some failing tests on the latest python versions ([ff00e9a](https://github.com/Papr-ai/papr-pythonSDK/commit/ff00e9a33cc668c04875a22f7980c82235373e90))
+
 ## 2.7.0 (2025-06-19)
 
 Full Changelog: [v2.6.2...v2.7.0](https://github.com/Papr-ai/papr-pythonSDK/compare/v2.6.2...v2.7.0)
