@@ -10,6 +10,8 @@ __all__ = ["MemoryMetadata"]
 
 
 class MemoryMetadata(BaseModel):
+    assistant_message: Optional[str] = FieldInfo(alias="assistantMessage", default=None)
+
     conversation_id: Optional[str] = FieldInfo(alias="conversationId", default=None)
 
     created_at: Optional[str] = FieldInfo(alias="createdAt", default=None)
@@ -34,6 +36,8 @@ class MemoryMetadata(BaseModel):
 
     external_user_write_access: Optional[List[str]] = None
 
+    goal_classification_scores: Optional[List[float]] = FieldInfo(alias="goalClassificationScores", default=None)
+
     hierarchical_structures: Optional[str] = None
     """Hierarchical structures to enable navigation from broad topics to specific ones"""
 
@@ -41,21 +45,37 @@ class MemoryMetadata(BaseModel):
 
     page_id: Optional[str] = FieldInfo(alias="pageId", default=None)
 
+    post: Optional[str] = None
+
+    related_goals: Optional[List[str]] = FieldInfo(alias="relatedGoals", default=None)
+
+    related_steps: Optional[List[str]] = FieldInfo(alias="relatedSteps", default=None)
+
+    related_use_cases: Optional[List[str]] = FieldInfo(alias="relatedUseCases", default=None)
+
     role_read_access: Optional[List[str]] = None
 
     role_write_access: Optional[List[str]] = None
+
+    session_id: Optional[str] = FieldInfo(alias="sessionId", default=None)
 
     source_type: Optional[str] = FieldInfo(alias="sourceType", default=None)
 
     source_url: Optional[str] = FieldInfo(alias="sourceUrl", default=None)
 
+    step_classification_scores: Optional[List[float]] = FieldInfo(alias="stepClassificationScores", default=None)
+
     topics: Optional[List[str]] = None
+
+    use_case_classification_scores: Optional[List[float]] = FieldInfo(alias="useCaseClassificationScores", default=None)
 
     user_id: Optional[str] = None
 
     user_read_access: Optional[List[str]] = None
 
     user_write_access: Optional[List[str]] = None
+
+    user_message: Optional[str] = FieldInfo(alias="userMessage", default=None)
 
     workspace_id: Optional[str] = None
 
