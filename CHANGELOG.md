@@ -1,5 +1,18 @@
 # Changelog
 
+## 2.8.1 (2025-06-30)
+
+Full Changelog: [v2.8.0...v2.8.1](https://github.com/Papr-ai/papr-pythonSDK/compare/v2.8.0...v2.8.1)
+
+### Bug Fixes
+
+* **ci:** correct conditional ([9e3bfd1](https://github.com/Papr-ai/papr-pythonSDK/commit/9e3bfd14dbe6018999a1a22ffff8ac84a673957c))
+
+
+### Chores
+
+* **ci:** only run for pushes and fork pull requests ([406912e](https://github.com/Papr-ai/papr-pythonSDK/commit/406912eb3d2d92403d66d511771087705e61a163))
+
 ## 2.8.0 (2025-06-27)
 
 Full Changelog: [v2.7.0...v2.8.0](https://github.com/Papr-ai/papr-pythonSDK/compare/v2.7.0...v2.8.0)
