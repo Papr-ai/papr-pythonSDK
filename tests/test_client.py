@@ -331,7 +331,7 @@ class TestPapr:
     def test_validate_headers(self) -> None:
         client = Papr(base_url=base_url, api_key=api_key, _strict_response_validation=True)
         request = client._build_request(FinalRequestOptions(method="get", url="/foo"))
-        assert request.headers.get("X-API-Key") == api_key
+        assert request.headers.get("X-Session-Token") == api_key
 
         with pytest.raises(PaprError):
             with update_env(**{"PAPR_MEMORY_API_KEY": Omit()}):
@@ -709,7 +709,7 @@ class TestPapr:
         respx_mock.post("/v1/user").mock(side_effect=httpx.TimeoutException("Test timeout error"))
 
         with pytest.raises(APITimeoutError):
-            client.user.with_streaming_response.create(external_id="user123").__enter__()
+            client.user.with_streaming_response.create(external_id="user123", x_api_key="X-API-Key").__enter__()
 
         assert _get_open_connections(self.client) == 0
 
@@ -719,7 +719,7 @@ class TestPapr:
         respx_mock.post("/v1/user").mock(return_value=httpx.Response(500))
 
         with pytest.raises(APIStatusError):
-            client.user.with_streaming_response.create(external_id="user123").__enter__()
+            client.user.with_streaming_response.create(external_id="user123", x_api_key="X-API-Key").__enter__()
         assert _get_open_connections(self.client) == 0
 
     @pytest.mark.parametrize("failures_before_success", [0, 2, 4])
@@ -748,7 +748,7 @@ class TestPapr:
 
         respx_mock.post("/v1/user").mock(side_effect=retry_handler)
 
-        response = client.user.with_raw_response.create(external_id="user123")
+        response = client.user.with_raw_response.create(external_id="user123", x_api_key="X-API-Key")
 
         assert response.retries_taken == failures_before_success
         assert int(response.http_request.headers.get("x-stainless-retry-count")) == failures_before_success
@@ -771,7 +771,7 @@ class TestPapr:
         respx_mock.post("/v1/user").mock(side_effect=retry_handler)
 
         response = client.user.with_raw_response.create(
-            external_id="user123", extra_headers={"x-stainless-retry-count": Omit()}
+            external_id="user123", x_api_key="X-API-Key", extra_headers={"x-stainless-retry-count": Omit()}
         )
 
         assert len(response.http_request.headers.get_list("x-stainless-retry-count")) == 0
@@ -796,7 +796,7 @@ class TestPapr:
         respx_mock.post("/v1/user").mock(side_effect=retry_handler)
 
         response = client.user.with_raw_response.create(
-            external_id="user123", extra_headers={"x-stainless-retry-count": "42"}
+            external_id="user123", x_api_key="X-API-Key", extra_headers={"x-stainless-retry-count": "42"}
         )
 
         assert response.http_request.headers.get("x-stainless-retry-count") == "42"
@@ -1134,7 +1134,7 @@ class TestAsyncPapr:
     def test_validate_headers(self) -> None:
         client = AsyncPapr(base_url=base_url, api_key=api_key, _strict_response_validation=True)
         request = client._build_request(FinalRequestOptions(method="get", url="/foo"))
-        assert request.headers.get("X-API-Key") == api_key
+        assert request.headers.get("X-Session-Token") == api_key
 
         with pytest.raises(PaprError):
             with update_env(**{"PAPR_MEMORY_API_KEY": Omit()}):
@@ -1516,7 +1516,9 @@ class TestAsyncPapr:
         respx_mock.post("/v1/user").mock(side_effect=httpx.TimeoutException("Test timeout error"))
 
         with pytest.raises(APITimeoutError):
-            await async_client.user.with_streaming_response.create(external_id="user123").__aenter__()
+            await async_client.user.with_streaming_response.create(
+                external_id="user123", x_api_key="X-API-Key"
+            ).__aenter__()
 
         assert _get_open_connections(self.client) == 0
 
@@ -1526,7 +1528,9 @@ class TestAsyncPapr:
         respx_mock.post("/v1/user").mock(return_value=httpx.Response(500))
 
         with pytest.raises(APIStatusError):
-            await async_client.user.with_streaming_response.create(external_id="user123").__aenter__()
+            await async_client.user.with_streaming_response.create(
+                external_id="user123", x_api_key="X-API-Key"
+            ).__aenter__()
         assert _get_open_connections(self.client) == 0
 
     @pytest.mark.parametrize("failures_before_success", [0, 2, 4])
@@ -1556,7 +1560,7 @@ class TestAsyncPapr:
 
         respx_mock.post("/v1/user").mock(side_effect=retry_handler)
 
-        response = await client.user.with_raw_response.create(external_id="user123")
+        response = await client.user.with_raw_response.create(external_id="user123", x_api_key="X-API-Key")
 
         assert response.retries_taken == failures_before_success
         assert int(response.http_request.headers.get("x-stainless-retry-count")) == failures_before_success
@@ -1582,7 +1586,7 @@ class TestAsyncPapr:
         respx_mock.post("/v1/user").mock(side_effect=retry_handler)
 
         response = await client.user.with_raw_response.create(
-            external_id="user123", extra_headers={"x-stainless-retry-count": Omit()}
+            external_id="user123", x_api_key="X-API-Key", extra_headers={"x-stainless-retry-count": Omit()}
         )
 
         assert len(response.http_request.headers.get_list("x-stainless-retry-count")) == 0
@@ -1608,7 +1612,7 @@ class TestAsyncPapr:
         respx_mock.post("/v1/user").mock(side_effect=retry_handler)
 
         response = await client.user.with_raw_response.create(
-            external_id="user123", extra_headers={"x-stainless-retry-count": "42"}
+            external_id="user123", x_api_key="X-API-Key", extra_headers={"x-stainless-retry-count": "42"}
         )
 
         assert response.http_request.headers.get("x-stainless-retry-count") == "42"

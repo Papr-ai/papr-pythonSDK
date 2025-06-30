@@ -119,7 +119,7 @@ class Papr(SyncAPIClient):
     @property
     def _api_key_header(self) -> dict[str, str]:
         api_key = self.api_key
-        return {"X-API-Key": api_key}
+        return {"X-Session-Token": api_key}
 
     @property
     def _bearer(self) -> dict[str, str]:
@@ -310,7 +310,7 @@ class AsyncPapr(AsyncAPIClient):
     @property
     def _api_key_header(self) -> dict[str, str]:
         api_key = self.api_key
-        return {"X-API-Key": api_key}
+        return {"X-Session-Token": api_key}
 
     @property
     def _bearer(self) -> dict[str, str]:
