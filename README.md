@@ -33,6 +33,7 @@ client = Papr(
 
 user_response = client.user.create(
     external_id="user123",
+    x_api_key="X-API-Key",
 )
 print(user_response.external_id)
 ```
@@ -59,6 +60,7 @@ client = AsyncPapr(
 async def main() -> None:
     user_response = await client.user.create(
         external_id="user123",
+        x_api_key="X-API-Key",
     )
     print(user_response.external_id)
 
@@ -95,6 +97,7 @@ async def main() -> None:
     ) as client:
         user_response = await client.user.create(
             external_id="user123",
+            x_api_key="X-API-Key",
         )
         print(user_response.external_id)
 
@@ -149,6 +152,7 @@ client = Papr()
 try:
     client.user.create(
         external_id="user123",
+        x_api_key="X-API-Key",
     )
 except papr_memory.APIConnectionError as e:
     print("The server could not be reached")
@@ -194,6 +198,7 @@ client = Papr(
 # Or, configure per-request:
 client.with_options(max_retries=5).user.create(
     external_id="user123",
+    x_api_key="X-API-Key",
 )
 ```
 
@@ -219,6 +224,7 @@ client = Papr(
 # Override per-request:
 client.with_options(timeout=5.0).user.create(
     external_id="user123",
+    x_api_key="X-API-Key",
 )
 ```
 
@@ -262,6 +268,7 @@ from papr_memory import Papr
 client = Papr()
 response = client.user.with_raw_response.create(
     external_id="user123",
+    x_api_key="X-API-Key",
 )
 print(response.headers.get('X-My-Header'))
 
@@ -282,6 +289,7 @@ To stream the response body, use `.with_streaming_response` instead, which requi
 ```python
 with client.user.with_streaming_response.create(
     external_id="user123",
+    x_api_key="X-API-Key",
 ) as response:
     print(response.headers.get("X-My-Header"))
 

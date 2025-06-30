@@ -27,6 +27,7 @@ class TestUser:
     def test_method_create(self, client: Papr) -> None:
         user = client.user.create(
             external_id="user123",
+            x_api_key="X-API-Key",
         )
         assert_matches_type(UserResponse, user, path=["response"])
 
@@ -35,6 +36,7 @@ class TestUser:
     def test_method_create_with_all_params(self, client: Papr) -> None:
         user = client.user.create(
             external_id="user123",
+            x_api_key="X-API-Key",
             email="user@example.com",
             metadata={
                 "name": "John Doe",
@@ -49,6 +51,7 @@ class TestUser:
     def test_raw_response_create(self, client: Papr) -> None:
         response = client.user.with_raw_response.create(
             external_id="user123",
+            x_api_key="X-API-Key",
         )
 
         assert response.is_closed is True
@@ -61,6 +64,7 @@ class TestUser:
     def test_streaming_response_create(self, client: Papr) -> None:
         with client.user.with_streaming_response.create(
             external_id="user123",
+            x_api_key="X-API-Key",
         ) as response:
             assert not response.is_closed
             assert response.http_request.headers.get("X-Stainless-Lang") == "python"
@@ -75,6 +79,7 @@ class TestUser:
     def test_method_update(self, client: Papr) -> None:
         user = client.user.update(
             user_id="user_id",
+            x_api_key="X-API-Key",
         )
         assert_matches_type(UserResponse, user, path=["response"])
 
@@ -83,6 +88,7 @@ class TestUser:
     def test_method_update_with_all_params(self, client: Papr) -> None:
         user = client.user.update(
             user_id="user_id",
+            x_api_key="X-API-Key",
             email="updated.user@example.com",
             external_id="updated_user_123",
             metadata={
@@ -98,6 +104,7 @@ class TestUser:
     def test_raw_response_update(self, client: Papr) -> None:
         response = client.user.with_raw_response.update(
             user_id="user_id",
+            x_api_key="X-API-Key",
         )
 
         assert response.is_closed is True
@@ -110,6 +117,7 @@ class TestUser:
     def test_streaming_response_update(self, client: Papr) -> None:
         with client.user.with_streaming_response.update(
             user_id="user_id",
+            x_api_key="X-API-Key",
         ) as response:
             assert not response.is_closed
             assert response.http_request.headers.get("X-Stainless-Lang") == "python"
@@ -125,18 +133,22 @@ class TestUser:
         with pytest.raises(ValueError, match=r"Expected a non-empty value for `user_id` but received ''"):
             client.user.with_raw_response.update(
                 user_id="",
+                x_api_key="X-API-Key",
             )
 
     @pytest.mark.skip()
     @parametrize
     def test_method_list(self, client: Papr) -> None:
-        user = client.user.list()
+        user = client.user.list(
+            x_api_key="X-API-Key",
+        )
         assert_matches_type(UserListResponse, user, path=["response"])
 
     @pytest.mark.skip()
     @parametrize
     def test_method_list_with_all_params(self, client: Papr) -> None:
         user = client.user.list(
+            x_api_key="X-API-Key",
             email="email",
             external_id="external_id",
             page=1,
@@ -147,7 +159,9 @@ class TestUser:
     @pytest.mark.skip()
     @parametrize
     def test_raw_response_list(self, client: Papr) -> None:
-        response = client.user.with_raw_response.list()
+        response = client.user.with_raw_response.list(
+            x_api_key="X-API-Key",
+        )
 
         assert response.is_closed is True
         assert response.http_request.headers.get("X-Stainless-Lang") == "python"
@@ -157,7 +171,9 @@ class TestUser:
     @pytest.mark.skip()
     @parametrize
     def test_streaming_response_list(self, client: Papr) -> None:
-        with client.user.with_streaming_response.list() as response:
+        with client.user.with_streaming_response.list(
+            x_api_key="X-API-Key",
+        ) as response:
             assert not response.is_closed
             assert response.http_request.headers.get("X-Stainless-Lang") == "python"
 
@@ -171,6 +187,7 @@ class TestUser:
     def test_method_delete(self, client: Papr) -> None:
         user = client.user.delete(
             user_id="user_id",
+            x_api_key="X-API-Key",
         )
         assert_matches_type(UserDeleteResponse, user, path=["response"])
 
@@ -179,6 +196,7 @@ class TestUser:
     def test_method_delete_with_all_params(self, client: Papr) -> None:
         user = client.user.delete(
             user_id="user_id",
+            x_api_key="X-API-Key",
             is_external=True,
         )
         assert_matches_type(UserDeleteResponse, user, path=["response"])
@@ -188,6 +206,7 @@ class TestUser:
     def test_raw_response_delete(self, client: Papr) -> None:
         response = client.user.with_raw_response.delete(
             user_id="user_id",
+            x_api_key="X-API-Key",
         )
 
         assert response.is_closed is True
@@ -200,6 +219,7 @@ class TestUser:
     def test_streaming_response_delete(self, client: Papr) -> None:
         with client.user.with_streaming_response.delete(
             user_id="user_id",
+            x_api_key="X-API-Key",
         ) as response:
             assert not response.is_closed
             assert response.http_request.headers.get("X-Stainless-Lang") == "python"
@@ -215,6 +235,7 @@ class TestUser:
         with pytest.raises(ValueError, match=r"Expected a non-empty value for `user_id` but received ''"):
             client.user.with_raw_response.delete(
                 user_id="",
+                x_api_key="X-API-Key",
             )
 
     @pytest.mark.skip()
@@ -222,6 +243,7 @@ class TestUser:
     def test_method_create_batch(self, client: Papr) -> None:
         user = client.user.create_batch(
             users=[{"external_id": "user123"}],
+            x_api_key="X-API-Key",
         )
         assert_matches_type(UserCreateBatchResponse, user, path=["response"])
 
@@ -230,6 +252,7 @@ class TestUser:
     def test_raw_response_create_batch(self, client: Papr) -> None:
         response = client.user.with_raw_response.create_batch(
             users=[{"external_id": "user123"}],
+            x_api_key="X-API-Key",
         )
 
         assert response.is_closed is True
@@ -242,6 +265,7 @@ class TestUser:
     def test_streaming_response_create_batch(self, client: Papr) -> None:
         with client.user.with_streaming_response.create_batch(
             users=[{"external_id": "user123"}],
+            x_api_key="X-API-Key",
         ) as response:
             assert not response.is_closed
             assert response.http_request.headers.get("X-Stainless-Lang") == "python"
@@ -255,7 +279,8 @@ class TestUser:
     @parametrize
     def test_method_get(self, client: Papr) -> None:
         user = client.user.get(
-            "user_id",
+            user_id="user_id",
+            x_api_key="X-API-Key",
         )
         assert_matches_type(UserResponse, user, path=["response"])
 
@@ -263,7 +288,8 @@ class TestUser:
     @parametrize
     def test_raw_response_get(self, client: Papr) -> None:
         response = client.user.with_raw_response.get(
-            "user_id",
+            user_id="user_id",
+            x_api_key="X-API-Key",
         )
 
         assert response.is_closed is True
@@ -275,7 +301,8 @@ class TestUser:
     @parametrize
     def test_streaming_response_get(self, client: Papr) -> None:
         with client.user.with_streaming_response.get(
-            "user_id",
+            user_id="user_id",
+            x_api_key="X-API-Key",
         ) as response:
             assert not response.is_closed
             assert response.http_request.headers.get("X-Stainless-Lang") == "python"
@@ -290,7 +317,8 @@ class TestUser:
     def test_path_params_get(self, client: Papr) -> None:
         with pytest.raises(ValueError, match=r"Expected a non-empty value for `user_id` but received ''"):
             client.user.with_raw_response.get(
-                "",
+                user_id="",
+                x_api_key="X-API-Key",
             )
 
 
@@ -304,6 +332,7 @@ class TestAsyncUser:
     async def test_method_create(self, async_client: AsyncPapr) -> None:
         user = await async_client.user.create(
             external_id="user123",
+            x_api_key="X-API-Key",
         )
         assert_matches_type(UserResponse, user, path=["response"])
 
@@ -312,6 +341,7 @@ class TestAsyncUser:
     async def test_method_create_with_all_params(self, async_client: AsyncPapr) -> None:
         user = await async_client.user.create(
             external_id="user123",
+            x_api_key="X-API-Key",
             email="user@example.com",
             metadata={
                 "name": "John Doe",
@@ -326,6 +356,7 @@ class TestAsyncUser:
     async def test_raw_response_create(self, async_client: AsyncPapr) -> None:
         response = await async_client.user.with_raw_response.create(
             external_id="user123",
+            x_api_key="X-API-Key",
         )
 
         assert response.is_closed is True
@@ -338,6 +369,7 @@ class TestAsyncUser:
     async def test_streaming_response_create(self, async_client: AsyncPapr) -> None:
         async with async_client.user.with_streaming_response.create(
             external_id="user123",
+            x_api_key="X-API-Key",
         ) as response:
             assert not response.is_closed
             assert response.http_request.headers.get("X-Stainless-Lang") == "python"
@@ -352,6 +384,7 @@ class TestAsyncUser:
     async def test_method_update(self, async_client: AsyncPapr) -> None:
         user = await async_client.user.update(
             user_id="user_id",
+            x_api_key="X-API-Key",
         )
         assert_matches_type(UserResponse, user, path=["response"])
 
@@ -360,6 +393,7 @@ class TestAsyncUser:
     async def test_method_update_with_all_params(self, async_client: AsyncPapr) -> None:
         user = await async_client.user.update(
             user_id="user_id",
+            x_api_key="X-API-Key",
             email="updated.user@example.com",
             external_id="updated_user_123",
             metadata={
@@ -375,6 +409,7 @@ class TestAsyncUser:
     async def test_raw_response_update(self, async_client: AsyncPapr) -> None:
         response = await async_client.user.with_raw_response.update(
             user_id="user_id",
+            x_api_key="X-API-Key",
         )
 
         assert response.is_closed is True
@@ -387,6 +422,7 @@ class TestAsyncUser:
     async def test_streaming_response_update(self, async_client: AsyncPapr) -> None:
         async with async_client.user.with_streaming_response.update(
             user_id="user_id",
+            x_api_key="X-API-Key",
         ) as response:
             assert not response.is_closed
             assert response.http_request.headers.get("X-Stainless-Lang") == "python"
@@ -402,18 +438,22 @@ class TestAsyncUser:
         with pytest.raises(ValueError, match=r"Expected a non-empty value for `user_id` but received ''"):
             await async_client.user.with_raw_response.update(
                 user_id="",
+                x_api_key="X-API-Key",
             )
 
     @pytest.mark.skip()
     @parametrize
     async def test_method_list(self, async_client: AsyncPapr) -> None:
-        user = await async_client.user.list()
+        user = await async_client.user.list(
+            x_api_key="X-API-Key",
+        )
         assert_matches_type(UserListResponse, user, path=["response"])
 
     @pytest.mark.skip()
     @parametrize
     async def test_method_list_with_all_params(self, async_client: AsyncPapr) -> None:
         user = await async_client.user.list(
+            x_api_key="X-API-Key",
             email="email",
             external_id="external_id",
             page=1,
@@ -424,7 +464,9 @@ class TestAsyncUser:
     @pytest.mark.skip()
     @parametrize
     async def test_raw_response_list(self, async_client: AsyncPapr) -> None:
-        response = await async_client.user.with_raw_response.list()
+        response = await async_client.user.with_raw_response.list(
+            x_api_key="X-API-Key",
+        )
 
         assert response.is_closed is True
         assert response.http_request.headers.get("X-Stainless-Lang") == "python"
@@ -434,7 +476,9 @@ class TestAsyncUser:
     @pytest.mark.skip()
     @parametrize
     async def test_streaming_response_list(self, async_client: AsyncPapr) -> None:
-        async with async_client.user.with_streaming_response.list() as response:
+        async with async_client.user.with_streaming_response.list(
+            x_api_key="X-API-Key",
+        ) as response:
             assert not response.is_closed
             assert response.http_request.headers.get("X-Stainless-Lang") == "python"
 
@@ -448,6 +492,7 @@ class TestAsyncUser:
     async def test_method_delete(self, async_client: AsyncPapr) -> None:
         user = await async_client.user.delete(
             user_id="user_id",
+            x_api_key="X-API-Key",
         )
         assert_matches_type(UserDeleteResponse, user, path=["response"])
 
@@ -456,6 +501,7 @@ class TestAsyncUser:
     async def test_method_delete_with_all_params(self, async_client: AsyncPapr) -> None:
         user = await async_client.user.delete(
             user_id="user_id",
+            x_api_key="X-API-Key",
             is_external=True,
         )
         assert_matches_type(UserDeleteResponse, user, path=["response"])
@@ -465,6 +511,7 @@ class TestAsyncUser:
     async def test_raw_response_delete(self, async_client: AsyncPapr) -> None:
         response = await async_client.user.with_raw_response.delete(
             user_id="user_id",
+            x_api_key="X-API-Key",
         )
 
         assert response.is_closed is True
@@ -477,6 +524,7 @@ class TestAsyncUser:
     async def test_streaming_response_delete(self, async_client: AsyncPapr) -> None:
         async with async_client.user.with_streaming_response.delete(
             user_id="user_id",
+            x_api_key="X-API-Key",
         ) as response:
             assert not response.is_closed
             assert response.http_request.headers.get("X-Stainless-Lang") == "python"
@@ -492,6 +540,7 @@ class TestAsyncUser:
         with pytest.raises(ValueError, match=r"Expected a non-empty value for `user_id` but received ''"):
             await async_client.user.with_raw_response.delete(
                 user_id="",
+                x_api_key="X-API-Key",
             )
 
     @pytest.mark.skip()
@@ -499,6 +548,7 @@ class TestAsyncUser:
     async def test_method_create_batch(self, async_client: AsyncPapr) -> None:
         user = await async_client.user.create_batch(
             users=[{"external_id": "user123"}],
+            x_api_key="X-API-Key",
         )
         assert_matches_type(UserCreateBatchResponse, user, path=["response"])
 
@@ -507,6 +557,7 @@ class TestAsyncUser:
     async def test_raw_response_create_batch(self, async_client: AsyncPapr) -> None:
         response = await async_client.user.with_raw_response.create_batch(
             users=[{"external_id": "user123"}],
+            x_api_key="X-API-Key",
         )
 
         assert response.is_closed is True
@@ -519,6 +570,7 @@ class TestAsyncUser:
     async def test_streaming_response_create_batch(self, async_client: AsyncPapr) -> None:
         async with async_client.user.with_streaming_response.create_batch(
             users=[{"external_id": "user123"}],
+            x_api_key="X-API-Key",
         ) as response:
             assert not response.is_closed
             assert response.http_request.headers.get("X-Stainless-Lang") == "python"
@@ -532,7 +584,8 @@ class TestAsyncUser:
     @parametrize
     async def test_method_get(self, async_client: AsyncPapr) -> None:
         user = await async_client.user.get(
-            "user_id",
+            user_id="user_id",
+            x_api_key="X-API-Key",
         )
         assert_matches_type(UserResponse, user, path=["response"])
 
@@ -540,7 +593,8 @@ class TestAsyncUser:
     @parametrize
     async def test_raw_response_get(self, async_client: AsyncPapr) -> None:
         response = await async_client.user.with_raw_response.get(
-            "user_id",
+            user_id="user_id",
+            x_api_key="X-API-Key",
         )
 
         assert response.is_closed is True
@@ -552,7 +606,8 @@ class TestAsyncUser:
     @parametrize
     async def test_streaming_response_get(self, async_client: AsyncPapr) -> None:
         async with async_client.user.with_streaming_response.get(
-            "user_id",
+            user_id="user_id",
+            x_api_key="X-API-Key",
         ) as response:
             assert not response.is_closed
             assert response.http_request.headers.get("X-Stainless-Lang") == "python"
@@ -567,5 +622,6 @@ class TestAsyncUser:
     async def test_path_params_get(self, async_client: AsyncPapr) -> None:
         with pytest.raises(ValueError, match=r"Expected a non-empty value for `user_id` but received ''"):
             await async_client.user.with_raw_response.get(
-                "",
+                user_id="",
+                x_api_key="X-API-Key",
             )
