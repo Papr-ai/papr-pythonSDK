@@ -1,5 +1,13 @@
 # Changelog
 
+## 2.9.1 (2025-07-02)
+
+Full Changelog: [v2.9.0...v2.9.1](https://github.com/Papr-ai/papr-pythonSDK/compare/v2.9.0...v2.9.1)
+
+### Chores
+
+* **ci:** change upload type ([eee0262](https://github.com/Papr-ai/papr-pythonSDK/commit/eee026256d9592a4eb716b99c41f0f2870462191))
+
 ## 2.9.0 (2025-06-30)
 
 Full Changelog: [v2.8.1...v2.9.0](https://github.com/Papr-ai/papr-pythonSDK/compare/v2.8.1...v2.9.0)
