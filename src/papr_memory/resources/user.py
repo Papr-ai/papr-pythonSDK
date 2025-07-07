@@ -58,7 +58,6 @@ class UserResource(SyncAPIResource):
         self,
         *,
         external_id: str,
-        x_api_key: str,
         email: Optional[str] | NotGiven = NOT_GIVEN,
         metadata: Optional[Dict[str, object]] | NotGiven = NOT_GIVEN,
         type: UserType | NotGiven = NOT_GIVEN,
@@ -81,7 +80,6 @@ class UserResource(SyncAPIResource):
 
           timeout: Override the client-level default timeout for this request, in seconds
         """
-        extra_headers = {"X-API-Key": x_api_key, **(extra_headers or {})}
         return self._post(
             "/v1/user",
             body=maybe_transform(
@@ -103,7 +101,6 @@ class UserResource(SyncAPIResource):
         self,
         user_id: str,
         *,
-        x_api_key: str,
         email: Optional[str] | NotGiven = NOT_GIVEN,
         external_id: Optional[str] | NotGiven = NOT_GIVEN,
         metadata: Optional[Dict[str, object]] | NotGiven = NOT_GIVEN,
@@ -129,7 +126,6 @@ class UserResource(SyncAPIResource):
         """
         if not user_id:
             raise ValueError(f"Expected a non-empty value for `user_id` but received {user_id!r}")
-        extra_headers = {"X-API-Key": x_api_key, **(extra_headers or {})}
         return self._put(
             f"/v1/user/{user_id}",
             body=maybe_transform(
@@ -150,7 +146,6 @@ class UserResource(SyncAPIResource):
     def list(
         self,
         *,
-        x_api_key: str,
         email: Optional[str] | NotGiven = NOT_GIVEN,
         external_id: Optional[str] | NotGiven = NOT_GIVEN,
         page: int | NotGiven = NOT_GIVEN,
@@ -174,7 +169,6 @@ class UserResource(SyncAPIResource):
 
           timeout: Override the client-level default timeout for this request, in seconds
         """
-        extra_headers = {"X-API-Key": x_api_key, **(extra_headers or {})}
         return self._get(
             "/v1/user",
             options=make_request_options(
@@ -199,7 +193,6 @@ class UserResource(SyncAPIResource):
         self,
         user_id: str,
         *,
-        x_api_key: str,
         is_external: bool | NotGiven = NOT_GIVEN,
         # Use the following arguments if you need to pass additional parameters to the API that aren't available via kwargs.
         # The extra values given here take precedence over values defined on the client or passed to this method.
@@ -225,7 +218,6 @@ class UserResource(SyncAPIResource):
         """
         if not user_id:
             raise ValueError(f"Expected a non-empty value for `user_id` but received {user_id!r}")
-        extra_headers = {"X-API-Key": x_api_key, **(extra_headers or {})}
         return self._delete(
             f"/v1/user/{user_id}",
             options=make_request_options(
@@ -242,7 +234,6 @@ class UserResource(SyncAPIResource):
         self,
         *,
         users: Iterable[user_create_batch_params.User],
-        x_api_key: str,
         # Use the following arguments if you need to pass additional parameters to the API that aren't available via kwargs.
         # The extra values given here take precedence over values defined on the client or passed to this method.
         extra_headers: Headers | None = None,
@@ -263,7 +254,6 @@ class UserResource(SyncAPIResource):
 
           timeout: Override the client-level default timeout for this request, in seconds
         """
-        extra_headers = {"X-API-Key": x_api_key, **(extra_headers or {})}
         return self._post(
             "/v1/user/batch",
             body=maybe_transform({"users": users}, user_create_batch_params.UserCreateBatchParams),
@@ -277,7 +267,6 @@ class UserResource(SyncAPIResource):
         self,
         user_id: str,
         *,
-        x_api_key: str,
         # Use the following arguments if you need to pass additional parameters to the API that aren't available via kwargs.
         # The extra values given here take precedence over values defined on the client or passed to this method.
         extra_headers: Headers | None = None,
@@ -299,7 +288,6 @@ class UserResource(SyncAPIResource):
         """
         if not user_id:
             raise ValueError(f"Expected a non-empty value for `user_id` but received {user_id!r}")
-        extra_headers = {"X-API-Key": x_api_key, **(extra_headers or {})}
         return self._get(
             f"/v1/user/{user_id}",
             options=make_request_options(
@@ -333,7 +321,6 @@ class AsyncUserResource(AsyncAPIResource):
         self,
         *,
         external_id: str,
-        x_api_key: str,
         email: Optional[str] | NotGiven = NOT_GIVEN,
         metadata: Optional[Dict[str, object]] | NotGiven = NOT_GIVEN,
         type: UserType | NotGiven = NOT_GIVEN,
@@ -356,7 +343,6 @@ class AsyncUserResource(AsyncAPIResource):
 
           timeout: Override the client-level default timeout for this request, in seconds
         """
-        extra_headers = {"X-API-Key": x_api_key, **(extra_headers or {})}
         return await self._post(
             "/v1/user",
             body=await async_maybe_transform(
@@ -378,7 +364,6 @@ class AsyncUserResource(AsyncAPIResource):
         self,
         user_id: str,
         *,
-        x_api_key: str,
         email: Optional[str] | NotGiven = NOT_GIVEN,
         external_id: Optional[str] | NotGiven = NOT_GIVEN,
         metadata: Optional[Dict[str, object]] | NotGiven = NOT_GIVEN,
@@ -404,7 +389,6 @@ class AsyncUserResource(AsyncAPIResource):
         """
         if not user_id:
             raise ValueError(f"Expected a non-empty value for `user_id` but received {user_id!r}")
-        extra_headers = {"X-API-Key": x_api_key, **(extra_headers or {})}
         return await self._put(
             f"/v1/user/{user_id}",
             body=await async_maybe_transform(
@@ -425,7 +409,6 @@ class AsyncUserResource(AsyncAPIResource):
     async def list(
         self,
         *,
-        x_api_key: str,
         email: Optional[str] | NotGiven = NOT_GIVEN,
         external_id: Optional[str] | NotGiven = NOT_GIVEN,
         page: int | NotGiven = NOT_GIVEN,
@@ -449,7 +432,6 @@ class AsyncUserResource(AsyncAPIResource):
 
           timeout: Override the client-level default timeout for this request, in seconds
         """
-        extra_headers = {"X-API-Key": x_api_key, **(extra_headers or {})}
         return await self._get(
             "/v1/user",
             options=make_request_options(
@@ -474,7 +456,6 @@ class AsyncUserResource(AsyncAPIResource):
         self,
         user_id: str,
         *,
-        x_api_key: str,
         is_external: bool | NotGiven = NOT_GIVEN,
         # Use the following arguments if you need to pass additional parameters to the API that aren't available via kwargs.
         # The extra values given here take precedence over values defined on the client or passed to this method.
@@ -500,7 +481,6 @@ class AsyncUserResource(AsyncAPIResource):
         """
         if not user_id:
             raise ValueError(f"Expected a non-empty value for `user_id` but received {user_id!r}")
-        extra_headers = {"X-API-Key": x_api_key, **(extra_headers or {})}
         return await self._delete(
             f"/v1/user/{user_id}",
             options=make_request_options(
@@ -517,7 +497,6 @@ class AsyncUserResource(AsyncAPIResource):
         self,
         *,
         users: Iterable[user_create_batch_params.User],
-        x_api_key: str,
         # Use the following arguments if you need to pass additional parameters to the API that aren't available via kwargs.
         # The extra values given here take precedence over values defined on the client or passed to this method.
         extra_headers: Headers | None = None,
@@ -538,7 +517,6 @@ class AsyncUserResource(AsyncAPIResource):
 
           timeout: Override the client-level default timeout for this request, in seconds
         """
-        extra_headers = {"X-API-Key": x_api_key, **(extra_headers or {})}
         return await self._post(
             "/v1/user/batch",
             body=await async_maybe_transform({"users": users}, user_create_batch_params.UserCreateBatchParams),
@@ -552,7 +530,6 @@ class AsyncUserResource(AsyncAPIResource):
         self,
         user_id: str,
         *,
-        x_api_key: str,
         # Use the following arguments if you need to pass additional parameters to the API that aren't available via kwargs.
         # The extra values given here take precedence over values defined on the client or passed to this method.
         extra_headers: Headers | None = None,
@@ -574,7 +551,6 @@ class AsyncUserResource(AsyncAPIResource):
         """
         if not user_id:
             raise ValueError(f"Expected a non-empty value for `user_id` but received {user_id!r}")
-        extra_headers = {"X-API-Key": x_api_key, **(extra_headers or {})}
         return await self._get(
             f"/v1/user/{user_id}",
             options=make_request_options(

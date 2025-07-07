@@ -16,6 +16,14 @@ from .memory import (
     MemoryResourceWithStreamingResponse,
     AsyncMemoryResourceWithStreamingResponse,
 )
+from .feedback import (
+    FeedbackResource,
+    AsyncFeedbackResource,
+    FeedbackResourceWithRawResponse,
+    AsyncFeedbackResourceWithRawResponse,
+    FeedbackResourceWithStreamingResponse,
+    AsyncFeedbackResourceWithStreamingResponse,
+)
 
 __all__ = [
     "UserResource",
@@ -30,4 +38,10 @@ __all__ = [
     "AsyncMemoryResourceWithRawResponse",
     "MemoryResourceWithStreamingResponse",
     "AsyncMemoryResourceWithStreamingResponse",
+    "FeedbackResource",
+    "AsyncFeedbackResource",
+    "FeedbackResourceWithRawResponse",
+    "AsyncFeedbackResourceWithRawResponse",
+    "FeedbackResourceWithStreamingResponse",
+    "AsyncFeedbackResourceWithStreamingResponse",
 ]

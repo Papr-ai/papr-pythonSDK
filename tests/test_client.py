@@ -24,7 +24,7 @@ from pydantic import ValidationError
 from papr_memory import Papr, AsyncPapr, APIResponseValidationError
 from papr_memory._types import Omit
 from papr_memory._models import BaseModel, FinalRequestOptions
-from papr_memory._exceptions import APIStatusError, APITimeoutError, APIResponseValidationError
+from papr_memory._exceptions import PaprError, APIStatusError, APITimeoutError, APIResponseValidationError
 from papr_memory._base_client import (
     DEFAULT_TIMEOUT,
     HTTPX_DEFAULT_TIMEOUT,
@@ -37,7 +37,7 @@ from papr_memory._base_client import (
 from .utils import update_env
 
 base_url = os.environ.get("TEST_API_BASE_URL", "http://127.0.0.1:4010")
-api_key = "My API Key"
+x_api_key = "My X API Key"
 
 
 def _get_params(client: BaseClient[Any, Any]) -> dict[str, str]:
@@ -59,7 +59,7 @@ def _get_open_connections(client: Papr | AsyncPapr) -> int:
 
 
 class TestPapr:
-    client = Papr(base_url=base_url, api_key=api_key, _strict_response_validation=True)
+    client = Papr(base_url=base_url, x_api_key=x_api_key, _strict_response_validation=True)
 
     @pytest.mark.respx(base_url=base_url)
     def test_raw_response(self, respx_mock: MockRouter) -> None:
@@ -85,9 +85,9 @@ class TestPapr:
         copied = self.client.copy()
         assert id(copied) != id(self.client)
 
-        copied = self.client.copy(api_key="another My API Key")
-        assert copied.api_key == "another My API Key"
-        assert self.client.api_key == "My API Key"
+        copied = self.client.copy(x_api_key="another My X API Key")
+        assert copied.x_api_key == "another My X API Key"
+        assert self.client.x_api_key == "My X API Key"
 
     def test_copy_default_options(self) -> None:
         # options that have a default are overridden correctly
@@ -107,7 +107,7 @@ class TestPapr:
 
     def test_copy_default_headers(self) -> None:
         client = Papr(
-            base_url=base_url, api_key=api_key, _strict_response_validation=True, default_headers={"X-Foo": "bar"}
+            base_url=base_url, x_api_key=x_api_key, _strict_response_validation=True, default_headers={"X-Foo": "bar"}
         )
         assert client.default_headers["X-Foo"] == "bar"
 
@@ -141,7 +141,7 @@ class TestPapr:
 
     def test_copy_default_query(self) -> None:
         client = Papr(
-            base_url=base_url, api_key=api_key, _strict_response_validation=True, default_query={"foo": "bar"}
+            base_url=base_url, x_api_key=x_api_key, _strict_response_validation=True, default_query={"foo": "bar"}
         )
         assert _get_params(client)["foo"] == "bar"
 
@@ -266,7 +266,9 @@ class TestPapr:
         assert timeout == httpx.Timeout(100.0)
 
     def test_client_timeout_option(self) -> None:
-        client = Papr(base_url=base_url, api_key=api_key, _strict_response_validation=True, timeout=httpx.Timeout(0))
+        client = Papr(
+            base_url=base_url, x_api_key=x_api_key, _strict_response_validation=True, timeout=httpx.Timeout(0)
+        )
 
         request = client._build_request(FinalRequestOptions(method="get", url="/foo"))
         timeout = httpx.Timeout(**request.extensions["timeout"])  # type: ignore
@@ -275,7 +277,9 @@ class TestPapr:
     def test_http_client_timeout_option(self) -> None:
         # custom timeout given to the httpx client should be used
         with httpx.Client(timeout=None) as http_client:
-            client = Papr(base_url=base_url, api_key=api_key, _strict_response_validation=True, http_client=http_client)
+            client = Papr(
+                base_url=base_url, x_api_key=x_api_key, _strict_response_validation=True, http_client=http_client
+            )
 
             request = client._build_request(FinalRequestOptions(method="get", url="/foo"))
             timeout = httpx.Timeout(**request.extensions["timeout"])  # type: ignore
@@ -283,7 +287,9 @@ class TestPapr:
 
         # no timeout given to the httpx client should not use the httpx default
         with httpx.Client() as http_client:
-            client = Papr(base_url=base_url, api_key=api_key, _strict_response_validation=True, http_client=http_client)
+            client = Papr(
+                base_url=base_url, x_api_key=x_api_key, _strict_response_validation=True, http_client=http_client
+            )
 
             request = client._build_request(FinalRequestOptions(method="get", url="/foo"))
             timeout = httpx.Timeout(**request.extensions["timeout"])  # type: ignore
@@ -291,7 +297,9 @@ class TestPapr:
 
         # explicitly passing the default timeout currently results in it being ignored
         with httpx.Client(timeout=HTTPX_DEFAULT_TIMEOUT) as http_client:
-            client = Papr(base_url=base_url, api_key=api_key, _strict_response_validation=True, http_client=http_client)
+            client = Papr(
+                base_url=base_url, x_api_key=x_api_key, _strict_response_validation=True, http_client=http_client
+            )
 
             request = client._build_request(FinalRequestOptions(method="get", url="/foo"))
             timeout = httpx.Timeout(**request.extensions["timeout"])  # type: ignore
@@ -302,14 +310,14 @@ class TestPapr:
             async with httpx.AsyncClient() as http_client:
                 Papr(
                     base_url=base_url,
-                    api_key=api_key,
+                    x_api_key=x_api_key,
                     _strict_response_validation=True,
                     http_client=cast(Any, http_client),
                 )
 
     def test_default_headers_option(self) -> None:
         client = Papr(
-            base_url=base_url, api_key=api_key, _strict_response_validation=True, default_headers={"X-Foo": "bar"}
+            base_url=base_url, x_api_key=x_api_key, _strict_response_validation=True, default_headers={"X-Foo": "bar"}
         )
         request = client._build_request(FinalRequestOptions(method="get", url="/foo"))
         assert request.headers.get("x-foo") == "bar"
@@ -317,7 +325,7 @@ class TestPapr:
 
         client2 = Papr(
             base_url=base_url,
-            api_key=api_key,
+            x_api_key=x_api_key,
             _strict_response_validation=True,
             default_headers={
                 "X-Foo": "stainless",
@@ -328,9 +336,22 @@ class TestPapr:
         assert request.headers.get("x-foo") == "stainless"
         assert request.headers.get("x-stainless-lang") == "my-overriding-header"
 
+    def test_validate_headers(self) -> None:
+        client = Papr(base_url=base_url, x_api_key=x_api_key, _strict_response_validation=True)
+        request = client._build_request(FinalRequestOptions(method="get", url="/foo"))
+        assert request.headers.get("X-API-Key") == x_api_key
+
+        with pytest.raises(PaprError):
+            with update_env(**{"PAPR_MEMORY_API_KEY": Omit()}):
+                client2 = Papr(base_url=base_url, x_api_key=None, _strict_response_validation=True)
+            _ = client2
+
     def test_default_query_option(self) -> None:
         client = Papr(
-            base_url=base_url, api_key=api_key, _strict_response_validation=True, default_query={"query_param": "bar"}
+            base_url=base_url,
+            x_api_key=x_api_key,
+            _strict_response_validation=True,
+            default_query={"query_param": "bar"},
         )
         request = client._build_request(FinalRequestOptions(method="get", url="/foo"))
         url = httpx.URL(request.url)
@@ -530,7 +551,7 @@ class TestPapr:
         assert response.foo == 2
 
     def test_base_url_setter(self) -> None:
-        client = Papr(base_url="https://example.com/from_init", api_key=api_key, _strict_response_validation=True)
+        client = Papr(base_url="https://example.com/from_init", x_api_key=x_api_key, _strict_response_validation=True)
         assert client.base_url == "https://example.com/from_init/"
 
         client.base_url = "https://example.com/from_setter"  # type: ignore[assignment]
@@ -539,16 +560,16 @@ class TestPapr:
 
     def test_base_url_env(self) -> None:
         with update_env(PAPR_BASE_URL="http://localhost:5000/from/env"):
-            client = Papr(api_key=api_key, _strict_response_validation=True)
+            client = Papr(x_api_key=x_api_key, _strict_response_validation=True)
             assert client.base_url == "http://localhost:5000/from/env/"
 
     @pytest.mark.parametrize(
         "client",
         [
-            Papr(base_url="http://localhost:5000/custom/path/", api_key=api_key, _strict_response_validation=True),
+            Papr(base_url="http://localhost:5000/custom/path/", x_api_key=x_api_key, _strict_response_validation=True),
             Papr(
                 base_url="http://localhost:5000/custom/path/",
-                api_key=api_key,
+                x_api_key=x_api_key,
                 _strict_response_validation=True,
                 http_client=httpx.Client(),
             ),
@@ -568,10 +589,10 @@ class TestPapr:
     @pytest.mark.parametrize(
         "client",
         [
-            Papr(base_url="http://localhost:5000/custom/path/", api_key=api_key, _strict_response_validation=True),
+            Papr(base_url="http://localhost:5000/custom/path/", x_api_key=x_api_key, _strict_response_validation=True),
             Papr(
                 base_url="http://localhost:5000/custom/path/",
-                api_key=api_key,
+                x_api_key=x_api_key,
                 _strict_response_validation=True,
                 http_client=httpx.Client(),
             ),
@@ -591,10 +612,10 @@ class TestPapr:
     @pytest.mark.parametrize(
         "client",
         [
-            Papr(base_url="http://localhost:5000/custom/path/", api_key=api_key, _strict_response_validation=True),
+            Papr(base_url="http://localhost:5000/custom/path/", x_api_key=x_api_key, _strict_response_validation=True),
             Papr(
                 base_url="http://localhost:5000/custom/path/",
-                api_key=api_key,
+                x_api_key=x_api_key,
                 _strict_response_validation=True,
                 http_client=httpx.Client(),
             ),
@@ -612,7 +633,7 @@ class TestPapr:
         assert request.url == "https://myapi.com/foo"
 
     def test_copied_client_does_not_close_http(self) -> None:
-        client = Papr(base_url=base_url, api_key=api_key, _strict_response_validation=True)
+        client = Papr(base_url=base_url, x_api_key=x_api_key, _strict_response_validation=True)
         assert not client.is_closed()
 
         copied = client.copy()
@@ -623,7 +644,7 @@ class TestPapr:
         assert not client.is_closed()
 
     def test_client_context_manager(self) -> None:
-        client = Papr(base_url=base_url, api_key=api_key, _strict_response_validation=True)
+        client = Papr(base_url=base_url, x_api_key=x_api_key, _strict_response_validation=True)
         with client as c2:
             assert c2 is client
             assert not c2.is_closed()
@@ -644,7 +665,7 @@ class TestPapr:
 
     def test_client_max_retries_validation(self) -> None:
         with pytest.raises(TypeError, match=r"max_retries cannot be None"):
-            Papr(base_url=base_url, api_key=api_key, _strict_response_validation=True, max_retries=cast(Any, None))
+            Papr(base_url=base_url, x_api_key=x_api_key, _strict_response_validation=True, max_retries=cast(Any, None))
 
     @pytest.mark.respx(base_url=base_url)
     def test_received_text_for_expected_json(self, respx_mock: MockRouter) -> None:
@@ -653,12 +674,12 @@ class TestPapr:
 
         respx_mock.get("/foo").mock(return_value=httpx.Response(200, text="my-custom-format"))
 
-        strict_client = Papr(base_url=base_url, api_key=api_key, _strict_response_validation=True)
+        strict_client = Papr(base_url=base_url, x_api_key=x_api_key, _strict_response_validation=True)
 
         with pytest.raises(APIResponseValidationError):
             strict_client.get("/foo", cast_to=Model)
 
-        client = Papr(base_url=base_url, api_key=api_key, _strict_response_validation=False)
+        client = Papr(base_url=base_url, x_api_key=x_api_key, _strict_response_validation=False)
 
         response = client.get("/foo", cast_to=Model)
         assert isinstance(response, str)  # type: ignore[unreachable]
@@ -686,7 +707,7 @@ class TestPapr:
     )
     @mock.patch("time.time", mock.MagicMock(return_value=1696004797))
     def test_parse_retry_after_header(self, remaining_retries: int, retry_after: str, timeout: float) -> None:
-        client = Papr(base_url=base_url, api_key=api_key, _strict_response_validation=True)
+        client = Papr(base_url=base_url, x_api_key=x_api_key, _strict_response_validation=True)
 
         headers = httpx.Headers({"retry-after": retry_after})
         options = FinalRequestOptions(method="get", url="/foo", max_retries=3)
@@ -699,7 +720,7 @@ class TestPapr:
         respx_mock.post("/v1/user").mock(side_effect=httpx.TimeoutException("Test timeout error"))
 
         with pytest.raises(APITimeoutError):
-            client.user.with_streaming_response.create(external_id="user123", x_api_key="X-API-Key").__enter__()
+            client.user.with_streaming_response.create(external_id="user123").__enter__()
 
         assert _get_open_connections(self.client) == 0
 
@@ -709,7 +730,7 @@ class TestPapr:
         respx_mock.post("/v1/user").mock(return_value=httpx.Response(500))
 
         with pytest.raises(APIStatusError):
-            client.user.with_streaming_response.create(external_id="user123", x_api_key="X-API-Key").__enter__()
+            client.user.with_streaming_response.create(external_id="user123").__enter__()
         assert _get_open_connections(self.client) == 0
 
     @pytest.mark.parametrize("failures_before_success", [0, 2, 4])
@@ -738,7 +759,7 @@ class TestPapr:
 
         respx_mock.post("/v1/user").mock(side_effect=retry_handler)
 
-        response = client.user.with_raw_response.create(external_id="user123", x_api_key="X-API-Key")
+        response = client.user.with_raw_response.create(external_id="user123")
 
         assert response.retries_taken == failures_before_success
         assert int(response.http_request.headers.get("x-stainless-retry-count")) == failures_before_success
@@ -761,7 +782,7 @@ class TestPapr:
         respx_mock.post("/v1/user").mock(side_effect=retry_handler)
 
         response = client.user.with_raw_response.create(
-            external_id="user123", x_api_key="X-API-Key", extra_headers={"x-stainless-retry-count": Omit()}
+            external_id="user123", extra_headers={"x-stainless-retry-count": Omit()}
         )
 
         assert len(response.http_request.headers.get_list("x-stainless-retry-count")) == 0
@@ -786,7 +807,7 @@ class TestPapr:
         respx_mock.post("/v1/user").mock(side_effect=retry_handler)
 
         response = client.user.with_raw_response.create(
-            external_id="user123", x_api_key="X-API-Key", extra_headers={"x-stainless-retry-count": "42"}
+            external_id="user123", extra_headers={"x-stainless-retry-count": "42"}
         )
 
         assert response.http_request.headers.get("x-stainless-retry-count") == "42"
@@ -842,7 +863,7 @@ class TestPapr:
 
 
 class TestAsyncPapr:
-    client = AsyncPapr(base_url=base_url, api_key=api_key, _strict_response_validation=True)
+    client = AsyncPapr(base_url=base_url, x_api_key=x_api_key, _strict_response_validation=True)
 
     @pytest.mark.respx(base_url=base_url)
     @pytest.mark.asyncio
@@ -870,9 +891,9 @@ class TestAsyncPapr:
         copied = self.client.copy()
         assert id(copied) != id(self.client)
 
-        copied = self.client.copy(api_key="another My API Key")
-        assert copied.api_key == "another My API Key"
-        assert self.client.api_key == "My API Key"
+        copied = self.client.copy(x_api_key="another My X API Key")
+        assert copied.x_api_key == "another My X API Key"
+        assert self.client.x_api_key == "My X API Key"
 
     def test_copy_default_options(self) -> None:
         # options that have a default are overridden correctly
@@ -892,7 +913,7 @@ class TestAsyncPapr:
 
     def test_copy_default_headers(self) -> None:
         client = AsyncPapr(
-            base_url=base_url, api_key=api_key, _strict_response_validation=True, default_headers={"X-Foo": "bar"}
+            base_url=base_url, x_api_key=x_api_key, _strict_response_validation=True, default_headers={"X-Foo": "bar"}
         )
         assert client.default_headers["X-Foo"] == "bar"
 
@@ -926,7 +947,7 @@ class TestAsyncPapr:
 
     def test_copy_default_query(self) -> None:
         client = AsyncPapr(
-            base_url=base_url, api_key=api_key, _strict_response_validation=True, default_query={"foo": "bar"}
+            base_url=base_url, x_api_key=x_api_key, _strict_response_validation=True, default_query={"foo": "bar"}
         )
         assert _get_params(client)["foo"] == "bar"
 
@@ -1052,7 +1073,7 @@ class TestAsyncPapr:
 
     async def test_client_timeout_option(self) -> None:
         client = AsyncPapr(
-            base_url=base_url, api_key=api_key, _strict_response_validation=True, timeout=httpx.Timeout(0)
+            base_url=base_url, x_api_key=x_api_key, _strict_response_validation=True, timeout=httpx.Timeout(0)
         )
 
         request = client._build_request(FinalRequestOptions(method="get", url="/foo"))
@@ -1063,7 +1084,7 @@ class TestAsyncPapr:
         # custom timeout given to the httpx client should be used
         async with httpx.AsyncClient(timeout=None) as http_client:
             client = AsyncPapr(
-                base_url=base_url, api_key=api_key, _strict_response_validation=True, http_client=http_client
+                base_url=base_url, x_api_key=x_api_key, _strict_response_validation=True, http_client=http_client
             )
 
             request = client._build_request(FinalRequestOptions(method="get", url="/foo"))
@@ -1073,7 +1094,7 @@ class TestAsyncPapr:
         # no timeout given to the httpx client should not use the httpx default
         async with httpx.AsyncClient() as http_client:
             client = AsyncPapr(
-                base_url=base_url, api_key=api_key, _strict_response_validation=True, http_client=http_client
+                base_url=base_url, x_api_key=x_api_key, _strict_response_validation=True, http_client=http_client
             )
 
             request = client._build_request(FinalRequestOptions(method="get", url="/foo"))
@@ -1083,7 +1104,7 @@ class TestAsyncPapr:
         # explicitly passing the default timeout currently results in it being ignored
         async with httpx.AsyncClient(timeout=HTTPX_DEFAULT_TIMEOUT) as http_client:
             client = AsyncPapr(
-                base_url=base_url, api_key=api_key, _strict_response_validation=True, http_client=http_client
+                base_url=base_url, x_api_key=x_api_key, _strict_response_validation=True, http_client=http_client
             )
 
             request = client._build_request(FinalRequestOptions(method="get", url="/foo"))
@@ -1095,14 +1116,14 @@ class TestAsyncPapr:
             with httpx.Client() as http_client:
                 AsyncPapr(
                     base_url=base_url,
-                    api_key=api_key,
+                    x_api_key=x_api_key,
                     _strict_response_validation=True,
                     http_client=cast(Any, http_client),
                 )
 
     def test_default_headers_option(self) -> None:
         client = AsyncPapr(
-            base_url=base_url, api_key=api_key, _strict_response_validation=True, default_headers={"X-Foo": "bar"}
+            base_url=base_url, x_api_key=x_api_key, _strict_response_validation=True, default_headers={"X-Foo": "bar"}
         )
         request = client._build_request(FinalRequestOptions(method="get", url="/foo"))
         assert request.headers.get("x-foo") == "bar"
@@ -1110,7 +1131,7 @@ class TestAsyncPapr:
 
         client2 = AsyncPapr(
             base_url=base_url,
-            api_key=api_key,
+            x_api_key=x_api_key,
             _strict_response_validation=True,
             default_headers={
                 "X-Foo": "stainless",
@@ -1121,9 +1142,22 @@ class TestAsyncPapr:
         assert request.headers.get("x-foo") == "stainless"
         assert request.headers.get("x-stainless-lang") == "my-overriding-header"
 
+    def test_validate_headers(self) -> None:
+        client = AsyncPapr(base_url=base_url, x_api_key=x_api_key, _strict_response_validation=True)
+        request = client._build_request(FinalRequestOptions(method="get", url="/foo"))
+        assert request.headers.get("X-API-Key") == x_api_key
+
+        with pytest.raises(PaprError):
+            with update_env(**{"PAPR_MEMORY_API_KEY": Omit()}):
+                client2 = AsyncPapr(base_url=base_url, x_api_key=None, _strict_response_validation=True)
+            _ = client2
+
     def test_default_query_option(self) -> None:
         client = AsyncPapr(
-            base_url=base_url, api_key=api_key, _strict_response_validation=True, default_query={"query_param": "bar"}
+            base_url=base_url,
+            x_api_key=x_api_key,
+            _strict_response_validation=True,
+            default_query={"query_param": "bar"},
         )
         request = client._build_request(FinalRequestOptions(method="get", url="/foo"))
         url = httpx.URL(request.url)
@@ -1323,7 +1357,9 @@ class TestAsyncPapr:
         assert response.foo == 2
 
     def test_base_url_setter(self) -> None:
-        client = AsyncPapr(base_url="https://example.com/from_init", api_key=api_key, _strict_response_validation=True)
+        client = AsyncPapr(
+            base_url="https://example.com/from_init", x_api_key=x_api_key, _strict_response_validation=True
+        )
         assert client.base_url == "https://example.com/from_init/"
 
         client.base_url = "https://example.com/from_setter"  # type: ignore[assignment]
@@ -1332,16 +1368,18 @@ class TestAsyncPapr:
 
     def test_base_url_env(self) -> None:
         with update_env(PAPR_BASE_URL="http://localhost:5000/from/env"):
-            client = AsyncPapr(api_key=api_key, _strict_response_validation=True)
+            client = AsyncPapr(x_api_key=x_api_key, _strict_response_validation=True)
             assert client.base_url == "http://localhost:5000/from/env/"
 
     @pytest.mark.parametrize(
         "client",
         [
-            AsyncPapr(base_url="http://localhost:5000/custom/path/", api_key=api_key, _strict_response_validation=True),
+            AsyncPapr(
+                base_url="http://localhost:5000/custom/path/", x_api_key=x_api_key, _strict_response_validation=True
+            ),
             AsyncPapr(
                 base_url="http://localhost:5000/custom/path/",
-                api_key=api_key,
+                x_api_key=x_api_key,
                 _strict_response_validation=True,
                 http_client=httpx.AsyncClient(),
             ),
@@ -1361,10 +1399,12 @@ class TestAsyncPapr:
     @pytest.mark.parametrize(
         "client",
         [
-            AsyncPapr(base_url="http://localhost:5000/custom/path/", api_key=api_key, _strict_response_validation=True),
+            AsyncPapr(
+                base_url="http://localhost:5000/custom/path/", x_api_key=x_api_key, _strict_response_validation=True
+            ),
             AsyncPapr(
                 base_url="http://localhost:5000/custom/path/",
-                api_key=api_key,
+                x_api_key=x_api_key,
                 _strict_response_validation=True,
                 http_client=httpx.AsyncClient(),
             ),
@@ -1384,10 +1424,12 @@ class TestAsyncPapr:
     @pytest.mark.parametrize(
         "client",
         [
-            AsyncPapr(base_url="http://localhost:5000/custom/path/", api_key=api_key, _strict_response_validation=True),
+            AsyncPapr(
+                base_url="http://localhost:5000/custom/path/", x_api_key=x_api_key, _strict_response_validation=True
+            ),
             AsyncPapr(
                 base_url="http://localhost:5000/custom/path/",
-                api_key=api_key,
+                x_api_key=x_api_key,
                 _strict_response_validation=True,
                 http_client=httpx.AsyncClient(),
             ),
@@ -1405,7 +1447,7 @@ class TestAsyncPapr:
         assert request.url == "https://myapi.com/foo"
 
     async def test_copied_client_does_not_close_http(self) -> None:
-        client = AsyncPapr(base_url=base_url, api_key=api_key, _strict_response_validation=True)
+        client = AsyncPapr(base_url=base_url, x_api_key=x_api_key, _strict_response_validation=True)
         assert not client.is_closed()
 
         copied = client.copy()
@@ -1417,7 +1459,7 @@ class TestAsyncPapr:
         assert not client.is_closed()
 
     async def test_client_context_manager(self) -> None:
-        client = AsyncPapr(base_url=base_url, api_key=api_key, _strict_response_validation=True)
+        client = AsyncPapr(base_url=base_url, x_api_key=x_api_key, _strict_response_validation=True)
         async with client as c2:
             assert c2 is client
             assert not c2.is_closed()
@@ -1439,7 +1481,9 @@ class TestAsyncPapr:
 
     async def test_client_max_retries_validation(self) -> None:
         with pytest.raises(TypeError, match=r"max_retries cannot be None"):
-            AsyncPapr(base_url=base_url, api_key=api_key, _strict_response_validation=True, max_retries=cast(Any, None))
+            AsyncPapr(
+                base_url=base_url, x_api_key=x_api_key, _strict_response_validation=True, max_retries=cast(Any, None)
+            )
 
     @pytest.mark.respx(base_url=base_url)
     @pytest.mark.asyncio
@@ -1449,12 +1493,12 @@ class TestAsyncPapr:
 
         respx_mock.get("/foo").mock(return_value=httpx.Response(200, text="my-custom-format"))
 
-        strict_client = AsyncPapr(base_url=base_url, api_key=api_key, _strict_response_validation=True)
+        strict_client = AsyncPapr(base_url=base_url, x_api_key=x_api_key, _strict_response_validation=True)
 
         with pytest.raises(APIResponseValidationError):
             await strict_client.get("/foo", cast_to=Model)
 
-        client = AsyncPapr(base_url=base_url, api_key=api_key, _strict_response_validation=False)
+        client = AsyncPapr(base_url=base_url, x_api_key=x_api_key, _strict_response_validation=False)
 
         response = await client.get("/foo", cast_to=Model)
         assert isinstance(response, str)  # type: ignore[unreachable]
@@ -1483,7 +1527,7 @@ class TestAsyncPapr:
     @mock.patch("time.time", mock.MagicMock(return_value=1696004797))
     @pytest.mark.asyncio
     async def test_parse_retry_after_header(self, remaining_retries: int, retry_after: str, timeout: float) -> None:
-        client = AsyncPapr(base_url=base_url, api_key=api_key, _strict_response_validation=True)
+        client = AsyncPapr(base_url=base_url, x_api_key=x_api_key, _strict_response_validation=True)
 
         headers = httpx.Headers({"retry-after": retry_after})
         options = FinalRequestOptions(method="get", url="/foo", max_retries=3)
@@ -1496,9 +1540,7 @@ class TestAsyncPapr:
         respx_mock.post("/v1/user").mock(side_effect=httpx.TimeoutException("Test timeout error"))
 
         with pytest.raises(APITimeoutError):
-            await async_client.user.with_streaming_response.create(
-                external_id="user123", x_api_key="X-API-Key"
-            ).__aenter__()
+            await async_client.user.with_streaming_response.create(external_id="user123").__aenter__()
 
         assert _get_open_connections(self.client) == 0
 
@@ -1508,9 +1550,7 @@ class TestAsyncPapr:
         respx_mock.post("/v1/user").mock(return_value=httpx.Response(500))
 
         with pytest.raises(APIStatusError):
-            await async_client.user.with_streaming_response.create(
-                external_id="user123", x_api_key="X-API-Key"
-            ).__aenter__()
+            await async_client.user.with_streaming_response.create(external_id="user123").__aenter__()
         assert _get_open_connections(self.client) == 0
 
     @pytest.mark.parametrize("failures_before_success", [0, 2, 4])
@@ -1540,7 +1580,7 @@ class TestAsyncPapr:
 
         respx_mock.post("/v1/user").mock(side_effect=retry_handler)
 
-        response = await client.user.with_raw_response.create(external_id="user123", x_api_key="X-API-Key")
+        response = await client.user.with_raw_response.create(external_id="user123")
 
         assert response.retries_taken == failures_before_success
         assert int(response.http_request.headers.get("x-stainless-retry-count")) == failures_before_success
@@ -1566,7 +1606,7 @@ class TestAsyncPapr:
         respx_mock.post("/v1/user").mock(side_effect=retry_handler)
 
         response = await client.user.with_raw_response.create(
-            external_id="user123", x_api_key="X-API-Key", extra_headers={"x-stainless-retry-count": Omit()}
+            external_id="user123", extra_headers={"x-stainless-retry-count": Omit()}
         )
 
         assert len(response.http_request.headers.get_list("x-stainless-retry-count")) == 0
@@ -1592,7 +1632,7 @@ class TestAsyncPapr:
         respx_mock.post("/v1/user").mock(side_effect=retry_handler)
 
         response = await client.user.with_raw_response.create(
-            external_id="user123", x_api_key="X-API-Key", extra_headers={"x-stainless-retry-count": "42"}
+            external_id="user123", extra_headers={"x-stainless-retry-count": "42"}
         )
 
         assert response.http_request.headers.get("x-stainless-retry-count") == "42"

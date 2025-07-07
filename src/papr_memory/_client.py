@@ -21,7 +21,7 @@ from ._types import (
 )
 from ._utils import is_given, get_async_library
 from ._version import __version__
-from .resources import user, memory
+from .resources import user, memory, feedback
 from ._streaming import Stream as Stream, AsyncStream as AsyncStream
 from ._exceptions import PaprError, APIStatusError
 from ._base_client import (
@@ -36,17 +36,20 @@ __all__ = ["Timeout", "Transport", "ProxiesTypes", "RequestOptions", "Papr", "As
 class Papr(SyncAPIClient):
     user: user.UserResource
     memory: memory.MemoryResource
+    feedback: feedback.FeedbackResource
     with_raw_response: PaprWithRawResponse
     with_streaming_response: PaprWithStreamedResponse
 
     # client options
-    api_key: str
+    x_api_key: str
+    x_session_token: str | None
     bearer_token: str | None
 
     def __init__(
         self,
         *,
-        api_key: str | None = None,
+        x_api_key: str | None = None,
+        x_session_token: str | None = None,
         bearer_token: str | None = None,
         base_url: str | httpx.URL | None = None,
         timeout: Union[float, Timeout, None, NotGiven] = NOT_GIVEN,
@@ -70,16 +73,21 @@ class Papr(SyncAPIClient):
         """Construct a new synchronous Papr client instance.
 
         This automatically infers the following arguments from their corresponding environment variables if they are not provided:
-        - `api_key` from `PAPR_MEMORY_API_KEY`
+        - `x_api_key` from `PAPR_MEMORY_API_KEY`
+        - `x_session_token` from `PAPR_MEMORY_Session_Token`
         - `bearer_token` from `PAPR_MEMORY_BEARER_TOKEN`
         """
-        if api_key is None:
-            api_key = os.environ.get("PAPR_MEMORY_API_KEY")
-        if api_key is None:
+        if x_api_key is None:
+            x_api_key = os.environ.get("PAPR_MEMORY_API_KEY")
+        if x_api_key is None:
             raise PaprError(
-                "The api_key client option must be set either by passing api_key to the client or by setting the PAPR_MEMORY_API_KEY environment variable"
+                "The x_api_key client option must be set either by passing x_api_key to the client or by setting the PAPR_MEMORY_API_KEY environment variable"
             )
-        self.api_key = api_key
+        self.x_api_key = x_api_key
+
+        if x_session_token is None:
+            x_session_token = os.environ.get("PAPR_MEMORY_Session_Token")
+        self.x_session_token = x_session_token
 
         if bearer_token is None:
             bearer_token = os.environ.get("PAPR_MEMORY_BEARER_TOKEN")
@@ -103,6 +111,7 @@ class Papr(SyncAPIClient):
 
         self.user = user.UserResource(self)
         self.memory = memory.MemoryResource(self)
+        self.feedback = feedback.FeedbackResource(self)
         self.with_raw_response = PaprWithRawResponse(self)
         self.with_streaming_response = PaprWithStreamedResponse(self)
 
@@ -110,6 +119,30 @@ class Papr(SyncAPIClient):
     @override
     def qs(self) -> Querystring:
         return Querystring(array_format="comma")
+
+    @property
+    @override
+    def auth_headers(self) -> dict[str, str]:
+        return {**self._bearer, **self._x_session_token, **self._x_api_key}
+
+    @property
+    def _bearer(self) -> dict[str, str]:
+        bearer_token = self.bearer_token
+        if bearer_token is None:
+            return {}
+        return {"Authorization": f"Bearer {bearer_token}"}
+
+    @property
+    def _x_session_token(self) -> dict[str, str]:
+        x_session_token = self.x_session_token
+        if x_session_token is None:
+            return {}
+        return {"X-Session-Token": x_session_token}
+
+    @property
+    def _x_api_key(self) -> dict[str, str]:
+        x_api_key = self.x_api_key
+        return {"X-API-Key": x_api_key}
 
     @property
     @override
@@ -123,7 +156,8 @@ class Papr(SyncAPIClient):
     def copy(
         self,
         *,
-        api_key: str | None = None,
+        x_api_key: str | None = None,
+        x_session_token: str | None = None,
         bearer_token: str | None = None,
         base_url: str | httpx.URL | None = None,
         timeout: float | Timeout | None | NotGiven = NOT_GIVEN,
@@ -158,7 +192,8 @@ class Papr(SyncAPIClient):
 
         http_client = http_client or self._client
         return self.__class__(
-            api_key=api_key or self.api_key,
+            x_api_key=x_api_key or self.x_api_key,
+            x_session_token=x_session_token or self.x_session_token,
             bearer_token=bearer_token or self.bearer_token,
             base_url=base_url or self.base_url,
             timeout=self.timeout if isinstance(timeout, NotGiven) else timeout,
@@ -210,17 +245,20 @@ class Papr(SyncAPIClient):
 class AsyncPapr(AsyncAPIClient):
     user: user.AsyncUserResource
     memory: memory.AsyncMemoryResource
+    feedback: feedback.AsyncFeedbackResource
     with_raw_response: AsyncPaprWithRawResponse
     with_streaming_response: AsyncPaprWithStreamedResponse
 
     # client options
-    api_key: str
+    x_api_key: str
+    x_session_token: str | None
     bearer_token: str | None
 
     def __init__(
         self,
         *,
-        api_key: str | None = None,
+        x_api_key: str | None = None,
+        x_session_token: str | None = None,
         bearer_token: str | None = None,
         base_url: str | httpx.URL | None = None,
         timeout: Union[float, Timeout, None, NotGiven] = NOT_GIVEN,
@@ -244,16 +282,21 @@ class AsyncPapr(AsyncAPIClient):
         """Construct a new async AsyncPapr client instance.
 
         This automatically infers the following arguments from their corresponding environment variables if they are not provided:
-        - `api_key` from `PAPR_MEMORY_API_KEY`
+        - `x_api_key` from `PAPR_MEMORY_API_KEY`
+        - `x_session_token` from `PAPR_MEMORY_Session_Token`
         - `bearer_token` from `PAPR_MEMORY_BEARER_TOKEN`
         """
-        if api_key is None:
-            api_key = os.environ.get("PAPR_MEMORY_API_KEY")
-        if api_key is None:
+        if x_api_key is None:
+            x_api_key = os.environ.get("PAPR_MEMORY_API_KEY")
+        if x_api_key is None:
             raise PaprError(
-                "The api_key client option must be set either by passing api_key to the client or by setting the PAPR_MEMORY_API_KEY environment variable"
+                "The x_api_key client option must be set either by passing x_api_key to the client or by setting the PAPR_MEMORY_API_KEY environment variable"
             )
-        self.api_key = api_key
+        self.x_api_key = x_api_key
+
+        if x_session_token is None:
+            x_session_token = os.environ.get("PAPR_MEMORY_Session_Token")
+        self.x_session_token = x_session_token
 
         if bearer_token is None:
             bearer_token = os.environ.get("PAPR_MEMORY_BEARER_TOKEN")
@@ -277,6 +320,7 @@ class AsyncPapr(AsyncAPIClient):
 
         self.user = user.AsyncUserResource(self)
         self.memory = memory.AsyncMemoryResource(self)
+        self.feedback = feedback.AsyncFeedbackResource(self)
         self.with_raw_response = AsyncPaprWithRawResponse(self)
         self.with_streaming_response = AsyncPaprWithStreamedResponse(self)
 
@@ -284,6 +328,30 @@ class AsyncPapr(AsyncAPIClient):
     @override
     def qs(self) -> Querystring:
         return Querystring(array_format="comma")
+
+    @property
+    @override
+    def auth_headers(self) -> dict[str, str]:
+        return {**self._bearer, **self._x_session_token, **self._x_api_key}
+
+    @property
+    def _bearer(self) -> dict[str, str]:
+        bearer_token = self.bearer_token
+        if bearer_token is None:
+            return {}
+        return {"Authorization": f"Bearer {bearer_token}"}
+
+    @property
+    def _x_session_token(self) -> dict[str, str]:
+        x_session_token = self.x_session_token
+        if x_session_token is None:
+            return {}
+        return {"X-Session-Token": x_session_token}
+
+    @property
+    def _x_api_key(self) -> dict[str, str]:
+        x_api_key = self.x_api_key
+        return {"X-API-Key": x_api_key}
 
     @property
     @override
@@ -297,7 +365,8 @@ class AsyncPapr(AsyncAPIClient):
     def copy(
         self,
         *,
-        api_key: str | None = None,
+        x_api_key: str | None = None,
+        x_session_token: str | None = None,
         bearer_token: str | None = None,
         base_url: str | httpx.URL | None = None,
         timeout: float | Timeout | None | NotGiven = NOT_GIVEN,
@@ -332,7 +401,8 @@ class AsyncPapr(AsyncAPIClient):
 
         http_client = http_client or self._client
         return self.__class__(
-            api_key=api_key or self.api_key,
+            x_api_key=x_api_key or self.x_api_key,
+            x_session_token=x_session_token or self.x_session_token,
             bearer_token=bearer_token or self.bearer_token,
             base_url=base_url or self.base_url,
             timeout=self.timeout if isinstance(timeout, NotGiven) else timeout,
@@ -385,24 +455,28 @@ class PaprWithRawResponse:
     def __init__(self, client: Papr) -> None:
         self.user = user.UserResourceWithRawResponse(client.user)
         self.memory = memory.MemoryResourceWithRawResponse(client.memory)
+        self.feedback = feedback.FeedbackResourceWithRawResponse(client.feedback)
 
 
 class AsyncPaprWithRawResponse:
     def __init__(self, client: AsyncPapr) -> None:
         self.user = user.AsyncUserResourceWithRawResponse(client.user)
         self.memory = memory.AsyncMemoryResourceWithRawResponse(client.memory)
+        self.feedback = feedback.AsyncFeedbackResourceWithRawResponse(client.feedback)
 
 
 class PaprWithStreamedResponse:
     def __init__(self, client: Papr) -> None:
         self.user = user.UserResourceWithStreamingResponse(client.user)
         self.memory = memory.MemoryResourceWithStreamingResponse(client.memory)
+        self.feedback = feedback.FeedbackResourceWithStreamingResponse(client.feedback)
 
 
 class AsyncPaprWithStreamedResponse:
     def __init__(self, client: AsyncPapr) -> None:
         self.user = user.AsyncUserResourceWithStreamingResponse(client.user)
         self.memory = memory.AsyncMemoryResourceWithStreamingResponse(client.memory)
+        self.feedback = feedback.AsyncFeedbackResourceWithStreamingResponse(client.feedback)
 
 
 Client = Papr
