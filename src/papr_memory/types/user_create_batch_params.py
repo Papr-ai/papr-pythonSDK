@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from typing import Iterable, Optional
+from typing import Dict, Iterable, Optional
 from typing_extensions import Required, Annotated, TypedDict
 
 from .._utils import PropertyInfo
@@ -22,6 +22,6 @@ class User(TypedDict, total=False):
 
     email: Optional[str]
 
-    metadata: Optional[object]
+    metadata: Optional[Dict[str, object]]
 
     type: UserType

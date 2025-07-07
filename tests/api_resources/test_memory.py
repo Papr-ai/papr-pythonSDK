@@ -84,7 +84,7 @@ class TestMemory:
             relationships_json=[
                 {
                     "relation_type": "updates",
-                    "metadata": {"relevance": "high"},
+                    "metadata": {"relevance": "bar"},
                     "related_item_id": "previous_memory_item_id",
                     "related_item_type": "TextMemoryItem",
                     "relationship_type": "previous_memory_item_id",
@@ -242,7 +242,7 @@ class TestMemory:
             relationships_json=[
                 {
                     "relation_type": "follows",
-                    "metadata": {"relevance": "high"},
+                    "metadata": {"relevance": "bar"},
                     "related_item_id": "previous_memory_item_id",
                     "related_item_type": "TextMemoryItem",
                     "relationship_type": "previous_memory_item_id",
@@ -347,7 +347,7 @@ class TestMemory:
                     "relationships_json": [
                         {
                             "relation_type": "relation_type",
-                            "metadata": {},
+                            "metadata": {"foo": "bar"},
                             "related_item_id": "related_item_id",
                             "related_item_type": "related_item_type",
                             "relationship_type": "previous_memory_item_id",
@@ -400,7 +400,7 @@ class TestMemory:
                     "relationships_json": [
                         {
                             "relation_type": "relation_type",
-                            "metadata": {},
+                            "metadata": {"foo": "bar"},
                             "related_item_id": "related_item_id",
                             "related_item_type": "related_item_type",
                             "relationship_type": "previous_memory_item_id",
@@ -514,9 +514,9 @@ class TestMemory:
     def test_method_search_with_all_params(self, client: Papr) -> None:
         memory = client.memory.search(
             query="Find recurring customer complaints about API performance from the last month. Focus on issues that multiple customers have mentioned and any specific feature requests or workflow improvements they've suggested.",
-            max_memories=1,
-            max_nodes=1,
-            enable_agentic_graph=False,
+            max_memories=10,
+            max_nodes=10,
+            enable_agentic_graph=True,
             external_user_id="external_abc",
             metadata={
                 "assistant_message": "assistantMessage",
@@ -552,7 +552,7 @@ class TestMemory:
                 "workspace_read_access": ["string"],
                 "workspace_write_access": ["string"],
             },
-            rank_results=True,
+            rank_results=False,
             user_id="user123",
             accept_encoding="Accept-Encoding",
         )
@@ -651,7 +651,7 @@ class TestAsyncMemory:
             relationships_json=[
                 {
                     "relation_type": "updates",
-                    "metadata": {"relevance": "high"},
+                    "metadata": {"relevance": "bar"},
                     "related_item_id": "previous_memory_item_id",
                     "related_item_type": "TextMemoryItem",
                     "relationship_type": "previous_memory_item_id",
@@ -809,7 +809,7 @@ class TestAsyncMemory:
             relationships_json=[
                 {
                     "relation_type": "follows",
-                    "metadata": {"relevance": "high"},
+                    "metadata": {"relevance": "bar"},
                     "related_item_id": "previous_memory_item_id",
                     "related_item_type": "TextMemoryItem",
                     "relationship_type": "previous_memory_item_id",
@@ -914,7 +914,7 @@ class TestAsyncMemory:
                     "relationships_json": [
                         {
                             "relation_type": "relation_type",
-                            "metadata": {},
+                            "metadata": {"foo": "bar"},
                             "related_item_id": "related_item_id",
                             "related_item_type": "related_item_type",
                             "relationship_type": "previous_memory_item_id",
@@ -967,7 +967,7 @@ class TestAsyncMemory:
                     "relationships_json": [
                         {
                             "relation_type": "relation_type",
-                            "metadata": {},
+                            "metadata": {"foo": "bar"},
                             "related_item_id": "related_item_id",
                             "related_item_type": "related_item_type",
                             "relationship_type": "previous_memory_item_id",
@@ -1081,9 +1081,9 @@ class TestAsyncMemory:
     async def test_method_search_with_all_params(self, async_client: AsyncPapr) -> None:
         memory = await async_client.memory.search(
             query="Find recurring customer complaints about API performance from the last month. Focus on issues that multiple customers have mentioned and any specific feature requests or workflow improvements they've suggested.",
-            max_memories=1,
-            max_nodes=1,
-            enable_agentic_graph=False,
+            max_memories=10,
+            max_nodes=10,
+            enable_agentic_graph=True,
             external_user_id="external_abc",
             metadata={
                 "assistant_message": "assistantMessage",
@@ -1119,7 +1119,7 @@ class TestAsyncMemory:
                 "workspace_read_access": ["string"],
                 "workspace_write_access": ["string"],
             },
-            rank_results=True,
+            rank_results=False,
             user_id="user123",
             accept_encoding="Accept-Encoding",
         )

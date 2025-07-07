@@ -24,11 +24,10 @@ pip install papr_memory
 The full API of this library can be found in [api.md](api.md).
 
 ```python
-import os
 from papr_memory import Papr
 
 client = Papr(
-    api_key=os.environ.get("PAPR_MEMORY_API_KEY"),  # This is the default and can be omitted
+    api_key="My API Key",
 )
 
 user_response = client.user.create(
@@ -38,22 +37,16 @@ user_response = client.user.create(
 print(user_response.external_id)
 ```
 
-While you can provide an `api_key` keyword argument,
-we recommend using [python-dotenv](https://pypi.org/project/python-dotenv/)
-to add `PAPR_MEMORY_API_KEY="My API Key"` to your `.env` file
-so that your API Key is not stored in source control.
-
 ## Async usage
 
 Simply import `AsyncPapr` instead of `Papr` and use `await` with each API call:
 
 ```python
-import os
 import asyncio
 from papr_memory import AsyncPapr
 
 client = AsyncPapr(
-    api_key=os.environ.get("PAPR_MEMORY_API_KEY"),  # This is the default and can be omitted
+    api_key="My API Key",
 )
 
 
@@ -84,7 +77,6 @@ pip install papr_memory[aiohttp]
 Then you can enable it by instantiating the client with `http_client=DefaultAioHttpClient()`:
 
 ```python
-import os
 import asyncio
 from papr_memory import DefaultAioHttpClient
 from papr_memory import AsyncPapr
@@ -92,7 +84,7 @@ from papr_memory import AsyncPapr
 
 async def main() -> None:
     async with AsyncPapr(
-        api_key=os.environ.get("PAPR_MEMORY_API_KEY"),  # This is the default and can be omitted
+        api_key="My API Key",
         http_client=DefaultAioHttpClient(),
     ) as client:
         user_response = await client.user.create(
@@ -121,7 +113,9 @@ Nested parameters are dictionaries, typed using `TypedDict`, for example:
 ```python
 from papr_memory import Papr
 
-client = Papr()
+client = Papr(
+    api_key="My API Key",
+)
 
 memory = client.memory.update(
     memory_id="memory_id",
@@ -147,7 +141,9 @@ All errors inherit from `papr_memory.APIError`.
 import papr_memory
 from papr_memory import Papr
 
-client = Papr()
+client = Papr(
+    api_key="My API Key",
+)
 
 try:
     client.user.create(
@@ -191,6 +187,7 @@ from papr_memory import Papr
 
 # Configure the default for all requests:
 client = Papr(
+    api_key="My API Key",
     # default is 2
     max_retries=0,
 )
@@ -212,12 +209,14 @@ from papr_memory import Papr
 
 # Configure the default for all requests:
 client = Papr(
+    api_key="My API Key",
     # 20 seconds (default is 1 minute)
     timeout=20.0,
 )
 
 # More granular control:
 client = Papr(
+    api_key="My API Key",
     timeout=httpx.Timeout(60.0, read=5.0, write=10.0, connect=2.0),
 )
 
@@ -265,7 +264,9 @@ The "raw" Response object can be accessed by prefixing `.with_raw_response.` to 
 ```py
 from papr_memory import Papr
 
-client = Papr()
+client = Papr(
+    api_key="My API Key",
+)
 response = client.user.with_raw_response.create(
     external_id="user123",
     x_api_key="X-API-Key",
@@ -346,6 +347,7 @@ import httpx
 from papr_memory import Papr, DefaultHttpxClient
 
 client = Papr(
+    api_key="My API Key",
     # Or use the `PAPR_BASE_URL` env var
     base_url="http://my.test.server.example.com:8083",
     http_client=DefaultHttpxClient(
@@ -368,7 +370,9 @@ By default the library closes underlying HTTP connections whenever the client is
 ```py
 from papr_memory import Papr
 
-with Papr() as client:
+with Papr(
+    api_key="My API Key",
+) as client:
   # make requests here
   ...
 
