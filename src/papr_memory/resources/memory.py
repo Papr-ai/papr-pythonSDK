@@ -408,6 +408,17 @@ class MemoryResource(SyncAPIResource):
 
             The API supports response compression for improved performance. Responses larger than 1KB will be automatically compressed when this header is present.
 
+            **HIGHLY RECOMMENDED SETTINGS FOR BEST RESULTS:**
+            - Set `enable_agentic_graph: true` for intelligent, context-aware search that can understand ambiguous references
+            - Use `max_memories: 15-20` for comprehensive memory coverage
+            - Use `max_nodes: 10-15` for comprehensive graph entity relationships
+
+            **Agentic Graph Benefits:**
+            When enabled, the system can understand vague references by first identifying specific entities from your memory graph, then performing targeted searches. For example:
+            - "customer feedback" → identifies your customers first, then finds their specific feedback
+            - "project issues" → identifies your projects first, then finds related issues
+            - "team meeting notes" → identifies your team members first, then finds meeting notes
+
             **User Resolution Precedence:**
             - If both user_id and external_user_id are provided, user_id takes precedence.
             - If only external_user_id is provided, it will be resolved to the internal user.
@@ -415,17 +426,31 @@ class MemoryResource(SyncAPIResource):
 
         Args:
           query: Detailed search query describing what you're looking for. For best results,
-              write 2-3 sentences that include specific details, context, and time frame. For
-              example: 'Find recurring customer complaints about API performance from the last
-              month. Focus on issues where customers specifically mentioned timeout errors or
-              slow response times in their conversations.'
+              write 2-3 sentences that include specific details, context, and time frame.
+              Examples: 'Find recurring customer complaints about API performance from the
+              last month. Focus on issues where customers specifically mentioned timeout
+              errors or slow response times in their conversations.' 'What are the main issues
+              and blockers in my current projects? Focus on technical challenges and timeline
+              impacts.' 'Find insights about team collaboration and communication patterns
+              from recent meetings and discussions.'
 
-          max_memories: Maximum number of memories to return
+          max_memories: HIGHLY RECOMMENDED: Maximum number of memories to return. Use at least 15-20 for
+              comprehensive results. Lower values (5-10) may miss relevant information.
+              Default is 20 for optimal coverage.
 
-          max_nodes: Maximum number of neo nodes to return
+          max_nodes: HIGHLY RECOMMENDED: Maximum number of neo nodes to return. Use at least 10-15
+              for comprehensive graph results. Lower values may miss important entity
+              relationships. Default is 15 for optimal coverage.
 
-          enable_agentic_graph: Whether to enable agentic graph search. Default is false (graph search is
-              skipped). Set to true to use agentic graph search.
+          enable_agentic_graph: HIGHLY RECOMMENDED: Enable agentic graph search for intelligent, context-aware
+              results. When enabled, the system can understand ambiguous references by first
+              identifying specific entities from your memory graph, then performing targeted
+              searches. Examples: 'customer feedback' → identifies your customers first, then
+              finds their specific feedback; 'project issues' → identifies your projects
+              first, then finds related issues; 'team meeting notes' → identifies team members
+              first, then finds meeting notes. This provides much more relevant and
+              comprehensive results. Set to false only if you need faster, simpler
+              keyword-based search.
 
           external_user_id: Optional external user ID to filter search results by a specific external user.
               If both user_id and external_user_id are provided, user_id takes precedence.
@@ -849,6 +874,17 @@ class AsyncMemoryResource(AsyncAPIResource):
 
             The API supports response compression for improved performance. Responses larger than 1KB will be automatically compressed when this header is present.
 
+            **HIGHLY RECOMMENDED SETTINGS FOR BEST RESULTS:**
+            - Set `enable_agentic_graph: true` for intelligent, context-aware search that can understand ambiguous references
+            - Use `max_memories: 15-20` for comprehensive memory coverage
+            - Use `max_nodes: 10-15` for comprehensive graph entity relationships
+
+            **Agentic Graph Benefits:**
+            When enabled, the system can understand vague references by first identifying specific entities from your memory graph, then performing targeted searches. For example:
+            - "customer feedback" → identifies your customers first, then finds their specific feedback
+            - "project issues" → identifies your projects first, then finds related issues
+            - "team meeting notes" → identifies your team members first, then finds meeting notes
+
             **User Resolution Precedence:**
             - If both user_id and external_user_id are provided, user_id takes precedence.
             - If only external_user_id is provided, it will be resolved to the internal user.
@@ -856,17 +892,31 @@ class AsyncMemoryResource(AsyncAPIResource):
 
         Args:
           query: Detailed search query describing what you're looking for. For best results,
-              write 2-3 sentences that include specific details, context, and time frame. For
-              example: 'Find recurring customer complaints about API performance from the last
-              month. Focus on issues where customers specifically mentioned timeout errors or
-              slow response times in their conversations.'
+              write 2-3 sentences that include specific details, context, and time frame.
+              Examples: 'Find recurring customer complaints about API performance from the
+              last month. Focus on issues where customers specifically mentioned timeout
+              errors or slow response times in their conversations.' 'What are the main issues
+              and blockers in my current projects? Focus on technical challenges and timeline
+              impacts.' 'Find insights about team collaboration and communication patterns
+              from recent meetings and discussions.'
 
-          max_memories: Maximum number of memories to return
+          max_memories: HIGHLY RECOMMENDED: Maximum number of memories to return. Use at least 15-20 for
+              comprehensive results. Lower values (5-10) may miss relevant information.
+              Default is 20 for optimal coverage.
 
-          max_nodes: Maximum number of neo nodes to return
+          max_nodes: HIGHLY RECOMMENDED: Maximum number of neo nodes to return. Use at least 10-15
+              for comprehensive graph results. Lower values may miss important entity
+              relationships. Default is 15 for optimal coverage.
 
-          enable_agentic_graph: Whether to enable agentic graph search. Default is false (graph search is
-              skipped). Set to true to use agentic graph search.
+          enable_agentic_graph: HIGHLY RECOMMENDED: Enable agentic graph search for intelligent, context-aware
+              results. When enabled, the system can understand ambiguous references by first
+              identifying specific entities from your memory graph, then performing targeted
+              searches. Examples: 'customer feedback' → identifies your customers first, then
+              finds their specific feedback; 'project issues' → identifies your projects
+              first, then finds related issues; 'team meeting notes' → identifies team members
+              first, then finds meeting notes. This provides much more relevant and
+              comprehensive results. Set to false only if you need faster, simpler
+              keyword-based search.
 
           external_user_id: Optional external user ID to filter search results by a specific external user.
               If both user_id and external_user_id are provided, user_id takes precedence.

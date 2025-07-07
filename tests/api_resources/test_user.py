@@ -39,8 +39,8 @@ class TestUser:
             x_api_key="X-API-Key",
             email="user@example.com",
             metadata={
-                "name": "John Doe",
-                "preferences": {"theme": "dark"},
+                "name": "bar",
+                "preferences": "bar",
             },
             type="developerUser",
         )
@@ -92,8 +92,8 @@ class TestUser:
             email="updated.user@example.com",
             external_id="updated_user_123",
             metadata={
-                "name": "Updated User",
-                "preferences": {"theme": "light"},
+                "name": "bar",
+                "preferences": "bar",
             },
             type="developerUser",
         )
@@ -344,8 +344,8 @@ class TestAsyncUser:
             x_api_key="X-API-Key",
             email="user@example.com",
             metadata={
-                "name": "John Doe",
-                "preferences": {"theme": "dark"},
+                "name": "bar",
+                "preferences": "bar",
             },
             type="developerUser",
         )
@@ -397,8 +397,8 @@ class TestAsyncUser:
             email="updated.user@example.com",
             external_id="updated_user_123",
             metadata={
-                "name": "Updated User",
-                "preferences": {"theme": "light"},
+                "name": "bar",
+                "preferences": "bar",
             },
             type="developerUser",
         )
