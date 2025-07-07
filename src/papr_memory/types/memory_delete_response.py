@@ -16,6 +16,8 @@ class DeletionStatus(BaseModel):
 
     pinecone: Optional[bool] = None
 
+    qdrant: Optional[bool] = None
+
 
 class MemoryDeleteResponse(BaseModel):
     code: Optional[int] = None

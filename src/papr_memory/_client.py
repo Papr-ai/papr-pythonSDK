@@ -113,23 +113,6 @@ class Papr(SyncAPIClient):
 
     @property
     @override
-    def auth_headers(self) -> dict[str, str]:
-        return {**self._api_key_header, **self._bearer}
-
-    @property
-    def _api_key_header(self) -> dict[str, str]:
-        api_key = self.api_key
-        return {"X-Session-Token": api_key}
-
-    @property
-    def _bearer(self) -> dict[str, str]:
-        bearer_token = self.bearer_token
-        if bearer_token is None:
-            return {}
-        return {"Authorization": f"Bearer {bearer_token}"}
-
-    @property
-    @override
     def default_headers(self) -> dict[str, str | Omit]:
         return {
             **super().default_headers,
@@ -301,23 +284,6 @@ class AsyncPapr(AsyncAPIClient):
     @override
     def qs(self) -> Querystring:
         return Querystring(array_format="comma")
-
-    @property
-    @override
-    def auth_headers(self) -> dict[str, str]:
-        return {**self._api_key_header, **self._bearer}
-
-    @property
-    def _api_key_header(self) -> dict[str, str]:
-        api_key = self.api_key
-        return {"X-Session-Token": api_key}
-
-    @property
-    def _bearer(self) -> dict[str, str]:
-        bearer_token = self.bearer_token
-        if bearer_token is None:
-            return {}
-        return {"Authorization": f"Bearer {bearer_token}"}
 
     @property
     @override
