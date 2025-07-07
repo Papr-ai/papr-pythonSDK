@@ -6,10 +6,12 @@ from .user_type import UserType as UserType
 from .memory_type import MemoryType as MemoryType
 from .context_item import ContextItem as ContextItem
 from .user_response import UserResponse as UserResponse
+from .batch_response import BatchResponse as BatchResponse
 from .memory_metadata import MemoryMetadata as MemoryMetadata
 from .search_response import SearchResponse as SearchResponse
 from .add_memory_param import AddMemoryParam as AddMemoryParam
 from .user_list_params import UserListParams as UserListParams
+from .feedback_response import FeedbackResponse as FeedbackResponse
 from .memory_add_params import MemoryAddParams as MemoryAddParams
 from .context_item_param import ContextItemParam as ContextItemParam
 from .user_create_params import UserCreateParams as UserCreateParams
@@ -22,6 +24,8 @@ from .memory_search_params import MemorySearchParams as MemorySearchParams
 from .memory_update_params import MemoryUpdateParams as MemoryUpdateParams
 from .user_delete_response import UserDeleteResponse as UserDeleteResponse
 from .memory_metadata_param import MemoryMetadataParam as MemoryMetadataParam
+from .feedback_request_param import FeedbackRequestParam as FeedbackRequestParam
+from .feedback_submit_params import FeedbackSubmitParams as FeedbackSubmitParams
 from .memory_delete_response import MemoryDeleteResponse as MemoryDeleteResponse
 from .memory_update_response import MemoryUpdateResponse as MemoryUpdateResponse
 from .memory_add_batch_params import MemoryAddBatchParams as MemoryAddBatchParams
@@ -29,3 +33,4 @@ from .relationship_item_param import RelationshipItemParam as RelationshipItemPa
 from .user_create_batch_params import UserCreateBatchParams as UserCreateBatchParams
 from .memory_add_batch_response import MemoryAddBatchResponse as MemoryAddBatchResponse
 from .user_create_batch_response import UserCreateBatchResponse as UserCreateBatchResponse
+from .feedback_submit_batch_params import FeedbackSubmitBatchParams as FeedbackSubmitBatchParams
