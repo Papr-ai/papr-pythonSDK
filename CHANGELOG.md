@@ -1,5 +1,20 @@
 # Changelog
 
+## 2.10.0 (2025-07-09)
+
+Full Changelog: [v2.9.0...v2.10.0](https://github.com/Papr-ai/papr-pythonSDK/compare/v2.9.0...v2.10.0)
+
+### Features
+
+* **api:** update via SDK Studio ([6a68fa9](https://github.com/Papr-ai/papr-pythonSDK/commit/6a68fa9c4f5119b9d295d689bec3850e8f1b8c02))
+* **api:** update via SDK Studio ([e7b4b45](https://github.com/Papr-ai/papr-pythonSDK/commit/e7b4b45f1524dd4a7376216c4fe50a36895478c0))
+
+
+### Chores
+
+* **ci:** change upload type ([eee0262](https://github.com/Papr-ai/papr-pythonSDK/commit/eee026256d9592a4eb716b99c41f0f2870462191))
+* **internal:** bump pinned h11 dep ([256411e](https://github.com/Papr-ai/papr-pythonSDK/commit/256411e069cd28390d59a61d9ea338a0d823df3f))
+
 ## 2.9.0 (2025-06-30)
 
 Full Changelog: [v2.8.1...v2.9.0](https://github.com/Papr-ai/papr-pythonSDK/compare/v2.8.1...v2.9.0)
