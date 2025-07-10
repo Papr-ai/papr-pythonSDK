@@ -1,5 +1,18 @@
 # Changelog
 
+## 2.10.1 (2025-07-10)
+
+Full Changelog: [v2.10.0...v2.10.1](https://github.com/Papr-ai/papr-pythonSDK/compare/v2.10.0...v2.10.1)
+
+### Bug Fixes
+
+* **parsing:** correctly handle nested discriminated unions ([2cd20c8](https://github.com/Papr-ai/papr-pythonSDK/commit/2cd20c8e3d568bf6aaa11aa39e26100a4e338d09))
+
+
+### Chores
+
+* **package:** mark python 3.13 as supported ([9c3d58e](https://github.com/Papr-ai/papr-pythonSDK/commit/9c3d58e42a0f5a7a6ab6dd7d2f58e39fa7969fbc))
+
 ## 2.10.0 (2025-07-09)
 
 Full Changelog: [v2.9.0...v2.10.0](https://github.com/Papr-ai/papr-pythonSDK/compare/v2.9.0...v2.10.0)
