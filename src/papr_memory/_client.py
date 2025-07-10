@@ -123,7 +123,7 @@ class Papr(SyncAPIClient):
     @property
     @override
     def auth_headers(self) -> dict[str, str]:
-        return {**self._bearer, **self._x_session_token, **self._x_api_key}
+        return {**self._bearer, **self._x_session_token, **self._x_api_key, **self._o_auth2}
 
     @property
     def _bearer(self) -> dict[str, str]:
@@ -143,6 +143,10 @@ class Papr(SyncAPIClient):
     def _x_api_key(self) -> dict[str, str]:
         x_api_key = self.x_api_key
         return {"X-API-Key": x_api_key}
+
+    @property
+    def _o_auth2(self) -> httpx.Auth | None:
+        raise NotImplementedError("This auth method has not been implemented yet.")
 
     @property
     @override
@@ -332,7 +336,7 @@ class AsyncPapr(AsyncAPIClient):
     @property
     @override
     def auth_headers(self) -> dict[str, str]:
-        return {**self._bearer, **self._x_session_token, **self._x_api_key}
+        return {**self._bearer, **self._x_session_token, **self._x_api_key, **self._o_auth2}
 
     @property
     def _bearer(self) -> dict[str, str]:
@@ -352,6 +356,10 @@ class AsyncPapr(AsyncAPIClient):
     def _x_api_key(self) -> dict[str, str]:
         x_api_key = self.x_api_key
         return {"X-API-Key": x_api_key}
+
+    @property
+    def _o_auth2(self) -> httpx.Auth | None:
+        raise NotImplementedError("This auth method has not been implemented yet.")
 
     @property
     @override
