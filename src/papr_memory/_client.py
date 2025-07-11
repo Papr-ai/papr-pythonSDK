@@ -20,6 +20,7 @@ from ._types import (
     RequestOptions,
 )
 from ._utils import is_given, get_async_library
+from ._oauth2 import OAuth2ClientCredentials
 from ._version import __version__
 from .resources import user, memory, feedback
 from ._streaming import Stream as Stream, AsyncStream as AsyncStream
@@ -123,7 +124,7 @@ class Papr(SyncAPIClient):
     @property
     @override
     def auth_headers(self) -> dict[str, str]:
-        return {**self._bearer, **self._x_session_token, **self._x_api_key, **self._o_auth2}
+        return {**self._bearer, **self._x_session_token, **self._x_api_key}
 
     @property
     def _bearer(self) -> dict[str, str]:
@@ -145,7 +146,8 @@ class Papr(SyncAPIClient):
         return {"X-API-Key": x_api_key}
 
     @property
-    def _o_auth2(self) -> httpx.Auth | None:
+    @override
+    def custom_auth(self) -> httpx.Auth | None:
         raise NotImplementedError("This auth method has not been implemented yet.")
 
     @property
@@ -156,6 +158,15 @@ class Papr(SyncAPIClient):
             "X-Stainless-Async": "false",
             **self._custom_headers,
         }
+
+    @override
+    def _should_retry(self, response: httpx.Response) -> bool:
+        # Retry on 401 if we are using OAuth2 and the token might be expired
+        if response.status_code == 401 and isinstance(self.custom_auth, OAuth2ClientCredentials):
+            if self.custom_auth.token_is_expired():
+                self.custom_auth.invalidate_token()
+                return True
+        return super()._should_retry(response)
 
     def copy(
         self,
@@ -336,7 +347,7 @@ class AsyncPapr(AsyncAPIClient):
     @property
     @override
     def auth_headers(self) -> dict[str, str]:
-        return {**self._bearer, **self._x_session_token, **self._x_api_key, **self._o_auth2}
+        return {**self._bearer, **self._x_session_token, **self._x_api_key}
 
     @property
     def _bearer(self) -> dict[str, str]:
@@ -358,7 +369,8 @@ class AsyncPapr(AsyncAPIClient):
         return {"X-API-Key": x_api_key}
 
     @property
-    def _o_auth2(self) -> httpx.Auth | None:
+    @override
+    def custom_auth(self) -> httpx.Auth | None:
         raise NotImplementedError("This auth method has not been implemented yet.")
 
     @property
@@ -369,6 +381,15 @@ class AsyncPapr(AsyncAPIClient):
             "X-Stainless-Async": f"async:{get_async_library()}",
             **self._custom_headers,
         }
+
+    @override
+    def _should_retry(self, response: httpx.Response) -> bool:
+        # Retry on 401 if we are using OAuth2 and the token might be expired
+        if response.status_code == 401 and isinstance(self.custom_auth, OAuth2ClientCredentials):
+            if self.custom_auth.token_is_expired():
+                self.custom_auth.invalidate_token()
+                return True
+        return super()._should_retry(response)
 
     def copy(
         self,
