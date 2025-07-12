@@ -1,5 +1,20 @@
 # Changelog
 
+## 2.10.2 (2025-07-12)
+
+Full Changelog: [v2.10.1...v2.10.2](https://github.com/Papr-ai/papr-pythonSDK/compare/v2.10.1...v2.10.2)
+
+### Bug Fixes
+
+* **client:** don't send Content-Type header on GET requests ([475b53d](https://github.com/Papr-ai/papr-pythonSDK/commit/475b53d22749304c6971e1f02bf3834b5bfddcd1))
+
+
+### Chores
+
+* **internal:** codegen related update ([48e3664](https://github.com/Papr-ai/papr-pythonSDK/commit/48e36649fcf44aa333a16716fde4b9c843f137ef))
+* **internal:** codegen related update ([e3852da](https://github.com/Papr-ai/papr-pythonSDK/commit/e3852daf09e2149a55954f87747dd8e5e9193510))
+* **readme:** fix version rendering on pypi ([8b2b2fb](https://github.com/Papr-ai/papr-pythonSDK/commit/8b2b2fbf22126bd801d36f757b820662d75bff32))
+
 ## 2.10.1 (2025-07-10)
 
 Full Changelog: [v2.10.0...v2.10.1](https://github.com/Papr-ai/papr-pythonSDK/compare/v2.10.0...v2.10.1)
