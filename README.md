@@ -33,7 +33,8 @@ client = Papr(
 )
 
 user_response = client.user.create(
-    external_id="user123",
+    external_id="demo_user_123",
+    email="user@example.com",
 )
 print(user_response.external_id)
 ```
@@ -59,7 +60,8 @@ client = AsyncPapr(
 
 async def main() -> None:
     user_response = await client.user.create(
-        external_id="user123",
+        external_id="demo_user_123",
+        email="user@example.com",
     )
     print(user_response.external_id)
 
@@ -83,7 +85,6 @@ pip install papr_memory[aiohttp]
 Then you can enable it by instantiating the client with `http_client=DefaultAioHttpClient()`:
 
 ```python
-import os
 import asyncio
 from papr_memory import DefaultAioHttpClient
 from papr_memory import AsyncPapr
@@ -91,11 +92,12 @@ from papr_memory import AsyncPapr
 
 async def main() -> None:
     async with AsyncPapr(
-        x_api_key=os.environ.get("PAPR_MEMORY_API_KEY"),  # This is the default and can be omitted
+        x_api_key="My X API Key",
         http_client=DefaultAioHttpClient(),
     ) as client:
         user_response = await client.user.create(
-            external_id="user123",
+            external_id="demo_user_123",
+            email="user@example.com",
         )
         print(user_response.external_id)
 
@@ -149,7 +151,8 @@ client = Papr()
 
 try:
     client.user.create(
-        external_id="user123",
+        external_id="demo_user_123",
+        email="user@example.com",
     )
 except papr_memory.APIConnectionError as e:
     print("The server could not be reached")
@@ -194,7 +197,8 @@ client = Papr(
 
 # Or, configure per-request:
 client.with_options(max_retries=5).user.create(
-    external_id="user123",
+    external_id="demo_user_123",
+    email="user@example.com",
 )
 ```
 
@@ -219,7 +223,8 @@ client = Papr(
 
 # Override per-request:
 client.with_options(timeout=5.0).user.create(
-    external_id="user123",
+    external_id="demo_user_123",
+    email="user@example.com",
 )
 ```
 
@@ -262,7 +267,8 @@ from papr_memory import Papr
 
 client = Papr()
 response = client.user.with_raw_response.create(
-    external_id="user123",
+    external_id="demo_user_123",
+    email="user@example.com",
 )
 print(response.headers.get('X-My-Header'))
 
@@ -282,7 +288,8 @@ To stream the response body, use `.with_streaming_response` instead, which requi
 
 ```python
 with client.user.with_streaming_response.create(
-    external_id="user123",
+    external_id="demo_user_123",
+    email="user@example.com",
 ) as response:
     print(response.headers.get("X-My-Header"))
 
