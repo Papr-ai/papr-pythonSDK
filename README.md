@@ -148,7 +148,8 @@ client = Papr()
 
 try:
     client.user.create(
-        external_id="user123",
+        external_id="demo_user_123",
+        email="user@example.com",
     )
 except papr_memory.APIConnectionError as e:
     print("The server could not be reached")
@@ -193,7 +194,8 @@ client = Papr(
 
 # Or, configure per-request:
 client.with_options(max_retries=5).user.create(
-    external_id="user123",
+    external_id="demo_user_123",
+    email="user@example.com",
 )
 ```
 
@@ -218,7 +220,8 @@ client = Papr(
 
 # Override per-request:
 client.with_options(timeout=5.0).user.create(
-    external_id="user123",
+    external_id="demo_user_123",
+    email="user@example.com",
 )
 ```
 
@@ -261,7 +264,8 @@ from papr_memory import Papr
 
 client = Papr()
 response = client.user.with_raw_response.create(
-    external_id="user123",
+    external_id="demo_user_123",
+    email="user@example.com",
 )
 print(response.headers.get('X-My-Header'))
 
@@ -281,7 +285,8 @@ To stream the response body, use `.with_streaming_response` instead, which requi
 
 ```python
 with client.user.with_streaming_response.create(
-    external_id="user123",
+    external_id="demo_user_123",
+    email="user@example.com",
 ) as response:
     print(response.headers.get("X-My-Header"))
 
