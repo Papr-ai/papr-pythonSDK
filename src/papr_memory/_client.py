@@ -20,7 +20,6 @@ from ._types import (
     RequestOptions,
 )
 from ._utils import is_given, get_async_library
-from ._oauth2 import OAuth2ClientCredentials
 from ._version import __version__
 from .resources import user, memory, feedback
 from ._streaming import Stream as Stream, AsyncStream as AsyncStream
@@ -45,7 +44,6 @@ class Papr(SyncAPIClient):
     x_api_key: str
     x_session_token: str | None
     bearer_token: str | None
-    o_auth2: str | None
 
     def __init__(
         self,
@@ -53,7 +51,6 @@ class Papr(SyncAPIClient):
         x_api_key: str | None = None,
         x_session_token: str | None = None,
         bearer_token: str | None = None,
-        o_auth2: str | None = None,
         base_url: str | httpx.URL | None = None,
         timeout: Union[float, Timeout, None, NotGiven] = NOT_GIVEN,
         max_retries: int = DEFAULT_MAX_RETRIES,
@@ -95,8 +92,6 @@ class Papr(SyncAPIClient):
         if bearer_token is None:
             bearer_token = os.environ.get("PAPR_MEMORY_BEARER_TOKEN")
         self.bearer_token = bearer_token
-
-        self.o_auth2 = o_auth2
 
         if base_url is None:
             base_url = os.environ.get("PAPR_BASE_URL")
@@ -151,11 +146,6 @@ class Papr(SyncAPIClient):
 
     @property
     @override
-    def custom_auth(self) -> httpx.Auth | None:
-        raise NotImplementedError("This auth method has not been implemented yet.")
-
-    @property
-    @override
     def default_headers(self) -> dict[str, str | Omit]:
         return {
             **super().default_headers,
@@ -163,22 +153,12 @@ class Papr(SyncAPIClient):
             **self._custom_headers,
         }
 
-    @override
-    def _should_retry(self, response: httpx.Response) -> bool:
-        # Retry on 401 if we are using OAuth2 and the token might be expired
-        if response.status_code == 401 and isinstance(self.custom_auth, OAuth2ClientCredentials):
-            if self.custom_auth.token_is_expired():
-                self.custom_auth.invalidate_token()
-                return True
-        return super()._should_retry(response)
-
     def copy(
         self,
         *,
         x_api_key: str | None = None,
         x_session_token: str | None = None,
         bearer_token: str | None = None,
-        o_auth2: str | None = None,
         base_url: str | httpx.URL | None = None,
         timeout: float | Timeout | None | NotGiven = NOT_GIVEN,
         http_client: httpx.Client | None = None,
@@ -215,7 +195,6 @@ class Papr(SyncAPIClient):
             x_api_key=x_api_key or self.x_api_key,
             x_session_token=x_session_token or self.x_session_token,
             bearer_token=bearer_token or self.bearer_token,
-            o_auth2=o_auth2 or self.o_auth2,
             base_url=base_url or self.base_url,
             timeout=self.timeout if isinstance(timeout, NotGiven) else timeout,
             http_client=http_client,
@@ -274,7 +253,6 @@ class AsyncPapr(AsyncAPIClient):
     x_api_key: str
     x_session_token: str | None
     bearer_token: str | None
-    o_auth2: str | None
 
     def __init__(
         self,
@@ -282,7 +260,6 @@ class AsyncPapr(AsyncAPIClient):
         x_api_key: str | None = None,
         x_session_token: str | None = None,
         bearer_token: str | None = None,
-        o_auth2: str | None = None,
         base_url: str | httpx.URL | None = None,
         timeout: Union[float, Timeout, None, NotGiven] = NOT_GIVEN,
         max_retries: int = DEFAULT_MAX_RETRIES,
@@ -324,8 +301,6 @@ class AsyncPapr(AsyncAPIClient):
         if bearer_token is None:
             bearer_token = os.environ.get("PAPR_MEMORY_BEARER_TOKEN")
         self.bearer_token = bearer_token
-
-        self.o_auth2 = o_auth2
 
         if base_url is None:
             base_url = os.environ.get("PAPR_BASE_URL")
@@ -380,11 +355,6 @@ class AsyncPapr(AsyncAPIClient):
 
     @property
     @override
-    def custom_auth(self) -> httpx.Auth | None:
-        raise NotImplementedError("This auth method has not been implemented yet.")
-
-    @property
-    @override
     def default_headers(self) -> dict[str, str | Omit]:
         return {
             **super().default_headers,
@@ -392,22 +362,12 @@ class AsyncPapr(AsyncAPIClient):
             **self._custom_headers,
         }
 
-    @override
-    def _should_retry(self, response: httpx.Response) -> bool:
-        # Retry on 401 if we are using OAuth2 and the token might be expired
-        if response.status_code == 401 and isinstance(self.custom_auth, OAuth2ClientCredentials):
-            if self.custom_auth.token_is_expired():
-                self.custom_auth.invalidate_token()
-                return True
-        return super()._should_retry(response)
-
     def copy(
         self,
         *,
         x_api_key: str | None = None,
         x_session_token: str | None = None,
         bearer_token: str | None = None,
-        o_auth2: str | None = None,
         base_url: str | httpx.URL | None = None,
         timeout: float | Timeout | None | NotGiven = NOT_GIVEN,
         http_client: httpx.AsyncClient | None = None,
@@ -444,7 +404,6 @@ class AsyncPapr(AsyncAPIClient):
             x_api_key=x_api_key or self.x_api_key,
             x_session_token=x_session_token or self.x_session_token,
             bearer_token=bearer_token or self.bearer_token,
-            o_auth2=o_auth2 or self.o_auth2,
             base_url=base_url or self.base_url,
             timeout=self.timeout if isinstance(timeout, NotGiven) else timeout,
             http_client=http_client,
