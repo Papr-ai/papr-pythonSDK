@@ -45,6 +45,7 @@ class Papr(SyncAPIClient):
     x_api_key: str
     x_session_token: str | None
     bearer_token: str | None
+    o_auth2: str | None
 
     def __init__(
         self,
@@ -52,6 +53,7 @@ class Papr(SyncAPIClient):
         x_api_key: str | None = None,
         x_session_token: str | None = None,
         bearer_token: str | None = None,
+        o_auth2: str | None = None,
         base_url: str | httpx.URL | None = None,
         timeout: Union[float, Timeout, None, NotGiven] = NOT_GIVEN,
         max_retries: int = DEFAULT_MAX_RETRIES,
@@ -93,6 +95,8 @@ class Papr(SyncAPIClient):
         if bearer_token is None:
             bearer_token = os.environ.get("PAPR_MEMORY_BEARER_TOKEN")
         self.bearer_token = bearer_token
+
+        self.o_auth2 = o_auth2
 
         if base_url is None:
             base_url = os.environ.get("PAPR_BASE_URL")
@@ -174,6 +178,7 @@ class Papr(SyncAPIClient):
         x_api_key: str | None = None,
         x_session_token: str | None = None,
         bearer_token: str | None = None,
+        o_auth2: str | None = None,
         base_url: str | httpx.URL | None = None,
         timeout: float | Timeout | None | NotGiven = NOT_GIVEN,
         http_client: httpx.Client | None = None,
@@ -210,6 +215,7 @@ class Papr(SyncAPIClient):
             x_api_key=x_api_key or self.x_api_key,
             x_session_token=x_session_token or self.x_session_token,
             bearer_token=bearer_token or self.bearer_token,
+            o_auth2=o_auth2 or self.o_auth2,
             base_url=base_url or self.base_url,
             timeout=self.timeout if isinstance(timeout, NotGiven) else timeout,
             http_client=http_client,
@@ -268,6 +274,7 @@ class AsyncPapr(AsyncAPIClient):
     x_api_key: str
     x_session_token: str | None
     bearer_token: str | None
+    o_auth2: str | None
 
     def __init__(
         self,
@@ -275,6 +282,7 @@ class AsyncPapr(AsyncAPIClient):
         x_api_key: str | None = None,
         x_session_token: str | None = None,
         bearer_token: str | None = None,
+        o_auth2: str | None = None,
         base_url: str | httpx.URL | None = None,
         timeout: Union[float, Timeout, None, NotGiven] = NOT_GIVEN,
         max_retries: int = DEFAULT_MAX_RETRIES,
@@ -316,6 +324,8 @@ class AsyncPapr(AsyncAPIClient):
         if bearer_token is None:
             bearer_token = os.environ.get("PAPR_MEMORY_BEARER_TOKEN")
         self.bearer_token = bearer_token
+
+        self.o_auth2 = o_auth2
 
         if base_url is None:
             base_url = os.environ.get("PAPR_BASE_URL")
@@ -397,6 +407,7 @@ class AsyncPapr(AsyncAPIClient):
         x_api_key: str | None = None,
         x_session_token: str | None = None,
         bearer_token: str | None = None,
+        o_auth2: str | None = None,
         base_url: str | httpx.URL | None = None,
         timeout: float | Timeout | None | NotGiven = NOT_GIVEN,
         http_client: httpx.AsyncClient | None = None,
@@ -433,6 +444,7 @@ class AsyncPapr(AsyncAPIClient):
             x_api_key=x_api_key or self.x_api_key,
             x_session_token=x_session_token or self.x_session_token,
             bearer_token=bearer_token or self.bearer_token,
+            o_auth2=o_auth2 or self.o_auth2,
             base_url=base_url or self.base_url,
             timeout=self.timeout if isinstance(timeout, NotGiven) else timeout,
             http_client=http_client,
