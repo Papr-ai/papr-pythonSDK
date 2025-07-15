@@ -33,7 +33,8 @@ client = Papr(
 )
 
 user_response = client.user.create(
-    external_id="user123",
+    external_id="demo_user_123",
+    email="user@example.com",
 )
 print(user_response.external_id)
 ```
@@ -59,7 +60,8 @@ client = AsyncPapr(
 
 async def main() -> None:
     user_response = await client.user.create(
-        external_id="user123",
+        external_id="demo_user_123",
+        email="user@example.com",
     )
     print(user_response.external_id)
 
@@ -94,7 +96,8 @@ async def main() -> None:
         http_client=DefaultAioHttpClient(),
     ) as client:
         user_response = await client.user.create(
-            external_id="user123",
+            external_id="demo_user_123",
+            email="user@example.com",
         )
         print(user_response.external_id)
 
