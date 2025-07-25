@@ -1,5 +1,19 @@
 # Changelog
 
+## 2.11.1 (2025-07-25)
+
+Full Changelog: [v2.11.0...v2.11.1](https://github.com/Papr-ai/papr-pythonSDK/compare/v2.11.0...v2.11.1)
+
+### Bug Fixes
+
+* **parsing:** ignore empty metadata ([a9d9108](https://github.com/Papr-ai/papr-pythonSDK/commit/a9d9108b3ee0c7c7b413d0ffdc6ec69398f4fa5c))
+* **parsing:** parse extra field types ([dacefad](https://github.com/Papr-ai/papr-pythonSDK/commit/dacefada6822225d1ccfd25f246a46f8b1fb4c87))
+
+
+### Chores
+
+* **project:** add settings file for vscode ([142267f](https://github.com/Papr-ai/papr-pythonSDK/commit/142267f3e7425c8a799c8170729ffb5098d66eec))
+
 ## 2.11.0 (2025-07-15)
 
 Full Changelog: [v2.10.2...v2.11.0](https://github.com/Papr-ai/papr-pythonSDK/compare/v2.10.2...v2.11.0)
