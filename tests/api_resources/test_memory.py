@@ -412,6 +412,8 @@ class TestMemory:
             batch_size=10,
             external_user_id="external_user_abcde",
             user_id="internal_user_id_12345",
+            webhook_secret="webhook_secret",
+            webhook_url="webhook_url",
         )
         assert_matches_type(MemoryAddBatchResponse, memory, path=["response"])
 
@@ -979,6 +981,8 @@ class TestAsyncMemory:
             batch_size=10,
             external_user_id="external_user_abcde",
             user_id="internal_user_id_12345",
+            webhook_secret="webhook_secret",
+            webhook_url="webhook_url",
         )
         assert_matches_type(MemoryAddBatchResponse, memory, path=["response"])
 
