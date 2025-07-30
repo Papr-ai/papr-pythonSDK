@@ -31,3 +31,16 @@ class MemoryAddBatchParams(TypedDict, total=False):
 
     If not provided, developer's user ID will be used.
     """
+
+    webhook_secret: Optional[str]
+    """Optional secret key for webhook authentication.
+
+    If provided, will be included in the webhook request headers as
+    'X-Webhook-Secret'.
+    """
+
+    webhook_url: Optional[str]
+    """Optional webhook URL to notify when batch processing is complete.
+
+    The webhook will receive a POST request with batch completion details.
+    """
