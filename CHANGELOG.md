@@ -1,5 +1,25 @@
 # Changelog
 
+## 2.12.0 (2025-07-31)
+
+Full Changelog: [v2.11.0...v2.12.0](https://github.com/Papr-ai/papr-pythonSDK/compare/v2.11.0...v2.12.0)
+
+### Features
+
+* **api:** update via SDK Studio ([d95b3b5](https://github.com/Papr-ai/papr-pythonSDK/commit/d95b3b544c8fb2f9a626616f88ba9f71ee8b6f7e))
+* **client:** support file upload requests ([d3ae699](https://github.com/Papr-ai/papr-pythonSDK/commit/d3ae699a5f01ac1994e34b57f4296f66b0365102))
+
+
+### Bug Fixes
+
+* **parsing:** ignore empty metadata ([a9d9108](https://github.com/Papr-ai/papr-pythonSDK/commit/a9d9108b3ee0c7c7b413d0ffdc6ec69398f4fa5c))
+* **parsing:** parse extra field types ([dacefad](https://github.com/Papr-ai/papr-pythonSDK/commit/dacefada6822225d1ccfd25f246a46f8b1fb4c87))
+
+
+### Chores
+
+* **project:** add settings file for vscode ([142267f](https://github.com/Papr-ai/papr-pythonSDK/commit/142267f3e7425c8a799c8170729ffb5098d66eec))
+
 ## 2.11.0 (2025-07-15)
 
 Full Changelog: [v2.10.2...v2.11.0](https://github.com/Papr-ai/papr-pythonSDK/compare/v2.10.2...v2.11.0)
