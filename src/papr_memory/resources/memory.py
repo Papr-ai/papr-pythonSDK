@@ -263,6 +263,8 @@ class MemoryResource(SyncAPIResource):
         batch_size: Optional[int] | NotGiven = NOT_GIVEN,
         external_user_id: Optional[str] | NotGiven = NOT_GIVEN,
         user_id: Optional[str] | NotGiven = NOT_GIVEN,
+        webhook_secret: Optional[str] | NotGiven = NOT_GIVEN,
+        webhook_url: Optional[str] | NotGiven = NOT_GIVEN,
         # Use the following arguments if you need to pass additional parameters to the API that aren't available via kwargs.
         # The extra values given here take precedence over values defined on the client or passed to this method.
         extra_headers: Headers | None = None,
@@ -299,6 +301,12 @@ class MemoryResource(SyncAPIResource):
           user_id: Internal user ID for all memories in the batch. If not provided, developer's
               user ID will be used.
 
+          webhook_secret: Optional secret key for webhook authentication. If provided, will be included in
+              the webhook request headers as 'X-Webhook-Secret'.
+
+          webhook_url: Optional webhook URL to notify when batch processing is complete. The webhook
+              will receive a POST request with batch completion details.
+
           extra_headers: Send extra headers
 
           extra_query: Add additional query parameters to the request
@@ -315,6 +323,8 @@ class MemoryResource(SyncAPIResource):
                     "batch_size": batch_size,
                     "external_user_id": external_user_id,
                     "user_id": user_id,
+                    "webhook_secret": webhook_secret,
+                    "webhook_url": webhook_url,
                 },
                 memory_add_batch_params.MemoryAddBatchParams,
             ),
@@ -729,6 +739,8 @@ class AsyncMemoryResource(AsyncAPIResource):
         batch_size: Optional[int] | NotGiven = NOT_GIVEN,
         external_user_id: Optional[str] | NotGiven = NOT_GIVEN,
         user_id: Optional[str] | NotGiven = NOT_GIVEN,
+        webhook_secret: Optional[str] | NotGiven = NOT_GIVEN,
+        webhook_url: Optional[str] | NotGiven = NOT_GIVEN,
         # Use the following arguments if you need to pass additional parameters to the API that aren't available via kwargs.
         # The extra values given here take precedence over values defined on the client or passed to this method.
         extra_headers: Headers | None = None,
@@ -765,6 +777,12 @@ class AsyncMemoryResource(AsyncAPIResource):
           user_id: Internal user ID for all memories in the batch. If not provided, developer's
               user ID will be used.
 
+          webhook_secret: Optional secret key for webhook authentication. If provided, will be included in
+              the webhook request headers as 'X-Webhook-Secret'.
+
+          webhook_url: Optional webhook URL to notify when batch processing is complete. The webhook
+              will receive a POST request with batch completion details.
+
           extra_headers: Send extra headers
 
           extra_query: Add additional query parameters to the request
@@ -781,6 +799,8 @@ class AsyncMemoryResource(AsyncAPIResource):
                     "batch_size": batch_size,
                     "external_user_id": external_user_id,
                     "user_id": user_id,
+                    "webhook_secret": webhook_secret,
+                    "webhook_url": webhook_url,
                 },
                 memory_add_batch_params.MemoryAddBatchParams,
             ),
