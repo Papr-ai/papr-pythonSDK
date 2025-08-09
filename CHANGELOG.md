@@ -1,5 +1,15 @@
 # Changelog
 
+## 2.12.1 (2025-08-09)
+
+Full Changelog: [v2.12.0...v2.12.1](https://github.com/Papr-ai/papr-pythonSDK/compare/v2.12.0...v2.12.1)
+
+### Chores
+
+* **internal:** fix ruff target version ([ba4b4ca](https://github.com/Papr-ai/papr-pythonSDK/commit/ba4b4ca53e18bb02d18509d9ae31f3955b4dd855))
+* **internal:** update comment in script ([6edd9d6](https://github.com/Papr-ai/papr-pythonSDK/commit/6edd9d684c409b0750cb8446b83d25342c5af1b0))
+* update @stainless-api/prism-cli to v5.15.0 ([a07b404](https://github.com/Papr-ai/papr-pythonSDK/commit/a07b404e75304a1e7427521fac583ef8664aba10))
+
 ## 2.12.0 (2025-07-31)
 
 Full Changelog: [v2.11.0...v2.12.0](https://github.com/Papr-ai/papr-pythonSDK/compare/v2.11.0...v2.12.0)
