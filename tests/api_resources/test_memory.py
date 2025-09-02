@@ -12,9 +12,9 @@ from tests.utils import assert_matches_type
 from papr_memory.types import (
     SearchResponse,
     AddMemoryResponse,
+    BatchMemoryResponse,
     MemoryDeleteResponse,
     MemoryUpdateResponse,
-    MemoryAddBatchResponse,
 )
 
 base_url = os.environ.get("TEST_API_BASE_URL", "http://127.0.0.1:4010")
@@ -294,7 +294,7 @@ class TestMemory:
                 },
             ],
         )
-        assert_matches_type(MemoryAddBatchResponse, memory, path=["response"])
+        assert_matches_type(BatchMemoryResponse, memory, path=["response"])
 
     @pytest.mark.skip(reason="Prism tests are disabled")
     @parametrize
@@ -415,7 +415,7 @@ class TestMemory:
             webhook_secret="webhook_secret",
             webhook_url="webhook_url",
         )
-        assert_matches_type(MemoryAddBatchResponse, memory, path=["response"])
+        assert_matches_type(BatchMemoryResponse, memory, path=["response"])
 
     @pytest.mark.skip(reason="Prism tests are disabled")
     @parametrize
@@ -436,7 +436,7 @@ class TestMemory:
         assert response.is_closed is True
         assert response.http_request.headers.get("X-Stainless-Lang") == "python"
         memory = response.parse()
-        assert_matches_type(MemoryAddBatchResponse, memory, path=["response"])
+        assert_matches_type(BatchMemoryResponse, memory, path=["response"])
 
     @pytest.mark.skip(reason="Prism tests are disabled")
     @parametrize
@@ -457,7 +457,45 @@ class TestMemory:
             assert response.http_request.headers.get("X-Stainless-Lang") == "python"
 
             memory = response.parse()
-            assert_matches_type(MemoryAddBatchResponse, memory, path=["response"])
+            assert_matches_type(BatchMemoryResponse, memory, path=["response"])
+
+        assert cast(Any, response.is_closed) is True
+
+    @pytest.mark.skip(reason="Prism tests are disabled")
+    @parametrize
+    def test_method_delete_all(self, client: Papr) -> None:
+        memory = client.memory.delete_all()
+        assert_matches_type(BatchMemoryResponse, memory, path=["response"])
+
+    @pytest.mark.skip(reason="Prism tests are disabled")
+    @parametrize
+    def test_method_delete_all_with_all_params(self, client: Papr) -> None:
+        memory = client.memory.delete_all(
+            external_user_id="external_user_id",
+            skip_parse=True,
+            user_id="user_id",
+        )
+        assert_matches_type(BatchMemoryResponse, memory, path=["response"])
+
+    @pytest.mark.skip(reason="Prism tests are disabled")
+    @parametrize
+    def test_raw_response_delete_all(self, client: Papr) -> None:
+        response = client.memory.with_raw_response.delete_all()
+
+        assert response.is_closed is True
+        assert response.http_request.headers.get("X-Stainless-Lang") == "python"
+        memory = response.parse()
+        assert_matches_type(BatchMemoryResponse, memory, path=["response"])
+
+    @pytest.mark.skip(reason="Prism tests are disabled")
+    @parametrize
+    def test_streaming_response_delete_all(self, client: Papr) -> None:
+        with client.memory.with_streaming_response.delete_all() as response:
+            assert not response.is_closed
+            assert response.http_request.headers.get("X-Stainless-Lang") == "python"
+
+            memory = response.parse()
+            assert_matches_type(BatchMemoryResponse, memory, path=["response"])
 
         assert cast(Any, response.is_closed) is True
 
@@ -863,7 +901,7 @@ class TestAsyncMemory:
                 },
             ],
         )
-        assert_matches_type(MemoryAddBatchResponse, memory, path=["response"])
+        assert_matches_type(BatchMemoryResponse, memory, path=["response"])
 
     @pytest.mark.skip(reason="Prism tests are disabled")
     @parametrize
@@ -984,7 +1022,7 @@ class TestAsyncMemory:
             webhook_secret="webhook_secret",
             webhook_url="webhook_url",
         )
-        assert_matches_type(MemoryAddBatchResponse, memory, path=["response"])
+        assert_matches_type(BatchMemoryResponse, memory, path=["response"])
 
     @pytest.mark.skip(reason="Prism tests are disabled")
     @parametrize
@@ -1005,7 +1043,7 @@ class TestAsyncMemory:
         assert response.is_closed is True
         assert response.http_request.headers.get("X-Stainless-Lang") == "python"
         memory = await response.parse()
-        assert_matches_type(MemoryAddBatchResponse, memory, path=["response"])
+        assert_matches_type(BatchMemoryResponse, memory, path=["response"])
 
     @pytest.mark.skip(reason="Prism tests are disabled")
     @parametrize
@@ -1026,7 +1064,45 @@ class TestAsyncMemory:
             assert response.http_request.headers.get("X-Stainless-Lang") == "python"
 
             memory = await response.parse()
-            assert_matches_type(MemoryAddBatchResponse, memory, path=["response"])
+            assert_matches_type(BatchMemoryResponse, memory, path=["response"])
+
+        assert cast(Any, response.is_closed) is True
+
+    @pytest.mark.skip(reason="Prism tests are disabled")
+    @parametrize
+    async def test_method_delete_all(self, async_client: AsyncPapr) -> None:
+        memory = await async_client.memory.delete_all()
+        assert_matches_type(BatchMemoryResponse, memory, path=["response"])
+
+    @pytest.mark.skip(reason="Prism tests are disabled")
+    @parametrize
+    async def test_method_delete_all_with_all_params(self, async_client: AsyncPapr) -> None:
+        memory = await async_client.memory.delete_all(
+            external_user_id="external_user_id",
+            skip_parse=True,
+            user_id="user_id",
+        )
+        assert_matches_type(BatchMemoryResponse, memory, path=["response"])
+
+    @pytest.mark.skip(reason="Prism tests are disabled")
+    @parametrize
+    async def test_raw_response_delete_all(self, async_client: AsyncPapr) -> None:
+        response = await async_client.memory.with_raw_response.delete_all()
+
+        assert response.is_closed is True
+        assert response.http_request.headers.get("X-Stainless-Lang") == "python"
+        memory = await response.parse()
+        assert_matches_type(BatchMemoryResponse, memory, path=["response"])
+
+    @pytest.mark.skip(reason="Prism tests are disabled")
+    @parametrize
+    async def test_streaming_response_delete_all(self, async_client: AsyncPapr) -> None:
+        async with async_client.memory.with_streaming_response.delete_all() as response:
+            assert not response.is_closed
+            assert response.http_request.headers.get("X-Stainless-Lang") == "python"
+
+            memory = await response.parse()
+            assert_matches_type(BatchMemoryResponse, memory, path=["response"])
 
         assert cast(Any, response.is_closed) is True
 
