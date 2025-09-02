@@ -22,7 +22,7 @@ from ._types import (
 from ._utils import is_given, get_async_library
 from ._oauth2 import OAuth2ClientCredentials
 from ._version import __version__
-from .resources import me, user, login, token, logout, memory, callback, feedback
+from .resources import user, memory, feedback
 from ._streaming import Stream as Stream, AsyncStream as AsyncStream
 from ._exceptions import PaprError, APIStatusError
 from ._base_client import (
@@ -38,11 +38,6 @@ class Papr(SyncAPIClient):
     user: user.UserResource
     memory: memory.MemoryResource
     feedback: feedback.FeedbackResource
-    login: login.LoginResource
-    callback: callback.CallbackResource
-    token: token.TokenResource
-    me: me.MeResource
-    logout: logout.LogoutResource
     with_raw_response: PaprWithRawResponse
     with_streaming_response: PaprWithStreamedResponse
 
@@ -118,11 +113,6 @@ class Papr(SyncAPIClient):
         self.user = user.UserResource(self)
         self.memory = memory.MemoryResource(self)
         self.feedback = feedback.FeedbackResource(self)
-        self.login = login.LoginResource(self)
-        self.callback = callback.CallbackResource(self)
-        self.token = token.TokenResource(self)
-        self.me = me.MeResource(self)
-        self.logout = logout.LogoutResource(self)
         self.with_raw_response = PaprWithRawResponse(self)
         self.with_streaming_response = PaprWithStreamedResponse(self)
 
@@ -271,11 +261,6 @@ class AsyncPapr(AsyncAPIClient):
     user: user.AsyncUserResource
     memory: memory.AsyncMemoryResource
     feedback: feedback.AsyncFeedbackResource
-    login: login.AsyncLoginResource
-    callback: callback.AsyncCallbackResource
-    token: token.AsyncTokenResource
-    me: me.AsyncMeResource
-    logout: logout.AsyncLogoutResource
     with_raw_response: AsyncPaprWithRawResponse
     with_streaming_response: AsyncPaprWithStreamedResponse
 
@@ -351,11 +336,6 @@ class AsyncPapr(AsyncAPIClient):
         self.user = user.AsyncUserResource(self)
         self.memory = memory.AsyncMemoryResource(self)
         self.feedback = feedback.AsyncFeedbackResource(self)
-        self.login = login.AsyncLoginResource(self)
-        self.callback = callback.AsyncCallbackResource(self)
-        self.token = token.AsyncTokenResource(self)
-        self.me = me.AsyncMeResource(self)
-        self.logout = logout.AsyncLogoutResource(self)
         self.with_raw_response = AsyncPaprWithRawResponse(self)
         self.with_streaming_response = AsyncPaprWithStreamedResponse(self)
 
@@ -505,11 +485,6 @@ class PaprWithRawResponse:
         self.user = user.UserResourceWithRawResponse(client.user)
         self.memory = memory.MemoryResourceWithRawResponse(client.memory)
         self.feedback = feedback.FeedbackResourceWithRawResponse(client.feedback)
-        self.login = login.LoginResourceWithRawResponse(client.login)
-        self.callback = callback.CallbackResourceWithRawResponse(client.callback)
-        self.token = token.TokenResourceWithRawResponse(client.token)
-        self.me = me.MeResourceWithRawResponse(client.me)
-        self.logout = logout.LogoutResourceWithRawResponse(client.logout)
 
 
 class AsyncPaprWithRawResponse:
@@ -517,11 +492,6 @@ class AsyncPaprWithRawResponse:
         self.user = user.AsyncUserResourceWithRawResponse(client.user)
         self.memory = memory.AsyncMemoryResourceWithRawResponse(client.memory)
         self.feedback = feedback.AsyncFeedbackResourceWithRawResponse(client.feedback)
-        self.login = login.AsyncLoginResourceWithRawResponse(client.login)
-        self.callback = callback.AsyncCallbackResourceWithRawResponse(client.callback)
-        self.token = token.AsyncTokenResourceWithRawResponse(client.token)
-        self.me = me.AsyncMeResourceWithRawResponse(client.me)
-        self.logout = logout.AsyncLogoutResourceWithRawResponse(client.logout)
 
 
 class PaprWithStreamedResponse:
@@ -529,11 +499,6 @@ class PaprWithStreamedResponse:
         self.user = user.UserResourceWithStreamingResponse(client.user)
         self.memory = memory.MemoryResourceWithStreamingResponse(client.memory)
         self.feedback = feedback.FeedbackResourceWithStreamingResponse(client.feedback)
-        self.login = login.LoginResourceWithStreamingResponse(client.login)
-        self.callback = callback.CallbackResourceWithStreamingResponse(client.callback)
-        self.token = token.TokenResourceWithStreamingResponse(client.token)
-        self.me = me.MeResourceWithStreamingResponse(client.me)
-        self.logout = logout.LogoutResourceWithStreamingResponse(client.logout)
 
 
 class AsyncPaprWithStreamedResponse:
@@ -541,11 +506,6 @@ class AsyncPaprWithStreamedResponse:
         self.user = user.AsyncUserResourceWithStreamingResponse(client.user)
         self.memory = memory.AsyncMemoryResourceWithStreamingResponse(client.memory)
         self.feedback = feedback.AsyncFeedbackResourceWithStreamingResponse(client.feedback)
-        self.login = login.AsyncLoginResourceWithStreamingResponse(client.login)
-        self.callback = callback.AsyncCallbackResourceWithStreamingResponse(client.callback)
-        self.token = token.AsyncTokenResourceWithStreamingResponse(client.token)
-        self.me = me.AsyncMeResourceWithStreamingResponse(client.me)
-        self.logout = logout.AsyncLogoutResourceWithStreamingResponse(client.logout)
 
 
 Client = Papr
