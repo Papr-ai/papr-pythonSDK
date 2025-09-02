@@ -47,6 +47,7 @@ Methods:
 - <code title="delete /v1/memory/{memory_id}">client.memory.<a href="./src/papr_memory/resources/memory.py">delete</a>(memory_id, \*\*<a href="src/papr_memory/types/memory_delete_params.py">params</a>) -> <a href="./src/papr_memory/types/memory_delete_response.py">MemoryDeleteResponse</a></code>
 - <code title="post /v1/memory">client.memory.<a href="./src/papr_memory/resources/memory.py">add</a>(\*\*<a href="src/papr_memory/types/memory_add_params.py">params</a>) -> <a href="./src/papr_memory/types/add_memory_response.py">AddMemoryResponse</a></code>
 - <code title="post /v1/memory/batch">client.memory.<a href="./src/papr_memory/resources/memory.py">add_batch</a>(\*\*<a href="src/papr_memory/types/memory_add_batch_params.py">params</a>) -> <a href="./src/papr_memory/types/batch_memory_response.py">BatchMemoryResponse</a></code>
+- <code title="delete /v1/memory/all">client.memory.<a href="./src/papr_memory/resources/memory.py">delete_all</a>(\*\*<a href="src/papr_memory/types/memory_delete_all_params.py">params</a>) -> <a href="./src/papr_memory/types/batch_memory_response.py">BatchMemoryResponse</a></code>
 - <code title="get /v1/memory/{memory_id}">client.memory.<a href="./src/papr_memory/resources/memory.py">get</a>(memory_id) -> <a href="./src/papr_memory/types/search_response.py">SearchResponse</a></code>
 - <code title="post /v1/memory/search">client.memory.<a href="./src/papr_memory/resources/memory.py">search</a>(\*\*<a href="src/papr_memory/types/memory_search_params.py">params</a>) -> <a href="./src/papr_memory/types/search_response.py">SearchResponse</a></code>
 
@@ -55,7 +56,13 @@ Methods:
 Types:
 
 ```python
-from papr_memory.types import BatchRequest, BatchResponse, FeedbackRequest, FeedbackResponse
+from papr_memory.types import (
+    BatchRequest,
+    BatchResponse,
+    FeedbackRequest,
+    FeedbackResponse,
+    ParsePointer,
+)
 ```
 
 Methods:
@@ -63,3 +70,63 @@ Methods:
 - <code title="get /v1/feedback/{feedback_id}">client.feedback.<a href="./src/papr_memory/resources/feedback.py">get_by_id</a>(feedback_id) -> <a href="./src/papr_memory/types/feedback_response.py">FeedbackResponse</a></code>
 - <code title="post /v1/feedback">client.feedback.<a href="./src/papr_memory/resources/feedback.py">submit</a>(\*\*<a href="src/papr_memory/types/feedback_submit_params.py">params</a>) -> <a href="./src/papr_memory/types/feedback_response.py">FeedbackResponse</a></code>
 - <code title="post /v1/feedback/batch">client.feedback.<a href="./src/papr_memory/resources/feedback.py">submit_batch</a>(\*\*<a href="src/papr_memory/types/feedback_submit_batch_params.py">params</a>) -> <a href="./src/papr_memory/types/batch_response.py">BatchResponse</a></code>
+
+# Login
+
+Types:
+
+```python
+from papr_memory.types import LoginInitiateResponse
+```
+
+Methods:
+
+- <code title="get /login">client.login.<a href="./src/papr_memory/resources/login.py">initiate</a>() -> <a href="./src/papr_memory/types/login_initiate_response.py">LoginInitiateResponse</a></code>
+
+# Callback
+
+Types:
+
+```python
+from papr_memory.types import CallbackProcessResponse
+```
+
+Methods:
+
+- <code title="get /callback">client.callback.<a href="./src/papr_memory/resources/callback.py">process</a>() -> <a href="./src/papr_memory/types/callback_process_response.py">CallbackProcessResponse</a></code>
+
+# Token
+
+Types:
+
+```python
+from papr_memory.types import TokenCreateResponse
+```
+
+Methods:
+
+- <code title="post /token">client.token.<a href="./src/papr_memory/resources/token.py">create</a>() -> <a href="./src/papr_memory/types/token_create_response.py">TokenCreateResponse</a></code>
+
+# Me
+
+Types:
+
+```python
+from papr_memory.types import MeRetrieveResponse
+```
+
+Methods:
+
+- <code title="get /me">client.me.<a href="./src/papr_memory/resources/me.py">retrieve</a>() -> <a href="./src/papr_memory/types/me_retrieve_response.py">MeRetrieveResponse</a></code>
+
+# Logout
+
+Types:
+
+```python
+from papr_memory.types import LogoutLogoutResponse
+```
+
+Methods:
+
+- <code title="get /logout">client.logout.<a href="./src/papr_memory/resources/logout.py">logout</a>() -> <a href="./src/papr_memory/types/logout_logout_response.py">LogoutLogoutResponse</a></code>
