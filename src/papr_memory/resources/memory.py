@@ -13,7 +13,6 @@ from ..types import (
     memory_search_params,
     memory_update_params,
     memory_add_batch_params,
-    memory_delete_all_params,
 )
 from .._types import NOT_GIVEN, Body, Query, Headers, NotGiven
 from .._utils import maybe_transform, strip_not_given, async_maybe_transform
@@ -337,73 +336,6 @@ class MemoryResource(SyncAPIResource):
                 query=maybe_transform(
                     {"skip_background_processing": skip_background_processing},
                     memory_add_batch_params.MemoryAddBatchParams,
-                ),
-            ),
-            cast_to=BatchMemoryResponse,
-        )
-
-    def delete_all(
-        self,
-        *,
-        external_user_id: Optional[str] | NotGiven = NOT_GIVEN,
-        skip_parse: bool | NotGiven = NOT_GIVEN,
-        user_id: Optional[str] | NotGiven = NOT_GIVEN,
-        # Use the following arguments if you need to pass additional parameters to the API that aren't available via kwargs.
-        # The extra values given here take precedence over values defined on the client or passed to this method.
-        extra_headers: Headers | None = None,
-        extra_query: Query | None = None,
-        extra_body: Body | None = None,
-        timeout: float | httpx.Timeout | None | NotGiven = NOT_GIVEN,
-    ) -> BatchMemoryResponse:
-        """
-        Delete all memory items for a user.
-
-            **Authentication Required**:
-            One of the following authentication methods must be used:
-            - Bearer token in `Authorization` header
-            - API Key in `X-API-Key` header
-            - Session token in `X-Session-Token` header
-
-            **User Resolution**:
-            - If only API key is provided: deletes memories for the developer
-            - If user_id or external_user_id is provided: resolves and deletes memories for that user
-            - Uses the same user resolution logic as other endpoints
-
-            **Required Headers**:
-            - X-Client-Type: (e.g., 'papr_plugin', 'browser_extension')
-
-            **WARNING**: This operation cannot be undone. All memories for the resolved user will be permanently deleted.
-
-        Args:
-          external_user_id: Optional external user ID to resolve and delete memories for
-
-          skip_parse: Skip Parse Server deletion
-
-          user_id: Optional user ID to delete memories for (if not provided, uses authenticated
-              user)
-
-          extra_headers: Send extra headers
-
-          extra_query: Add additional query parameters to the request
-
-          extra_body: Add additional JSON properties to the request
-
-          timeout: Override the client-level default timeout for this request, in seconds
-        """
-        return self._delete(
-            "/v1/memory/all",
-            options=make_request_options(
-                extra_headers=extra_headers,
-                extra_query=extra_query,
-                extra_body=extra_body,
-                timeout=timeout,
-                query=maybe_transform(
-                    {
-                        "external_user_id": external_user_id,
-                        "skip_parse": skip_parse,
-                        "user_id": user_id,
-                    },
-                    memory_delete_all_params.MemoryDeleteAllParams,
                 ),
             ),
             cast_to=BatchMemoryResponse,
@@ -885,73 +817,6 @@ class AsyncMemoryResource(AsyncAPIResource):
             cast_to=BatchMemoryResponse,
         )
 
-    async def delete_all(
-        self,
-        *,
-        external_user_id: Optional[str] | NotGiven = NOT_GIVEN,
-        skip_parse: bool | NotGiven = NOT_GIVEN,
-        user_id: Optional[str] | NotGiven = NOT_GIVEN,
-        # Use the following arguments if you need to pass additional parameters to the API that aren't available via kwargs.
-        # The extra values given here take precedence over values defined on the client or passed to this method.
-        extra_headers: Headers | None = None,
-        extra_query: Query | None = None,
-        extra_body: Body | None = None,
-        timeout: float | httpx.Timeout | None | NotGiven = NOT_GIVEN,
-    ) -> BatchMemoryResponse:
-        """
-        Delete all memory items for a user.
-
-            **Authentication Required**:
-            One of the following authentication methods must be used:
-            - Bearer token in `Authorization` header
-            - API Key in `X-API-Key` header
-            - Session token in `X-Session-Token` header
-
-            **User Resolution**:
-            - If only API key is provided: deletes memories for the developer
-            - If user_id or external_user_id is provided: resolves and deletes memories for that user
-            - Uses the same user resolution logic as other endpoints
-
-            **Required Headers**:
-            - X-Client-Type: (e.g., 'papr_plugin', 'browser_extension')
-
-            **WARNING**: This operation cannot be undone. All memories for the resolved user will be permanently deleted.
-
-        Args:
-          external_user_id: Optional external user ID to resolve and delete memories for
-
-          skip_parse: Skip Parse Server deletion
-
-          user_id: Optional user ID to delete memories for (if not provided, uses authenticated
-              user)
-
-          extra_headers: Send extra headers
-
-          extra_query: Add additional query parameters to the request
-
-          extra_body: Add additional JSON properties to the request
-
-          timeout: Override the client-level default timeout for this request, in seconds
-        """
-        return await self._delete(
-            "/v1/memory/all",
-            options=make_request_options(
-                extra_headers=extra_headers,
-                extra_query=extra_query,
-                extra_body=extra_body,
-                timeout=timeout,
-                query=await async_maybe_transform(
-                    {
-                        "external_user_id": external_user_id,
-                        "skip_parse": skip_parse,
-                        "user_id": user_id,
-                    },
-                    memory_delete_all_params.MemoryDeleteAllParams,
-                ),
-            ),
-            cast_to=BatchMemoryResponse,
-        )
-
     async def get(
         self,
         memory_id: str,
@@ -1142,9 +1007,6 @@ class MemoryResourceWithRawResponse:
         self.add_batch = to_raw_response_wrapper(
             memory.add_batch,
         )
-        self.delete_all = to_raw_response_wrapper(
-            memory.delete_all,
-        )
         self.get = to_raw_response_wrapper(
             memory.get,
         )
@@ -1168,9 +1030,6 @@ class AsyncMemoryResourceWithRawResponse:
         )
         self.add_batch = async_to_raw_response_wrapper(
             memory.add_batch,
-        )
-        self.delete_all = async_to_raw_response_wrapper(
-            memory.delete_all,
         )
         self.get = async_to_raw_response_wrapper(
             memory.get,
@@ -1196,9 +1055,6 @@ class MemoryResourceWithStreamingResponse:
         self.add_batch = to_streamed_response_wrapper(
             memory.add_batch,
         )
-        self.delete_all = to_streamed_response_wrapper(
-            memory.delete_all,
-        )
         self.get = to_streamed_response_wrapper(
             memory.get,
         )
@@ -1222,9 +1078,6 @@ class AsyncMemoryResourceWithStreamingResponse:
         )
         self.add_batch = async_to_streamed_response_wrapper(
             memory.add_batch,
-        )
-        self.delete_all = async_to_streamed_response_wrapper(
-            memory.delete_all,
         )
         self.get = async_to_streamed_response_wrapper(
             memory.get,
