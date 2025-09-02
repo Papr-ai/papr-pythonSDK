@@ -6,8 +6,9 @@ from typing import List, Optional
 from typing_extensions import Literal, Required, Annotated, TypedDict
 
 from .._utils import PropertyInfo
+from .parse_pointer_param import ParsePointerParam
 
-__all__ = ["FeedbackSubmitParams", "FeedbackData", "FeedbackDataAssistantMessage", "FeedbackDataUserMessage"]
+__all__ = ["FeedbackSubmitParams", "FeedbackData"]
 
 
 class FeedbackSubmitParams(TypedDict, total=False):
@@ -22,22 +23,6 @@ class FeedbackSubmitParams(TypedDict, total=False):
 
     user_id: Optional[str]
     """Internal user ID (if not provided, will be resolved from authentication)"""
-
-
-class FeedbackDataAssistantMessage(TypedDict, total=False):
-    class_name: Required[Annotated[str, PropertyInfo(alias="className")]]
-
-    object_id: Required[Annotated[str, PropertyInfo(alias="objectId")]]
-
-    _type: Annotated[str, PropertyInfo(alias="__type")]
-
-
-class FeedbackDataUserMessage(TypedDict, total=False):
-    class_name: Required[Annotated[str, PropertyInfo(alias="className")]]
-
-    object_id: Required[Annotated[str, PropertyInfo(alias="objectId")]]
-
-    _type: Annotated[str, PropertyInfo(alias="__type")]
 
 
 class FeedbackData(TypedDict, total=False):
@@ -68,7 +53,7 @@ class FeedbackData(TypedDict, total=False):
     ]
     """Types of feedback that can be provided"""
 
-    assistant_message: Annotated[Optional[FeedbackDataAssistantMessage], PropertyInfo(alias="assistantMessage")]
+    assistant_message: Annotated[Optional[ParsePointerParam], PropertyInfo(alias="assistantMessage")]
     """A pointer to a Parse object"""
 
     cited_memory_ids: Annotated[Optional[List[str]], PropertyInfo(alias="citedMemoryIds")]
@@ -85,5 +70,5 @@ class FeedbackData(TypedDict, total=False):
 
     feedback_value: Annotated[Optional[str], PropertyInfo(alias="feedbackValue")]
 
-    user_message: Annotated[Optional[FeedbackDataUserMessage], PropertyInfo(alias="userMessage")]
+    user_message: Annotated[Optional[ParsePointerParam], PropertyInfo(alias="userMessage")]
     """A pointer to a Parse object"""

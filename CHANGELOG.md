@@ -1,5 +1,34 @@
 # Changelog
 
+## 2.13.0 (2025-09-02)
+
+Full Changelog: [v2.12.0...v2.13.0](https://github.com/Papr-ai/papr-pythonSDK/compare/v2.12.0...v2.13.0)
+
+### Features
+
+* **api:** update via SDK Studio ([244911a](https://github.com/Papr-ai/papr-pythonSDK/commit/244911aa37a5f703d054f8e5ce9ebeb12c84d077))
+* **api:** update via SDK Studio ([c115860](https://github.com/Papr-ai/papr-pythonSDK/commit/c115860dabf279d449e20e27cd39f500c70a5381))
+* **api:** update via SDK Studio ([9697a29](https://github.com/Papr-ai/papr-pythonSDK/commit/9697a2981f2f55d2f5e82140af78ccef0061222a))
+* **api:** update via SDK Studio ([41abf8f](https://github.com/Papr-ai/papr-pythonSDK/commit/41abf8fdb91495a1a7c04a3030b99d9a7f85920e))
+* **api:** update via SDK Studio ([306cbe4](https://github.com/Papr-ai/papr-pythonSDK/commit/306cbe43a567f95766fec227c181f17460c8f3de))
+
+
+### Bug Fixes
+
+* avoid newer type syntax ([7484544](https://github.com/Papr-ai/papr-pythonSDK/commit/748454411bad211e97f76486a92e9b36d4fdc2f8))
+
+
+### Chores
+
+* **internal:** add Sequence related utils ([0df267f](https://github.com/Papr-ai/papr-pythonSDK/commit/0df267f10a16f5ba78f95263b76dff0376126a1c))
+* **internal:** change ci workflow machines ([c12d198](https://github.com/Papr-ai/papr-pythonSDK/commit/c12d19804a98f31470ab339eb4215074fa9076e2))
+* **internal:** codegen related update ([ca29229](https://github.com/Papr-ai/papr-pythonSDK/commit/ca29229f32dbc907761eb9673fc9ff3d5088d0f0))
+* **internal:** fix ruff target version ([ba4b4ca](https://github.com/Papr-ai/papr-pythonSDK/commit/ba4b4ca53e18bb02d18509d9ae31f3955b4dd855))
+* **internal:** update comment in script ([6edd9d6](https://github.com/Papr-ai/papr-pythonSDK/commit/6edd9d684c409b0750cb8446b83d25342c5af1b0))
+* **internal:** update pyright exclude list ([2cfcb03](https://github.com/Papr-ai/papr-pythonSDK/commit/2cfcb030270485009be6bd019b444070529690ba))
+* update @stainless-api/prism-cli to v5.15.0 ([a07b404](https://github.com/Papr-ai/papr-pythonSDK/commit/a07b404e75304a1e7427521fac583ef8664aba10))
+* update github action ([3737e5a](https://github.com/Papr-ai/papr-pythonSDK/commit/3737e5a8d1bb51d5d59d5f26081db5dcc0951f90))
+
 ## 2.12.0 (2025-07-31)
 
 Full Changelog: [v2.11.0...v2.12.0](https://github.com/Papr-ai/papr-pythonSDK/compare/v2.11.0...v2.12.0)

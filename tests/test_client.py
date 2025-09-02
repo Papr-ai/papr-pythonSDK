@@ -24,7 +24,7 @@ from pydantic import ValidationError
 from papr_memory import Papr, AsyncPapr, APIResponseValidationError
 from papr_memory._types import Omit
 from papr_memory._models import BaseModel, FinalRequestOptions
-from papr_memory._exceptions import PaprError, APIStatusError, APITimeoutError, APIResponseValidationError
+from papr_memory._exceptions import APIStatusError, APITimeoutError, APIResponseValidationError
 from papr_memory._base_client import (
     DEFAULT_TIMEOUT,
     HTTPX_DEFAULT_TIMEOUT,
@@ -335,16 +335,6 @@ class TestPapr:
         request = client2._build_request(FinalRequestOptions(method="get", url="/foo"))
         assert request.headers.get("x-foo") == "stainless"
         assert request.headers.get("x-stainless-lang") == "my-overriding-header"
-
-    def test_validate_headers(self) -> None:
-        client = Papr(base_url=base_url, x_api_key=x_api_key, _strict_response_validation=True)
-        request = client._build_request(FinalRequestOptions(method="get", url="/foo"))
-        assert request.headers.get("X-API-Key") == x_api_key
-
-        with pytest.raises(PaprError):
-            with update_env(**{"PAPR_MEMORY_API_KEY": Omit()}):
-                client2 = Papr(base_url=base_url, x_api_key=None, _strict_response_validation=True)
-            _ = client2
 
     def test_default_query_option(self) -> None:
         client = Papr(
@@ -1141,16 +1131,6 @@ class TestAsyncPapr:
         request = client2._build_request(FinalRequestOptions(method="get", url="/foo"))
         assert request.headers.get("x-foo") == "stainless"
         assert request.headers.get("x-stainless-lang") == "my-overriding-header"
-
-    def test_validate_headers(self) -> None:
-        client = AsyncPapr(base_url=base_url, x_api_key=x_api_key, _strict_response_validation=True)
-        request = client._build_request(FinalRequestOptions(method="get", url="/foo"))
-        assert request.headers.get("X-API-Key") == x_api_key
-
-        with pytest.raises(PaprError):
-            with update_env(**{"PAPR_MEMORY_API_KEY": Omit()}):
-                client2 = AsyncPapr(base_url=base_url, x_api_key=None, _strict_response_validation=True)
-            _ = client2
 
     def test_default_query_option(self) -> None:
         client = AsyncPapr(
