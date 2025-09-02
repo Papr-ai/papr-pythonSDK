@@ -31,7 +31,6 @@ from .memory_delete_response import MemoryDeleteResponse as MemoryDeleteResponse
 from .memory_update_response import MemoryUpdateResponse as MemoryUpdateResponse
 from .memory_add_batch_params import MemoryAddBatchParams as MemoryAddBatchParams
 from .relationship_item_param import RelationshipItemParam as RelationshipItemParam
-from .memory_delete_all_params import MemoryDeleteAllParams as MemoryDeleteAllParams
 from .user_create_batch_params import UserCreateBatchParams as UserCreateBatchParams
 from .user_create_batch_response import UserCreateBatchResponse as UserCreateBatchResponse
 from .feedback_submit_batch_params import FeedbackSubmitBatchParams as FeedbackSubmitBatchParams
