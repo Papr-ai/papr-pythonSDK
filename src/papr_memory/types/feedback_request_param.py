@@ -2,9 +2,10 @@
 
 from __future__ import annotations
 
-from typing import List, Optional
+from typing import Optional
 from typing_extensions import Literal, Required, Annotated, TypedDict
 
+from .._types import SequenceNotStr
 from .._utils import PropertyInfo
 from .parse_pointer_param import ParsePointerParam
 
@@ -42,9 +43,9 @@ class FeedbackData(TypedDict, total=False):
     assistant_message: Annotated[Optional[ParsePointerParam], PropertyInfo(alias="assistantMessage")]
     """A pointer to a Parse object"""
 
-    cited_memory_ids: Annotated[Optional[List[str]], PropertyInfo(alias="citedMemoryIds")]
+    cited_memory_ids: Annotated[Optional[SequenceNotStr[str]], PropertyInfo(alias="citedMemoryIds")]
 
-    cited_node_ids: Annotated[Optional[List[str]], PropertyInfo(alias="citedNodeIds")]
+    cited_node_ids: Annotated[Optional[SequenceNotStr[str]], PropertyInfo(alias="citedNodeIds")]
 
     feedback_impact: Annotated[Optional[str], PropertyInfo(alias="feedbackImpact")]
 
