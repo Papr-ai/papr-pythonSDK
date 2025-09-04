@@ -1,5 +1,15 @@
 # Changelog
 
+## 2.14.0 (2025-09-04)
+
+Full Changelog: [v2.13.0...v2.14.0](https://github.com/Papr-ai/papr-pythonSDK/compare/v2.13.0...v2.14.0)
+
+### Features
+
+* **api:** update via SDK Studio ([79dd58f](https://github.com/Papr-ai/papr-pythonSDK/commit/79dd58f9a14dfd5ddf171301ad3ed24160a1f732))
+* improve future compat with pydantic v3 ([e21a0d2](https://github.com/Papr-ai/papr-pythonSDK/commit/e21a0d23054cca94cfe021b778fb51621cd909af))
+* **types:** replace List[str] with SequenceNotStr in params ([8e1ae65](https://github.com/Papr-ai/papr-pythonSDK/commit/8e1ae65be9355332e94f179b1af4668ea870272c))
+
 ## 2.13.0 (2025-09-02)
 
 Full Changelog: [v2.12.0...v2.13.0](https://github.com/Papr-ai/papr-pythonSDK/compare/v2.12.0...v2.13.0)
