@@ -2,9 +2,10 @@
 
 from __future__ import annotations
 
-from typing import Dict, List, Union, Iterable, Optional
+from typing import Dict, Union, Iterable, Optional
 from typing_extensions import Annotated, TypeAlias, TypedDict
 
+from .._types import SequenceNotStr
 from .._utils import PropertyInfo
 
 __all__ = ["MemoryMetadataParam"]
@@ -19,7 +20,7 @@ class MemoryMetadataParamTyped(TypedDict, total=False):
     """ISO datetime when the memory was created"""
 
     custom_metadata: Annotated[
-        Optional[Dict[str, Union[str, float, bool, List[str]]]], PropertyInfo(alias="customMetadata")
+        Optional[Dict[str, Union[str, float, bool, SequenceNotStr[str]]]], PropertyInfo(alias="customMetadata")
     ]
     """Optional object for arbitrary custom metadata fields.
 
@@ -27,15 +28,15 @@ class MemoryMetadataParamTyped(TypedDict, total=False):
     allowed.
     """
 
-    emoji_tags: Annotated[Optional[List[str]], PropertyInfo(alias="emoji tags")]
+    emoji_tags: Annotated[Optional[SequenceNotStr[str]], PropertyInfo(alias="emoji tags")]
 
-    emotion_tags: Annotated[Optional[List[str]], PropertyInfo(alias="emotion tags")]
+    emotion_tags: Annotated[Optional[SequenceNotStr[str]], PropertyInfo(alias="emotion tags")]
 
     external_user_id: Optional[str]
 
-    external_user_read_access: Optional[List[str]]
+    external_user_read_access: Optional[SequenceNotStr[str]]
 
-    external_user_write_access: Optional[List[str]]
+    external_user_write_access: Optional[SequenceNotStr[str]]
 
     goal_classification_scores: Annotated[Optional[Iterable[float]], PropertyInfo(alias="goalClassificationScores")]
 
@@ -48,15 +49,15 @@ class MemoryMetadataParamTyped(TypedDict, total=False):
 
     post: Optional[str]
 
-    related_goals: Annotated[Optional[List[str]], PropertyInfo(alias="relatedGoals")]
+    related_goals: Annotated[Optional[SequenceNotStr[str]], PropertyInfo(alias="relatedGoals")]
 
-    related_steps: Annotated[Optional[List[str]], PropertyInfo(alias="relatedSteps")]
+    related_steps: Annotated[Optional[SequenceNotStr[str]], PropertyInfo(alias="relatedSteps")]
 
-    related_use_cases: Annotated[Optional[List[str]], PropertyInfo(alias="relatedUseCases")]
+    related_use_cases: Annotated[Optional[SequenceNotStr[str]], PropertyInfo(alias="relatedUseCases")]
 
-    role_read_access: Optional[List[str]]
+    role_read_access: Optional[SequenceNotStr[str]]
 
-    role_write_access: Optional[List[str]]
+    role_write_access: Optional[SequenceNotStr[str]]
 
     session_id: Annotated[Optional[str], PropertyInfo(alias="sessionId")]
 
@@ -66,7 +67,7 @@ class MemoryMetadataParamTyped(TypedDict, total=False):
 
     step_classification_scores: Annotated[Optional[Iterable[float]], PropertyInfo(alias="stepClassificationScores")]
 
-    topics: Optional[List[str]]
+    topics: Optional[SequenceNotStr[str]]
 
     use_case_classification_scores: Annotated[
         Optional[Iterable[float]], PropertyInfo(alias="useCaseClassificationScores")
@@ -74,17 +75,17 @@ class MemoryMetadataParamTyped(TypedDict, total=False):
 
     user_id: Optional[str]
 
-    user_read_access: Optional[List[str]]
+    user_read_access: Optional[SequenceNotStr[str]]
 
-    user_write_access: Optional[List[str]]
+    user_write_access: Optional[SequenceNotStr[str]]
 
     user_message: Annotated[Optional[str], PropertyInfo(alias="userMessage")]
 
     workspace_id: Optional[str]
 
-    workspace_read_access: Optional[List[str]]
+    workspace_read_access: Optional[SequenceNotStr[str]]
 
-    workspace_write_access: Optional[List[str]]
+    workspace_write_access: Optional[SequenceNotStr[str]]
 
 
 MemoryMetadataParam: TypeAlias = Union[MemoryMetadataParamTyped, Dict[str, object]]
