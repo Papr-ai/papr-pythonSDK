@@ -1,4 +1,4 @@
 configured_endpoints: 16
-openapi_spec_url: https://storage.googleapis.com/stainless-sdk-openapi-specs/papr%2Fpapr-memory-5fc5473e73cded178bc05238f1f703ed8996b5b19b805e80dbc71417f650d646.yml
-openapi_spec_hash: ed5aedcef0ac7c9120acb75d27477e3a
+openapi_spec_url: https://storage.googleapis.com/stainless-sdk-openapi-specs/papr%2Fpapr-memory-6987e1db6ed1e08204f6acac203a6ceccef6386f50aa6b1c118c64c2621e76db.yml
+openapi_spec_hash: a8f94050670b65a9cbd57e0f59b8e330
 config_hash: 998e255d32e66255d61385745d7a0c15
