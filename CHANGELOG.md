@@ -1,5 +1,14 @@
 # Changelog
 
+## 2.14.1 (2025-09-06)
+
+Full Changelog: [v2.14.0...v2.14.1](https://github.com/Papr-ai/papr-pythonSDK/compare/v2.14.0...v2.14.1)
+
+### Chores
+
+* **internal:** move mypy configurations to `pyproject.toml` file ([2919d5c](https://github.com/Papr-ai/papr-pythonSDK/commit/2919d5c0e5c5861b86d865fbafd63098cf6ad3ff))
+* **tests:** simplify `get_platform` test ([5e0cb1f](https://github.com/Papr-ai/papr-pythonSDK/commit/5e0cb1f4fc3c255682f672deb7cad924153880df))
+
 ## 2.14.0 (2025-09-04)
 
 Full Changelog: [v2.13.0...v2.14.0](https://github.com/Papr-ai/papr-pythonSDK/compare/v2.13.0...v2.14.0)
