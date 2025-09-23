@@ -306,9 +306,13 @@ class TestMemory:
                     "type": "text",
                     "context": [
                         {
-                            "content": "content",
+                            "content": "Let's discuss the Q2 product roadmap",
                             "role": "user",
-                        }
+                        },
+                        {
+                            "content": "I'll help you plan the roadmap. What are your key objectives?",
+                            "role": "assistant",
+                        },
                     ],
                     "metadata": {
                         "assistant_message": "assistantMessage",
@@ -346,10 +350,10 @@ class TestMemory:
                     },
                     "relationships_json": [
                         {
-                            "relation_type": "relation_type",
-                            "metadata": {"foo": "bar"},
-                            "related_item_id": "related_item_id",
-                            "related_item_type": "related_item_type",
+                            "relation_type": "follows",
+                            "metadata": {"relevance": "bar"},
+                            "related_item_id": "previous_memory_item_id",
+                            "related_item_type": "TextMemoryItem",
                             "relationship_type": "previous_memory_item_id",
                         }
                     ],
@@ -359,9 +363,13 @@ class TestMemory:
                     "type": "text",
                     "context": [
                         {
-                            "content": "content",
+                            "content": "Let's discuss the Q2 product roadmap",
                             "role": "user",
-                        }
+                        },
+                        {
+                            "content": "I'll help you plan the roadmap. What are your key objectives?",
+                            "role": "assistant",
+                        },
                     ],
                     "metadata": {
                         "assistant_message": "assistantMessage",
@@ -399,10 +407,10 @@ class TestMemory:
                     },
                     "relationships_json": [
                         {
-                            "relation_type": "relation_type",
-                            "metadata": {"foo": "bar"},
-                            "related_item_id": "related_item_id",
-                            "related_item_type": "related_item_type",
+                            "relation_type": "follows",
+                            "metadata": {"relevance": "bar"},
+                            "related_item_id": "previous_memory_item_id",
+                            "related_item_type": "TextMemoryItem",
                             "relationship_type": "previous_memory_item_id",
                         }
                     ],
@@ -913,9 +921,13 @@ class TestAsyncMemory:
                     "type": "text",
                     "context": [
                         {
-                            "content": "content",
+                            "content": "Let's discuss the Q2 product roadmap",
                             "role": "user",
-                        }
+                        },
+                        {
+                            "content": "I'll help you plan the roadmap. What are your key objectives?",
+                            "role": "assistant",
+                        },
                     ],
                     "metadata": {
                         "assistant_message": "assistantMessage",
@@ -953,10 +965,10 @@ class TestAsyncMemory:
                     },
                     "relationships_json": [
                         {
-                            "relation_type": "relation_type",
-                            "metadata": {"foo": "bar"},
-                            "related_item_id": "related_item_id",
-                            "related_item_type": "related_item_type",
+                            "relation_type": "follows",
+                            "metadata": {"relevance": "bar"},
+                            "related_item_id": "previous_memory_item_id",
+                            "related_item_type": "TextMemoryItem",
                             "relationship_type": "previous_memory_item_id",
                         }
                     ],
@@ -966,9 +978,13 @@ class TestAsyncMemory:
                     "type": "text",
                     "context": [
                         {
-                            "content": "content",
+                            "content": "Let's discuss the Q2 product roadmap",
                             "role": "user",
-                        }
+                        },
+                        {
+                            "content": "I'll help you plan the roadmap. What are your key objectives?",
+                            "role": "assistant",
+                        },
                     ],
                     "metadata": {
                         "assistant_message": "assistantMessage",
@@ -1006,10 +1022,10 @@ class TestAsyncMemory:
                     },
                     "relationships_json": [
                         {
-                            "relation_type": "relation_type",
-                            "metadata": {"foo": "bar"},
-                            "related_item_id": "related_item_id",
-                            "related_item_type": "related_item_type",
+                            "relation_type": "follows",
+                            "metadata": {"relevance": "bar"},
+                            "related_item_id": "previous_memory_item_id",
+                            "related_item_type": "TextMemoryItem",
                             "relationship_type": "previous_memory_item_id",
                         }
                     ],
