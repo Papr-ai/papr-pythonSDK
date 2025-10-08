@@ -6,6 +6,8 @@ from .user_type import UserType as UserType
 from .memory_type import MemoryType as MemoryType
 from .context_item import ContextItem as ContextItem
 from .user_response import UserResponse as UserResponse
+from .sync_tiers_response import SyncTiersResponse as SyncTiersResponse
+from .sync_tiers_params import SyncTiersParams as SyncTiersParams
 from .batch_response import BatchResponse as BatchResponse
 from .memory_metadata import MemoryMetadata as MemoryMetadata
 from .search_response import SearchResponse as SearchResponse
