@@ -828,6 +828,46 @@ class MemoryResource(SyncAPIResource):
             logger.info("Local embedding generation skipped - using API-based search")
         return None
 
+    def _embed_query_with_qwen(self, query: str):
+        """Generate embedding for query using Qwen3-4B model specifically"""
+        from .._logging import get_logger
+        logger = get_logger(__name__)
+        
+        try:
+            # Get the Qwen3-4B model directly (not the embedding function wrapper)
+            if not hasattr(self, '_qwen_model') or self._qwen_model is None:
+                logger.info("Loading Qwen3-4B model for query embedding...")
+                from sentence_transformers import SentenceTransformer
+                import torch
+                
+                # Detect platform
+                device = None
+                if hasattr(torch.backends, 'mps') and torch.backends.mps.is_available():
+                    device = "mps"
+                elif torch.cuda.is_available():
+                    device = "cuda"
+                else:
+                    device = "cpu"
+                
+                # Load Qwen3-4B model directly
+                self._qwen_model = SentenceTransformer('Qwen/Qwen3-Embedding-4B', device=device)
+                logger.info(f"Loaded Qwen3-4B model on {device}")
+            
+            import time
+            start_time = time.time()
+            # Generate embedding using the Qwen3-4B model
+            raw_embedding = self._qwen_model.encode([query])[0]
+            logger.info(f"Raw Qwen3-4B embedding: shape={raw_embedding.shape}, type={type(raw_embedding)}")
+            
+            embedding = raw_embedding.tolist()
+            generation_time = time.time() - start_time
+            logger.info(f"Generated Qwen3-4B query embedding (dim: {len(embedding)}) in {generation_time:.2f}s")
+            return embedding
+            
+        except Exception as e:
+            logger.error(f"Error generating Qwen3-4B embedding: {e}")
+            return None
+
     def _get_qwen_embedding_function(self):
         """Get Qwen-based embedding function for ChromaDB using the correct interface"""
         from .._logging import get_logger
@@ -918,7 +958,38 @@ class MemoryResource(SyncAPIResource):
             return []
         
         try:
-            query_embedding = self._embed_query_locally(query)
+            # Use the collection's embedding function if available, otherwise use local embedder
+            if hasattr(self._chroma_collection, '_embedding_function') and self._chroma_collection._embedding_function:
+                # Check what type of embedding function the collection has
+                embedding_function = self._chroma_collection._embedding_function
+                logger.info(f"Collection embedding function type: {type(embedding_function)}")
+                
+                # If it's a DefaultEmbeddingFunction, skip it and use Qwen3-4B directly
+                if hasattr(embedding_function, '__class__') and 'DefaultEmbeddingFunction' in str(embedding_function.__class__):
+                    logger.warning("Collection has DefaultEmbeddingFunction (384 dims) - using Qwen3-4B directly")
+                    query_embedding = self._embed_query_with_qwen(query)
+                else:
+                    # Use the collection's embedding function for consistency
+                    try:
+                        query_embedding = self._chroma_collection._embedding_function.embed_query(query)
+                        logger.info(f"Collection embedding function result: dim={len(query_embedding)}, type={type(query_embedding)}")
+                        
+                        # Check if the embedding has the wrong dimensions
+                        if len(query_embedding) != 2560:
+                            logger.warning(f"Collection embedding function produced wrong dimensions: {len(query_embedding)} (expected 2560)")
+                            logger.info("Falling back to direct Qwen3-4B model...")
+                            query_embedding = self._embed_query_with_qwen(query)
+                        else:
+                            logger.info(f"Using collection's embedding function (dim: {len(query_embedding)})")
+                    except Exception as e:
+                        logger.warning(f"Collection embedding function failed: {e}")
+                        # Fallback to local embedder with Qwen3-4B model
+                        query_embedding = self._embed_query_with_qwen(query)
+            else:
+                # Collection doesn't have custom embedding function, use Qwen3-4B embedder
+                query_embedding = self._embed_query_with_qwen(query)
+                logger.debug(f"Using Qwen3-4B embedder (dim: {len(query_embedding) if query_embedding else 'None'})")
+            
             if not query_embedding:
                 return []
             
@@ -1226,6 +1297,7 @@ class MemoryResource(SyncAPIResource):
 
     def _store_tier0_in_chromadb(self, tier0_data):
         """Store tier0 data in ChromaDB with duplicate prevention"""
+        import os
         from .._logging import get_logger
         logger = get_logger(__name__)
         
@@ -1237,21 +1309,66 @@ class MemoryResource(SyncAPIResource):
             
             # Initialize ChromaDB client (singleton pattern)
             if not hasattr(self, '_chroma_client'):
-                logger.info("Creating ChromaDB client...")
-                self._chroma_client = chromadb.Client(Settings(
-                    persist_directory="./chroma_db",
-                    anonymized_telemetry=False
-                ))
-                logger.info("Initialized ChromaDB client")
+                # Get ChromaDB path from environment variable or use default
+                chroma_path = os.environ.get("PAPR_CHROMADB_PATH", "./chroma_db")
+                logger.info(f"Creating ChromaDB persistent client at: {chroma_path}")
+                self._chroma_client = chromadb.PersistentClient(
+                    path=chroma_path,
+                    settings=Settings(
+                        anonymized_telemetry=False
+                    )
+                )
+                logger.info("Initialized ChromaDB persistent client")
             
             # Create or get collection for tier0 data
             collection_name = "tier0_goals_okrs"
             logger.info(f"Attempting to get/create collection: {collection_name}")
-            if not hasattr(self, '_chroma_collection'):
+            
+            # Check if we have a valid collection with proper embedding function
+            collection_needs_recreation = False
+            if hasattr(self, '_chroma_collection') and self._chroma_collection is not None:
+                # Check if the existing collection has the correct embedding function
+                embedding_function = getattr(self._chroma_collection, '_embedding_function', None)
+                if embedding_function is not None:
+                    if hasattr(embedding_function, '__class__') and 'DefaultEmbeddingFunction' in str(embedding_function.__class__):
+                        logger.warning("Existing collection uses default embedding function (384 dims)")
+                        collection_needs_recreation = True
+                    else:
+                        # It's a custom embedding function - test it
+                        try:
+                            if hasattr(embedding_function, 'embed_documents'):
+                                test_embedding = embedding_function.embed_documents(["test"])[0]
+                                if len(test_embedding) != 2560:
+                                    logger.warning(f"Existing collection has wrong embedding dimensions: {len(test_embedding)} (expected 2560)")
+                                    collection_needs_recreation = True
+                                else:
+                                    logger.info("Existing collection has correct Qwen3-4B embedding function (2560 dims)")
+                            else:
+                                logger.warning("Existing collection has custom embedding function but missing embed_documents method")
+                                collection_needs_recreation = True
+                        except Exception as embed_test_e:
+                            logger.warning(f"Existing collection embedding function test failed: {embed_test_e}")
+                            collection_needs_recreation = True
+                else:
+                    logger.warning("Existing collection has no embedding function (384 dims)")
+                    collection_needs_recreation = True
+            
+            if not hasattr(self, '_chroma_collection') or self._chroma_collection is None or collection_needs_recreation:
                 try:
-                    logger.info("Trying to get existing collection...")
-                    self._chroma_collection = self._chroma_client.get_collection(name=collection_name)
-                    logger.info(f"Using existing ChromaDB collection: {collection_name}")
+                    if collection_needs_recreation:
+                        logger.info("Collection needs recreation due to embedding function mismatch")
+                        # Delete the existing collection first
+                        try:
+                            self._chroma_client.delete_collection(name=collection_name)
+                            logger.info(f"Deleted existing collection: {collection_name}")
+                        except Exception as delete_e:
+                            logger.debug(f"No existing collection to delete: {delete_e}")
+                    else:
+                        logger.info("Trying to get existing collection...")
+                        self._chroma_collection = self._chroma_client.get_collection(name=collection_name)
+                        logger.info(f"Using existing ChromaDB collection: {collection_name}")
+                        # If we get here, the collection is good and we can skip creation
+                        return
                 except Exception as e:
                     logger.info(f"Collection doesn't exist or error getting collection: {e}")
                     # Try to delete any existing collection with the same name first
@@ -1261,15 +1378,24 @@ class MemoryResource(SyncAPIResource):
                     except Exception as delete_e:
                         logger.debug(f"No existing collection to delete: {delete_e}")
                     
-                    # Create collection with Qwen3-4B embedding function
-                    logger.info("Creating collection with Qwen3-4B embedding function...")
+                    # Create collection with consistent embedding function
+                    logger.info("Creating collection with consistent embedding function...")
                     embedding_function = self._get_qwen_embedding_function()
+                    logger.info(f"Qwen embedding function result: {embedding_function is not None}")
                     if embedding_function:
                         try:
+                            # Test the embedding function to ensure it works
+                            test_embedding = embedding_function.embed_documents(["test"])[0]
+                            logger.info(f"Embedding function test successful (dim: {len(test_embedding)})")
+                            
                             self._chroma_collection = self._chroma_client.create_collection(
                                 name=collection_name,
                                 embedding_function=embedding_function,
-                                metadata={"description": "Tier0 goals, OKRs, and use-cases from sync_tiers"}
+                                metadata={
+                                    "description": "Tier0 goals, OKRs, and use-cases from sync_tiers",
+                                    "embedding_model": "Qwen3-4B",
+                                    "embedding_dimensions": "2560"
+                                }
                             )
                             logger.info(f"Created new ChromaDB collection with Qwen3-4B embeddings: {collection_name}")
                         except Exception as create_e:
@@ -1283,6 +1409,7 @@ class MemoryResource(SyncAPIResource):
                     else:
                         # Fallback: create without custom embedding function
                         logger.warning("Qwen3-4B embedding function not available, creating collection without custom embedding function...")
+                        logger.warning("This will result in a collection with DefaultEmbeddingFunction (384 dims) instead of Qwen3-4B (2560 dims)")
                         self._chroma_collection = self._chroma_client.create_collection(
                             name=collection_name,
                             metadata={"description": "Tier0 goals, OKRs, and use-cases from sync_tiers"}
@@ -1382,14 +1509,37 @@ class MemoryResource(SyncAPIResource):
                     import time
                     start_time = time.time()
                     
-                    embedder = self._get_local_embedder()
+                    # Use the same embedding function as the collection to ensure dimension consistency
+                    if hasattr(self, '_chroma_collection') and self._chroma_collection is not None:
+                        # Check if collection has custom embedding function
+                        if hasattr(self._chroma_collection, '_embedding_function') and self._chroma_collection._embedding_function:
+                            # Use the collection's embedding function for consistency
+                            embedder = self._chroma_collection._embedding_function
+                            logger.info("Using collection's embedding function for consistency")
+                        else:
+                            # Fallback to local embedder
+                            embedder = self._get_local_embedder()
+                            logger.info("Using local embedder (collection has no custom embedding function)")
+                    else:
+                        # No collection available, use local embedder
+                        embedder = self._get_local_embedder()
+                        logger.info("Using local embedder (no collection available)")
+                    
                     if embedder:
                         local_embedding_count = 0
                         for i, embedding in enumerate(embeddings):
                             if embedding is None:
                                 try:
                                     item_start_time = time.time()
-                                    local_embedding = embedder.encode([documents[i]])[0].tolist()
+                                    
+                                    # Use the appropriate embedding method based on embedder type
+                                    if hasattr(embedder, 'embed_documents'):
+                                        # ChromaDB embedding function
+                                        local_embedding = embedder.embed_documents([documents[i]])[0]
+                                    else:
+                                        # SentenceTransformer model
+                                        local_embedding = embedder.encode([documents[i]])[0].tolist()
+                                    
                                     item_time = time.time() - item_start_time
                                     embeddings[i] = local_embedding
                                     local_embedding_count += 1
@@ -1496,12 +1646,57 @@ class MemoryResource(SyncAPIResource):
                 else:
                     logger.info(f"No changes detected in tier0 data - ChromaDB collection unchanged")
                 
-                # Query to verify storage
-                results = collection.query(
-                    query_texts=["goals objectives"],
-                    n_results=min(3, len(documents))
-                )
-                logger.info(f"ChromaDB query test returned {len(results['documents'][0])} results")
+                # Query to verify storage (use safe query method)
+                try:
+                    # Check if we can safely query without dimension mismatch
+                    if hasattr(collection, '_embedding_function') and collection._embedding_function:
+                        # Collection has custom embedding function - should be safe to query
+                        # But first, let's ensure the embedding function is working correctly
+                        try:
+                            # Test the embedding function to ensure it produces the right dimensions
+                            test_embedding = collection._embedding_function.embed_documents(["test"])[0]
+                            logger.info(f"Collection embedding function test successful (dim: {len(test_embedding)})")
+                            
+                            # Now query using the collection's embedding function
+                            results = collection.query(
+                                query_texts=["goals objectives"],
+                                n_results=min(3, len(documents))
+                            )
+                            logger.info(f"ChromaDB query test returned {len(results['documents'][0])} results")
+                        except Exception as embed_test_e:
+                            logger.warning(f"Collection embedding function test failed: {embed_test_e}")
+                            logger.info("Skipping query test to avoid dimension mismatch")
+                            count = collection.count()
+                            logger.info(f"ChromaDB collection contains {count} documents (verified via count)")
+                    else:
+                        # Collection uses default embedding function - might have dimension issues
+                        logger.info("Collection uses default embedding function - skipping query test to avoid dimension mismatch")
+                        count = collection.count()
+                        logger.info(f"ChromaDB collection contains {count} documents (verified via count)")
+                except Exception as query_e:
+                    logger.warning(f"ChromaDB query test failed (likely dimension mismatch): {query_e}")
+                    logger.info("This indicates the collection was created with different embedding dimensions than expected")
+                    logger.info("The collection will need to be recreated with the correct embedding function")
+                    
+                    # Try alternative verification method
+                    try:
+                        count = collection.count()
+                        logger.info(f"ChromaDB collection contains {count} documents (verified via count)")
+                    except Exception as count_e:
+                        logger.warning(f"Could not verify collection via count: {count_e}")
+                    
+                    # Mark collection as needing recreation due to dimension mismatch
+                    logger.warning("Collection has dimension mismatch - will be recreated on next run")
+                    if hasattr(self, '_chroma_collection'):
+                        # Delete the problematic collection
+                        try:
+                            collection_name = "tier0_goals_okrs"
+                            self._chroma_client.delete_collection(name=collection_name)
+                            logger.info(f"Deleted collection {collection_name} due to dimension mismatch")
+                            # Clear the collection reference so it gets recreated
+                            self._chroma_collection = None
+                        except Exception as delete_e:
+                            logger.warning(f"Could not delete problematic collection: {delete_e}")
                 
         except ImportError:
             logger.warning("ChromaDB not available - install with: pip install chromadb")
