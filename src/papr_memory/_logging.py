@@ -17,7 +17,16 @@ def get_logger(name: str) -> logging.Logger:
     
     # Only add handler if not already configured
     if not logger.handlers:
-        handler = logging.StreamHandler()
+        # Check if file logging is enabled
+        log_file = os.environ.get("PAPR_LOG_FILE")
+        
+        if log_file:
+            # Create file handler
+            handler = logging.FileHandler(log_file)
+        else:
+            # Create console handler
+            handler = logging.StreamHandler()
+        
         formatter = logging.Formatter(
             '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
         )

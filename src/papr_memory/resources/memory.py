@@ -538,7 +538,7 @@ class MemoryResource(SyncAPIResource):
             
             sync_response = self.sync_tiers(
                 include_embeddings=True,
-                embed_limit=2,
+                embed_limit=max_tier0_value,
                 max_tier0=max_tier0_value,
                 max_tier1=0,
                 extra_headers=extra_headers,
@@ -1634,13 +1634,32 @@ class MemoryResource(SyncAPIResource):
                 from ..types.search_response import Data, DataMemory
                 memories = []
                 for i, content in enumerate(tier0_context):
-                    memories.append(DataMemory(
-                        id=f"tier0_{i}",
-                        acl={},
-                        content=content,
-                        type="tier0",
-                        user_id="local"
-                    ))
+                    try:
+                        # Try creating DataMemory with explicit pydantic_extra__
+                        memory_data = {
+                            "id": f"tier0_{i}",
+                            "acl": {},
+                            "content": content,
+                            "type": "tier0",
+                            "user_id": "local",
+                            "pydantic_extra__": {}
+                        }
+                        memories.append(DataMemory(**memory_data))
+                    except Exception as e:
+                        logger.warning(f"Failed to create DataMemory for item {i}: {e}")
+                        # Fallback: create a minimal memory object
+                        try:
+                            memories.append(DataMemory.model_validate({
+                                "id": f"tier0_{i}",
+                                "acl": {},
+                                "content": content,
+                                "type": "tier0",
+                                "user_id": "local"
+                            }))
+                        except Exception as e2:
+                            logger.error(f"Failed to create DataMemory with model_validate: {e2}")
+                            # Skip this item
+                            continue
                 
                 # Return search results with proper SearchResponse structure
                 return SearchResponse(
@@ -2180,7 +2199,7 @@ class AsyncMemoryResource(AsyncAPIResource):
             
             sync_response = await self.sync_tiers(
                 include_embeddings=True,
-                embed_limit=2,
+                embed_limit=max_tier0_value,
                 max_tier0=max_tier0_value,
                 max_tier1=0,
                 extra_headers=extra_headers,
