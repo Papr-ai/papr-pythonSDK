@@ -3,6 +3,10 @@
 from __future__ import annotations
 
 from typing import Iterable, Optional
+import warnings
+
+# Suppress deprecation warning from sentence_transformers
+warnings.filterwarnings("ignore", message=".*_target_device.*deprecated.*", category=UserWarning)
 
 import httpx
 
@@ -524,10 +528,18 @@ class MemoryResource(SyncAPIResource):
         
         try:
             # Call the sync_tiers method with hardcoded parameters
+            # Get max_tier0 from environment variable with fallback to 30
+            import os
+            max_tier0_env = os.environ.get("PAPR_MAX_TIER0", "30")
+            try:
+                max_tier0_value = int(max_tier0_env)
+            except ValueError:
+                max_tier0_value = 30  # fallback to default if invalid
+            
             sync_response = self.sync_tiers(
                 include_embeddings=True,
                 embed_limit=2,
-                max_tier0=2,
+                max_tier0=max_tier0_value,
                 max_tier1=0,
                 extra_headers=extra_headers,
                 extra_query=extra_query,
@@ -675,18 +687,49 @@ class MemoryResource(SyncAPIResource):
             # Try each model option in order of preference
             for model_name in model_options:
                 try:
-                    model = SentenceTransformer(model_name, device=device)
-                    if "4bit" in model_name or "Q4" in model_name or "W4" in model_name:
-                        logger.info(f"Loaded quantized {model_name} on {device}")
+                    # Try with memory optimization for CUDA
+                    if device == "cuda":
+                        import torch
+                        torch.cuda.empty_cache()  # Clear CUDA cache before loading
+                        # Try with lower precision
+                        model = SentenceTransformer(model_name, device=device)
+                        # Move to CPU if CUDA fails
+                        if hasattr(model, 'to'):
+                            model = model.to('cpu')
+                            logger.info(f"Loaded {model_name} on CPU due to CUDA memory constraints")
+                        else:
+                            logger.info(f"Loaded {model_name} on {device}")
                     else:
-                        logger.info(f"Loaded original {model_name} on {device}")
+                        model = SentenceTransformer(model_name, device=device)
+                        logger.info(f"Loaded {model_name} on {device}")
+                    
+                    if "4bit" in model_name or "Q4" in model_name or "W4" in model_name:
+                        logger.info(f"Loaded quantized {model_name}")
+                    else:
+                        logger.info(f"Loaded original {model_name}")
                     return model
                 except Exception as e:
                     logger.warning(f"Failed to load {model_name}: {e}")
+                    # Try CPU fallback for CUDA errors
+                    if device == "cuda" and "CUDA out of memory" in str(e):
+                        try:
+                            logger.info(f"Trying {model_name} on CPU due to CUDA memory issues...")
+                            model = SentenceTransformer(model_name, device="cpu")
+                            logger.info(f"Successfully loaded {model_name} on CPU")
+                            return model
+                        except Exception as cpu_e:
+                            logger.warning(f"CPU fallback also failed for {model_name}: {cpu_e}")
                     continue
             
-            # Final fallback - this should never be reached
-            raise Exception("All model options failed")
+            # Final fallback - try a smaller model
+            logger.warning("All primary models failed, trying smaller fallback model...")
+            try:
+                fallback_model = SentenceTransformer('all-MiniLM-L6-v2', device='cpu')
+                logger.info("Loaded fallback model all-MiniLM-L6-v2 on CPU")
+                return fallback_model
+            except Exception as fallback_e:
+                logger.error(f"Even fallback model failed: {fallback_e}")
+                raise Exception("All model options failed")
             
         except Exception as e:
             logger.error(f"Error loading optimized quantized model: {e}")
@@ -766,7 +809,11 @@ class MemoryResource(SyncAPIResource):
         from .._logging import get_logger
         logger = get_logger(__name__)
         
-        embedder = self._get_local_embedder()
+        # Use cached embedder if available, otherwise get new one
+        if not hasattr(self, '_local_embedder') or self._local_embedder is None:
+            self._local_embedder = self._get_local_embedder()
+        
+        embedder = self._local_embedder
         if embedder:
             try:
                 import time
@@ -787,6 +834,7 @@ class MemoryResource(SyncAPIResource):
         logger = get_logger(__name__)
         
         try:
+            logger.info("Creating Qwen embedding function...")
             from sentence_transformers import SentenceTransformer
             import torch
             
@@ -808,22 +856,54 @@ class MemoryResource(SyncAPIResource):
             if device is None:
                 device = "cpu"
             
-            # Use platform-optimized quantized model
-            model = self._get_optimized_quantized_model(device, f"Device: {device}")
+            # Use cached embedder if available, otherwise get new one
+            if not hasattr(self, '_local_embedder') or self._local_embedder is None:
+                self._local_embedder = self._get_local_embedder()
+            
+            if self._local_embedder is None:
+                logger.error("No local embedder available for ChromaDB embedding function")
+                return None
+            
+            model = self._local_embedder
             
             # Create a proper ChromaDB embedding function class
             class QwenEmbeddingFunction:
                 def __init__(self, model):
                     self.model = model
                 
-                def __call__(self, input_texts):
+                def __call__(self, input):
                     # Handle both single string and list of strings
-                    if isinstance(input_texts, str):
-                        input_texts = [input_texts]
-                    embeddings = self.model.encode(input_texts)
+                    if isinstance(input, str):
+                        input = [input]
+                    embeddings = self.model.encode(input)
                     return embeddings.tolist()
+                
+                def embed_query(self, input):
+                    # Method required by ChromaDB for query embedding
+                    try:
+                        embeddings = self.model.encode([input])
+                        if len(embeddings) > 0:
+                            return embeddings[0].tolist()
+                        else:
+                            # Fallback: encode single input directly
+                            return self.model.encode(input).tolist()
+                    except Exception as e:
+                        # Fallback: encode single input directly
+                        return self.model.encode(input).tolist()
+                
+                def embed_documents(self, input):
+                    # Method required by ChromaDB for document embedding
+                    try:
+                        if isinstance(input, str):
+                            input = [input]
+                        return self.model.encode(input).tolist()
+                    except Exception as e:
+                        # Fallback: handle single string
+                        return self.model.encode([input]).tolist()
             
-            return QwenEmbeddingFunction(model)
+            embedding_function = QwenEmbeddingFunction(model)
+            logger.info(f"Qwen embedding function created successfully: {embedding_function is not None}")
+            return embedding_function
             
         except Exception as e:
             logger.error(f"Error creating Qwen embedding function: {e}")
@@ -834,7 +914,7 @@ class MemoryResource(SyncAPIResource):
         from .._logging import get_logger
         logger = get_logger(__name__)
         
-        if not hasattr(self, '_chroma_collection'):
+        if not hasattr(self, '_chroma_collection') or self._chroma_collection is None:
             return []
         
         try:
@@ -842,11 +922,38 @@ class MemoryResource(SyncAPIResource):
             if not query_embedding:
                 return []
             
+            # Check for dimension mismatch before querying
+            self._check_embedding_dimensions_before_query(query_embedding)
+            
             # Perform vector search in ChromaDB
-            results = self._chroma_collection.query(
-                query_embeddings=[query_embedding],
-                n_results=n_results
-            )
+            try:
+                results = self._chroma_collection.query(
+                    query_embeddings=[query_embedding],
+                    n_results=n_results
+                )
+            except Exception as e:
+                if "dimension" in str(e).lower():
+                    logger.error(f"Embedding dimension mismatch: {e}")
+                    logger.info("Attempting to fix dimension mismatch by recreating collection...")
+                    
+                    # Try to fix the dimension mismatch immediately
+                    if self._fix_dimension_mismatch_immediately():
+                        logger.info("Collection recreated successfully, retrying search...")
+                        # Retry the search with the new collection
+                        try:
+                            results = self._chroma_collection.query(
+                                query_embeddings=[query_embedding],
+                                n_results=n_results
+                            )
+                        except Exception as retry_e:
+                            logger.error(f"Search still failed after collection recreation: {retry_e}")
+                            return []
+                    else:
+                        logger.error("Failed to fix dimension mismatch")
+                        logger.info("Falling back to API-only search")
+                        return []
+                else:
+                    raise e
             
             if results['documents'] and results['documents'][0]:
                 logger.info(f"Found {len(results['documents'][0])} relevant tier0 items locally")
@@ -858,6 +965,264 @@ class MemoryResource(SyncAPIResource):
         except Exception as e:
             logger.error(f"Error in local tier0 search: {e}")
             return []
+
+    def _fix_dimension_mismatch_immediately(self):
+        """Fix dimension mismatch by immediately recreating the collection"""
+        from .._logging import get_logger
+        logger = get_logger(__name__)
+        
+        try:
+            if not hasattr(self, '_chroma_collection') or self._chroma_collection is None:
+                return False
+            
+            collection_name = self._chroma_collection.name
+            logger.info(f"Recreating collection '{collection_name}' with correct embedding dimensions...")
+            
+            # Delete existing collection
+            try:
+                self._chroma_client.delete_collection(name=collection_name)
+                logger.info(f"Deleted existing collection: {collection_name}")
+            except Exception as delete_e:
+                logger.warning(f"Error deleting collection (may not exist): {delete_e}")
+            
+            # Create new collection with Qwen3-4B embedding function
+            embedding_function = self._get_qwen_embedding_function()
+            if embedding_function:
+                self._chroma_collection = self._chroma_client.create_collection(
+                    name=collection_name,
+                    embedding_function=embedding_function,
+                    metadata={"description": "Tier0 goals, OKRs, and use-cases from sync_tiers"}
+                )
+                logger.info(f"Recreated collection with Qwen3-4B embeddings: {collection_name}")
+                return True
+            else:
+                logger.error("Failed to get Qwen3-4B embedding function")
+                return False
+                
+        except Exception as e:
+            logger.error(f"Error fixing dimension mismatch: {e}")
+            return False
+
+    def _check_embedding_dimensions_before_query(self, query_embedding):
+        """Check embedding dimensions before querying to prevent dimension mismatch errors"""
+        from .._logging import get_logger
+        logger = get_logger(__name__)
+        
+        try:
+            if not hasattr(self, '_chroma_collection') or self._chroma_collection is None:
+                return
+            
+            # Get query embedding dimension
+            query_dim = len(query_embedding)
+            logger.debug(f"Query embedding dimension: {query_dim}")
+            
+            # Check if collection has custom embedding function (using correct attribute name)
+            if hasattr(self._chroma_collection, '_embedding_function') and self._chroma_collection._embedding_function:
+                # Collection has custom embedding function (should be 2560 dimensions for Qwen3-4B)
+                expected_dim = 2560
+                if query_dim != expected_dim:
+                    logger.warning(f"Potential dimension mismatch: query has {query_dim} dimensions, collection expects {expected_dim}")
+                    logger.info("This will cause a dimension mismatch error during query")
+                    logger.info("The collection needs to be recreated with correct embedding dimensions")
+                else:
+                    logger.debug(f"Query dimensions match collection: {query_dim} dimensions")
+            else:
+                # Collection uses default embedding function (384 dimensions)
+                expected_dim = 384
+                if query_dim != expected_dim:
+                    logger.warning(f"Potential dimension mismatch: query has {query_dim} dimensions, collection expects {expected_dim}")
+                    logger.info("This will cause a dimension mismatch error during query")
+                    logger.info("The collection needs to be recreated with correct embedding dimensions")
+                else:
+                    logger.debug(f"Query dimensions match collection: {query_dim} dimensions")
+                
+        except Exception as e:
+            logger.debug(f"Error checking embedding dimensions: {e}")
+
+    def _check_and_fix_embedding_dimensions(self, collection, tier0_data):
+        """Check for embedding dimension mismatches and fix by recreating collection if needed"""
+        from .._logging import get_logger
+        logger = get_logger(__name__)
+        
+        try:
+            # Get expected embedding dimension from tier0 data
+            expected_dim = None
+            if tier0_data and isinstance(tier0_data[0], dict) and 'embedding' in tier0_data[0]:
+                expected_dim = len(tier0_data[0]['embedding'])
+                logger.info(f"Expected embedding dimension from tier0 data: {expected_dim}")
+            
+            # If we have server embeddings, check if collection dimensions match
+            if expected_dim is not None:
+                try:
+                    # Try to get collection metadata to check dimensions
+                    collection_metadata = collection.metadata
+                    if hasattr(collection, '_embedding_function') and collection._embedding_function:
+                        # Collection has custom embedding function
+                        logger.info("Collection has custom embedding function")
+                    else:
+                        # Collection uses default embedding function (384 dimensions)
+                        logger.info("Collection uses default embedding function (384 dimensions)")
+                        
+                        # If expected dimension is not 384, we need to recreate the collection
+                        if expected_dim != 384:
+                            logger.warning(f"Dimension mismatch detected: collection expects 384, tier0 data has {expected_dim}")
+                            logger.info("Recreating collection with correct embedding dimensions...")
+                            
+                            # Delete existing collection
+                            collection_name = collection.name
+                            self._chroma_client.delete_collection(name=collection_name)
+                            logger.info(f"Deleted existing collection: {collection_name}")
+                            
+                            # Create new collection with Qwen3-4B embedding function
+                            embedding_function = self._get_qwen_embedding_function()
+                            logger.info(f"Embedding function created: {embedding_function is not None}")
+                            if embedding_function:
+                                try:
+                                    self._chroma_collection = self._chroma_client.create_collection(
+                                        name=collection_name,
+                                        embedding_function=embedding_function,
+                                        metadata={"description": "Tier0 goals, OKRs, and use-cases from sync_tiers"}
+                                    )
+                                    logger.info(f"Recreated collection with Qwen3-4B embeddings: {collection_name}")
+                                    # Verify the collection has the embedding function
+                                    if hasattr(self._chroma_collection, '_embedding_function') and self._chroma_collection._embedding_function:
+                                        logger.info("Collection created with custom embedding function (2560 dimensions)")
+                                    else:
+                                        logger.warning("Collection created but without custom embedding function")
+                                    # Update the collection reference
+                                    collection = self._chroma_collection
+                                except Exception as create_e:
+                                    logger.error(f"Failed to create collection with embedding function: {create_e}")
+                                    logger.info("Falling back to collection without embedding function...")
+                                    self._chroma_collection = self._chroma_client.create_collection(
+                                        name=collection_name,
+                                        metadata={"description": "Tier0 goals, OKRs, and use-cases from sync_tiers"}
+                                    )
+                                    logger.warning("Collection created without embedding function (384 dimensions)")
+                                    collection = self._chroma_collection
+                            else:
+                                logger.error("Failed to get Qwen3-4B embedding function - cannot fix dimension mismatch")
+                                return
+                        
+                except Exception as e:
+                    logger.debug(f"Could not check collection dimensions: {e}")
+                    # If we can't check dimensions, try to proceed and let ChromaDB handle the error
+                    pass
+                    
+        except Exception as e:
+            logger.error(f"Error checking embedding dimensions: {e}")
+
+    def _compare_tier0_data(self, collection, tier0_data, documents, metadatas, ids):
+        """Compare new tier0 data with existing data to detect changes"""
+        from .._logging import get_logger
+        logger = get_logger(__name__)
+        
+        try:
+            # Get existing data from collection
+            existing_data = {}
+            try:
+                existing = collection.get()
+                if existing['ids']:
+                    for i, doc_id in enumerate(existing['ids']):
+                        existing_data[doc_id] = {
+                            'document': existing['documents'][i] if existing['documents'] else None,
+                            'metadata': existing['metadatas'][i] if existing['metadatas'] else None,
+                            'id': doc_id
+                        }
+            except Exception as e:
+                logger.debug(f"No existing data found in collection: {e}")
+                existing_data = {}
+            
+            # Compare new data with existing data
+            new_documents = []
+            new_metadatas = []
+            new_ids = []
+            updated_documents = []
+            updated_metadatas = []
+            updated_ids = []
+            unchanged_count = 0
+            
+            for i, doc_id in enumerate(ids):
+                if doc_id not in existing_data:
+                    # New document
+                    new_documents.append(documents[i])
+                    new_metadatas.append(metadatas[i])
+                    new_ids.append(doc_id)
+                else:
+                    # Check if content has changed
+                    existing_doc = existing_data[doc_id]
+                    current_doc = documents[i]
+                    current_meta = metadatas[i]
+                    
+                    # Compare document content
+                    content_changed = existing_doc['document'] != current_doc
+                    
+                    # Compare metadata (check key fields)
+                    metadata_changed = False
+                    if existing_doc['metadata'] and current_meta:
+                        # Compare important metadata fields
+                        important_fields = ['source', 'tier', 'type', 'topics', 'id', 'updatedAt']
+                        for field in important_fields:
+                            if (existing_doc['metadata'].get(field) != current_meta.get(field)):
+                                metadata_changed = True
+                                logger.debug(f"Metadata field '{field}' changed: '{existing_doc['metadata'].get(field)}' -> '{current_meta.get(field)}'")
+                                break
+                    
+                    if content_changed or metadata_changed:
+                        # Document has changed
+                        updated_documents.append(documents[i])
+                        updated_metadatas.append(metadatas[i])
+                        updated_ids.append(doc_id)
+                        logger.debug(f"Document {doc_id} has changes: content={content_changed}, metadata={metadata_changed}")
+                    else:
+                        # Document is unchanged
+                        unchanged_count += 1
+                        logger.debug(f"Document {doc_id} is unchanged")
+            
+            # Prepare summary
+            total_new = len(new_documents)
+            total_updated = len(updated_documents)
+            total_unchanged = unchanged_count
+            has_changes = total_new > 0 or total_updated > 0
+            
+            summary_parts = []
+            if total_new > 0:
+                summary_parts.append(f"{total_new} new")
+            if total_updated > 0:
+                summary_parts.append(f"{total_updated} updated")
+            if total_unchanged > 0:
+                summary_parts.append(f"{total_unchanged} unchanged")
+            
+            summary = ", ".join(summary_parts) if summary_parts else "no data"
+            
+            logger.info(f"Tier0 data comparison: {summary}")
+            
+            return {
+                'has_changes': has_changes,
+                'summary': summary,
+                'new_documents': new_documents,
+                'new_metadatas': new_metadatas,
+                'new_ids': new_ids,
+                'updated_documents': updated_documents,
+                'updated_metadatas': updated_metadatas,
+                'updated_ids': updated_ids,
+                'unchanged_count': unchanged_count
+            }
+            
+        except Exception as e:
+            logger.error(f"Error comparing tier0 data: {e}")
+            # Fallback: treat all as new documents
+            return {
+                'has_changes': True,
+                'summary': f"error during comparison, treating all as new: {e}",
+                'new_documents': documents,
+                'new_metadatas': metadatas,
+                'new_ids': ids,
+                'updated_documents': [],
+                'updated_metadatas': [],
+                'updated_ids': [],
+                'unchanged_count': 0
+            }
 
     def _store_tier0_in_chromadb(self, tier0_data):
         """Store tier0 data in ChromaDB with duplicate prevention"""
@@ -888,16 +1253,66 @@ class MemoryResource(SyncAPIResource):
                     self._chroma_collection = self._chroma_client.get_collection(name=collection_name)
                     logger.info(f"Using existing ChromaDB collection: {collection_name}")
                 except Exception as e:
-                    logger.info(f"Collection doesn't exist, creating new one: {e}")
-                    # Create collection without custom embedding function
-                    logger.info("Creating collection without custom embedding function...")
-                    self._chroma_collection = self._chroma_client.create_collection(
-                        name=collection_name,
-                        metadata={"description": "Tier0 goals, OKRs, and use-cases from sync_tiers"}
-                    )
-                    logger.info(f"Created new ChromaDB collection: {collection_name}")
+                    logger.info(f"Collection doesn't exist or error getting collection: {e}")
+                    # Try to delete any existing collection with the same name first
+                    try:
+                        self._chroma_client.delete_collection(name=collection_name)
+                        logger.info(f"Deleted existing collection: {collection_name}")
+                    except Exception as delete_e:
+                        logger.debug(f"No existing collection to delete: {delete_e}")
+                    
+                    # Create collection with Qwen3-4B embedding function
+                    logger.info("Creating collection with Qwen3-4B embedding function...")
+                    embedding_function = self._get_qwen_embedding_function()
+                    if embedding_function:
+                        try:
+                            self._chroma_collection = self._chroma_client.create_collection(
+                                name=collection_name,
+                                embedding_function=embedding_function,
+                                metadata={"description": "Tier0 goals, OKRs, and use-cases from sync_tiers"}
+                            )
+                            logger.info(f"Created new ChromaDB collection with Qwen3-4B embeddings: {collection_name}")
+                        except Exception as create_e:
+                            logger.error(f"Failed to create collection with embedding function: {create_e}")
+                            logger.info("Falling back to collection without embedding function...")
+                            self._chroma_collection = self._chroma_client.create_collection(
+                                name=collection_name,
+                                metadata={"description": "Tier0 goals, OKRs, and use-cases from sync_tiers"}
+                            )
+                            logger.info(f"Created new ChromaDB collection without embedding function: {collection_name}")
+                    else:
+                        # Fallback: create without custom embedding function
+                        logger.warning("Qwen3-4B embedding function not available, creating collection without custom embedding function...")
+                        self._chroma_collection = self._chroma_client.create_collection(
+                            name=collection_name,
+                            metadata={"description": "Tier0 goals, OKRs, and use-cases from sync_tiers"}
+                        )
+                        logger.info(f"Created new ChromaDB collection without custom embedding function: {collection_name}")
+                    
+                    # Verify collection was created successfully
+                    if self._chroma_collection is None:
+                        logger.error("Failed to create ChromaDB collection - collection is None")
+                        # Set to None to indicate failure
+                        self._chroma_collection = None
+                    else:
+                        logger.info(f"ChromaDB collection created successfully: {self._chroma_collection.name}")
             
             collection = self._chroma_collection
+            
+            # Check for dimension mismatch and fix if needed
+            self._check_and_fix_embedding_dimensions(collection, tier0_data)
+            
+            # Update collection reference in case it was recreated
+            collection = self._chroma_collection
+            
+            # Verify collection is still valid
+            if collection is None:
+                logger.error("ChromaDB collection is None after dimension mismatch fix")
+                # Set _chroma_collection to None to indicate failure
+                self._chroma_collection = None
+                return
+            
+            logger.info(f"Using ChromaDB collection: {collection.name}")
             
             # Prepare documents for ChromaDB
             documents = []
@@ -910,19 +1325,28 @@ class MemoryResource(SyncAPIResource):
                 if isinstance(item, dict):
                     content = str(item.get('content', item.get('description', str(item))))
                 
-                # Create metadata
-                metadata = {
-                    "source": "sync_tiers",
-                    "tier": 0,
-                    "type": "unknown",
-                    "topics": "unknown"
-                }
-                
+                # Create metadata - use item's metadata if exists, otherwise create default
                 if isinstance(item, dict):
-                    metadata["type"] = str(item.get('type', 'unknown'))
-                    metadata["topics"] = str(item.get('topics', []))
-                    if 'metadata' in item:
-                        metadata.update(item['metadata'])
+                    # Start with item's metadata if it exists
+                    metadata = dict(item.get('metadata', {}))
+                    
+                    # Add/override with our standard fields
+                    metadata.update({
+                        "source": "sync_tiers",
+                        "tier": 0,
+                        "type": str(item.get('type', 'unknown')),
+                        "topics": str(item.get('topics', [])),
+                        "id": str(item.get('id', f'tier0_{i}')),
+                        "updatedAt": str(item.get('updatedAt', ''))
+                    })
+                else:
+                    # Fallback for non-dict items
+                    metadata = {
+                        "source": "sync_tiers",
+                        "tier": 0,
+                        "type": "unknown",
+                        "topics": "unknown"
+                    }
                 
                 documents.append(content)
                 metadatas.append(metadata)
@@ -982,53 +1406,95 @@ class MemoryResource(SyncAPIResource):
                 except Exception as e:
                     logger.error(f"Error generating local embeddings: {e}")
             
-            # Add documents to ChromaDB (avoid duplicates)
+            # Add documents to ChromaDB (compare with existing data)
             if documents:
-                # Check if documents already exist to avoid duplicates
-                existing_ids = set()
-                try:
-                    existing = collection.get(ids=ids)
-                    existing_ids = set(existing['ids']) if existing['ids'] else set()
-                except:
-                    pass  # Collection might be empty
+                # Compare new data with existing data to detect changes
+                comparison_result = self._compare_tier0_data(collection, tier0_data, documents, metadatas, ids)
                 
-                # Only add new documents
-                new_documents = []
-                new_metadatas = []
-                new_ids = []
-                
-                for i, doc_id in enumerate(ids):
-                    if doc_id not in existing_ids:
-                        new_documents.append(documents[i])
-                        new_metadatas.append(metadatas[i])
-                        new_ids.append(doc_id)
-                
-                if new_documents:
-                    # Filter embeddings for new documents only
-                    new_embeddings = []
-                    for i, doc_id in enumerate(new_ids):
-                        original_index = ids.index(doc_id)
-                        new_embeddings.append(embeddings[original_index])
+                if comparison_result['has_changes']:
+                    logger.info(f"Detected changes in tier0 data: {comparison_result['summary']}")
                     
-                    # Add documents with embeddings if available
-                    if any(emb is not None for emb in new_embeddings):
-                        collection.add(
-                            documents=new_documents,
-                            metadatas=new_metadatas,
-                            ids=new_ids,
-                            embeddings=new_embeddings
-                        )
-                        logger.info(f"Added {len(new_documents)} documents with local embeddings")
-                    else:
-                        collection.add(
-                            documents=new_documents,
-                            metadatas=new_metadatas,
-                            ids=new_ids
-                        )
-                        logger.info(f"Added {len(new_documents)} documents with ChromaDB default embeddings")
-                    logger.info(f"Stored {len(new_documents)} new tier0 items in ChromaDB")
+                    # Only add/update documents that are new or changed
+                    new_documents = comparison_result['new_documents']
+                    new_metadatas = comparison_result['new_metadatas']
+                    new_ids = comparison_result['new_ids']
+                    updated_documents = comparison_result['updated_documents']
+                    updated_metadatas = comparison_result['updated_metadatas']
+                    updated_ids = comparison_result['updated_ids']
+                
+                    # Add new documents
+                    if new_documents:
+                        # Filter embeddings for new documents only
+                        new_embeddings = []
+                        for i, doc_id in enumerate(new_ids):
+                            original_index = ids.index(doc_id)
+                            new_embeddings.append(embeddings[original_index])
+                        
+                        # Add documents with embeddings if available
+                        if any(emb is not None for emb in new_embeddings):
+                            collection.add(
+                                documents=new_documents,
+                                metadatas=new_metadatas,
+                                ids=new_ids,
+                                embeddings=new_embeddings
+                            )
+                            logger.info(f"Added {len(new_documents)} new documents with local embeddings")
+                        else:
+                            collection.add(
+                                documents=new_documents,
+                                metadatas=new_metadatas,
+                                ids=new_ids
+                            )
+                            logger.info(f"Added {len(new_documents)} new documents with ChromaDB default embeddings")
+                    
+                    # Update existing documents that have changed
+                    if updated_documents:
+                        # Filter embeddings for updated documents
+                        updated_embeddings = []
+                        for i, doc_id in enumerate(updated_ids):
+                            original_index = ids.index(doc_id)
+                            updated_embeddings.append(embeddings[original_index])
+                        
+                        # Update documents (ChromaDB doesn't have direct update, so we delete and re-add)
+                        try:
+                            collection.delete(ids=updated_ids)
+                            if any(emb is not None for emb in updated_embeddings):
+                                collection.add(
+                                    documents=updated_documents,
+                                    metadatas=updated_metadatas,
+                                    ids=updated_ids,
+                                    embeddings=updated_embeddings
+                                )
+                                logger.info(f"Updated {len(updated_documents)} documents with local embeddings")
+                            else:
+                                collection.add(
+                                    documents=updated_documents,
+                                    metadatas=updated_metadatas,
+                                    ids=updated_ids
+                                )
+                                logger.info(f"Updated {len(updated_documents)} documents with ChromaDB default embeddings")
+                        except Exception as e:
+                            logger.warning(f"Failed to update documents, adding as new: {e}")
+                            # Fallback: add as new documents
+                            if any(emb is not None for emb in updated_embeddings):
+                                collection.add(
+                                    documents=updated_documents,
+                                    metadatas=updated_metadatas,
+                                    ids=updated_ids,
+                                    embeddings=updated_embeddings
+                                )
+                            else:
+                                collection.add(
+                                    documents=updated_documents,
+                                    metadatas=updated_metadatas,
+                                    ids=updated_ids
+                                )
+                            logger.info(f"Added {len(updated_documents)} documents as new (update failed)")
+                    
+                    total_changes = len(new_documents) + len(updated_documents)
+                    logger.info(f"ChromaDB updated: {len(new_documents)} new, {len(updated_documents)} updated, {total_changes} total changes")
                 else:
-                    logger.info(f"All {len(documents)} tier0 items already exist in ChromaDB")
+                    logger.info(f"No changes detected in tier0 data - ChromaDB collection unchanged")
                 
                 # Query to verify storage
                 results = collection.query(
@@ -1040,8 +1506,12 @@ class MemoryResource(SyncAPIResource):
         except ImportError:
             logger.warning("ChromaDB not available - install with: pip install chromadb")
             logger.warning("Tier0 data will not be stored in vector database")
+            # Set _chroma_collection to None to indicate ChromaDB is not available
+            self._chroma_collection = None
         except Exception as e:
             logger.error(f"Error storing tier0 data in ChromaDB: {e}")
+            # Set _chroma_collection to None to indicate ChromaDB initialization failed
+            self._chroma_collection = None
 
     def search(
         self,
@@ -1153,10 +1623,33 @@ class MemoryResource(SyncAPIResource):
         
         # Search tier0 data locally for context enhancement if enabled
         tier0_context = []
-        if ondevice_processing and hasattr(self, '_chroma_collection'):
-            tier0_context = self._search_tier0_locally(query, n_results=3)
+        # Debug logging
+        logger.info(f"DEBUG: ondevice_processing={ondevice_processing}, hasattr={hasattr(self, '_chroma_collection')}, collection_not_none={getattr(self, '_chroma_collection', None) is not None}")
+        
+        if ondevice_processing and hasattr(self, '_chroma_collection') and self._chroma_collection is not None:
+            tier0_context = self._search_tier0_locally(query, n_results=max_memories)
             if tier0_context:
                 logger.info(f"Using {len(tier0_context)} tier0 items for search context enhancement")
+                # Convert tier0_context (list of documents) to DataMemory objects
+                from ..types.search_response import Data, DataMemory
+                memories = []
+                for i, content in enumerate(tier0_context):
+                    memories.append(DataMemory(
+                        id=f"tier0_{i}",
+                        acl={},
+                        content=content,
+                        type="tier0",
+                        user_id="local"
+                    ))
+                
+                # Return search results with proper SearchResponse structure
+                return SearchResponse(
+                    data=Data(
+                        memories=memories,
+                        nodes=[]
+                    ),
+                    status="success"
+                )
         elif not ondevice_processing:
             logger.info("On-device processing disabled - using API-only search")
         else:
@@ -1677,10 +2170,18 @@ class AsyncMemoryResource(AsyncAPIResource):
         
         try:
             # Call the async sync_tiers method with hardcoded parameters
+            # Get max_tier0 from environment variable with fallback to 2
+            import os
+            max_tier0_env = os.environ.get("PAPR_MAX_TIER0", "2")
+            try:
+                max_tier0_value = int(max_tier0_env)
+            except ValueError:
+                max_tier0_value = 2  # fallback to default if invalid
+            
             sync_response = await self.sync_tiers(
                 include_embeddings=True,
                 embed_limit=2,
-                max_tier0=2,
+                max_tier0=max_tier0_value,
                 max_tier1=0,
                 extra_headers=extra_headers,
                 extra_query=extra_query,
@@ -1821,7 +2322,10 @@ class AsyncMemoryResource(AsyncAPIResource):
         
         # Search tier0 data locally for context enhancement if enabled
         tier0_context = []
-        if ondevice_processing and hasattr(self, '_chroma_collection'):
+        # Debug logging
+        logger.info(f"DEBUG: ondevice_processing={ondevice_processing}, hasattr={hasattr(self, '_chroma_collection')}, collection_not_none={getattr(self, '_chroma_collection', None) is not None}")
+        
+        if ondevice_processing and hasattr(self, '_chroma_collection') and self._chroma_collection is not None:
             tier0_context = self._search_tier0_locally(query, n_results=3)
             if tier0_context:
                 logger.info(f"Using {len(tier0_context)} tier0 items for search context enhancement")
