@@ -15,7 +15,7 @@ from ..types import (
     memory_add_batch_params,
     memory_delete_all_params,
 )
-from .._types import NOT_GIVEN, Body, Query, Headers, NotGiven
+from .._types import Body, Omit, Query, Headers, NotGiven, omit, not_given
 from .._utils import maybe_transform, strip_not_given, async_maybe_transform
 from .._compat import cached_property
 from .._resource import SyncAPIResource, AsyncAPIResource
@@ -64,17 +64,17 @@ class MemoryResource(SyncAPIResource):
         self,
         memory_id: str,
         *,
-        content: Optional[str] | NotGiven = NOT_GIVEN,
-        context: Optional[Iterable[ContextItemParam]] | NotGiven = NOT_GIVEN,
-        metadata: Optional[MemoryMetadataParam] | NotGiven = NOT_GIVEN,
-        relationships_json: Optional[Iterable[RelationshipItemParam]] | NotGiven = NOT_GIVEN,
-        type: Optional[MemoryType] | NotGiven = NOT_GIVEN,
+        content: Optional[str] | Omit = omit,
+        context: Optional[Iterable[ContextItemParam]] | Omit = omit,
+        metadata: Optional[MemoryMetadataParam] | Omit = omit,
+        relationships_json: Optional[Iterable[RelationshipItemParam]] | Omit = omit,
+        type: Optional[MemoryType] | Omit = omit,
         # Use the following arguments if you need to pass additional parameters to the API that aren't available via kwargs.
         # The extra values given here take precedence over values defined on the client or passed to this method.
         extra_headers: Headers | None = None,
         extra_query: Query | None = None,
         extra_body: Body | None = None,
-        timeout: float | httpx.Timeout | None | NotGiven = NOT_GIVEN,
+        timeout: float | httpx.Timeout | None | NotGiven = not_given,
     ) -> MemoryUpdateResponse:
         """
         Update an existing memory item by ID.
@@ -134,13 +134,13 @@ class MemoryResource(SyncAPIResource):
         self,
         memory_id: str,
         *,
-        skip_parse: bool | NotGiven = NOT_GIVEN,
+        skip_parse: bool | Omit = omit,
         # Use the following arguments if you need to pass additional parameters to the API that aren't available via kwargs.
         # The extra values given here take precedence over values defined on the client or passed to this method.
         extra_headers: Headers | None = None,
         extra_query: Query | None = None,
         extra_body: Body | None = None,
-        timeout: float | httpx.Timeout | None | NotGiven = NOT_GIVEN,
+        timeout: float | httpx.Timeout | None | NotGiven = not_given,
     ) -> MemoryDeleteResponse:
         """
         Delete a memory item by ID.
@@ -184,16 +184,16 @@ class MemoryResource(SyncAPIResource):
         *,
         content: str,
         type: MemoryType,
-        skip_background_processing: bool | NotGiven = NOT_GIVEN,
-        context: Optional[Iterable[ContextItemParam]] | NotGiven = NOT_GIVEN,
-        metadata: Optional[MemoryMetadataParam] | NotGiven = NOT_GIVEN,
-        relationships_json: Optional[Iterable[RelationshipItemParam]] | NotGiven = NOT_GIVEN,
+        skip_background_processing: bool | Omit = omit,
+        context: Optional[Iterable[ContextItemParam]] | Omit = omit,
+        metadata: Optional[MemoryMetadataParam] | Omit = omit,
+        relationships_json: Optional[Iterable[RelationshipItemParam]] | Omit = omit,
         # Use the following arguments if you need to pass additional parameters to the API that aren't available via kwargs.
         # The extra values given here take precedence over values defined on the client or passed to this method.
         extra_headers: Headers | None = None,
         extra_query: Query | None = None,
         extra_body: Body | None = None,
-        timeout: float | httpx.Timeout | None | NotGiven = NOT_GIVEN,
+        timeout: float | httpx.Timeout | None | NotGiven = not_given,
     ) -> AddMemoryResponse:
         """
         Add a new memory item to the system with size validation and background
@@ -260,18 +260,18 @@ class MemoryResource(SyncAPIResource):
         self,
         *,
         memories: Iterable[AddMemoryParam],
-        skip_background_processing: bool | NotGiven = NOT_GIVEN,
-        batch_size: Optional[int] | NotGiven = NOT_GIVEN,
-        external_user_id: Optional[str] | NotGiven = NOT_GIVEN,
-        user_id: Optional[str] | NotGiven = NOT_GIVEN,
-        webhook_secret: Optional[str] | NotGiven = NOT_GIVEN,
-        webhook_url: Optional[str] | NotGiven = NOT_GIVEN,
+        skip_background_processing: bool | Omit = omit,
+        batch_size: Optional[int] | Omit = omit,
+        external_user_id: Optional[str] | Omit = omit,
+        user_id: Optional[str] | Omit = omit,
+        webhook_secret: Optional[str] | Omit = omit,
+        webhook_url: Optional[str] | Omit = omit,
         # Use the following arguments if you need to pass additional parameters to the API that aren't available via kwargs.
         # The extra values given here take precedence over values defined on the client or passed to this method.
         extra_headers: Headers | None = None,
         extra_query: Query | None = None,
         extra_body: Body | None = None,
-        timeout: float | httpx.Timeout | None | NotGiven = NOT_GIVEN,
+        timeout: float | httpx.Timeout | None | NotGiven = not_given,
     ) -> BatchMemoryResponse:
         """
         Add multiple memory items in a batch with size validation and background
@@ -345,15 +345,15 @@ class MemoryResource(SyncAPIResource):
     def delete_all(
         self,
         *,
-        external_user_id: Optional[str] | NotGiven = NOT_GIVEN,
-        skip_parse: bool | NotGiven = NOT_GIVEN,
-        user_id: Optional[str] | NotGiven = NOT_GIVEN,
+        external_user_id: Optional[str] | Omit = omit,
+        skip_parse: bool | Omit = omit,
+        user_id: Optional[str] | Omit = omit,
         # Use the following arguments if you need to pass additional parameters to the API that aren't available via kwargs.
         # The extra values given here take precedence over values defined on the client or passed to this method.
         extra_headers: Headers | None = None,
         extra_query: Query | None = None,
         extra_body: Body | None = None,
-        timeout: float | httpx.Timeout | None | NotGiven = NOT_GIVEN,
+        timeout: float | httpx.Timeout | None | NotGiven = not_given,
     ) -> BatchMemoryResponse:
         """
         Delete all memory items for a user.
@@ -418,7 +418,7 @@ class MemoryResource(SyncAPIResource):
         extra_headers: Headers | None = None,
         extra_query: Query | None = None,
         extra_body: Body | None = None,
-        timeout: float | httpx.Timeout | None | NotGiven = NOT_GIVEN,
+        timeout: float | httpx.Timeout | None | NotGiven = not_given,
     ) -> SearchResponse:
         """
         Retrieve a memory item by ID.
@@ -455,20 +455,20 @@ class MemoryResource(SyncAPIResource):
         self,
         *,
         query: str,
-        max_memories: int | NotGiven = NOT_GIVEN,
-        max_nodes: int | NotGiven = NOT_GIVEN,
-        enable_agentic_graph: bool | NotGiven = NOT_GIVEN,
-        external_user_id: Optional[str] | NotGiven = NOT_GIVEN,
-        metadata: Optional[MemoryMetadataParam] | NotGiven = NOT_GIVEN,
-        rank_results: bool | NotGiven = NOT_GIVEN,
-        user_id: Optional[str] | NotGiven = NOT_GIVEN,
-        accept_encoding: str | NotGiven = NOT_GIVEN,
+        max_memories: int | Omit = omit,
+        max_nodes: int | Omit = omit,
+        enable_agentic_graph: bool | Omit = omit,
+        external_user_id: Optional[str] | Omit = omit,
+        metadata: Optional[MemoryMetadataParam] | Omit = omit,
+        rank_results: bool | Omit = omit,
+        user_id: Optional[str] | Omit = omit,
+        accept_encoding: str | Omit = omit,
         # Use the following arguments if you need to pass additional parameters to the API that aren't available via kwargs.
         # The extra values given here take precedence over values defined on the client or passed to this method.
         extra_headers: Headers | None = None,
         extra_query: Query | None = None,
         extra_body: Body | None = None,
-        timeout: float | httpx.Timeout | None | NotGiven = NOT_GIVEN,
+        timeout: float | httpx.Timeout | None | NotGiven = not_given,
     ) -> SearchResponse:
         """
         Search through memories with authentication required.
@@ -607,17 +607,17 @@ class AsyncMemoryResource(AsyncAPIResource):
         self,
         memory_id: str,
         *,
-        content: Optional[str] | NotGiven = NOT_GIVEN,
-        context: Optional[Iterable[ContextItemParam]] | NotGiven = NOT_GIVEN,
-        metadata: Optional[MemoryMetadataParam] | NotGiven = NOT_GIVEN,
-        relationships_json: Optional[Iterable[RelationshipItemParam]] | NotGiven = NOT_GIVEN,
-        type: Optional[MemoryType] | NotGiven = NOT_GIVEN,
+        content: Optional[str] | Omit = omit,
+        context: Optional[Iterable[ContextItemParam]] | Omit = omit,
+        metadata: Optional[MemoryMetadataParam] | Omit = omit,
+        relationships_json: Optional[Iterable[RelationshipItemParam]] | Omit = omit,
+        type: Optional[MemoryType] | Omit = omit,
         # Use the following arguments if you need to pass additional parameters to the API that aren't available via kwargs.
         # The extra values given here take precedence over values defined on the client or passed to this method.
         extra_headers: Headers | None = None,
         extra_query: Query | None = None,
         extra_body: Body | None = None,
-        timeout: float | httpx.Timeout | None | NotGiven = NOT_GIVEN,
+        timeout: float | httpx.Timeout | None | NotGiven = not_given,
     ) -> MemoryUpdateResponse:
         """
         Update an existing memory item by ID.
@@ -677,13 +677,13 @@ class AsyncMemoryResource(AsyncAPIResource):
         self,
         memory_id: str,
         *,
-        skip_parse: bool | NotGiven = NOT_GIVEN,
+        skip_parse: bool | Omit = omit,
         # Use the following arguments if you need to pass additional parameters to the API that aren't available via kwargs.
         # The extra values given here take precedence over values defined on the client or passed to this method.
         extra_headers: Headers | None = None,
         extra_query: Query | None = None,
         extra_body: Body | None = None,
-        timeout: float | httpx.Timeout | None | NotGiven = NOT_GIVEN,
+        timeout: float | httpx.Timeout | None | NotGiven = not_given,
     ) -> MemoryDeleteResponse:
         """
         Delete a memory item by ID.
@@ -727,16 +727,16 @@ class AsyncMemoryResource(AsyncAPIResource):
         *,
         content: str,
         type: MemoryType,
-        skip_background_processing: bool | NotGiven = NOT_GIVEN,
-        context: Optional[Iterable[ContextItemParam]] | NotGiven = NOT_GIVEN,
-        metadata: Optional[MemoryMetadataParam] | NotGiven = NOT_GIVEN,
-        relationships_json: Optional[Iterable[RelationshipItemParam]] | NotGiven = NOT_GIVEN,
+        skip_background_processing: bool | Omit = omit,
+        context: Optional[Iterable[ContextItemParam]] | Omit = omit,
+        metadata: Optional[MemoryMetadataParam] | Omit = omit,
+        relationships_json: Optional[Iterable[RelationshipItemParam]] | Omit = omit,
         # Use the following arguments if you need to pass additional parameters to the API that aren't available via kwargs.
         # The extra values given here take precedence over values defined on the client or passed to this method.
         extra_headers: Headers | None = None,
         extra_query: Query | None = None,
         extra_body: Body | None = None,
-        timeout: float | httpx.Timeout | None | NotGiven = NOT_GIVEN,
+        timeout: float | httpx.Timeout | None | NotGiven = not_given,
     ) -> AddMemoryResponse:
         """
         Add a new memory item to the system with size validation and background
@@ -803,18 +803,18 @@ class AsyncMemoryResource(AsyncAPIResource):
         self,
         *,
         memories: Iterable[AddMemoryParam],
-        skip_background_processing: bool | NotGiven = NOT_GIVEN,
-        batch_size: Optional[int] | NotGiven = NOT_GIVEN,
-        external_user_id: Optional[str] | NotGiven = NOT_GIVEN,
-        user_id: Optional[str] | NotGiven = NOT_GIVEN,
-        webhook_secret: Optional[str] | NotGiven = NOT_GIVEN,
-        webhook_url: Optional[str] | NotGiven = NOT_GIVEN,
+        skip_background_processing: bool | Omit = omit,
+        batch_size: Optional[int] | Omit = omit,
+        external_user_id: Optional[str] | Omit = omit,
+        user_id: Optional[str] | Omit = omit,
+        webhook_secret: Optional[str] | Omit = omit,
+        webhook_url: Optional[str] | Omit = omit,
         # Use the following arguments if you need to pass additional parameters to the API that aren't available via kwargs.
         # The extra values given here take precedence over values defined on the client or passed to this method.
         extra_headers: Headers | None = None,
         extra_query: Query | None = None,
         extra_body: Body | None = None,
-        timeout: float | httpx.Timeout | None | NotGiven = NOT_GIVEN,
+        timeout: float | httpx.Timeout | None | NotGiven = not_given,
     ) -> BatchMemoryResponse:
         """
         Add multiple memory items in a batch with size validation and background
@@ -888,15 +888,15 @@ class AsyncMemoryResource(AsyncAPIResource):
     async def delete_all(
         self,
         *,
-        external_user_id: Optional[str] | NotGiven = NOT_GIVEN,
-        skip_parse: bool | NotGiven = NOT_GIVEN,
-        user_id: Optional[str] | NotGiven = NOT_GIVEN,
+        external_user_id: Optional[str] | Omit = omit,
+        skip_parse: bool | Omit = omit,
+        user_id: Optional[str] | Omit = omit,
         # Use the following arguments if you need to pass additional parameters to the API that aren't available via kwargs.
         # The extra values given here take precedence over values defined on the client or passed to this method.
         extra_headers: Headers | None = None,
         extra_query: Query | None = None,
         extra_body: Body | None = None,
-        timeout: float | httpx.Timeout | None | NotGiven = NOT_GIVEN,
+        timeout: float | httpx.Timeout | None | NotGiven = not_given,
     ) -> BatchMemoryResponse:
         """
         Delete all memory items for a user.
@@ -961,7 +961,7 @@ class AsyncMemoryResource(AsyncAPIResource):
         extra_headers: Headers | None = None,
         extra_query: Query | None = None,
         extra_body: Body | None = None,
-        timeout: float | httpx.Timeout | None | NotGiven = NOT_GIVEN,
+        timeout: float | httpx.Timeout | None | NotGiven = not_given,
     ) -> SearchResponse:
         """
         Retrieve a memory item by ID.
@@ -998,20 +998,20 @@ class AsyncMemoryResource(AsyncAPIResource):
         self,
         *,
         query: str,
-        max_memories: int | NotGiven = NOT_GIVEN,
-        max_nodes: int | NotGiven = NOT_GIVEN,
-        enable_agentic_graph: bool | NotGiven = NOT_GIVEN,
-        external_user_id: Optional[str] | NotGiven = NOT_GIVEN,
-        metadata: Optional[MemoryMetadataParam] | NotGiven = NOT_GIVEN,
-        rank_results: bool | NotGiven = NOT_GIVEN,
-        user_id: Optional[str] | NotGiven = NOT_GIVEN,
-        accept_encoding: str | NotGiven = NOT_GIVEN,
+        max_memories: int | Omit = omit,
+        max_nodes: int | Omit = omit,
+        enable_agentic_graph: bool | Omit = omit,
+        external_user_id: Optional[str] | Omit = omit,
+        metadata: Optional[MemoryMetadataParam] | Omit = omit,
+        rank_results: bool | Omit = omit,
+        user_id: Optional[str] | Omit = omit,
+        accept_encoding: str | Omit = omit,
         # Use the following arguments if you need to pass additional parameters to the API that aren't available via kwargs.
         # The extra values given here take precedence over values defined on the client or passed to this method.
         extra_headers: Headers | None = None,
         extra_query: Query | None = None,
         extra_body: Body | None = None,
-        timeout: float | httpx.Timeout | None | NotGiven = NOT_GIVEN,
+        timeout: float | httpx.Timeout | None | NotGiven = not_given,
     ) -> SearchResponse:
         """
         Search through memories with authentication required.

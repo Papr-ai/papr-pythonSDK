@@ -14,7 +14,7 @@ from ..types import (
     user_update_params,
     user_create_batch_params,
 )
-from .._types import NOT_GIVEN, Body, Query, Headers, NotGiven
+from .._types import Body, Omit, Query, Headers, NotGiven, omit, not_given
 from .._utils import maybe_transform, async_maybe_transform
 from .._compat import cached_property
 from .._resource import SyncAPIResource, AsyncAPIResource
@@ -58,15 +58,15 @@ class UserResource(SyncAPIResource):
         self,
         *,
         external_id: str,
-        email: Optional[str] | NotGiven = NOT_GIVEN,
-        metadata: Optional[Dict[str, object]] | NotGiven = NOT_GIVEN,
-        type: UserType | NotGiven = NOT_GIVEN,
+        email: Optional[str] | Omit = omit,
+        metadata: Optional[Dict[str, object]] | Omit = omit,
+        type: UserType | Omit = omit,
         # Use the following arguments if you need to pass additional parameters to the API that aren't available via kwargs.
         # The extra values given here take precedence over values defined on the client or passed to this method.
         extra_headers: Headers | None = None,
         extra_query: Query | None = None,
         extra_body: Body | None = None,
-        timeout: float | httpx.Timeout | None | NotGiven = NOT_GIVEN,
+        timeout: float | httpx.Timeout | None | NotGiven = not_given,
     ) -> UserResponse:
         """
         Create a new user or link existing user to developer
@@ -101,16 +101,16 @@ class UserResource(SyncAPIResource):
         self,
         user_id: str,
         *,
-        email: Optional[str] | NotGiven = NOT_GIVEN,
-        external_id: Optional[str] | NotGiven = NOT_GIVEN,
-        metadata: Optional[Dict[str, object]] | NotGiven = NOT_GIVEN,
-        type: Optional[UserType] | NotGiven = NOT_GIVEN,
+        email: Optional[str] | Omit = omit,
+        external_id: Optional[str] | Omit = omit,
+        metadata: Optional[Dict[str, object]] | Omit = omit,
+        type: Optional[UserType] | Omit = omit,
         # Use the following arguments if you need to pass additional parameters to the API that aren't available via kwargs.
         # The extra values given here take precedence over values defined on the client or passed to this method.
         extra_headers: Headers | None = None,
         extra_query: Query | None = None,
         extra_body: Body | None = None,
-        timeout: float | httpx.Timeout | None | NotGiven = NOT_GIVEN,
+        timeout: float | httpx.Timeout | None | NotGiven = not_given,
     ) -> UserResponse:
         """
         Update user details by user_id (\\__User.objectId) and developer association
@@ -146,16 +146,16 @@ class UserResource(SyncAPIResource):
     def list(
         self,
         *,
-        email: Optional[str] | NotGiven = NOT_GIVEN,
-        external_id: Optional[str] | NotGiven = NOT_GIVEN,
-        page: int | NotGiven = NOT_GIVEN,
-        page_size: int | NotGiven = NOT_GIVEN,
+        email: Optional[str] | Omit = omit,
+        external_id: Optional[str] | Omit = omit,
+        page: int | Omit = omit,
+        page_size: int | Omit = omit,
         # Use the following arguments if you need to pass additional parameters to the API that aren't available via kwargs.
         # The extra values given here take precedence over values defined on the client or passed to this method.
         extra_headers: Headers | None = None,
         extra_query: Query | None = None,
         extra_body: Body | None = None,
-        timeout: float | httpx.Timeout | None | NotGiven = NOT_GIVEN,
+        timeout: float | httpx.Timeout | None | NotGiven = not_given,
     ) -> UserListResponse:
         """
         List users for a developer
@@ -193,13 +193,13 @@ class UserResource(SyncAPIResource):
         self,
         user_id: str,
         *,
-        is_external: bool | NotGiven = NOT_GIVEN,
+        is_external: bool | Omit = omit,
         # Use the following arguments if you need to pass additional parameters to the API that aren't available via kwargs.
         # The extra values given here take precedence over values defined on the client or passed to this method.
         extra_headers: Headers | None = None,
         extra_query: Query | None = None,
         extra_body: Body | None = None,
-        timeout: float | httpx.Timeout | None | NotGiven = NOT_GIVEN,
+        timeout: float | httpx.Timeout | None | NotGiven = not_given,
     ) -> UserDeleteResponse:
         """
         Delete user association with developer and the user itself by , assume external
@@ -239,7 +239,7 @@ class UserResource(SyncAPIResource):
         extra_headers: Headers | None = None,
         extra_query: Query | None = None,
         extra_body: Body | None = None,
-        timeout: float | httpx.Timeout | None | NotGiven = NOT_GIVEN,
+        timeout: float | httpx.Timeout | None | NotGiven = not_given,
     ) -> UserCreateBatchResponse:
         """
         Create multiple users or link existing users to developer, and add each to the
@@ -272,7 +272,7 @@ class UserResource(SyncAPIResource):
         extra_headers: Headers | None = None,
         extra_query: Query | None = None,
         extra_body: Body | None = None,
-        timeout: float | httpx.Timeout | None | NotGiven = NOT_GIVEN,
+        timeout: float | httpx.Timeout | None | NotGiven = not_given,
     ) -> UserResponse:
         """
         Get user details by user_id (\\__User.objectId) and developer association
@@ -321,15 +321,15 @@ class AsyncUserResource(AsyncAPIResource):
         self,
         *,
         external_id: str,
-        email: Optional[str] | NotGiven = NOT_GIVEN,
-        metadata: Optional[Dict[str, object]] | NotGiven = NOT_GIVEN,
-        type: UserType | NotGiven = NOT_GIVEN,
+        email: Optional[str] | Omit = omit,
+        metadata: Optional[Dict[str, object]] | Omit = omit,
+        type: UserType | Omit = omit,
         # Use the following arguments if you need to pass additional parameters to the API that aren't available via kwargs.
         # The extra values given here take precedence over values defined on the client or passed to this method.
         extra_headers: Headers | None = None,
         extra_query: Query | None = None,
         extra_body: Body | None = None,
-        timeout: float | httpx.Timeout | None | NotGiven = NOT_GIVEN,
+        timeout: float | httpx.Timeout | None | NotGiven = not_given,
     ) -> UserResponse:
         """
         Create a new user or link existing user to developer
@@ -364,16 +364,16 @@ class AsyncUserResource(AsyncAPIResource):
         self,
         user_id: str,
         *,
-        email: Optional[str] | NotGiven = NOT_GIVEN,
-        external_id: Optional[str] | NotGiven = NOT_GIVEN,
-        metadata: Optional[Dict[str, object]] | NotGiven = NOT_GIVEN,
-        type: Optional[UserType] | NotGiven = NOT_GIVEN,
+        email: Optional[str] | Omit = omit,
+        external_id: Optional[str] | Omit = omit,
+        metadata: Optional[Dict[str, object]] | Omit = omit,
+        type: Optional[UserType] | Omit = omit,
         # Use the following arguments if you need to pass additional parameters to the API that aren't available via kwargs.
         # The extra values given here take precedence over values defined on the client or passed to this method.
         extra_headers: Headers | None = None,
         extra_query: Query | None = None,
         extra_body: Body | None = None,
-        timeout: float | httpx.Timeout | None | NotGiven = NOT_GIVEN,
+        timeout: float | httpx.Timeout | None | NotGiven = not_given,
     ) -> UserResponse:
         """
         Update user details by user_id (\\__User.objectId) and developer association
@@ -409,16 +409,16 @@ class AsyncUserResource(AsyncAPIResource):
     async def list(
         self,
         *,
-        email: Optional[str] | NotGiven = NOT_GIVEN,
-        external_id: Optional[str] | NotGiven = NOT_GIVEN,
-        page: int | NotGiven = NOT_GIVEN,
-        page_size: int | NotGiven = NOT_GIVEN,
+        email: Optional[str] | Omit = omit,
+        external_id: Optional[str] | Omit = omit,
+        page: int | Omit = omit,
+        page_size: int | Omit = omit,
         # Use the following arguments if you need to pass additional parameters to the API that aren't available via kwargs.
         # The extra values given here take precedence over values defined on the client or passed to this method.
         extra_headers: Headers | None = None,
         extra_query: Query | None = None,
         extra_body: Body | None = None,
-        timeout: float | httpx.Timeout | None | NotGiven = NOT_GIVEN,
+        timeout: float | httpx.Timeout | None | NotGiven = not_given,
     ) -> UserListResponse:
         """
         List users for a developer
@@ -456,13 +456,13 @@ class AsyncUserResource(AsyncAPIResource):
         self,
         user_id: str,
         *,
-        is_external: bool | NotGiven = NOT_GIVEN,
+        is_external: bool | Omit = omit,
         # Use the following arguments if you need to pass additional parameters to the API that aren't available via kwargs.
         # The extra values given here take precedence over values defined on the client or passed to this method.
         extra_headers: Headers | None = None,
         extra_query: Query | None = None,
         extra_body: Body | None = None,
-        timeout: float | httpx.Timeout | None | NotGiven = NOT_GIVEN,
+        timeout: float | httpx.Timeout | None | NotGiven = not_given,
     ) -> UserDeleteResponse:
         """
         Delete user association with developer and the user itself by , assume external
@@ -502,7 +502,7 @@ class AsyncUserResource(AsyncAPIResource):
         extra_headers: Headers | None = None,
         extra_query: Query | None = None,
         extra_body: Body | None = None,
-        timeout: float | httpx.Timeout | None | NotGiven = NOT_GIVEN,
+        timeout: float | httpx.Timeout | None | NotGiven = not_given,
     ) -> UserCreateBatchResponse:
         """
         Create multiple users or link existing users to developer, and add each to the
@@ -535,7 +535,7 @@ class AsyncUserResource(AsyncAPIResource):
         extra_headers: Headers | None = None,
         extra_query: Query | None = None,
         extra_body: Body | None = None,
-        timeout: float | httpx.Timeout | None | NotGiven = NOT_GIVEN,
+        timeout: float | httpx.Timeout | None | NotGiven = not_given,
     ) -> UserResponse:
         """
         Get user details by user_id (\\__User.objectId) and developer association

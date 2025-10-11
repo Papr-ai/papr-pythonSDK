@@ -1,5 +1,24 @@
 # Changelog
 
+## 2.14.1 (2025-10-11)
+
+Full Changelog: [v2.14.0...v2.14.1](https://github.com/Papr-ai/papr-pythonSDK/compare/v2.14.0...v2.14.1)
+
+### Bug Fixes
+
+* **compat:** compat with `pydantic&lt;2.8.0` when using additional fields ([a8ce491](https://github.com/Papr-ai/papr-pythonSDK/commit/a8ce491375ac71e81243ea95116db88d968d20df))
+
+
+### Chores
+
+* do not install brew dependencies in ./scripts/bootstrap by default ([8933182](https://github.com/Papr-ai/papr-pythonSDK/commit/8933182759f18e3b007985e1054f3af66d8a0b4f))
+* improve example values ([4a251d9](https://github.com/Papr-ai/papr-pythonSDK/commit/4a251d91445218a65beda3f1850f90793be5fbfb))
+* **internal:** detect missing future annotations with ruff ([22c7240](https://github.com/Papr-ai/papr-pythonSDK/commit/22c7240a5f69127c14cfa279fe17f4df3c3fea5c))
+* **internal:** move mypy configurations to `pyproject.toml` file ([2919d5c](https://github.com/Papr-ai/papr-pythonSDK/commit/2919d5c0e5c5861b86d865fbafd63098cf6ad3ff))
+* **internal:** update pydantic dependency ([8bf7777](https://github.com/Papr-ai/papr-pythonSDK/commit/8bf7777e5ad4afaf74a8db90713efc28f1f88bf0))
+* **tests:** simplify `get_platform` test ([5e0cb1f](https://github.com/Papr-ai/papr-pythonSDK/commit/5e0cb1f4fc3c255682f672deb7cad924153880df))
+* **types:** change optional parameter type from NotGiven to Omit ([f5e71dc](https://github.com/Papr-ai/papr-pythonSDK/commit/f5e71dca2a1ee9ec7ea90f3f4b75eb7eaafd120d))
+
 ## 2.14.0 (2025-09-04)
 
 Full Changelog: [v2.13.0...v2.14.0](https://github.com/Papr-ai/papr-pythonSDK/compare/v2.13.0...v2.14.0)
