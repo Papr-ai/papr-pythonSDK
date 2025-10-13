@@ -678,11 +678,11 @@ class MemoryResource(SyncAPIResource):
                 logger.info("Using AMD HIP optimized model")
                 
             else:
-                # CPU or unknown - use original model
-                model_options = [
-                    'Qwen/Qwen3-Embedding-4B'  # Original model (best compatibility)
-                ]
-                logger.info("Using CPU/universal optimized model")
+                # CPU or unknown - fallback to API instead of slow CPU processing
+                logger.warning("No accelerator available (CPU only) - falling back to API processing")
+                logger.warning("Disabling ondevice processing to use API instead of slow CPU processing")
+                self._ondevice_processing_disabled = True
+                return None
             
             # Try each model option in order of preference
             for model_name in model_options:
@@ -712,24 +712,17 @@ class MemoryResource(SyncAPIResource):
                     logger.warning(f"Failed to load {model_name}: {e}")
                     # Try CPU fallback for CUDA errors
                     if device == "cuda" and "CUDA out of memory" in str(e):
-                        try:
-                            logger.info(f"Trying {model_name} on CPU due to CUDA memory issues...")
-                            model = SentenceTransformer(model_name, device="cpu")
-                            logger.info(f"Successfully loaded {model_name} on CPU")
-                            return model
-                        except Exception as cpu_e:
-                            logger.warning(f"CPU fallback also failed for {model_name}: {cpu_e}")
+                        logger.warning("CUDA out of memory - falling back to API processing instead of slow CPU")
+                        logger.warning("Disabling ondevice processing to use API instead of slow CPU processing")
+                        self._ondevice_processing_disabled = True
+                        return None
                     continue
             
-            # Final fallback - try a smaller model
-            logger.warning("All primary models failed, trying smaller fallback model...")
-            try:
-                fallback_model = SentenceTransformer('all-MiniLM-L6-v2', device='cpu')
-                logger.info("Loaded fallback model all-MiniLM-L6-v2 on CPU")
-                return fallback_model
-            except Exception as fallback_e:
-                logger.error(f"Even fallback model failed: {fallback_e}")
-                raise Exception("All model options failed")
+            # Final fallback - use API instead of slow CPU processing
+            logger.warning("All primary models failed - falling back to API processing instead of slow CPU")
+            logger.warning("Disabling ondevice processing to use API instead of slow CPU processing")
+            self._ondevice_processing_disabled = True
+            return None
             
         except Exception as e:
             logger.error(f"Error loading optimized quantized model: {e}")
@@ -1326,8 +1319,12 @@ class MemoryResource(SyncAPIResource):
             
             # Check if we have a valid collection with proper embedding function
             collection_needs_recreation = False
+            if hasattr(self, '_chroma_collection') and self._chroma_collection is not None and hasattr(self, '_collection_initialized') and self._collection_initialized:
+                # Collection is already validated and initialized
+                return
+            
+            # Check if the existing collection has the correct embedding function
             if hasattr(self, '_chroma_collection') and self._chroma_collection is not None:
-                # Check if the existing collection has the correct embedding function
                 embedding_function = getattr(self._chroma_collection, '_embedding_function', None)
                 if embedding_function is not None:
                     if hasattr(embedding_function, '__class__') and 'DefaultEmbeddingFunction' in str(embedding_function.__class__):
@@ -1353,76 +1350,102 @@ class MemoryResource(SyncAPIResource):
                     logger.warning("Existing collection has no embedding function (384 dims)")
                     collection_needs_recreation = True
             
-            if not hasattr(self, '_chroma_collection') or self._chroma_collection is None or collection_needs_recreation:
+            # Try to get existing collection first
+            if not hasattr(self, '_chroma_collection') or self._chroma_collection is None:
                 try:
-                    if collection_needs_recreation:
-                        logger.info("Collection needs recreation due to embedding function mismatch")
-                        # Delete the existing collection first
-                        try:
-                            self._chroma_client.delete_collection(name=collection_name)
-                            logger.info(f"Deleted existing collection: {collection_name}")
-                        except Exception as delete_e:
-                            logger.debug(f"No existing collection to delete: {delete_e}")
+                    logger.info("Trying to get existing collection...")
+                    self._chroma_collection = self._chroma_client.get_collection(name=collection_name)
+                    logger.info(f"Using existing ChromaDB collection: {collection_name}")
+                    
+                    # Validate the loaded collection's embedding function
+                    embedding_function = getattr(self._chroma_collection, '_embedding_function', None)
+                    if embedding_function is not None:
+                        if hasattr(embedding_function, '__class__') and 'DefaultEmbeddingFunction' in str(embedding_function.__class__):
+                            logger.warning("Loaded collection uses default embedding function (384 dims) - will recreate")
+                            collection_needs_recreation = True
+                        else:
+                            try:
+                                if hasattr(embedding_function, 'embed_documents'):
+                                    test_embedding = embedding_function.embed_documents(["test"])[0]
+                                    if len(test_embedding) != 2560:
+                                        logger.warning(f"Loaded collection has wrong embedding dimensions: {len(test_embedding)} (expected 2560) - will recreate")
+                                        collection_needs_recreation = True
+                                    else:
+                                        logger.info("Loaded collection has correct Qwen3-4B embedding function (2560 dims)")
+                                else:
+                                    logger.warning("Loaded collection has custom embedding function but missing embed_documents method - will recreate")
+                                    collection_needs_recreation = True
+                            except Exception as embed_test_e:
+                                logger.warning(f"Loaded collection embedding function test failed: {embed_test_e} - will recreate")
+                                collection_needs_recreation = True
                     else:
-                        logger.info("Trying to get existing collection...")
-                        self._chroma_collection = self._chroma_client.get_collection(name=collection_name)
-                        logger.info(f"Using existing ChromaDB collection: {collection_name}")
-                        # If we get here, the collection is good and we can skip creation
+                        logger.warning("Loaded collection has no embedding function (384 dims) - will recreate")
+                        collection_needs_recreation = True
+                    
+                    # If collection is valid, we can skip creation
+                    if not collection_needs_recreation:
+                        self._collection_initialized = True
                         return
+                        
                 except Exception as e:
                     logger.info(f"Collection doesn't exist or error getting collection: {e}")
-                    # Try to delete any existing collection with the same name first
+                    collection_needs_recreation = True
+            
+            # Create or recreate collection if needed
+            if collection_needs_recreation:
+                logger.info("Collection needs recreation due to embedding function mismatch")
+                # Delete the existing collection first
+                try:
+                    self._chroma_client.delete_collection(name=collection_name)
+                    logger.info(f"Deleted existing collection: {collection_name}")
+                except Exception as delete_e:
+                    logger.debug(f"No existing collection to delete: {delete_e}")
+                
+                # Create collection with consistent embedding function
+                logger.info("Creating collection with consistent embedding function...")
+                embedding_function = self._get_qwen_embedding_function()
+                logger.info(f"Qwen embedding function result: {embedding_function is not None}")
+                if embedding_function:
                     try:
-                        self._chroma_client.delete_collection(name=collection_name)
-                        logger.info(f"Deleted existing collection: {collection_name}")
-                    except Exception as delete_e:
-                        logger.debug(f"No existing collection to delete: {delete_e}")
-                    
-                    # Create collection with consistent embedding function
-                    logger.info("Creating collection with consistent embedding function...")
-                    embedding_function = self._get_qwen_embedding_function()
-                    logger.info(f"Qwen embedding function result: {embedding_function is not None}")
-                    if embedding_function:
-                        try:
-                            # Test the embedding function to ensure it works
-                            test_embedding = embedding_function.embed_documents(["test"])[0]
-                            logger.info(f"Embedding function test successful (dim: {len(test_embedding)})")
-                            
-                            self._chroma_collection = self._chroma_client.create_collection(
-                                name=collection_name,
-                                embedding_function=embedding_function,
-                                metadata={
-                                    "description": "Tier0 goals, OKRs, and use-cases from sync_tiers",
-                                    "embedding_model": "Qwen3-4B",
-                                    "embedding_dimensions": "2560"
-                                }
-                            )
-                            logger.info(f"Created new ChromaDB collection with Qwen3-4B embeddings: {collection_name}")
-                        except Exception as create_e:
-                            logger.error(f"Failed to create collection with embedding function: {create_e}")
-                            logger.info("Falling back to collection without embedding function...")
-                            self._chroma_collection = self._chroma_client.create_collection(
-                                name=collection_name,
-                                metadata={"description": "Tier0 goals, OKRs, and use-cases from sync_tiers"}
-                            )
-                            logger.info(f"Created new ChromaDB collection without embedding function: {collection_name}")
-                    else:
-                        # Fallback: create without custom embedding function
-                        logger.warning("Qwen3-4B embedding function not available, creating collection without custom embedding function...")
-                        logger.warning("This will result in a collection with DefaultEmbeddingFunction (384 dims) instead of Qwen3-4B (2560 dims)")
+                        # Test the embedding function to ensure it works
+                        test_embedding = embedding_function.embed_documents(["test"])[0]
+                        logger.info(f"Embedding function test successful (dim: {len(test_embedding)})")
+                        
+                        self._chroma_collection = self._chroma_client.create_collection(
+                            name=collection_name,
+                            embedding_function=embedding_function,
+                            metadata={
+                                "description": "Tier0 goals, OKRs, and use-cases from sync_tiers",
+                                "embedding_model": "Qwen3-4B",
+                                "embedding_dimensions": "2560"
+                            }
+                        )
+                        logger.info(f"Created new ChromaDB collection with Qwen3-4B embeddings: {collection_name}")
+                    except Exception as create_e:
+                        logger.error(f"Failed to create collection with embedding function: {create_e}")
+                        logger.info("Falling back to collection without embedding function...")
                         self._chroma_collection = self._chroma_client.create_collection(
                             name=collection_name,
                             metadata={"description": "Tier0 goals, OKRs, and use-cases from sync_tiers"}
                         )
-                        logger.info(f"Created new ChromaDB collection without custom embedding function: {collection_name}")
-                    
-                    # Verify collection was created successfully
-                    if self._chroma_collection is None:
-                        logger.error("Failed to create ChromaDB collection - collection is None")
-                        # Set to None to indicate failure
-                        self._chroma_collection = None
-                    else:
-                        logger.info(f"ChromaDB collection created successfully: {self._chroma_collection.name}")
+                        logger.info(f"Created new ChromaDB collection without embedding function: {collection_name}")
+                else:
+                    # Fallback: create without custom embedding function
+                    logger.warning("Qwen3-4B embedding function not available, creating collection without custom embedding function...")
+                    logger.warning("This will result in a collection with DefaultEmbeddingFunction (384 dims) instead of Qwen3-4B (2560 dims)")
+                    self._chroma_collection = self._chroma_client.create_collection(
+                        name=collection_name,
+                        metadata={"description": "Tier0 goals, OKRs, and use-cases from sync_tiers"}
+                    )
+                    logger.info(f"Created new ChromaDB collection without custom embedding function: {collection_name}")
+                
+                # Verify collection was created successfully
+                if self._chroma_collection is None:
+                    logger.error("Failed to create ChromaDB collection - collection is None")
+                    # Set to None to indicate failure
+                    self._chroma_collection = None
+                else:
+                    logger.info(f"ChromaDB collection created successfully: {self._chroma_collection.name}")
             
             collection = self._chroma_collection
             
@@ -1707,6 +1730,9 @@ class MemoryResource(SyncAPIResource):
             logger.error(f"Error storing tier0 data in ChromaDB: {e}")
             # Set _chroma_collection to None to indicate ChromaDB initialization failed
             self._chroma_collection = None
+        else:
+            # Mark collection as successfully initialized
+            self._collection_initialized = True
 
     def search(
         self,
@@ -1816,13 +1842,22 @@ class MemoryResource(SyncAPIResource):
         
         ondevice_processing = os.environ.get("PAPR_ONDEVICE_PROCESSING", "false").lower() in ("true", "1", "yes", "on")
         
+        # Check if ondevice processing was disabled due to CPU fallback
+        if hasattr(self, '_ondevice_processing_disabled') and self._ondevice_processing_disabled:
+            ondevice_processing = False
+            logger.info("Ondevice processing disabled due to CPU fallback - using API processing")
+        
         # Search tier0 data locally for context enhancement if enabled
         tier0_context = []
         # Debug logging
         logger.info(f"DEBUG: ondevice_processing={ondevice_processing}, hasattr={hasattr(self, '_chroma_collection')}, collection_not_none={getattr(self, '_chroma_collection', None) is not None}")
         
         if ondevice_processing and hasattr(self, '_chroma_collection') and self._chroma_collection is not None:
+            import time
+            start_time = time.time()
             tier0_context = self._search_tier0_locally(query, n_results=max_memories)
+            search_time = time.time() - start_time
+            logger.info(f"Local tier0 search completed in {search_time:.2f}s")
             if tier0_context:
                 logger.info(f"Using {len(tier0_context)} tier0 items for search context enhancement")
                 # Convert tier0_context (list of documents) to DataMemory objects
@@ -2534,13 +2569,22 @@ class AsyncMemoryResource(AsyncAPIResource):
         
         ondevice_processing = os.environ.get("PAPR_ONDEVICE_PROCESSING", "false").lower() in ("true", "1", "yes", "on")
         
+        # Check if ondevice processing was disabled due to CPU fallback
+        if hasattr(self, '_ondevice_processing_disabled') and self._ondevice_processing_disabled:
+            ondevice_processing = False
+            logger.info("Ondevice processing disabled due to CPU fallback - using API processing")
+        
         # Search tier0 data locally for context enhancement if enabled
         tier0_context = []
         # Debug logging
         logger.info(f"DEBUG: ondevice_processing={ondevice_processing}, hasattr={hasattr(self, '_chroma_collection')}, collection_not_none={getattr(self, '_chroma_collection', None) is not None}")
         
         if ondevice_processing and hasattr(self, '_chroma_collection') and self._chroma_collection is not None:
+            import time
+            start_time = time.time()
             tier0_context = self._search_tier0_locally(query, n_results=3)
+            search_time = time.time() - start_time
+            logger.info(f"Local tier0 search completed in {search_time:.2f}s")
             if tier0_context:
                 logger.info(f"Using {len(tier0_context)} tier0 items for search context enhancement")
         elif not ondevice_processing:
