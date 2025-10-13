@@ -125,6 +125,11 @@ class Papr(SyncAPIClient):
             try:
                 logger.info("Initializing sync_tiers and ChromaDB collection")
                 self.memory._process_sync_tiers_and_store()
+                
+                # Preload the embedding model to avoid loading overhead during search
+                logger.info("Preloading embedding model for faster search performance")
+                self.memory._preload_embedding_model()
+                
                 logger.info("Client initialization completed successfully")
             except Exception as e:
                 logger.warning(f"Failed to initialize sync_tiers during client setup: {e}")

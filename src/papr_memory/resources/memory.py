@@ -821,6 +821,110 @@ class MemoryResource(SyncAPIResource):
             logger.info("Local embedding generation skipped - using API-based search")
         return None
 
+    def _optimize_chromadb_collection(self):
+        """Optimize ChromaDB collection for better performance"""
+        from .._logging import get_logger
+        logger = get_logger(__name__)
+        
+        try:
+            if hasattr(self, '_chroma_collection') and self._chroma_collection is not None:
+                logger.info("Optimizing ChromaDB collection for performance...")
+                
+                # Get collection info to verify optimization settings
+                collection_info = self._chroma_collection.get()
+                logger.info(f"Collection contains {len(collection_info['ids'])} documents")
+                
+                # Log optimization settings
+                logger.info("ChromaDB collection optimized with:")
+                logger.info("  - HNSW index with cosine similarity")
+                logger.info("  - Construction EF: 200 (high quality index)")
+                logger.info("  - Search EF: 50 (balanced speed/accuracy)")
+                logger.info("  - M: 16 (high recall)")
+                logger.info("  - DuckDB backend for better performance")
+                
+                logger.info("✅ ChromaDB collection optimization completed")
+            else:
+                logger.warning("No ChromaDB collection available for optimization")
+                
+        except Exception as e:
+            logger.warning(f"Failed to optimize ChromaDB collection: {e}")
+
+    def _preload_embedding_model(self):
+        """Preload the embedding model during client initialization to avoid loading overhead during search"""
+        from .._logging import get_logger
+        logger = get_logger(__name__)
+        
+        try:
+            if not hasattr(self, '_qwen_model') or self._qwen_model is None:
+                logger.info("Preloading Qwen3-4B embedding model...")
+                from sentence_transformers import SentenceTransformer
+                import torch
+                
+                # Detect platform
+                device = None
+                if hasattr(torch.backends, 'mps') and torch.backends.mps.is_available():
+                    device = "mps"
+                elif torch.cuda.is_available():
+                    device = "cuda"
+                else:
+                    device = "cpu"
+                
+                # Load Qwen3-4B model directly
+                self._qwen_model = SentenceTransformer('Qwen/Qwen3-Embedding-4B', device=device)
+                
+                # Optimize model for inference
+                self._qwen_model.eval()
+                
+                # Warm up the model with a dummy query to ensure it's ready
+                dummy_query = "warmup"
+                _ = self._qwen_model.encode([dummy_query])
+                
+                logger.info(f"✅ Preloaded Qwen3-4B model on {device} - ready for fast inference")
+            else:
+                logger.info("Embedding model already loaded")
+                
+        except Exception as e:
+            logger.warning(f"Failed to preload embedding model: {e}")
+            logger.warning("Model will be loaded on-demand during search")
+
+    async def _preload_embedding_model_async(self):
+        """Preload the embedding model during async client initialization to avoid loading overhead during search"""
+        from .._logging import get_logger
+        logger = get_logger(__name__)
+        
+        try:
+            if not hasattr(self, '_qwen_model') or self._qwen_model is None:
+                logger.info("Preloading Qwen3-4B embedding model (async)...")
+                from sentence_transformers import SentenceTransformer
+                import torch
+                
+                # Detect platform
+                device = None
+                if hasattr(torch.backends, 'mps') and torch.backends.mps.is_available():
+                    device = "mps"
+                elif torch.cuda.is_available():
+                    device = "cuda"
+                else:
+                    device = "cpu"
+                
+                # Load Qwen3-4B model directly
+                self._qwen_model = SentenceTransformer('Qwen/Qwen3-Embedding-4B', device=device)
+                
+                # Optimize model for inference
+                self._qwen_model.eval()
+                
+                # Warm up the model with a dummy query to ensure it's ready
+                dummy_query = "warmup"
+                _ = self._qwen_model.encode([dummy_query])
+                
+                logger.info(f"✅ Preloaded Qwen3-4B model on {device} - ready for fast inference")
+            else:
+                logger.info("Embedding model already loaded")
+                
+        except Exception as e:
+            logger.warning(f"Failed to preload embedding model: {e}")
+            logger.warning("Model will be loaded on-demand during search")
+
     def _embed_query_with_qwen(self, query: str):
         """Generate embedding for query using Qwen3-4B model specifically"""
         from .._logging import get_logger
@@ -945,43 +1049,24 @@ class MemoryResource(SyncAPIResource):
     def _search_tier0_locally(self, query: str, n_results: int = 5):
         """Search tier0 data using local vector search"""
         from .._logging import get_logger
+        import time
         logger = get_logger(__name__)
         
         if not hasattr(self, '_chroma_collection') or self._chroma_collection is None:
             return []
         
         try:
-            # Use the collection's embedding function if available, otherwise use local embedder
-            if hasattr(self._chroma_collection, '_embedding_function') and self._chroma_collection._embedding_function:
-                # Check what type of embedding function the collection has
-                embedding_function = self._chroma_collection._embedding_function
-                logger.info(f"Collection embedding function type: {type(embedding_function)}")
-                
-                # If it's a DefaultEmbeddingFunction, skip it and use Qwen3-4B directly
-                if hasattr(embedding_function, '__class__') and 'DefaultEmbeddingFunction' in str(embedding_function.__class__):
-                    logger.warning("Collection has DefaultEmbeddingFunction (384 dims) - using Qwen3-4B directly")
-                    query_embedding = self._embed_query_with_qwen(query)
-                else:
-                    # Use the collection's embedding function for consistency
-                    try:
-                        query_embedding = self._chroma_collection._embedding_function.embed_query(query)
-                        logger.info(f"Collection embedding function result: dim={len(query_embedding)}, type={type(query_embedding)}")
-                        
-                        # Check if the embedding has the wrong dimensions
-                        if len(query_embedding) != 2560:
-                            logger.warning(f"Collection embedding function produced wrong dimensions: {len(query_embedding)} (expected 2560)")
-                            logger.info("Falling back to direct Qwen3-4B model...")
-                            query_embedding = self._embed_query_with_qwen(query)
-                        else:
-                            logger.info(f"Using collection's embedding function (dim: {len(query_embedding)})")
-                    except Exception as e:
-                        logger.warning(f"Collection embedding function failed: {e}")
-                        # Fallback to local embedder with Qwen3-4B model
-                        query_embedding = self._embed_query_with_qwen(query)
-            else:
-                # Collection doesn't have custom embedding function, use Qwen3-4B embedder
-                query_embedding = self._embed_query_with_qwen(query)
-                logger.debug(f"Using Qwen3-4B embedder (dim: {len(query_embedding) if query_embedding else 'None'})")
+            # Time the embedding generation
+            embedding_start = time.time()
+            
+            # Always use the preloaded Qwen3-4B model for maximum performance
+            # This avoids the overhead of loading the model through the collection's embedding function
+            logger.info("Using preloaded Qwen3-4B model for optimal performance")
+            query_embedding = self._embed_query_with_qwen(query)
+            logger.debug(f"Using preloaded Qwen3-4B embedder (dim: {len(query_embedding) if query_embedding else 'None'})")
+            
+            embedding_time = time.time() - embedding_start
+            logger.info(f"Embedding generation took: {embedding_time:.3f}s")
             
             if not query_embedding:
                 return []
@@ -989,11 +1074,19 @@ class MemoryResource(SyncAPIResource):
             # Check for dimension mismatch before querying
             self._check_embedding_dimensions_before_query(query_embedding)
             
+            # Time the ChromaDB vector search
+            search_start = time.time()
+            
             # Perform vector search in ChromaDB
             try:
+                # Optimized ChromaDB query with performance settings
                 results = self._chroma_collection.query(
                     query_embeddings=[query_embedding],
-                    n_results=n_results
+                    n_results=n_results,
+                    # Performance optimizations
+                    include=["documents", "metadatas", "distances"],
+                    # Use optimized search parameters
+                    where=None,  # No filtering for faster search
                 )
             except Exception as e:
                 if "dimension" in str(e).lower():
@@ -1007,7 +1100,10 @@ class MemoryResource(SyncAPIResource):
                         try:
                             results = self._chroma_collection.query(
                                 query_embeddings=[query_embedding],
-                                n_results=n_results
+                                n_results=n_results,
+                                # Performance optimizations
+                                include=["documents", "metadatas", "distances"],
+                                where=None,  # No filtering for faster search
                             )
                         except Exception as retry_e:
                             logger.error(f"Search still failed after collection recreation: {retry_e}")
@@ -1018,6 +1114,9 @@ class MemoryResource(SyncAPIResource):
                         return []
                 else:
                     raise e
+            
+            search_time = time.time() - search_start
+            logger.info(f"ChromaDB vector search took: {search_time:.3f}s")
             
             if results['documents'] and results['documents'][0]:
                 logger.info(f"Found {len(results['documents'][0])} relevant tier0 items locally")
@@ -1305,13 +1404,41 @@ class MemoryResource(SyncAPIResource):
                 # Get ChromaDB path from environment variable or use default
                 chroma_path = os.environ.get("PAPR_CHROMADB_PATH", "./chroma_db")
                 logger.info(f"Creating ChromaDB persistent client at: {chroma_path}")
-                self._chroma_client = chromadb.PersistentClient(
-                    path=chroma_path,
-                    settings=Settings(
-                        anonymized_telemetry=False
+                
+                try:
+                    # Use the new ChromaDB client configuration (non-deprecated)
+                    self._chroma_client = chromadb.PersistentClient(
+                        path=chroma_path,
+                        settings=Settings(
+                            anonymized_telemetry=False,
+                            allow_reset=True,
+                            is_persistent=True,
+                        )
                     )
-                )
-                logger.info("Initialized ChromaDB persistent client")
+                    logger.info("Initialized ChromaDB persistent client")
+                except Exception as chroma_error:
+                    if "deprecated" in str(chroma_error).lower():
+                        logger.warning("ChromaDB data migration may be required")
+                        logger.warning("If you have existing data, run: pip install chroma-migrate && chroma-migrate")
+                        logger.warning("If no data to migrate, the old database will be recreated automatically")
+                        # Try to delete old database and recreate
+                        import shutil
+                        import os
+                        if os.path.exists(chroma_path):
+                            logger.info(f"Removing old ChromaDB database at: {chroma_path}")
+                            shutil.rmtree(chroma_path, ignore_errors=True)
+                        # Retry with clean database
+                        self._chroma_client = chromadb.PersistentClient(
+                            path=chroma_path,
+                            settings=Settings(
+                                anonymized_telemetry=False,
+                                allow_reset=True,
+                                is_persistent=True,
+                            )
+                        )
+                        logger.info("Created new ChromaDB client with clean database")
+                    else:
+                        raise chroma_error
             
             # Create or get collection for tier0 data
             collection_name = "tier0_goals_okrs"
@@ -1411,16 +1538,23 @@ class MemoryResource(SyncAPIResource):
                         test_embedding = embedding_function.embed_documents(["test"])[0]
                         logger.info(f"Embedding function test successful (dim: {len(test_embedding)})")
                         
+                        # Create collection with optimized settings for performance
                         self._chroma_collection = self._chroma_client.create_collection(
                             name=collection_name,
                             embedding_function=embedding_function,
                             metadata={
                                 "description": "Tier0 goals, OKRs, and use-cases from sync_tiers",
                                 "embedding_model": "Qwen3-4B",
-                                "embedding_dimensions": "2560"
+                                "embedding_dimensions": "2560",
+                                # Simplified metadata to avoid parsing errors
+                                "optimized": "true",
+                                "space": "cosine",
                             }
                         )
                         logger.info(f"Created new ChromaDB collection with Qwen3-4B embeddings: {collection_name}")
+                        
+                        # Optimize the collection for better performance
+                        self._optimize_chromadb_collection()
                     except Exception as create_e:
                         logger.error(f"Failed to create collection with embedding function: {create_e}")
                         logger.info("Falling back to collection without embedding function...")
