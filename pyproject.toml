@@ -90,7 +90,7 @@ format = { chain = [
   "typecheck",
   "check:importable",
 ]}
-"check:ruff" = "ruff check ."
+"check:ruff" = "ruff check src/ tests/"
 "fix:ruff" = "ruff check --fix ."
 
 "check:importable" = "python -c 'import papr_memory'"

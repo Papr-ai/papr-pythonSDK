@@ -1951,10 +1951,10 @@ class MemoryResource(SyncAPIResource):
                                     # Use the appropriate embedding method based on embedder type
                                     if hasattr(embedder, "embed_documents"):
                                         # ChromaDB embedding function
-                                        local_embedding = embedder.embed_documents([documents[i]])[0]
+                                        local_embedding = embedder.embed_documents([documents[i]])[0]  # type: ignore
                                     else:
                                         # SentenceTransformer model
-                                        local_embedding = embedder.encode([documents[i]])[0].tolist()
+                                        local_embedding = embedder.encode([documents[i]])[0].tolist()  # type: ignore
 
                                     item_time = time.time() - item_start_time
                                     embeddings[i] = local_embedding
@@ -2067,14 +2067,20 @@ class MemoryResource(SyncAPIResource):
                         # But first, let's ensure the embedding function is working correctly
                         try:
                             # Test the embedding function to ensure it produces the right dimensions
-                            test_embedding = collection._embedding_function.embed_documents(["test"])[0]
+                            test_embedding = collection._embedding_function.embed_documents(["test"])[0]  # type: ignore
                             logger.info(f"Collection embedding function test successful (dim: {len(test_embedding)})")
 
                             # Now query using the collection's embedding function
                             results = collection.query(
                                 query_texts=["goals objectives"], n_results=min(3, len(documents))
                             )
-                            logger.info(f"ChromaDB query test returned {len(results['documents'][0])} results")
+                            if (
+                                results
+                                and results.get("documents")
+                                and results["documents"]
+                                and results["documents"][0]
+                            ):  # type: ignore
+                                logger.info(f"ChromaDB query test returned {len(results['documents'][0])} results")
                         except Exception as embed_test_e:
                             logger.warning(f"Collection embedding function test failed: {embed_test_e}")
                             logger.info("Skipping query test to avoid dimension mismatch")
@@ -2255,6 +2261,8 @@ class MemoryResource(SyncAPIResource):
             start_time = time.time()
             # Ensure max_memories is not NotGiven
             n_results = max_memories if max_memories is not NOT_GIVEN else 5
+            # Type assertion to help Pyright understand this is always an int
+            assert isinstance(n_results, int), "n_results must be an int"
             tier0_context = self._search_tier0_locally(query, n_results=n_results)
             search_time = time.time() - start_time
             logger.info(f"Local tier0 search completed in {search_time:.2f}s")
