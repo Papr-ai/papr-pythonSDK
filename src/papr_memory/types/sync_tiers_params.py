@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from typing import Optional
-from .._types import NOT_GIVEN, NotGiven
+
 from .._models import BaseModel
 
 __all__ = ["SyncTiersParams"]

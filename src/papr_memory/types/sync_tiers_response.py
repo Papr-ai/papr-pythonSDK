@@ -1,8 +1,6 @@
 # File generated from our OpenAPI spec by Stainless. See CONTRIBUTING.md for details.
 
-from typing import TYPE_CHECKING, Dict, List, Union, Optional, Any
-from datetime import datetime
-from typing_extensions import Literal, TypeAlias
+from typing import Any, Dict, List, Optional
 
 from pydantic import Field as FieldInfo, ConfigDict
 
@@ -15,36 +13,16 @@ __all__ = [
 
 class SyncTiersResponse(BaseModel):
     """Response model for sync tiers endpoint"""
+
     code: int = FieldInfo(default=200, description="HTTP status code")
     status: str = FieldInfo(default="success", description="'success' or 'error'")
-    tier0: List[Dict[str, Any]] = FieldInfo(
-        default_factory=list, 
-        description="Tier 0 items (goals/OKRs/use-cases)"
-    )
-    tier1: List[Dict[str, Any]] = FieldInfo(
-        default_factory=list, 
-        description="Tier 1 items (hot memories)"
-    )
-    transitions: List[Dict[str, Any]] = FieldInfo(
-        default_factory=list, 
-        description="Transition items between tiers"
-    )
-    next_cursor: Optional[str] = FieldInfo(
-        default=None, 
-        description="Cursor for pagination"
-    )
-    has_more: bool = FieldInfo(
-        default=False, 
-        description="Whether there are more items available"
-    )
-    error: Optional[str] = FieldInfo(
-        default=None, 
-        description="Error message if failed"
-    )
-    details: Optional[Any] = FieldInfo(
-        default=None, 
-        description="Additional error details or context"
-    )
+    tier0: List[Dict[str, Any]] = FieldInfo(default_factory=list, description="Tier 0 items (goals/OKRs/use-cases)")
+    tier1: List[Dict[str, Any]] = FieldInfo(default_factory=list, description="Tier 1 items (hot memories)")
+    transitions: List[Dict[str, Any]] = FieldInfo(default_factory=list, description="Transition items between tiers")
+    next_cursor: Optional[str] = FieldInfo(default=None, description="Cursor for pagination")
+    has_more: bool = FieldInfo(default=False, description="Whether there are more items available")
+    error: Optional[str] = FieldInfo(default=None, description="Error message if failed")
+    details: Optional[Any] = FieldInfo(default=None, description="Additional error details or context")
 
     model_config = ConfigDict(
         json_schema_extra={
@@ -57,7 +35,7 @@ class SyncTiersResponse(BaseModel):
                         "content": "Improve API performance",
                         "type": "goal",
                         "topics": ["performance", "api"],
-                        "metadata": {"sourceType": "papr", "class": "goal"}
+                        "metadata": {"sourceType": "papr", "class": "goal"},
                     }
                 ],
                 "tier1": [
@@ -66,14 +44,14 @@ class SyncTiersResponse(BaseModel):
                         "content": "Customer complained about slow API response times",
                         "type": "text",
                         "topics": ["customer", "api", "performance"],
-                        "metadata": {"sourceType": "papr"}
+                        "metadata": {"sourceType": "papr"},
                     }
                 ],
                 "transitions": [],
                 "next_cursor": None,
                 "has_more": False,
                 "error": None,
-                "details": None
+                "details": None,
             }
         }
     )
@@ -89,7 +67,7 @@ class SyncTiersResponse(BaseModel):
             next_cursor=kwargs.get("next_cursor"),
             has_more=kwargs.get("has_more", False),
             error=None,
-            details=None
+            details=None,
         )
 
     @classmethod
@@ -103,5 +81,5 @@ class SyncTiersResponse(BaseModel):
             next_cursor=None,
             has_more=False,
             error=error,
-            details=details
+            details=details,
         )
