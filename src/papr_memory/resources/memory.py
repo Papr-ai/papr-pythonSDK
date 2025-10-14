@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 import warnings
-from typing import Iterable, Optional
+from typing import Iterable, Optional, cast
 
 # Suppress deprecation warning from sentence_transformers
 warnings.filterwarnings("ignore", message=".*_target_device.*deprecated.*", category=UserWarning)
@@ -640,14 +640,14 @@ class MemoryResource(SyncAPIResource):
                     # Check for old Intel CPUs (pre-10th gen or < 4 cores)
                     if "Intel" in cpu_info:
                         cpu_count = psutil.cpu_count(logical=False)
-                        if cpu_count < 4:
+                        if cpu_count is not None and cpu_count < 4:
                             logger.info("Detected old Intel CPU with < 4 cores - using API instead of local processing")
                             return True
 
                     # Check for old AMD CPUs
                     elif "AMD" in cpu_info:
                         cpu_count = psutil.cpu_count(logical=False)
-                        if cpu_count < 4:
+                        if cpu_count is not None and cpu_count < 4:
                             logger.info("Detected old AMD CPU with < 4 cores - using API instead of local processing")
                             return True
                 except Exception:
@@ -798,7 +798,11 @@ class MemoryResource(SyncAPIResource):
                     device_name = "Apple Metal Performance Shaders (MPS) - includes Neural Engine NPU"
 
             # 2. Check for Intel NPU (Intel Arc with NPU)
-            elif hasattr(torch.backends, "xpu") and torch.backends.xpu.is_available():
+            elif (
+                hasattr(torch.backends, "xpu")
+                and getattr(torch.backends, "xpu", None)
+                and getattr(torch.backends.xpu, "is_available", lambda: False)()
+            ):
                 device = "xpu"  # Intel GPU (Arc, Xe) - may include NPU
                 device_name = "Intel XPU (Arc/Xe with potential NPU)"
 
@@ -806,7 +810,11 @@ class MemoryResource(SyncAPIResource):
             elif torch.cuda.is_available():
                 device = "cuda"
                 device_name = "NVIDIA CUDA GPU"
-            elif hasattr(torch.backends, "hip") and torch.backends.hip.is_available():
+            elif (
+                hasattr(torch.backends, "hip")
+                and getattr(torch.backends, "hip", None)
+                and getattr(torch.backends.hip, "is_available", lambda: False)()
+            ):
                 device = "hip"  # AMD GPU (ROCm)
                 device_name = "AMD HIP/ROCm GPU"
 
@@ -1145,12 +1153,20 @@ class MemoryResource(SyncAPIResource):
             if hasattr(torch.backends, "mps") and torch.backends.mps.is_available():
                 device = "mps"  # Apple Silicon (includes NPU via MPS)
             # 2. Check for Intel NPU (Intel Arc with NPU)
-            elif hasattr(torch.backends, "xpu") and torch.backends.xpu.is_available():
+            elif (
+                hasattr(torch.backends, "xpu")
+                and getattr(torch.backends, "xpu", None)
+                and getattr(torch.backends.xpu, "is_available", lambda: False)()
+            ):
                 device = "xpu"  # Intel GPU (Arc, Xe) - may include NPU
             # 3. Fallback to traditional GPUs
             elif torch.cuda.is_available():
                 device = "cuda"
-            elif hasattr(torch.backends, "hip") and torch.backends.hip.is_available():
+            elif (
+                hasattr(torch.backends, "hip")
+                and getattr(torch.backends, "hip", None)
+                and getattr(torch.backends.hip, "is_available", lambda: False)()
+            ):
                 device = "hip"  # AMD GPU (ROCm)
             # 4. Final fallback to CPU
             if device is None:
@@ -1319,9 +1335,12 @@ class MemoryResource(SyncAPIResource):
             # Create new collection with Qwen3-4B embedding function
             embedding_function = self._get_qwen_embedding_function()
             if embedding_function:
+                # Cast to Any to satisfy ChromaDB's EmbeddingFunction protocol
+                from typing import Any
+
                 self._chroma_collection = self._chroma_client.create_collection(
                     name=collection_name,
-                    embedding_function=embedding_function,
+                    embedding_function=cast(Any, embedding_function),
                     metadata={"description": "Tier0 goals, OKRs, and use-cases from sync_tiers"},
                 )
                 logger.info(f"Recreated collection with Qwen3-4B embeddings: {collection_name}")
@@ -1417,9 +1436,12 @@ class MemoryResource(SyncAPIResource):
                             logger.info(f"Embedding function created: {embedding_function is not None}")
                             if embedding_function:
                                 try:
+                                    # Cast to Any to satisfy ChromaDB's EmbeddingFunction protocol
+                                    from typing import Any
+
                                     self._chroma_collection = self._chroma_client.create_collection(
                                         name=collection_name,
-                                        embedding_function=embedding_function,
+                                        embedding_function=cast(Any, embedding_function),
                                         metadata={"description": "Tier0 goals, OKRs, and use-cases from sync_tiers"},
                                     )
                                     logger.info(f"Recreated collection with Qwen3-4B embeddings: {collection_name}")
@@ -1756,9 +1778,12 @@ class MemoryResource(SyncAPIResource):
                         logger.info(f"Embedding function test successful (dim: {len(test_embedding)})")
 
                         # Create collection with optimized settings for performance
+                        # Cast to Any to satisfy ChromaDB's EmbeddingFunction protocol
+                        from typing import Any
+
                         self._chroma_collection = self._chroma_client.create_collection(
                             name=collection_name,
-                            embedding_function=embedding_function,
+                            embedding_function=cast(Any, embedding_function),
                             metadata={
                                 "description": "Tier0 goals, OKRs, and use-cases from sync_tiers",
                                 "embedding_model": "Qwen3-4B",
