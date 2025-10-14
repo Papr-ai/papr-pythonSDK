@@ -866,7 +866,7 @@ class MemoryResource(SyncAPIResource):
                 embedding = getattr(embedder, 'encode', lambda _: None)([query])[0].tolist()  # type: ignore
                 generation_time = time.time() - start_time
                 logger.info(f"Generated local query embedding (dim: {len(embedding)}) in {generation_time:.2f}s")
-                return embedding
+                return embedding  # type: ignore
             except Exception as e:
                 logger.error(f"Error generating local embedding: {e}")
         else:
@@ -1141,7 +1141,7 @@ class MemoryResource(SyncAPIResource):
             embedding = raw_embedding.tolist()
             generation_time = time.time() - start_time
             logger.info(f"Generated Qwen3-4B query embedding (dim: {len(embedding)}) in {generation_time:.2f}s")
-            return embedding
+            return embedding  # type: ignore
 
         except Exception as e:
             logger.error(f"Error generating Qwen3-4B embedding: {e}")
@@ -1316,7 +1316,7 @@ class MemoryResource(SyncAPIResource):
 
             if results["documents"] and results["documents"][0]:
                 logger.info(f"Found {len(results['documents'][0])} relevant tier0 items locally")
-                return results["documents"][0]
+                return results["documents"][0]  # type: ignore
             else:
                 logger.info("No relevant tier0 items found locally")
                 return []
@@ -1407,7 +1407,7 @@ class MemoryResource(SyncAPIResource):
         except Exception as e:
             logger.debug(f"Error checking embedding dimensions: {e}")
 
-    def _check_and_fix_embedding_dimensions(self, collection: object, tier0_data: list) -> None:
+    def _check_and_fix_embedding_dimensions(self, collection: object, tier0_data: list[dict]) -> None:
         """Check for embedding dimension mismatches and fix by recreating collection if needed"""
         from .._logging import get_logger
 
@@ -1493,7 +1493,7 @@ class MemoryResource(SyncAPIResource):
         except Exception as e:
             logger.error(f"Error checking embedding dimensions: {e}")
 
-    def _compare_tier0_data(self, collection: object, _tier0_data: list, documents: list, metadatas: list, ids: list) -> dict:
+    def _compare_tier0_data(self, collection: object, _tier0_data: list[dict], documents: list[str], metadatas: list[dict], ids: list[str]) -> dict[str, any]:  # type: ignore
         """Compare new tier0 data with existing data to detect changes"""
         from .._logging import get_logger
 
@@ -1610,7 +1610,7 @@ class MemoryResource(SyncAPIResource):
                 "unchanged_count": 0,
             }
 
-    def _store_tier0_in_chromadb(self, tier0_data: list) -> None:
+    def _store_tier0_in_chromadb(self, tier0_data: list[dict]) -> None:
         """Store tier0 data in ChromaDB with duplicate prevention"""
         import os
 
@@ -2254,7 +2254,7 @@ class MemoryResource(SyncAPIResource):
             logger.info("Ondevice processing disabled due to CPU fallback - using API processing")
 
         # Search tier0 data locally for context enhancement if enabled
-        tier0_context = []
+            tier0_context: list[str] = []
         # Debug logging
         logger.info(
             f"DEBUG: ondevice_processing={ondevice_processing}, hasattr={hasattr(self, '_chroma_collection')}, collection_not_none={getattr(self, '_chroma_collection', None) is not None}"
@@ -2268,7 +2268,7 @@ class MemoryResource(SyncAPIResource):
             n_results = max_memories if max_memories is not NOT_GIVEN else 5
             # Type assertion to help Pyright understand this is always an int
             assert isinstance(n_results, int), "n_results must be an int"
-            tier0_context = self._search_tier0_locally(query, n_results=n_results)
+            tier0_context = self._search_tier0_locally(query, n_results=n_results) or []
             search_time = time.time() - start_time
             logger.info(f"Local tier0 search completed in {search_time:.2f}s")
             if tier0_context:
