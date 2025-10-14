@@ -1,0 +1,22 @@
+{
+  "$schema": "https://raw.githubusercontent.com/microsoft/pyright/main/packages/vscode-pyright/schemas/pyrightconfig.schema.json",
+  "typeCheckingMode": "basic",
+  "defineConstant": {
+    "PYDANTIC_V1": false
+  },
+  "exclude": [
+    "**/.venv",
+    "**/.env",
+    "**/node_modules",
+    "**/tests/**",
+    "**/test_*.py",
+    "**/debug_*.py",
+    "**/simple_*.py",
+    "**/fix_*.py",
+    "**/example_*.py",
+    "**/noxfile.py",
+    "**/setup.py"
+  ]
+}
+
+
