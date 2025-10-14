@@ -2280,7 +2280,7 @@ class MemoryResource(SyncAPIResource):
                 for i, content in enumerate(tier0_context):
                     try:
                         # Try creating DataMemory with explicit pydantic_extra__
-                        memory_data = {
+                        memory_data: dict[str, any] = {  # type: ignore
                             "id": f"tier0_{i}",
                             "acl": {},
                             "content": content,
@@ -2288,7 +2288,7 @@ class MemoryResource(SyncAPIResource):
                             "user_id": "local",
                             "pydantic_extra__": {},
                         }
-                        memories.append(DataMemory(**memory_data))
+                        memories.append(DataMemory(**memory_data))  # type: ignore
                     except Exception as e:
                         logger.warning(f"Failed to create DataMemory for item {i}: {e}")
                         # Fallback: create a minimal memory object
