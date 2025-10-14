@@ -2,37 +2,35 @@
 Logging utilities for the Papr Memory SDK.
 """
 
-import logging
 import os
+import logging
 from typing import Optional
 
 
 def get_logger(name: str) -> logging.Logger:
     """Get a logger with appropriate configuration."""
     logger = logging.getLogger(name)
-    
+
     # Set log level based on environment variable
     log_level = os.environ.get("PAPR_LOG_LEVEL", "INFO").upper()
     logger.setLevel(getattr(logging, log_level, logging.INFO))
-    
+
     # Only add handler if not already configured
     if not logger.handlers:
         # Check if file logging is enabled
         log_file = os.environ.get("PAPR_LOG_FILE")
-        
+
         if log_file:
             # Create file handler
             handler = logging.FileHandler(log_file)
         else:
             # Create console handler
             handler = logging.StreamHandler()
-        
-        formatter = logging.Formatter(
-            '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
-        )
+
+        formatter = logging.Formatter("%(asctime)s - %(name)s - %(levelname)s - %(message)s")
         handler.setFormatter(formatter)
         logger.addHandler(handler)
-    
+
     return logger
 
 
