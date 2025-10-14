@@ -801,7 +801,8 @@ class MemoryResource(SyncAPIResource):
             elif (
                 hasattr(torch.backends, "xpu")
                 and getattr(torch.backends, "xpu", None)
-                and getattr(torch.backends.xpu, "is_available", lambda: False)()
+                and hasattr(getattr(torch.backends, "xpu", None), "is_available")
+                and getattr(torch.backends, "xpu", None).is_available()  # type: ignore
             ):
                 device = "xpu"  # Intel GPU (Arc, Xe) - may include NPU
                 device_name = "Intel XPU (Arc/Xe with potential NPU)"
@@ -813,7 +814,8 @@ class MemoryResource(SyncAPIResource):
             elif (
                 hasattr(torch.backends, "hip")
                 and getattr(torch.backends, "hip", None)
-                and getattr(torch.backends.hip, "is_available", lambda: False)()
+                and hasattr(getattr(torch.backends, "hip", None), "is_available")
+                and getattr(torch.backends, "hip", None).is_available()  # type: ignore
             ):
                 device = "hip"  # AMD GPU (ROCm)
                 device_name = "AMD HIP/ROCm GPU"
@@ -821,6 +823,10 @@ class MemoryResource(SyncAPIResource):
             # 4. Final fallback to CPU
             if device is None:
                 device = "cpu"
+                device_name = "CPU"
+
+            # Ensure device_name is never None
+            if device_name is None:
                 device_name = "CPU"
 
             logger.info(f"Using {device_name} for embeddings")
@@ -1156,7 +1162,8 @@ class MemoryResource(SyncAPIResource):
             elif (
                 hasattr(torch.backends, "xpu")
                 and getattr(torch.backends, "xpu", None)
-                and getattr(torch.backends.xpu, "is_available", lambda: False)()
+                and hasattr(getattr(torch.backends, "xpu", None), "is_available")
+                and getattr(torch.backends, "xpu", None).is_available()  # type: ignore
             ):
                 device = "xpu"  # Intel GPU (Arc, Xe) - may include NPU
             # 3. Fallback to traditional GPUs
@@ -1165,7 +1172,8 @@ class MemoryResource(SyncAPIResource):
             elif (
                 hasattr(torch.backends, "hip")
                 and getattr(torch.backends, "hip", None)
-                and getattr(torch.backends.hip, "is_available", lambda: False)()
+                and hasattr(getattr(torch.backends, "hip", None), "is_available")
+                and getattr(torch.backends, "hip", None).is_available()  # type: ignore
             ):
                 device = "hip"  # AMD GPU (ROCm)
             # 4. Final fallback to CPU
@@ -2245,7 +2253,9 @@ class MemoryResource(SyncAPIResource):
             import time
 
             start_time = time.time()
-            tier0_context = self._search_tier0_locally(query, n_results=max_memories)
+            # Ensure max_memories is not NotGiven
+            n_results = max_memories if max_memories is not NOT_GIVEN else 5
+            tier0_context = self._search_tier0_locally(query, n_results=n_results)
             search_time = time.time() - start_time
             logger.info(f"Local tier0 search completed in {search_time:.2f}s")
             if tier0_context:
