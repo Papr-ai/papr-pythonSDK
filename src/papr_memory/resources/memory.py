@@ -582,7 +582,8 @@ class MemoryResource(SyncAPIResource):
                 # Store tier0 data in ChromaDB
                 if tier0_data:
                     logger.info(f"Using {len(tier0_data)} tier0 items for search enhancement")
-                    self._store_tier0_in_chromadb(tier0_data)
+                    # Note: AsyncMemoryResource does not support ChromaDB storage
+                    logger.info("Async version does not support local storage")
                 else:
                     logger.info("No tier0 data found in sync response")
 
@@ -2869,7 +2870,8 @@ class AsyncMemoryResource(AsyncAPIResource):
                 # Store tier0 data in ChromaDB
                 if tier0_data:
                     logger.info(f"Using {len(tier0_data)} tier0 items for search enhancement")
-                    self._store_tier0_in_chromadb(tier0_data)
+                    # Note: AsyncMemoryResource does not support ChromaDB storage
+                    logger.info("Async version does not support local storage")
                 else:
                     logger.info("No tier0 data found in sync response")
 
@@ -2977,40 +2979,8 @@ class AsyncMemoryResource(AsyncAPIResource):
 
           timeout: Override the client-level default timeout for this request, in seconds
         """
-        # Check if on-device processing is enabled
-        import os
-
-        from .._logging import get_logger
-
-        logger = get_logger(__name__)
-
-        ondevice_processing = os.environ.get("PAPR_ONDEVICE_PROCESSING", "false").lower() in ("true", "1", "yes", "on")
-
-        # Check if ondevice processing was disabled due to CPU fallback
-        if hasattr(self, "_ondevice_processing_disabled") and self._ondevice_processing_disabled:
-            ondevice_processing = False
-            logger.info("Ondevice processing disabled due to CPU fallback - using API processing")
-
-        # Search tier0 data locally for context enhancement if enabled
-        tier0_context = []
-        # Debug logging
-        logger.info(
-            f"DEBUG: ondevice_processing={ondevice_processing}, hasattr={hasattr(self, '_chroma_collection')}, collection_not_none={getattr(self, '_chroma_collection', None) is not None}"
-        )
-
-        if ondevice_processing and hasattr(self, "_chroma_collection") and self._chroma_collection is not None:
-            import time
-
-            start_time = time.time()
-            tier0_context = self._search_tier0_locally(query, n_results=3)
-            search_time = time.time() - start_time
-            logger.info(f"Local tier0 search completed in {search_time:.2f}s")
-            if tier0_context:
-                logger.info(f"Using {len(tier0_context)} tier0 items for search context enhancement")
-        elif not ondevice_processing:
-            logger.info("On-device processing disabled - using API-only search")
-        else:
-            logger.info("No ChromaDB collection available for local search")
+        # Note: AsyncMemoryResource does not support ondevice processing
+        # Ondevice processing is only available in the synchronous MemoryResource
 
         # Perform the main search
         extra_headers = {**strip_not_given({"Accept-Encoding": accept_encoding}), **(extra_headers or {})}
@@ -3025,7 +2995,7 @@ class AsyncMemoryResource(AsyncAPIResource):
                     "rank_results": rank_results,
                     "user_id": user_id,
                 },
-                SyncTiersParams,
+                memory_search_params.MemorySearchParams,
             ),
             options=make_request_options(
                 extra_headers=extra_headers,
@@ -3037,10 +3007,10 @@ class AsyncMemoryResource(AsyncAPIResource):
                         "max_memories": max_memories,
                         "max_nodes": max_nodes,
                     },
-                    SyncTiersParams,
+                    memory_search_params.MemorySearchParams,
                 ),
             ),
-            cast_to=SyncTiersResponse,
+            cast_to=SearchResponse,
         )
 
 
