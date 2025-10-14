@@ -57,7 +57,7 @@ class SyncTiersResponse(BaseModel):
     )
 
     @classmethod
-    def success(cls, tier0: List[Dict[str, Any]], tier1: List[Dict[str, Any]], **kwargs):
+    def success(cls, tier0: List[Dict[str, Any]], tier1: List[Dict[str, Any]], **kwargs) -> "SyncTiersResponse":
         return cls(
             code=200,
             status="success",
@@ -71,7 +71,7 @@ class SyncTiersResponse(BaseModel):
         )
 
     @classmethod
-    def failure(cls, error: str, code: int = 500, details: Any = None):
+    def failure(cls, error: str, code: int = 500, details: Any = None) -> "SyncTiersResponse":
         return cls(
             code=code,
             status="error",

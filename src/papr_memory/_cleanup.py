@@ -11,10 +11,10 @@ from pathlib import Path
 
 
 # Register cleanup on module import (for uninstall scenarios)
-def _register_uninstall_cleanup():
+def _register_uninstall_cleanup() -> None:
     """Register cleanup function to run on Python exit"""
 
-    def _cleanup_on_exit():
+    def _cleanup_on_exit() -> None:
         # Only run if this is an uninstall scenario
         if os.environ.get("PAPR_UNINSTALL_CLEANUP", "false").lower() in ("true", "1", "yes", "on"):
             cleanup_chromadb()
@@ -26,17 +26,17 @@ def _register_uninstall_cleanup():
 _register_uninstall_cleanup()
 
 
-def cleanup_chromadb():
+def cleanup_chromadb() -> bool:
     """Clean up ChromaDB data directory"""
     print("🧹 Cleaning up Papr ChromaDB data...")
 
     # Get ChromaDB path from environment or use default
     chroma_path = os.environ.get("PAPR_CHROMADB_PATH", "./chroma_db")
-    chroma_path = Path(chroma_path).resolve()
+    chroma_path_obj = Path(chroma_path).resolve()
 
-    if chroma_path.exists():
+    if chroma_path_obj.exists():
         try:
-            shutil.rmtree(chroma_path)
+            shutil.rmtree(chroma_path_obj)
             print(f"✅ Removed ChromaDB data directory: {chroma_path}")
         except Exception as e:
             print(f"❌ Failed to remove ChromaDB directory: {e}")
@@ -48,7 +48,7 @@ def cleanup_chromadb():
     return True
 
 
-def cleanup_all_papr_data():
+def cleanup_all_papr_data() -> bool:
     """Clean up all Papr-related data"""
     print("🧹 Cleaning up all Papr data...")
 

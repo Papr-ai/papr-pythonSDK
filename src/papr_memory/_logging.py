@@ -25,7 +25,7 @@ def get_logger(name: str) -> logging.Logger:
             handler = logging.FileHandler(log_file)
         else:
             # Create console handler
-            handler = logging.StreamHandler()
+                handler: logging.Handler = logging.StreamHandler()
 
         formatter = logging.Formatter("%(asctime)s - %(name)s - %(levelname)s - %(message)s")
         handler.setFormatter(formatter)
@@ -34,7 +34,7 @@ def get_logger(name: str) -> logging.Logger:
     return logger
 
 
-def log_ondevice_status(logger: logging.Logger, enabled: bool, reason: Optional[str] = None):
+def log_ondevice_status(logger: logging.Logger, enabled: bool, reason: Optional[str] = None) -> None:
     """Log on-device processing status."""
     if enabled:
         logger.info("On-device processing enabled")
@@ -45,7 +45,7 @@ def log_ondevice_status(logger: logging.Logger, enabled: bool, reason: Optional[
             logger.info("On-device processing disabled")
 
 
-def log_chromadb_status(logger: logging.Logger, status: str, details: Optional[str] = None):
+def log_chromadb_status(logger: logging.Logger, status: str, details: Optional[str] = None) -> None:
     """Log ChromaDB status messages."""
     if status == "initializing":
         logger.info("Initializing ChromaDB client")
@@ -61,7 +61,7 @@ def log_chromadb_status(logger: logging.Logger, status: str, details: Optional[s
         logger.warning("ChromaDB not available - install with: pip install chromadb")
 
 
-def log_embedding_status(logger: logging.Logger, status: str, details: Optional[str] = None):
+def log_embedding_status(logger: logging.Logger, status: str, details: Optional[str] = None) -> None:
     """Log embedding generation status."""
     if status == "generating":
         logger.info("Generating local embeddings")
@@ -75,7 +75,7 @@ def log_embedding_status(logger: logging.Logger, status: str, details: Optional[
         logger.info("Platform detected as too old - skipping local embedding generation")
 
 
-def log_tier0_status(logger: logging.Logger, status: str, count: Optional[int] = None, details: Optional[str] = None):
+def log_tier0_status(logger: logging.Logger, status: str, count: Optional[int] = None, details: Optional[str] = None) -> None:
     """Log tier0 data processing status."""
     if status == "found":
         logger.info(f"Found {count} tier0 items in sync response")
@@ -91,7 +91,7 @@ def log_tier0_status(logger: logging.Logger, status: str, count: Optional[int] =
         logger.error(f"Error processing tier0 data: {details}")
 
 
-def log_search_status(logger: logging.Logger, status: str, count: Optional[int] = None, details: Optional[str] = None):
+def log_search_status(logger: logging.Logger, status: str, count: Optional[int] = None, details: Optional[str] = None) -> None:
     """Log search operation status."""
     if status == "local_search":
         logger.info(f"Using {count} tier0 items for search context enhancement")

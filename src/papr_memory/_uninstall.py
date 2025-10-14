@@ -7,7 +7,7 @@ Automatically cleans up ChromaDB data when package is uninstalled.
 import os
 
 
-def uninstall_cleanup():
+def uninstall_cleanup() -> bool:
     """Clean up ChromaDB data during package uninstall"""
     try:
         # Import cleanup function

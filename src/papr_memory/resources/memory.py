@@ -47,12 +47,16 @@ __all__ = ["MemoryResource", "AsyncMemoryResource"]
 
 # Global singleton instances to avoid multiple initializations
 import os
+import threading
+from typing import Optional
 
-_global_qwen_model = None
-_global_chroma_client = None
-_global_chroma_collection = None
-_global_sync_lock = None
-_background_sync_task = None
+import chromadb
+
+_global_qwen_model: Optional[object] = None
+_global_chroma_client: Optional[chromadb.PersistentClient] = None
+_global_chroma_collection: Optional[chromadb.Collection] = None
+_global_sync_lock: Optional[threading.Lock] = None
+_background_sync_task: Optional[threading.Thread] = None
 _sync_interval = int(os.environ.get("PAPR_SYNC_INTERVAL", "300"))  # 5 minutes default
 
 
@@ -538,7 +542,7 @@ class MemoryResource(SyncAPIResource):
         extra_query: Query | None = None,
         extra_body: Body | None = None,
         timeout: float | httpx.Timeout | None | NotGiven = None,
-    ):
+    ) -> None:
         """Internal method to call sync_tiers and store tier0 data in ChromaDB"""
         from .._logging import get_logger
 
@@ -590,7 +594,7 @@ class MemoryResource(SyncAPIResource):
         except Exception as e:
             logger.error(f"Error in sync_tiers processing: {e}")
 
-    def _is_old_platform(self):
+    def _is_old_platform(self) -> bool:
         """Detect if platform is too old for efficient local processing"""
         from .._logging import get_logger
 
@@ -667,7 +671,7 @@ class MemoryResource(SyncAPIResource):
 
         return False
 
-    def _get_optimized_quantized_model(self, device: str, device_name: str):
+    def _get_optimized_quantized_model(self, device: str, device_name: str) -> object:
         """Get the best quantized model for the specific platform"""
         from .._logging import get_logger
 
@@ -758,7 +762,7 @@ class MemoryResource(SyncAPIResource):
             logger.error(f"Error loading optimized quantized model: {e}")
             return None
 
-    def _get_local_embedder(self):
+    def _get_local_embedder(self) -> object:
         """Get local embedder optimized for the current platform"""
         from .._logging import get_logger
 
@@ -843,7 +847,7 @@ class MemoryResource(SyncAPIResource):
             logger.error(f"Error initializing local embedder: {e}")
             return None
 
-    def _embed_query_locally(self, query: str):
+    def _embed_query_locally(self, query: str) -> list[float] | None:
         """Generate embedding for query using local hardware"""
         from .._logging import get_logger
 
@@ -869,7 +873,7 @@ class MemoryResource(SyncAPIResource):
             logger.info("Local embedding generation skipped - using API-based search")
         return None
 
-    def _optimize_chromadb_collection(self):
+    def _optimize_chromadb_collection(self) -> None:
         """Optimize ChromaDB collection for better performance"""
         from .._logging import get_logger
 
@@ -898,7 +902,7 @@ class MemoryResource(SyncAPIResource):
         except Exception as e:
             logger.warning(f"Failed to optimize ChromaDB collection: {e}")
 
-    def _start_background_sync(self):
+    def _start_background_sync(self) -> None:
         """Start background sync task for periodic tier0 data updates"""
         global _background_sync_task
         import os
@@ -928,7 +932,7 @@ class MemoryResource(SyncAPIResource):
         _background_sync_task.start()
         logger.info("Background sync task started successfully")
 
-    def _get_background_sync_status(self):
+    def _get_background_sync_status(self) -> dict[str, any]:
         """Get background sync task status for debugging"""
         global _background_sync_task
         from .._logging import get_logger
@@ -947,7 +951,7 @@ class MemoryResource(SyncAPIResource):
         else:
             return {"status": "dead", "alive": False, "name": _background_sync_task.name}
 
-    def _background_sync_worker(self):
+    def _background_sync_worker(self) -> None:
         """Background worker that periodically syncs tier0 data"""
         import os
         import time
@@ -959,7 +963,7 @@ class MemoryResource(SyncAPIResource):
         logger = get_logger(__name__)
 
         # Set up graceful shutdown handling
-        def signal_handler(signum, _frame):
+        def signal_handler(signum: int, _frame: object) -> None:
             logger.info(f"Background sync received signal {signum}, shutting down gracefully...")
             # The daemon thread will exit automatically when main thread exits
 
@@ -999,7 +1003,7 @@ class MemoryResource(SyncAPIResource):
 
         logger.info("Background sync worker stopped")
 
-    def _preload_embedding_model(self):
+    def _preload_embedding_model(self) -> None:
         """Preload the embedding model during client initialization to avoid loading overhead during search"""
         global _global_qwen_model
 
@@ -1047,7 +1051,7 @@ class MemoryResource(SyncAPIResource):
             logger.warning(f"Failed to preload embedding model: {e}")
             logger.warning("Model will be loaded on-demand during search")
 
-    async def _preload_embedding_model_async(self):
+    async def _preload_embedding_model_async(self) -> None:
         """Preload the embedding model during async client initialization to avoid loading overhead during search"""
         from .._logging import get_logger
 
@@ -1086,7 +1090,7 @@ class MemoryResource(SyncAPIResource):
             logger.warning(f"Failed to preload embedding model: {e}")
             logger.warning("Model will be loaded on-demand during search")
 
-    def _embed_query_with_qwen(self, query: str):
+    def _embed_query_with_qwen(self, query: str) -> list[float] | None:
         """Generate embedding for query using preloaded Qwen3-4B model"""
         global _global_qwen_model
         from .._logging import get_logger
@@ -1143,7 +1147,7 @@ class MemoryResource(SyncAPIResource):
             logger.error(f"Error generating Qwen3-4B embedding: {e}")
             return None
 
-    def _get_qwen_embedding_function(self):
+    def _get_qwen_embedding_function(self) -> object:
         """Get Qwen-based embedding function for ChromaDB using the correct interface"""
         from .._logging import get_logger
 
@@ -1234,7 +1238,7 @@ class MemoryResource(SyncAPIResource):
             logger.error(f"Error creating Qwen embedding function: {e}")
             return None
 
-    def _search_tier0_locally(self, query: str, n_results: int = 5):
+    def _search_tier0_locally(self, query: str, n_results: int = 5) -> list[str] | None:
         """Search tier0 data using local vector search"""
         import time
 
@@ -1321,7 +1325,7 @@ class MemoryResource(SyncAPIResource):
             logger.error(f"Error in local tier0 search: {e}")
             return []
 
-    def _fix_dimension_mismatch_immediately(self):
+    def _fix_dimension_mismatch_immediately(self) -> bool:
         """Fix dimension mismatch by immediately recreating the collection"""
         from .._logging import get_logger
 
@@ -1362,7 +1366,7 @@ class MemoryResource(SyncAPIResource):
             logger.error(f"Error fixing dimension mismatch: {e}")
             return False
 
-    def _check_embedding_dimensions_before_query(self, query_embedding):
+    def _check_embedding_dimensions_before_query(self, query_embedding: list[float]) -> None:
         """Check embedding dimensions before querying to prevent dimension mismatch errors"""
         from .._logging import get_logger
 
@@ -1403,7 +1407,7 @@ class MemoryResource(SyncAPIResource):
         except Exception as e:
             logger.debug(f"Error checking embedding dimensions: {e}")
 
-    def _check_and_fix_embedding_dimensions(self, collection, tier0_data):
+    def _check_and_fix_embedding_dimensions(self, collection: object, tier0_data: list) -> None:
         """Check for embedding dimension mismatches and fix by recreating collection if needed"""
         from .._logging import get_logger
 
@@ -1489,7 +1493,7 @@ class MemoryResource(SyncAPIResource):
         except Exception as e:
             logger.error(f"Error checking embedding dimensions: {e}")
 
-    def _compare_tier0_data(self, collection, _tier0_data, documents, metadatas, ids):
+    def _compare_tier0_data(self, collection: object, _tier0_data: list, documents: list, metadatas: list, ids: list) -> dict:
         """Compare new tier0 data with existing data to detect changes"""
         from .._logging import get_logger
 
@@ -1606,7 +1610,7 @@ class MemoryResource(SyncAPIResource):
                 "unchanged_count": 0,
             }
 
-    def _store_tier0_in_chromadb(self, tier0_data):
+    def _store_tier0_in_chromadb(self, tier0_data: list) -> None:
         """Store tier0 data in ChromaDB with duplicate prevention"""
         import os
 
@@ -2826,7 +2830,7 @@ class AsyncMemoryResource(AsyncAPIResource):
         extra_query: Query | None = None,
         extra_body: Body | None = None,
         timeout: float | httpx.Timeout | None | NotGiven = None,
-    ):
+    ) -> None:
         """Internal async method to call sync_tiers and store tier0 data in ChromaDB"""
         from .._logging import get_logger
 
