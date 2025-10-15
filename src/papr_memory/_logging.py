@@ -20,6 +20,8 @@ def get_logger(name: str) -> logging.Logger:
         # Check if file logging is enabled
         log_file = os.environ.get("PAPR_LOG_FILE")
 
+        # Create appropriate handler
+        handler: logging.Handler
         if log_file:
             # Create file handler
             handler = logging.FileHandler(log_file)
