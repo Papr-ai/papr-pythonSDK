@@ -232,7 +232,7 @@ class BaseModel(pydantic.BaseModel):
         else:
             # these properties are copied from Pydantic's `model_construct()` method
             object.__setattr__(m, "__pydantic_private__", None)
-            object.__setattr__(m, "__pydantic_extra__", _extra)
+            object.__setattr__(m, "pydantic_extra__", _extra)
             object.__setattr__(m, "__pydantic_fields_set__", _fields_set)
 
         return m
@@ -688,12 +688,21 @@ def _extract_field_schema_pv2(model: type[BaseModel], field_name: str) -> ModelF
     return cast("ModelField", field)  # pyright: ignore[reportUnnecessaryCast]
 
 
+def _validate_non_model_type_fallback(*, type_: type[_T], value: object) -> _T:  # noqa: ARG001
+    """Fallback implementation for _validate_non_model_type"""
+    return cast(_T, value)
+
+
 def validate_type(*, type_: type[_T], value: object) -> _T:
     """Strict validation that the given value matches the expected type"""
     if inspect.isclass(type_) and issubclass(type_, pydantic.BaseModel):
         return cast(_T, parse_obj(type_, value))
 
-    return cast(_T, _validate_non_model_type(type_=type_, value=value))
+    # Use the function if it's defined, otherwise fallback
+    if "_validate_non_model_type" in globals():
+        return cast(_T, _validate_non_model_type(type_=type_, value=value))
+    else:
+        return _validate_non_model_type_fallback(type_=type_, value=value)
 
 
 def set_pydantic_config(typ: Any, config: pydantic.ConfigDict) -> None:

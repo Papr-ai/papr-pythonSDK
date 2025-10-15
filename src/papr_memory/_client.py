@@ -115,6 +115,32 @@ class Papr(SyncAPIClient):
         self.with_raw_response = PaprWithRawResponse(self)
         self.with_streaming_response = PaprWithStreamedResponse(self)
 
+        # Initialize sync_tiers and ChromaDB collection if on-device processing is enabled
+        from ._logging import get_logger, log_ondevice_status
+
+        logger = get_logger(__name__)
+        ondevice_processing = os.environ.get("PAPR_ONDEVICE_PROCESSING", "false").lower() in ("true", "1", "yes", "on")
+
+        if ondevice_processing:
+            try:
+                logger.info("Initializing sync_tiers and ChromaDB collection")
+                self.memory._process_sync_tiers_and_store()
+
+                # Preload the embedding model to avoid loading overhead during search
+                logger.info("Preloading embedding model for faster search performance")
+                self.memory._preload_embedding_model()
+
+                # Start background sync task for periodic updates
+                logger.info("Starting background sync task")
+                self.memory._start_background_sync()
+
+                logger.info("Client initialization completed successfully")
+            except Exception as e:
+                logger.warning(f"Failed to initialize sync_tiers during client setup: {e}")
+                logger.warning("Client will still work, but local search features may be limited")
+
+        log_ondevice_status(logger, ondevice_processing)
+
     @property
     @override
     def qs(self) -> Querystring:
@@ -323,6 +349,25 @@ class AsyncPapr(AsyncAPIClient):
         self.feedback = feedback.AsyncFeedbackResource(self)
         self.with_raw_response = AsyncPaprWithRawResponse(self)
         self.with_streaming_response = AsyncPaprWithStreamedResponse(self)
+
+        # Initialize sync_tiers and ChromaDB collection (async) if on-device processing is enabled
+        from ._logging import get_logger, log_ondevice_status
+
+        logger = get_logger(__name__)
+        ondevice_processing = os.environ.get("PAPR_ONDEVICE_PROCESSING", "false").lower() in ("true", "1", "yes", "on")
+
+        if ondevice_processing:
+            try:
+                logger.info("Preparing async sync_tiers initialization")
+                # Note: We can't call async methods in __init__, so we'll do this lazily
+                self._sync_tiers_initialized = False
+            except Exception as e:
+                logger.warning(f"Failed to prepare async sync_tiers initialization: {e}")
+                self._sync_tiers_initialized = False
+        else:
+            self._sync_tiers_initialized = False
+
+        log_ondevice_status(logger, ondevice_processing)
 
     @property
     @override
