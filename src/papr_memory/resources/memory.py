@@ -586,8 +586,8 @@ class MemoryResource(SyncAPIResource):
                 # Store tier0 data in ChromaDB
                 if tier0_data:
                     logger.info(f"Using {len(tier0_data)} tier0 items for search enhancement")
-                    # Note: AsyncMemoryResource does not support ChromaDB storage
-                    logger.info("Async version does not support local storage")
+                    # Store tier0 data in ChromaDB for local search
+                    self._store_tier0_in_chromadb(tier0_data)
                 else:
                     logger.info("No tier0 data found in sync response")
 
