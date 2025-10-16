@@ -8,6 +8,10 @@ from typing import Iterable, Optional, cast
 # Suppress deprecation warning from sentence_transformers
 warnings.filterwarnings("ignore", message=".*_target_device.*deprecated.*", category=UserWarning)
 
+# Silence HF tokenizers fork warnings globally
+import os as _os
+_os.environ.setdefault("TOKENIZERS_PARALLELISM", "false")
+
 import httpx
 
 from ..types import (
@@ -583,11 +587,13 @@ class MemoryResource(SyncAPIResource):
                 if tier1_data:
                     logger.info(f"Found {len(tier1_data)} tier1 items in sync response")
 
-                # Store tier0 data in ChromaDB
+                # Store tier0 data in ChromaDB (sync path)
                 if tier0_data:
                     logger.info(f"Using {len(tier0_data)} tier0 items for search enhancement")
-                    # Note: AsyncMemoryResource does not support ChromaDB storage
-                    logger.info("Async version does not support local storage")
+                    try:
+                        self._store_tier0_in_chromadb(tier0_data)  # type: ignore[arg-type]
+                    except Exception as store_e:
+                        logger.warning(f"Failed to store tier0 in ChromaDB: {store_e}")
                 else:
                     logger.info("No tier0 data found in sync response")
 
@@ -678,16 +684,210 @@ class MemoryResource(SyncAPIResource):
         logger = get_logger(__name__)
 
         try:
+            # Try Core ML path first if enabled on Apple (runs on ANE/GPU)
+            enable_coreml = os.environ.get("PAPR_ENABLE_COREML", "false").lower() in ("true", "1", "yes", "on")
+            if ("Apple" in device_name or device == "mps") and enable_coreml:
+                try:
+                    from transformers import AutoTokenizer  # type: ignore
+                    import coremltools as ct  # type: ignore
+                    import numpy as np  # type: ignore
+                    from papr_memory._model_cache import resolve_coreml_model_path
+
+                    # Auto-download from HuggingFace if not found locally
+                    coreml_path_env = os.environ.get("PAPR_COREML_MODEL")
+                    coreml_path = resolve_coreml_model_path(coreml_path_env)
+                    tok_id = os.environ.get("PAPR_EMBEDDING_MODEL", "Qwen/Qwen3-Embedding-4B")
+
+                    logger.info(f"Loading Core ML model from {coreml_path}")
+                    mlmodel = ct.models.MLModel(coreml_path)
+                    tokenizer = AutoTokenizer.from_pretrained(tok_id)
+
+                    class CoreMLEmbeddingFunction:
+                        def __init__(self, model: object, tokenizer: object):
+                            self.model = model
+                            self.tokenizer = tokenizer
+
+                        def _encode(self, texts: list[str]) -> list[list[float]]:
+                            # Normalize inputs to list[str]
+                            if isinstance(texts, str):
+                                texts = [texts]
+                            texts = ["" if t is None else str(t) for t in texts]
+
+                            # Use fixed padding to match Core ML conversion (max_length=32)
+                            enc = tokenizer(
+                                texts,
+                                padding="max_length",
+                                max_length=32,
+                                truncation=True,
+                                return_tensors="np",
+                            )
+                            # Core ML expects int32 inputs typically
+                            feed = {
+                                "input_ids": enc["input_ids"].astype(np.int32),
+                                "attention_mask": enc["attention_mask"].astype(np.int32),
+                            }
+                            out = mlmodel.predict(feed)
+
+                            # Select the most likely embedding tensor among outputs
+                            candidates = []
+                            for v in out.values():
+                                arr = np.asarray(v)
+                                candidates.append(arr)
+
+                            # Prefer tensors with last dim == 2560, else highest last-dim, else highest ndim
+                            def score(a: np.ndarray) -> tuple[int, int, int]:  # type: ignore[name-defined]
+                                last_dim = a.shape[-1] if a.ndim >= 1 else 0
+                                return (
+                                    2 if last_dim == 2560 else (1 if a.ndim >= 2 else 0),
+                                    last_dim,
+                                    a.size,
+                                )
+
+                            best = max(candidates, key=score)
+
+                            # Pool to [batch, dim]
+                            if best.ndim == 3:
+                                pooled = best.mean(axis=1).astype(np.float32)
+                            elif best.ndim == 2:
+                                pooled = best.astype(np.float32)
+                            elif best.ndim == 1:
+                                pooled = best.astype(np.float32)[None, :]
+                            else:
+                                raise TypeError(f"Unexpected Core ML output shape: {best.shape}")
+
+                            return pooled.tolist()
+
+                        def embed_query(self, input: str) -> list[float]:
+                            return self._encode([input])[0]
+
+                        def embed_documents(self, input: list[str]) -> list[list[float]]:
+                            return self._encode(input)
+
+                        # Compatibility: some callsites expect encode() or __call__
+                        def encode(self, inputs: list[str]) -> list[list[float]]:  # type: ignore[override]
+                            return self._encode(inputs)
+
+                        def __call__(self, inputs: list[str]) -> list[list[float]]:  # type: ignore[override]
+                            return self._encode(inputs)
+
+                    logger.info("Using Core ML embedding function (ANE/GPU capable)")
+                    return CoreMLEmbeddingFunction(mlmodel, tokenizer)
+                except Exception as coreml_e:  # pragma: no cover
+                    logger.info(f"Core ML path unavailable, will try MLX/ST: {coreml_e}")
+
+            # If MLX is explicitly enabled on Apple, attempt a native MLX embedding path next
+            enable_mlx = os.environ.get("PAPR_ENABLE_MLX", "false").lower() in ("true", "1", "yes", "on")
+            if ("Apple" in device_name or device == "mps") and enable_mlx:
+                try:
+                    from mlx_lm import load as mlx_load  # type: ignore
+
+                    mlx_model_name = os.environ.get(
+                        "PAPR_EMBEDDING_MODEL", "mlx-community/Qwen3-Embedding-4B-4bit-DWQ"
+                    )
+                    logger.info(f"Attempting MLX native embedder: {mlx_model_name}")
+
+                    mlx_model, mlx_tokenizer = mlx_load(mlx_model_name)
+
+                    class MlxQwenEmbeddingFunction:  # Chroma-compatible
+                        def __init__(self, model: object, tokenizer: object):
+                            self.model = model
+                            self.tokenizer = tokenizer
+
+                        def _encode_texts(self, inputs: list[str]) -> list[list[float]]:
+                            try:
+                                # Prefer HF tokenizer for MLX models when available
+                                from typing import Any, Callable, cast
+                                try:
+                                    from transformers import AutoTokenizer  # type: ignore
+                                    hf_tok = AutoTokenizer.from_pretrained(
+                                        os.environ.get("PAPR_EMBEDDING_MODEL", "Qwen/Qwen3-Embedding-4B")
+                                    )
+                                    enc: Any = hf_tok(inputs, padding=True, truncation=True, return_tensors=None)
+                                except Exception:
+                                    if not callable(self.tokenizer):
+                                        raise TypeError("MLX tokenizer is not callable; falling back to ST embedder")
+                                    tok: Callable[..., Any] = cast(Callable[..., Any], self.tokenizer)
+                                    enc = tok(inputs, return_tensors=None, padding=True, truncation=True)
+                                # Some MLX models expose a nested .model; try both
+                                mdl: object = getattr(self.model, "model", self.model)
+
+                                # Request hidden states if supported
+                                if not callable(mdl):  # type: ignore[misc]
+                                    raise TypeError("MLX model is not callable; using fallback embedder")
+                                mdl_callable: Callable[..., Any] = cast(Callable[..., Any], mdl)
+                                outputs: Any = mdl_callable(
+                                    **{k: enc[k] for k in enc if isinstance(enc[k], list)},
+                                    output_hidden_states=True,
+                                )
+                                hidden: object | None = None
+                                if hasattr(outputs, "hidden_states") and getattr(outputs, "hidden_states"):
+                                    hidden = getattr(outputs, "hidden_states")[-1]
+                                elif hasattr(outputs, "last_hidden_state"):
+                                    hidden = getattr(outputs, "last_hidden_state")
+
+                                if hidden is None:
+                                    raise RuntimeError("MLX model did not return hidden states for pooling")
+
+                                # Normalize to ndarray then mean-pool
+                                import numpy as np  # local import to avoid global dependency changes
+                                arr = np.asarray(hidden)
+                                if arr.ndim == 3:  # [batch, seq_len, dim]
+                                    pooled = arr.mean(axis=1).tolist()
+                                elif arr.ndim == 2:  # [seq_len, dim] -> single item
+                                    pooled = [arr.mean(axis=0).tolist()]
+                                else:
+                                    raise TypeError(f"Unexpected hidden shape: {arr.shape}")
+                                return pooled
+                            except Exception as e:  # pragma: no cover
+                                logger.warning(f"MLX embedding failed, falling back to ST: {e}")
+                                # Fallback: sentence-transformers on local device
+                                try:
+                                    import torch
+                                    from sentence_transformers import SentenceTransformer
+
+                                    device = (
+                                        "mps"
+                                        if hasattr(torch.backends, "mps") and torch.backends.mps.is_available()
+                                        else ("cuda" if torch.cuda.is_available() else "cpu")
+                                    )
+                                    fallback_name = os.environ.get(
+                                        "PAPR_EMBEDDING_FALLBACK_MODEL", "Qwen/Qwen3-Embedding-4B"
+                                    )
+                                    st_model = SentenceTransformer(fallback_name, device=device)
+                                    embs = st_model.encode(inputs)
+                                    return embs.tolist()  # type: ignore
+                                except Exception as e2:
+                                    logger.error(f"Fallback ST embedding failed: {e2}")
+                                    return [[] for _ in inputs]
+
+                        def embed_query(self, input: str) -> list[float]:
+                            return self._encode_texts([input])[0]
+
+                        def embed_documents(self, input: list[str]) -> list[list[float]]:
+                            return self._encode_texts(input)
+
+                    mlx_func = MlxQwenEmbeddingFunction(mlx_model, mlx_tokenizer)
+                    logger.info("Using native MLX embedding function for Qwen (quantized)")
+                    return mlx_func
+                except Exception as mlx_e:  # pragma: no cover
+                    logger.info(f"MLX path unavailable, will try sentence-transformers: {mlx_e}")
+
             from sentence_transformers import SentenceTransformer
 
             # Platform-specific model selection (using sentence-transformers compatible models)
             if "Apple" in device_name or device == "mps":
-                # Apple Silicon - use MLX-optimized quantized model
+                # If MLX is not enabled on Apple, do not use on-device ST fallback (too heavy); prefer API
+                enable_mlx = os.environ.get("PAPR_ENABLE_MLX", "false").lower() in ("true", "1", "yes", "on")
+                enable_coreml = os.environ.get("PAPR_ENABLE_COREML", "false").lower() in ("true", "1", "yes", "on")
+                if not enable_mlx and not enable_coreml:
+                    logger.info("Apple Silicon detected without MLX; disabling ondevice and using API")
+                    self._ondevice_processing_disabled = True
+                    return None
+                # Otherwise, allow ST fallback only if explicitly configured
                 model_options = [
-                    "mlx-community/Qwen3-Embedding-4B-4bit-DWQ",  # MLX optimized
-                    "Qwen/Qwen3-Embedding-4B",  # Original fallback
+                    os.environ.get("PAPR_EMBEDDING_MODEL", "Qwen/Qwen3-Embedding-4B"),
                 ]
-                logger.info("Using Apple Silicon optimized quantized model")
+                logger.info("Apple Silicon: MLX enabled; ST fallback allowed if MLX fails")
 
             elif "NVIDIA" in device_name or device == "cuda":
                 # NVIDIA GPU - use original model (sentence-transformers compatible)
@@ -1011,6 +1211,17 @@ class MemoryResource(SyncAPIResource):
 
         logger = get_logger(__name__)
 
+        # Skip ST preload if Core ML or MLX is enabled (they're faster and more memory-efficient)
+        if os.environ.get("PAPR_ENABLE_COREML", "").lower() == "true":
+            logger.info("⏭️  Skipping ST preload: Core ML is enabled (faster, less memory)")
+            return
+        if os.environ.get("PAPR_ENABLE_MLX", "").lower() == "true":
+            logger.info("⏭️  Skipping ST preload: MLX is enabled (faster, less memory)")
+            return
+        if os.environ.get("PAPR_DISABLE_ST_PRELOAD", "").lower() == "true":
+            logger.info("⏭️  Skipping ST preload: PAPR_DISABLE_ST_PRELOAD=true")
+            return
+
         try:
             if _global_qwen_model is None:
                 logger.info("Preloading Qwen3-4B embedding model (singleton)...")
@@ -1056,6 +1267,17 @@ class MemoryResource(SyncAPIResource):
         from .._logging import get_logger
 
         logger = get_logger(__name__)
+
+        # Skip ST preload if Core ML or MLX is enabled (they're faster and more memory-efficient)
+        if os.environ.get("PAPR_ENABLE_COREML", "").lower() == "true":
+            logger.info("⏭️  Skipping ST preload: Core ML is enabled (faster, less memory)")
+            return
+        if os.environ.get("PAPR_ENABLE_MLX", "").lower() == "true":
+            logger.info("⏭️  Skipping ST preload: MLX is enabled (faster, less memory)")
+            return
+        if os.environ.get("PAPR_DISABLE_ST_PRELOAD", "").lower() == "true":
+            logger.info("⏭️  Skipping ST preload: PAPR_DISABLE_ST_PRELOAD=true")
+            return
 
         try:
             if not hasattr(self, "_qwen_model") or self._qwen_model is None:
@@ -1204,18 +1426,24 @@ class MemoryResource(SyncAPIResource):
                     # Handle both single string and list of strings
                     if isinstance(input, str):
                         input = [input]
-                        embeddings = self.model.encode(input)  # type: ignore
-                        return embeddings.tolist()  # type: ignore
+                    # Support either ST model or embedding-function interface
+                    if hasattr(self.model, "embed_documents"):
+                        embs = self.model.embed_documents(input)  # type: ignore
+                        return embs  # already a list[list[float]]
+                    embeddings = self.model.encode(input)  # type: ignore
+                    return embeddings.tolist()  # type: ignore
 
                 def embed_query(self, input: any) -> any:  # type: ignore
                     # Method required by ChromaDB for query embedding
                     try:
+                        if hasattr(self.model, "embed_documents"):
+                            embs = self.model.embed_documents([input])  # type: ignore
+                            return embs[0]
                         embeddings = self.model.encode([input])  # type: ignore
                         if len(embeddings) > 0:
                             return embeddings[0].tolist()  # type: ignore
-                        else:
-                            # Fallback: encode single input directly
-                            return self.model.encode(input).tolist()  # type: ignore
+                        # Fallback: encode single input directly
+                        return self.model.encode(input).tolist()  # type: ignore
                     except Exception as e:
                         # Fallback: encode single input directly
                         return self.model.encode(input).tolist()  # type: ignore
@@ -1225,6 +1453,8 @@ class MemoryResource(SyncAPIResource):
                     try:
                         if isinstance(input, str):
                             input = [input]
+                        if hasattr(self.model, "embed_documents"):
+                            return self.model.embed_documents(input)  # type: ignore
                         return self.model.encode(input).tolist()  # type: ignore
                     except Exception as e:
                         # Fallback: handle single string
@@ -1253,10 +1483,72 @@ class MemoryResource(SyncAPIResource):
             # Time the embedding generation
             embedding_start = time.time()
 
-            # Always use the preloaded Qwen3-4B model for maximum performance
-            # This avoids the overhead of loading the model through the collection's embedding function
-            logger.info("Using preloaded Qwen3-4B model for optimal performance")
-            query_embedding = self._embed_query_with_qwen(query)
+            # Prefer Core ML/collection embedder if available; otherwise use local embedder; final fallback: ST preload
+            embedder: object | None = None
+            coll_func = getattr(self, "_chroma_collection", None)
+            if coll_func is not None and hasattr(self._chroma_collection, "_embedding_function"):
+                ef = getattr(self._chroma_collection, "_embedding_function", None)
+                # Avoid using Chroma DefaultEmbeddingFunction (384-dim) for local query
+                ef_is_default = False
+                if ef is not None and hasattr(ef, "__class__") and "DefaultEmbeddingFunction" in str(ef.__class__):
+                    ef_is_default = True
+                if ef is not None and not ef_is_default and (
+                    hasattr(ef, "embed_query") or hasattr(ef, "encode") or callable(ef)
+                ):
+                    embedder = ef
+
+            if embedder is None:
+                embedder = getattr(self, "_local_embedder", None)
+                if embedder is None:
+                    embedder = self._get_local_embedder()
+
+            def _embed_with(obj: object, text: str) -> list[float] | None:
+                try:
+                    if hasattr(obj, "embed_query"):
+                        out = obj.embed_query(text)  # type: ignore
+                        import numpy as _np  # local import
+                        if isinstance(out, _np.ndarray):
+                            return out.astype(_np.float32).tolist()
+                        if isinstance(out, list):
+                            # If list[list[float]], take first
+                            if out and isinstance(out[0], list):
+                                return [float(x) for x in out[0]]
+                            return [float(x) for x in out]
+                        return None
+                    if hasattr(obj, "encode"):
+                        enc = obj.encode([text])  # type: ignore
+                        import numpy as _np
+                        if isinstance(enc, _np.ndarray):
+                            return enc[0].astype(_np.float32).tolist()
+                        if isinstance(enc, list) and enc:
+                            first = enc[0]
+                            if isinstance(first, _np.ndarray):
+                                return first.astype(_np.float32).tolist()
+                            if isinstance(first, list):
+                                return [float(x) for x in first]
+                        return None
+                    if callable(obj):
+                        out = obj([text])  # type: ignore
+                        import numpy as _np
+                        if out and isinstance(out, list):
+                            first = out[0]
+                            if isinstance(first, _np.ndarray):
+                                return first.astype(_np.float32).tolist()
+                            if isinstance(first, list):
+                                return [float(x) for x in first]
+                        return None
+                except Exception as e:  # pragma: no cover
+                    logger.debug(f"Local embedder failed, will fallback: {e}")
+                return None
+
+            query_embedding: list[float] | None = None
+            if embedder is not None:
+                logger.info("Using local embedder for query (prefers Core ML if enabled)")
+                query_embedding = _embed_with(embedder, query)
+
+            if not query_embedding:
+                logger.info("Local embedder unavailable or failed; using preloaded Qwen3-4B model")
+                query_embedding = self._embed_query_with_qwen(query)
             logger.debug(
                 f"Using preloaded Qwen3-4B embedder (dim: {len(query_embedding) if query_embedding else 'None'})"
             )
@@ -1929,18 +2221,16 @@ class MemoryResource(SyncAPIResource):
 
                     # Use the same embedding function as the collection to ensure dimension consistency
                     if hasattr(self, "_chroma_collection") and self._chroma_collection is not None:
-                        # Check if collection has custom embedding function
-                        if (
-                            hasattr(self._chroma_collection, "_embedding_function")
-                            and self._chroma_collection._embedding_function
+                        # Prefer the collection's embedding function only if it provides a usable API
+                        coll_func = getattr(self._chroma_collection, "_embedding_function", None)
+                        if coll_func is not None and (
+                            hasattr(coll_func, "embed_documents") or hasattr(coll_func, "encode") or callable(coll_func)
                         ):
-                            # Use the collection's embedding function for consistency
-                            embedder = self._chroma_collection._embedding_function
+                            embedder = coll_func
                             logger.info("Using collection's embedding function for consistency")
                         else:
-                            # Fallback to local embedder
                             embedder = self._get_local_embedder()  # type: ignore
-                            logger.info("Using local embedder (collection has no custom embedding function)")
+                            logger.info("Using local embedder (collection has no usable embedding function)")
                     else:
                         # No collection available, use local embedder
                         embedder = self._get_local_embedder()  # type: ignore
@@ -2005,10 +2295,27 @@ class MemoryResource(SyncAPIResource):
                             original_index = ids.index(doc_id)
                             new_embeddings.append(embeddings[original_index])
 
-                        # Add documents with embeddings if available
-                        if any(emb is not None for emb in new_embeddings):
+                        # Add documents with embeddings if available; filter out invalid/None
+                        filtered_docs = []
+                        filtered_meta = []
+                        filtered_ids = []
+                        filtered_embs = []
+                        for idx, emb in enumerate(new_embeddings):
+                            if emb is None:
+                                continue
+                            try:
+                                # Ensure 1D numeric list
+                                vec = list(map(float, emb))  # type: ignore
+                                filtered_docs.append(new_documents[idx])
+                                filtered_meta.append(new_metadatas[idx])
+                                filtered_ids.append(new_ids[idx])
+                                filtered_embs.append(vec)
+                            except Exception:
+                                continue
+
+                        if filtered_embs:
                             collection.add(
-                                documents=new_documents, metadatas=new_metadatas, ids=new_ids, embeddings=new_embeddings
+                                documents=filtered_docs, metadatas=filtered_meta, ids=filtered_ids, embeddings=filtered_embs
                             )
                             logger.info(f"Added {len(new_documents)} new documents with local embeddings")
                         else:
@@ -2026,12 +2333,28 @@ class MemoryResource(SyncAPIResource):
                         # Update documents (ChromaDB doesn't have direct update, so we delete and re-add)
                         try:
                             collection.delete(ids=updated_ids)
-                            if any(emb is not None for emb in updated_embeddings):
+                            filtered_docs = []
+                            filtered_meta = []
+                            filtered_ids = []
+                            filtered_embs = []
+                            for idx, emb in enumerate(updated_embeddings):
+                                if emb is None:
+                                    continue
+                                try:
+                                    vec = list(map(float, emb))  # type: ignore
+                                    filtered_docs.append(updated_documents[idx])
+                                    filtered_meta.append(updated_metadatas[idx])
+                                    filtered_ids.append(updated_ids[idx])
+                                    filtered_embs.append(vec)
+                                except Exception:
+                                    continue
+
+                            if filtered_embs:
                                 collection.add(
-                                    documents=updated_documents,
-                                    metadatas=updated_metadatas,
-                                    ids=updated_ids,
-                                    embeddings=updated_embeddings,
+                                    documents=filtered_docs,
+                                    metadatas=filtered_meta,
+                                    ids=filtered_ids,
+                                    embeddings=filtered_embs,
                                 )
                                 logger.info(f"Updated {len(updated_documents)} documents with local embeddings")
                             else:

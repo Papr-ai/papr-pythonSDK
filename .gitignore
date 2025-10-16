@@ -13,3 +13,11 @@ dist
 .envrc
 codegen.log
 Brewfile.lock.json
+
+# CoreML models (too large for git, users build locally)
+coreml/
+*.mlpackage
+*.mlmodel
+
+# ChromaDB local storage
+chroma_db/

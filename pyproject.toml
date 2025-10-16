@@ -43,6 +43,14 @@ Repository = "https://github.com/Papr-ai/papr-pythonSDK"
 
 [project.optional-dependencies]
 aiohttp = ["aiohttp", "httpx_aiohttp>=0.1.8"]
+mlx = ["mlx-lm>=0.28.2"]
+# Pin torch to a version coremltools has tested against to avoid conversion/runtime errors
+coreml = [
+  "coremltools>=7.0",
+  "transformers>=4.44",
+  "torch==2.5.*",
+  "huggingface_hub>=0.20.0"  # For auto-downloading pre-converted models
+]
 
 [project.scripts]
 papr-cleanup = "papr_memory._cleanup:cleanup_chromadb"
