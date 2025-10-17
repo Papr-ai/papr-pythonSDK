@@ -13,6 +13,13 @@ It is generated with [Stainless](https://www.stainless.com/).
 
 The REST API documentation can be found on [platform.papr.ai](https://platform.papr.ai). The full API of this library can be found in [api.md](api.md).
 
+### Additional Documentation
+
+- **[On-Device Processing](docs/ONDEVICE_PROCESSING.md)** - Guide to enabling local processing with ChromaDB and embedding models
+- **[Logging](docs/LOGGING.md)** - Configuration and usage of the logging system
+- **[Cleanup](docs/CLEANUP.md)** - Information about data cleanup and uninstall procedures
+- **[Tier0 Comparison](docs/TIER0_COMPARISON.md)** - Performance comparison between server-side and local tier0 search
+
 ## Installation
 
 ```sh
