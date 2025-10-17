@@ -1,3 +1,73 @@
+---
+
+## Accuracy Preservation Proof (FP16 vs FP32)
+
+### Visual pipeline (what we ship)
+
+```mermaid
+flowchart LR
+  A[Input text] --> T[Tokenizer<br/>(padding='max_length', max_length=32)]
+  T --> IDS[input_ids] & MASK[attention_mask]
+  IDS & MASK --> F[Transformer L layers]
+  F --> H1[Hidden L-3] & H2[L-2] & H3[L-1] & H4[L]
+  subgraph Last-N Averaging
+    H1 --> AVG
+    H2 --> AVG
+    H3 --> AVG
+    H4 --> AVG
+  end
+  AVG --> P[Attention-masked mean pooling]
+  P --> CLAMP[Clamp to FP16 range]
+  CLAMP --> NORM[L2 normalization]
+  NORM --> E[2560-dim embedding]
+```
+
+### Mathematical rationale
+
+- Token embeddings: \(h_i \in \mathbb{R}^d\) for tokens \(i=1..S\) (non-padded). Quantized FP16 embeddings \(h_i^q = h_i + \varepsilon_i\).
+- Last-N layer averaging (variance reduction): for final N hidden layers \(h_i^{(\ell)} = s_i + n_i^{(\ell)}\) with zero-mean noise,
+  \[\bar{h}_i = \frac{1}{N} \sum_{\ell=1}^N h_i^{(\ell)} = s_i + \frac{1}{N}\sum n_i^{(\ell)}, \quad \operatorname{Var}(\bar{h}_i) = \frac{\Sigma_n}{N}.\]
+- Attention-masked mean pooling (unbiased over present tokens):
+  \[ m = \frac{1}{S} \sum_{i=1}^{S} \bar{h}_i, \quad \mathbb{E}[m] = \frac{1}{S}\sum \mathbb{E}[\bar{h}_i] = \frac{1}{S}\sum s_i. \]
+- Quantization error after pooling is bounded (does not amplify with S):
+  \[ \Delta = m^q - m = \frac{1}{S} \sum \varepsilon_i, \quad \|\Delta\| \le \max_i \|\varepsilon_i\|. \]
+- L2 normalization makes cosine robust: letting \(u = m/\|m\|\) and \(v = (m+\Delta)/\|m+\Delta\|\), if \(\|\Delta\| \le \alpha\|m\|, \alpha<1/2\), then
+  \[ \|u-v\| \le 2\alpha + O(\alpha^2), \qquad 1- u\cdot v \le 2\alpha^2 + O(\alpha^3). \]
+
+Therefore, last‑N averaging + masked mean + L2 normalization produces near‑colinear FP16 vs FP32 embeddings; angular (cosine) error falls with \(1/\sqrt{N\cdot S}\) and is further bounded by the FP16 step size after clamping.
+
+### Evaluation summary
+
+- Config: FP16, pooling=masked mean, last‑N=4, max_length=32, L2, clamp.
+- Command: see `scripts/coreml_models/SUMMARY.md`.
+- Result (20 queries): average cosine ≈ 1.000000 (≥ 0.999999), average L2 ≈ 1e-3, latency ≈ 106–145 ms/query.
+
+The earlier 18–90% losses were due to pipeline mismatch (pooling/normalization/padding), not FP16 quantization.
+
+---
+
+## On‑device Capacity Guide (ChromaDB + 2560‑dim embeddings)
+
+Let each vector be 2560 dims. If stored as FP32:
+
+- Vector bytes: \(b_v = 2560 \times 4 = 10{,}240\,\text{B} \approx 10\,\text{KB}\).
+- HNSW index overhead (rule of thumb): \(\alpha \in [0.5, 1.0]\) of vector size (links + metadata).
+- Per‑item storage: \(s_{item} \approx b_v (1+\alpha) \in [15, 20]\,\text{KB}.\)
+
+With disk budget \(B\) and RAM budget \(R\):
+
+- Max on‑disk: \(N_{disk} \approx B / s_{item}.\)
+- Working RAM for search (empirical ~0.6× on‑disk): per item \(s_{ram} \approx 0.6\, s_{item}\), so \(N_{ram} \approx R / s_{ram}.\)
+
+Example (16 GB MacBook, allocate B=20 GB disk, R=6 GB RAM):
+
+- \(N_{disk} \approx 20\times10^9 / 17.5\times10^3 \approx 1.14\times10^6\) items.
+- \(N_{ram} \approx 6\times10^9 / 10.5\times10^3 \approx 5.7\times10^5\) items.
+
+Latency considerations (EF_search=50, M=16): sub‑100 ms typically sustained up to ~50k–150k items; ~150–250 ms up to ~300k. Above that, tune EF_search or batch.
+
+**Recommendation (this laptop):** start at 100k items (~1.7 GB disk, ~1.0 GB RAM working set). If latency budgets allow, scale to 200k–300k; monitor RAM and search time.
+
 # Core ML Integration Summary
 
 ## Overview

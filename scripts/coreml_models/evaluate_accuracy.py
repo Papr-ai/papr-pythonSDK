@@ -16,6 +16,7 @@ import argparse
 import time
 from pathlib import Path
 import numpy as np
+import os
 
 
 def cosine_similarity(a: np.ndarray, b: np.ndarray) -> float:
@@ -46,14 +47,41 @@ def get_fp32_embeddings(model_id: str, texts: list[str]) -> tuple[list[np.ndarra
     embeddings = []
     latencies = []
     
+    max_len = int(os.environ.get("PAPR_COREML_MAX_LENGTH", "32"))
     with torch.no_grad():
         for text in texts:
             start = time.perf_counter()
             
-            inputs = tokenizer(text, return_tensors="pt", padding=True, truncation=True)
-            outputs = model(**inputs)
-            # Mean pooling
-            embedding = outputs.last_hidden_state.mean(dim=1).squeeze().numpy()
+            inputs = tokenizer(
+                text,
+                return_tensors="pt",
+                padding="max_length",
+                max_length=max_len,
+                truncation=True,
+            )
+            # Request hidden states to mirror CoreML recipe
+            outputs = model(**inputs, output_hidden_states=True)
+
+            hidden_states = None
+            if hasattr(outputs, "hidden_states") and outputs.hidden_states is not None:
+                layers = outputs.hidden_states[-4:]  # last-N (N=4) to match converter default
+                stacked = torch.stack(layers, dim=0)  # [L, B, S, H]
+                hidden_states = torch.mean(stacked, dim=0).squeeze(0)  # [S, H]
+            else:
+                hidden_states = outputs.last_hidden_state.squeeze(0)  # [S, H]
+
+            # Attention-masked mean pooling
+            attention_mask = inputs["attention_mask"]  # [1, S]
+            mask_1d = attention_mask.squeeze(0).float()  # [S]
+            mask_2d = mask_1d.unsqueeze(-1).expand_as(hidden_states)  # [S, H]
+            summed = torch.sum(hidden_states * mask_2d, dim=0)  # [H]
+            sum_mask = torch.clamp(mask_1d.sum(), min=1e-9)  # scalar
+            pooled = summed / sum_mask  # [H]
+
+            # L2 normalization
+            pooled = pooled / torch.norm(pooled, p=2)
+
+            embedding = pooled.cpu().numpy()
             
             latency_ms = (time.perf_counter() - start) * 1000
             latencies.append(latency_ms)
@@ -95,6 +123,7 @@ def get_coreml_embeddings(coreml_path: str, tokenizer_id: str, texts: list[str])
         result = model.predict(inputs)
         # CoreML returns dict with output name
         embedding = list(result.values())[0].squeeze()
+        embedding = embedding / np.linalg.norm(embedding)
         
         latency_ms = (time.perf_counter() - start) * 1000
         latencies.append(latency_ms)

@@ -25,6 +25,10 @@ def parse_args() -> argparse.Namespace:
         action="store_true",
         help="Apply post-training 4-bit palettization (may reduce accuracy; experimental)",
     )
+    p.add_argument("--normalize", action="store_true", default=True, help="Apply L2 normalization to output embeddings")
+    p.add_argument("--pooling", choices=["mean", "last"], default="mean", help="Pooling strategy: mean or last token")
+    p.add_argument("--layers", type=int, default=1, help="Average the last N hidden layers before pooling")
+    p.add_argument("--max-length", type=int, default=32, help="Fixed sequence length used for tracing and runtime")
     return p.parse_args()
 
 
@@ -116,36 +120,49 @@ def main() -> None:
         ["hello world"],
         padding="max_length",
         truncation=True,
-        max_length=32,
+        max_length=args.max_length,
         return_tensors="pt",
     )
 
     # Select outputs (last_hidden_state) and ensure proper pooling
     class EmbedWrapper(torch.nn.Module):
-        def __init__(self, inner: torch.nn.Module) -> None:
+        def __init__(self, inner: torch.nn.Module, pooling: str, normalize: bool, layers: int) -> None:
             super().__init__()
             self.inner = inner
+            self.pooling = pooling
+            self.normalize = normalize
+            self.layers = max(1, int(layers))
 
         def forward(self, input_ids, attention_mask):  # type: ignore
-            # Do not pass attention_mask to avoid tracing masking/vmap logic
-            out = self.inner(input_ids=input_ids, attention_mask=None, output_hidden_states=False)
-            # Get last_hidden_state [batch, seq_len, hidden_size] = [1, 32, 2560]
-            hidden_states = out.last_hidden_state
-            
-            # Explicit mean pooling to ensure TorchScript captures it correctly
-            # Sum over sequence dimension [1, 32, 2560] -> [1, 2560]
-            summed = torch.sum(hidden_states, dim=1)
-            # Divide by sequence length to get mean
-            seq_len = hidden_states.shape[1]
-            pooled = summed / float(seq_len)  # [1, 2560]
-            
-            # Ensure output is 2D: [batch_size, embedding_dim]
-            if pooled.dim() > 2:
-                pooled = pooled.squeeze()
-            
-            return pooled
+            # Request hidden states so we can average last N layers
+            out = self.inner(input_ids=input_ids, attention_mask=attention_mask, output_hidden_states=True)
+            if hasattr(out, "hidden_states") and out.hidden_states is not None:
+                # hidden_states is a tuple: (layer0, layer1, ..., last)
+                layers = out.hidden_states[-self.layers:]
+                stacked = torch.stack(layers, dim=0)  # [L, B, S, H]
+                hidden_states = torch.mean(stacked, dim=0)  # [B, S, H]
+            else:
+                hidden_states = out.last_hidden_state  # [B, S, H]
 
-    wrapper = EmbedWrapper(model)
+            if self.pooling == "last":
+                pooled = hidden_states[:, -1, :]  # [B, H]
+            else:
+                # Attention-masked mean pooling
+                mask = attention_mask.unsqueeze(-1).expand(hidden_states.size()).float()
+                summed = torch.sum(hidden_states * mask, dim=1)  # [B, H]
+                sum_mask = torch.clamp(mask.sum(dim=1), min=1e-9)  # [B, H]
+                pooled = summed / sum_mask
+
+            # Clamp within FP16 numeric range to avoid infs
+            pooled = torch.clamp(pooled, min=-65504.0, max=65504.0)
+
+            # Optional L2 normalization
+            if self.normalize:
+                pooled = pooled / torch.norm(pooled, p=2, dim=-1, keepdim=True)
+
+            return pooled.squeeze() if pooled.dim() > 2 else pooled
+
+    wrapper = EmbedWrapper(model, pooling=args.pooling, normalize=args.normalize, layers=args.layers)
 
     # Convert to Core ML (program) with fixed shapes using tracing only
     scripted_or_traced = torch.jit.trace(
@@ -243,6 +260,7 @@ def main() -> None:
     print(f"   📁 Location: {args.out}")
     print(f"   📊 Size: {model_size_mb:.1f} MB ({model_size_mb/1024:.2f} GB)")
     print(f"   🎯 Output dimensions: [1, 2560]")
+    print(f"   🧩 Pooling: {args.pooling}, Last-N Layers: {args.layers}, Max Length: {args.max_length}")
     
     if args.int8:
         print(f"   🔧 Quantization: INT8 (2-4x smaller than FP16)")

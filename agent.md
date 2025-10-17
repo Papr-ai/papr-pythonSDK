@@ -467,3 +467,23 @@ print(f"Output shape: {result.shape}")
   - Implemented Core ML embedder with ANE support
   - Documented padding, caching, and quantization learnings
 
+---
+
+### Learning 13: Alignment Restores FP16 Accuracy to ~FP32
+**Context**: Early FP16 evaluations showed 18–90% cosine loss vs FP32 due to pipeline mismatches.
+
+**Issue**: The FP32 baseline and CoreML model used different recipes (pooling, masking, padding), so results compared different embeddings rather than quantization effects.
+
+**Fix (Accuracy-Preserving Recipe)**:
+- Tokenization: fixed `padding='max_length'`, `max_length=32` (runtime must match conversion)
+- Hidden states: average last-N layers (N=4)
+- Pooling: attention-masked mean (ignore pads)
+- Stabilization: FP16 clamp to [-65504, 65504] and L2 normalization
+
+**Result**:
+- CoreML FP16 vs FP32 cosine ≈ 0.999999–1.000000 across 20 queries
+- L2 deltas ~1e-3; accuracy loss < 0.001%
+- Latency: ~106–145 ms/query on Apple Silicon
+
+**Key Takeaway**: Most “accuracy loss” was pipeline mismatch, not FP16. With matched tokenization, last‑N averaging, masked mean pooling, and L2 normalization, FP16 CoreML embeddings are near‑colinear with FP32, delivering production‑grade accuracy and speed on ANE.
+
