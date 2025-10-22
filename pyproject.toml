@@ -107,9 +107,9 @@ typecheck = { chain = [
   "typecheck:pyright",
   "typecheck:mypy"
 ]}
-"typecheck:pyright" = "pyright"
+"typecheck:pyright" = "pyright src/ tests/"
 "typecheck:verify-types" = "pyright --verifytypes papr_memory --ignoreexternal"
-"typecheck:mypy" = "mypy ."
+"typecheck:mypy" = "mypy src/ tests/"
 
 [build-system]
 requires = ["hatchling==1.26.3", "hatch-fancy-pypi-readme"]
