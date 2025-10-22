@@ -2,17 +2,17 @@
 
 from __future__ import annotations
 
+import os as _os
 import warnings
 from typing import Iterable, Optional, cast
+
+import httpx
 
 # Suppress deprecation warning from sentence_transformers
 warnings.filterwarnings("ignore", message=".*_target_device.*deprecated.*", category=UserWarning)
 
 # Silence HF tokenizers fork warnings globally
-import os as _os
 _os.environ.setdefault("TOKENIZERS_PARALLELISM", "false")
-
-import httpx
 
 from ..types import (
     MemoryType,
@@ -61,6 +61,10 @@ _global_chroma_client: Optional[object] = None
 _global_chroma_collection: Optional[object] = None
 _global_sync_lock: Optional[threading.Lock] = None
 _background_sync_task: Optional[threading.Thread] = None
+_background_model_loading_task: Optional[threading.Thread] = None
+_background_initialization_task: Optional[threading.Thread] = None
+_model_loading_complete = False
+_model_loading_callback = None
 _sync_interval = int(os.environ.get("PAPR_SYNC_INTERVAL", "300"))  # 5 minutes default
 
 
@@ -551,7 +555,7 @@ class MemoryResource(SyncAPIResource):
         from .._logging import get_logger
 
         logger = get_logger(__name__)
-
+        
         try:
             # Call the sync_tiers method with hardcoded parameters
             # Get max_tier0 from environment variable with fallback to 30
@@ -562,7 +566,11 @@ class MemoryResource(SyncAPIResource):
                 max_tier0_value = int(max_tier0_env)
             except ValueError:
                 max_tier0_value = 30  # fallback to default if invalid
-
+            
+            # Set a reasonable timeout for sync_tiers to prevent hanging
+            sync_timeout = timeout if timeout is not None else 60.0  # 60 seconds default
+            
+            logger.info(f"Calling sync_tiers with timeout: {sync_timeout}s")
             sync_response = self.sync_tiers(
                 include_embeddings=True,
                 embed_limit=max_tier0_value,
@@ -571,22 +579,22 @@ class MemoryResource(SyncAPIResource):
                 extra_headers=extra_headers,
                 extra_query=extra_query,
                 extra_body=extra_body,
-                timeout=timeout,
+                timeout=sync_timeout,
             )
-
+            
             if sync_response:
                 # Extract tier0 data using SyncTiersResponse model
                 tier0_data = sync_response.tier0
                 tier1_data = sync_response.tier1
-
+                
                 if tier0_data:
                     logger.info(f"Found {len(tier0_data)} tier0 items in sync response")
                     for i in range(min(3, len(tier0_data))):
                         logger.debug(f"Tier0 {i + 1}: Item extracted")
-
+                
                 if tier1_data:
                     logger.info(f"Found {len(tier1_data)} tier1 items in sync response")
-
+                
                 # Store tier0 data in ChromaDB (sync path)
                 if tier0_data:
                     logger.info(f"Using {len(tier0_data)} tier0 items for search enhancement")
@@ -596,24 +604,29 @@ class MemoryResource(SyncAPIResource):
                         logger.warning(f"Failed to store tier0 in ChromaDB: {store_e}")
                 else:
                     logger.info("No tier0 data found in sync response")
-
+                    
         except Exception as e:
             logger.error(f"Error in sync_tiers processing: {e}")
+            # Check if it's a timeout error
+            if "timeout" in str(e).lower() or "timed out" in str(e).lower():
+                logger.error("Sync_tiers call timed out - background initialization will continue without local data")
+            else:
+                logger.error(f"Sync_tiers failed with error: {e}")
 
     def _is_old_platform(self) -> bool:
         """Detect if platform is too old for efficient local processing"""
         from .._logging import get_logger
 
         logger = get_logger(__name__)
-
+        
         try:
             import platform
             import subprocess
 
             import psutil  # type: ignore
-
+            
             system = platform.system()
-
+            
             # Check Apple platforms
             if system == "Darwin":
                 try:
@@ -643,7 +656,7 @@ class MemoryResource(SyncAPIResource):
                                     return True
                 except Exception:
                     pass
-
+            
             # Check Intel platforms
             elif system == "Linux" or system == "Windows":
                 try:
@@ -654,7 +667,7 @@ class MemoryResource(SyncAPIResource):
                         if cpu_count is not None and cpu_count < 4:
                             logger.info("Detected old Intel CPU with < 4 cores - using API instead of local processing")
                             return True
-
+                    
                     # Check for old AMD CPUs
                     elif "AMD" in cpu_info:
                         cpu_count = psutil.cpu_count(logical=False)
@@ -663,18 +676,18 @@ class MemoryResource(SyncAPIResource):
                             return True
                 except Exception:
                     pass
-
+            
             # Check available RAM (less than 8GB is too little for local processing)
             ram_gb = psutil.virtual_memory().total / (1024**3)
             if ram_gb < 8:
                 logger.info(f"Insufficient RAM ({ram_gb:.1f}GB) - using API instead of local processing")
                 return True
-
+                
         except ImportError:
             logger.info("psutil not available - assuming modern platform")
         except Exception as e:
             logger.error(f"Error detecting platform age: {e}")
-
+        
         return False
 
     def _get_optimized_quantized_model(self, device: str, device_name: str) -> object:
@@ -682,15 +695,16 @@ class MemoryResource(SyncAPIResource):
         from .._logging import get_logger
 
         logger = get_logger(__name__)
-
+        
         try:
             # Try Core ML path first if enabled on Apple (runs on ANE/GPU)
             enable_coreml = os.environ.get("PAPR_ENABLE_COREML", "false").lower() in ("true", "1", "yes", "on")
             if ("Apple" in device_name or device == "mps") and enable_coreml:
                 try:
-                    from transformers import AutoTokenizer  # type: ignore
-                    import coremltools as ct  # type: ignore
                     import numpy as np  # type: ignore
+                    import coremltools as ct  # type: ignore
+                    from transformers import AutoTokenizer  # type: ignore
+
                     from papr_memory._model_cache import resolve_coreml_model_path
 
                     # Auto-download from HuggingFace if not found locally
@@ -805,7 +819,7 @@ class MemoryResource(SyncAPIResource):
                                     enc: Any = hf_tok(inputs, padding=True, truncation=True, return_tensors=None)
                                 except Exception:
                                     if not callable(self.tokenizer):
-                                        raise TypeError("MLX tokenizer is not callable; falling back to ST embedder")
+                                        raise TypeError("MLX tokenizer is not callable; falling back to ST embedder") from None
                                     tok: Callable[..., Any] = cast(Callable[..., Any], self.tokenizer)
                                     enc = tok(inputs, return_tensors=None, padding=True, truncation=True)
                                 # Some MLX models expose a nested .model; try both
@@ -820,10 +834,10 @@ class MemoryResource(SyncAPIResource):
                                     output_hidden_states=True,
                                 )
                                 hidden: object | None = None
-                                if hasattr(outputs, "hidden_states") and getattr(outputs, "hidden_states"):
-                                    hidden = getattr(outputs, "hidden_states")[-1]
+                                if hasattr(outputs, "hidden_states") and outputs.hidden_states:
+                                    hidden = outputs.hidden_states[-1]
                                 elif hasattr(outputs, "last_hidden_state"):
-                                    hidden = getattr(outputs, "last_hidden_state")
+                                    hidden = outputs.last_hidden_state
 
                                 if hidden is None:
                                     raise RuntimeError("MLX model did not return hidden states for pooling")
@@ -873,7 +887,7 @@ class MemoryResource(SyncAPIResource):
                     logger.info(f"MLX path unavailable, will try sentence-transformers: {mlx_e}")
 
             from sentence_transformers import SentenceTransformer
-
+            
             # Platform-specific model selection (using sentence-transformers compatible models)
             if "Apple" in device_name or device == "mps":
                 # If MLX is not enabled on Apple, do not use on-device ST fallback (too heavy); prefer API
@@ -888,35 +902,35 @@ class MemoryResource(SyncAPIResource):
                     os.environ.get("PAPR_EMBEDDING_MODEL", "Qwen/Qwen3-Embedding-4B"),
                 ]
                 logger.info("Apple Silicon: MLX enabled; ST fallback allowed if MLX fails")
-
+                
             elif "NVIDIA" in device_name or device == "cuda":
                 # NVIDIA GPU - use original model (sentence-transformers compatible)
                 model_options = [
                     "Qwen/Qwen3-Embedding-4B"  # Original model (best compatibility)
                 ]
                 logger.info("Using NVIDIA CUDA optimized model")
-
+                
             elif "Intel" in device_name or device == "xpu":
                 # Intel GPU/XPU - use original model
                 model_options = [
                     "Qwen/Qwen3-Embedding-4B"  # Original model (best compatibility)
                 ]
                 logger.info("Using Intel XPU optimized model")
-
+                
             elif "AMD" in device_name or device == "hip":
                 # AMD GPU - use original model
                 model_options = [
                     "Qwen/Qwen3-Embedding-4B"  # Original model (best compatibility)
                 ]
                 logger.info("Using AMD HIP optimized model")
-
+                
             else:
                 # CPU or unknown - fallback to API instead of slow CPU processing
                 logger.warning("No accelerator available (CPU only) - falling back to API processing")
                 logger.warning("Disabling ondevice processing to use API instead of slow CPU processing")
                 self._ondevice_processing_disabled = True
                 return None
-
+            
             # Try each model option in order of preference
             for model_name in model_options:
                 try:
@@ -936,7 +950,7 @@ class MemoryResource(SyncAPIResource):
                     else:
                         model = SentenceTransformer(model_name, device=device)
                         logger.info(f"Loaded {model_name} on {device}")
-
+                    
                     if "4bit" in model_name or "Q4" in model_name or "W4" in model_name:
                         logger.info(f"Loaded quantized {model_name}")
                     else:
@@ -951,13 +965,13 @@ class MemoryResource(SyncAPIResource):
                         self._ondevice_processing_disabled = True
                         return None
                     continue
-
+            
             # Final fallback - use API instead of slow CPU processing
             logger.warning("All primary models failed - falling back to API processing instead of slow CPU")
             logger.warning("Disabling ondevice processing to use API instead of slow CPU processing")
             self._ondevice_processing_disabled = True
             return None
-
+            
         except Exception as e:
             logger.error(f"Error loading optimized quantized model: {e}")
             return None
@@ -967,22 +981,22 @@ class MemoryResource(SyncAPIResource):
         from .._logging import get_logger
 
         logger = get_logger(__name__)
-
+        
         try:
             # Check if platform is too old for local processing
             if self._is_old_platform():
                 logger.info("Platform detected as too old - skipping local embedding generation")
                 return None
-
+                
             import platform
             import subprocess
 
             import torch
-
+            
             # Detect platform and set optimal device (NPU first, then GPU, then CPU)
             device = None
             device_name = None
-
+            
             # 1. Check for Apple Silicon NPU (highest priority for NPU platforms)
             if hasattr(torch.backends, "mps") and torch.backends.mps.is_available():
                 device = "mps"  # Apple Silicon (includes NPU via MPS)
@@ -1001,7 +1015,7 @@ class MemoryResource(SyncAPIResource):
                         device_name = "Apple Metal Performance Shaders (MPS) - includes Neural Engine NPU"
                 else:
                     device_name = "Apple Metal Performance Shaders (MPS) - includes Neural Engine NPU"
-
+            
             # 2. Check for Intel NPU (Intel Arc with NPU)
             elif (
                 hasattr(torch.backends, "xpu")
@@ -1011,7 +1025,7 @@ class MemoryResource(SyncAPIResource):
             ):
                 device = "xpu"  # Intel GPU (Arc, Xe) - may include NPU
                 device_name = "Intel XPU (Arc/Xe with potential NPU)"
-
+            
             # 3. Fallback to traditional GPUs
             elif torch.cuda.is_available():
                 device = "cuda"
@@ -1024,22 +1038,22 @@ class MemoryResource(SyncAPIResource):
             ):
                 device = "hip"  # AMD GPU (ROCm)
                 device_name = "AMD HIP/ROCm GPU"
-
+            
             # 4. Final fallback to CPU
             if device is None:
                 device = "cpu"
                 device_name = "CPU"
-
+            
             # Ensure device_name is never None
             if device_name is None:
                 device_name = "CPU"
 
             logger.info(f"Using {device_name} for embeddings")
-
+            
             # Use platform-optimized quantized Qwen3-Embedding-4B model
             model = self._get_optimized_quantized_model(device, device_name)
             return model
-
+            
         except ImportError:
             logger.warning("sentence-transformers not available - install with: pip install sentence-transformers")
             return None
@@ -1052,11 +1066,11 @@ class MemoryResource(SyncAPIResource):
         from .._logging import get_logger
 
         logger = get_logger(__name__)
-
+        
         # Use cached embedder if available, otherwise get new one
         if not hasattr(self, "_local_embedder") or self._local_embedder is None:  # type: ignore
             self._local_embedder = self._get_local_embedder()
-
+        
         embedder = self._local_embedder
         if embedder:
             try:
@@ -1078,7 +1092,7 @@ class MemoryResource(SyncAPIResource):
         from .._logging import get_logger
 
         logger = get_logger(__name__)
-
+        
         try:
             if hasattr(self, "_chroma_collection") and self._chroma_collection is not None:  # type: ignore
                 logger.info("Optimizing ChromaDB collection for performance...")
@@ -1104,7 +1118,7 @@ class MemoryResource(SyncAPIResource):
 
     def _start_background_sync(self) -> None:
         """Start background sync task for periodic tier0 data updates"""
-        global _background_sync_task
+        global _background_sync_task, _global_sync_lock
         import os
         import threading
 
@@ -1112,25 +1126,235 @@ class MemoryResource(SyncAPIResource):
 
         logger = get_logger(__name__)
 
-        # Check if background sync task exists and is alive
-        if _background_sync_task is None:
-            logger.info("No background sync task found")
-        elif not _background_sync_task.is_alive():
-            logger.warning("Background sync task died, will restart")
-            _background_sync_task = None
+        # Initialize global sync lock if not exists
+        if _global_sync_lock is None:
+            _global_sync_lock = threading.Lock()
+
+        # Use thread-safe singleton pattern
+        with _global_sync_lock:
+            # Check if background sync task exists and is alive
+            if _background_sync_task is None:
+                logger.info("No background sync task found")
+            elif not _background_sync_task.is_alive():
+                logger.warning("Background sync task died, will restart")
+                _background_sync_task = None
+            else:
+                logger.info("Background sync task already running (shared across clients)")
+                return
+
+            # Start new background sync task
+            current_interval = int(os.environ.get("PAPR_SYNC_INTERVAL", "300"))
+            logger.info(f"Starting background sync task (every {current_interval}s)")
+
+            _background_sync_task = threading.Thread(
+                target=self._background_sync_worker, daemon=True, name="PaprBackgroundSync"
+            )
+            _background_sync_task.start()
+            logger.info("Background sync task started successfully")
+
+    def _start_background_model_loading(self) -> None:
+        """Start background model loading for non-blocking initialization"""
+        global _background_model_loading_task, _model_loading_complete, _global_sync_lock, _global_qwen_model
+
+        from .._logging import get_logger
+
+        logger = get_logger(__name__)
+
+        # Initialize global sync lock if not exists
+        if _global_sync_lock is None:
+            _global_sync_lock = threading.Lock()
+
+        # Use thread-safe singleton pattern
+        with _global_sync_lock:
+            # Check if model loading is already complete
+            if _model_loading_complete:
+                logger.info("Model loading already complete")
+                return
+
+            # Check if model is already loaded globally
+            if _global_qwen_model is not None:
+                logger.info("Model already loaded globally, marking as complete")
+                _model_loading_complete = True
+                return
+            
+            # Check if model is already loaded in ChromaDB collection
+            if hasattr(self, "_chroma_collection") and self._chroma_collection is not None:
+                embedding_function = getattr(self._chroma_collection, "_embedding_function", None)
+                if embedding_function is not None and hasattr(embedding_function, "model"):
+                    logger.info("Model already loaded in ChromaDB collection, marking as complete")
+                    _global_qwen_model = embedding_function.model
+                    _model_loading_complete = True
+                    return
+
+            # Check if background model loading task exists and is alive
+            if _background_model_loading_task is None:
+                logger.info("Starting background model loading...")
+            elif not _background_model_loading_task.is_alive():
+                logger.warning("Background model loading task died, will restart")
+                _background_model_loading_task = None
+            else:
+                logger.info("Background model loading already running (shared across clients)")
+                return
+
+            # Start new background model loading task
+            _model_loading_complete = False
+            
+            _background_model_loading_task = threading.Thread(
+                target=self._background_model_loading_worker,
+                name="PaprModelLoading",
+                daemon=True
+            )
+            _background_model_loading_task.start()
+            logger.info("Background model loading started")
+        
+        # Set completion callback for better user experience
+        def on_model_loading_complete():
+            logger.info("🎉 Background model loading finished - local search is now optimized!")
+        
+        global _model_loading_callback
+        _model_loading_callback = on_model_loading_complete
+
+    def _start_background_initialization(self) -> None:
+        """Start complete background initialization (sync_tiers + ChromaDB + model loading)"""
+        global _background_initialization_task, _global_sync_lock
+
+        from .._logging import get_logger
+
+        logger = get_logger(__name__)
+
+        # Initialize global sync lock if not exists
+        if _global_sync_lock is None:
+            _global_sync_lock = threading.Lock()
+
+        # Use thread-safe singleton pattern
+        with _global_sync_lock:
+            # Check if background initialization is already running
+            if _background_initialization_task is not None and _background_initialization_task.is_alive():
+                logger.info("Background initialization already running (shared across clients)")
+                return
+
+            # Check if initialization is already complete
+            if hasattr(self, "_collection_initialized") and self._collection_initialized:  # type: ignore
+                logger.info("Background initialization already completed")
+                return
+
+            logger.info("Starting complete background initialization...")
+            
+            # Start background initialization worker
+            _background_initialization_task = threading.Thread(
+                target=self._background_initialization_worker,
+                name="PaprBackgroundInit",
+                daemon=True
+            )
+            _background_initialization_task.start()
+        logger.info("Background initialization started")
+
+    def _background_initialization_worker(self) -> None:
+        """Background worker for complete initialization"""
+        from .._logging import get_logger
+
+        logger = get_logger(__name__)
+
+        try:
+            logger.info("🚀 Background initialization worker started")
+            
+            # Step 1: Initialize sync_tiers and ChromaDB collection (immediate)
+            logger.info("📡 Initializing sync_tiers and ChromaDB collection...")
+            self._process_sync_tiers_and_store()
+            logger.info("✅ Sync_tiers and ChromaDB collection initialized")
+            
+            # Step 2: Start background model loading
+            logger.info("🤖 Starting background model loading...")
+            self._start_background_model_loading()
+            
+            # Step 3: Start background sync task (will wait for next interval)
+            logger.info("🔄 Starting background sync task...")
+            self._start_background_sync()
+            
+            logger.info("🎉 Complete background initialization finished!")
+            
+        except Exception as e:
+            logger.error(f"Background initialization failed: {e}")
+
+    def _get_model_loading_status(self) -> dict[str, any]:  # type: ignore
+        """Get model loading status for debugging"""
+        global _background_model_loading_task, _model_loading_complete
+
+        from .._logging import get_logger
+
+        logger = get_logger(__name__)
+
+        if _background_model_loading_task is None:
+            return {"status": "not_started", "complete": False, "alive": False}
+        elif _background_model_loading_task.is_alive():
+            return {
+                "status": "loading",
+                "complete": _model_loading_complete,
+                "alive": True,
+                "name": _background_model_loading_task.name,
+            }
         else:
-            logger.info("Background sync task already running (shared across clients)")
-            return
+            return {
+                "status": "completed" if _model_loading_complete else "failed",
+                "complete": _model_loading_complete,
+                "alive": False,
+                "name": _background_model_loading_task.name,
+            }
 
-        # Start new background sync task
-        current_interval = int(os.environ.get("PAPR_SYNC_INTERVAL", "300"))
-        logger.info(f"Starting background sync task (every {current_interval}s)")
+    def _background_model_loading_worker(self) -> None:
+        """Background worker for model loading"""
+        import time
+        global _model_loading_complete, _global_qwen_model
 
-        _background_sync_task = threading.Thread(
-            target=self._background_sync_worker, daemon=True, name="PaprBackgroundSync"
-        )
-        _background_sync_task.start()
-        logger.info("Background sync task started successfully")
+        from .._logging import get_logger
+
+        logger = get_logger(__name__)
+
+        try:
+            logger.info("Background model loading worker started")
+            
+            # Check if model is already loaded
+            if _global_qwen_model is not None:
+                logger.info("Model already loaded globally, marking as complete")
+                _model_loading_complete = True
+                logger.info("🚀 Model is now ready for fast local search!")
+                return
+            
+            # Start timing
+            model_load_start = time.time()
+            logger.info(f"⏱️ Model loading started at {time.strftime('%H:%M:%S', time.localtime(model_load_start))}")
+            
+            # Load the embedding model in the background
+            self._preload_embedding_model()
+            
+            # Calculate timing
+            model_load_end = time.time()
+            model_load_duration = model_load_end - model_load_start
+            
+            _model_loading_complete = True
+            logger.info(f"✅ Background model loading completed successfully in {model_load_duration:.2f}s")
+            logger.info(f"⏱️ Model loading finished at {time.strftime('%H:%M:%S', time.localtime(model_load_end))}")
+            logger.info("🚀 Model is now ready for fast local search!")
+            
+            # Call completion callback if set
+            global _model_loading_callback
+            if _model_loading_callback:
+                try:
+                    _model_loading_callback()
+                except Exception as callback_error:
+                    logger.warning(f"Model loading callback failed: {callback_error}")
+            
+            logger.info("🎉 Background model loading finished - local search is now optimized!")
+            
+        except Exception as e:
+            # Calculate timing even on failure
+            model_load_end = time.time()
+            model_load_duration = model_load_end - model_load_start if 'model_load_start' in locals() else 0
+            
+            logger.error(f"❌ Background model loading FAILED after {model_load_duration:.2f}s: {e}")
+            logger.error(f"⏱️ Model loading failed at {time.strftime('%H:%M:%S', time.localtime(model_load_end))}")
+            logger.warning("⚠️ Local search will fallback to server-side processing")
+            _model_loading_complete = False
 
     def _get_background_sync_status(self) -> dict[str, any]:  # type: ignore
         """Get background sync task status for debugging"""
@@ -1224,32 +1448,75 @@ class MemoryResource(SyncAPIResource):
 
         try:
             if _global_qwen_model is None:
-                logger.info("Preloading Qwen3-4B embedding model (singleton)...")
+                # Use thread-safe singleton pattern for model loading
+                global _global_sync_lock
+                import threading
+                if _global_sync_lock is None:
+                    _global_sync_lock = threading.Lock()
+                
+                with _global_sync_lock:
+                    # Double-check after acquiring lock
+                    if _global_qwen_model is None:
+                        # Start timing for model loading
+                        import time
+                        model_start = time.time()
+                        logger.info(f"⏱️ Model loading started at {time.strftime('%H:%M:%S', time.localtime(model_start))}")
 
-                # Load model synchronously to avoid race conditions
-                import torch
-                from sentence_transformers import SentenceTransformer
+                        # Load model with timeout protection
+                        import threading
 
-                # Detect platform
-                device = None
-                if hasattr(torch.backends, "mps") and torch.backends.mps.is_available():
-                    device = "mps"
-                elif torch.cuda.is_available():
-                    device = "cuda"
-                else:
-                    device = "cpu"
+                        import torch
+                        from sentence_transformers import SentenceTransformer
 
-                # Load Qwen3-4B model directly
-                _global_qwen_model = SentenceTransformer("Qwen/Qwen3-Embedding-4B", device=device)
+                        # Detect platform
+                        device = None
+                        if hasattr(torch.backends, "mps") and torch.backends.mps.is_available():
+                            device = "mps"
+                        elif torch.cuda.is_available():
+                            device = "cuda"
+                        else:
+                            device = "cpu"
 
-                # Optimize model for inference
-                _global_qwen_model.eval()
+                        # Load model with timeout protection
+                        model_loading_success = False
+                        
+                        def load_model_with_timeout():
+                            nonlocal model_loading_success
+                            try:
+                                # Load Qwen3-4B model directly
+                                global _global_qwen_model
+                                _global_qwen_model = SentenceTransformer("Qwen/Qwen3-Embedding-4B", device=device)
 
-                # Warm up the model with a dummy query to ensure it's ready
-                dummy_query = "warmup"
-                _ = _global_qwen_model.encode([dummy_query])
+                                # Optimize model for inference
+                                _global_qwen_model.eval()  # type: ignore
+                                
+                                # Warm up the model with a dummy query to ensure it's ready
+                                dummy_query = "warmup"
+                                _ = _global_qwen_model.encode([dummy_query])  # type: ignore
+                                
+                                model_loading_success = True
+                                
+                            except Exception as model_error:
+                                logger.error(f"Model loading failed: {model_error}")
+                                model_loading_success = False
 
-                logger.info(f"✅ Preloaded Qwen3-4B model on {device} - ready for fast inference")
+                        # Start model loading in a separate thread with timeout
+                        model_thread = threading.Thread(target=load_model_with_timeout, daemon=True)
+                        model_thread.start()
+                        
+                        # Wait for model loading with timeout (60 seconds)
+                        model_thread.join(timeout=60.0)
+                        
+                        if not model_loading_success or _global_qwen_model is None:
+                            logger.error("Model loading failed or timed out")
+                            return
+                        
+                        # Calculate and log model loading time
+                        model_end = time.time()
+                        model_duration = model_end - model_start
+                        logger.info(f"✅ Preloaded Qwen3-4B model on {device} - ready for fast inference")
+                        logger.info(f"⏱️ Model loading completed in {model_duration:.2f}s")
+                        logger.info(f"⏱️ Model loading finished at {time.strftime('%H:%M:%S', time.localtime(model_end))}")
 
                 # Set instance reference to global model
                 self._qwen_model = _global_qwen_model  # type: ignore
@@ -1259,8 +1526,13 @@ class MemoryResource(SyncAPIResource):
                 self._qwen_model = _global_qwen_model  # type: ignore
 
         except Exception as e:
-            logger.warning(f"Failed to preload embedding model: {e}")
-            logger.warning("Model will be loaded on-demand during search")
+            # Calculate timing even on failure
+            model_end = time.time()
+            model_duration = model_end - model_start if 'model_start' in locals() else 0
+            
+            logger.error(f"❌ Model loading FAILED after {model_duration:.2f}s: {e}")
+            logger.error(f"⏱️ Model loading failed at {time.strftime('%H:%M:%S', time.localtime(model_end))}")
+            logger.warning("⚠️ Model will be loaded on-demand during search")
 
     async def _preload_embedding_model_async(self) -> None:
         """Preload the embedding model during async client initialization to avoid loading overhead during search"""
@@ -1284,7 +1556,7 @@ class MemoryResource(SyncAPIResource):
                 logger.info("Preloading Qwen3-4B embedding model (async)...")
                 import torch
                 from sentence_transformers import SentenceTransformer
-
+                
                 # Detect platform
                 device = None
                 if hasattr(torch.backends, "mps") and torch.backends.mps.is_available():
@@ -1293,7 +1565,7 @@ class MemoryResource(SyncAPIResource):
                     device = "cuda"
                 else:
                     device = "cpu"
-
+                
                 # Load Qwen3-4B model directly
                 self._qwen_model = SentenceTransformer("Qwen/Qwen3-Embedding-4B", device=device)
 
@@ -1352,76 +1624,124 @@ class MemoryResource(SyncAPIResource):
                         logger.info("Loaded Qwen3-4B model on CPU (fallback)")
                     else:
                         raise e
-
+            
             import time
 
             start_time = time.time()
             # Generate embedding using the model
             raw_embedding = getattr(model, 'encode', lambda _: None)([query])[0]  # type: ignore
             logger.info(f"Raw Qwen3-4B embedding: shape={raw_embedding.shape}, type={type(raw_embedding)}")
-
+            
             embedding = raw_embedding.tolist()
             generation_time = time.time() - start_time
             logger.info(f"Generated Qwen3-4B query embedding (dim: {len(embedding)}) in {generation_time:.2f}s")
             return embedding  # type: ignore
-
+            
         except Exception as e:
             logger.error(f"Error generating Qwen3-4B embedding: {e}")
             return None
 
     def _get_qwen_embedding_function(self) -> object:
-        """Get Qwen-based embedding function for ChromaDB using the correct interface"""
+        """Get Qwen-based embedding function for ChromaDB using the correct interface with timeout protection"""
+        import threading
+
         from .._logging import get_logger
 
         logger = get_logger(__name__)
-
+        
         try:
             logger.info("Creating Qwen embedding function...")
-            import torch
+            
+            # Use the preloaded global model if available (fastest path)
+            if _global_qwen_model is not None:
+                logger.info("Using preloaded global Qwen model for embedding function")
+                model = _global_qwen_model
+            else:
+                # Fallback: create a new model instance with timeout protection
+                logger.info("Creating new Qwen model instance for embedding function")
+                import torch
+                
+                # Detect platform (NPU first, then GPU, then CPU)
+                device = None
+                
+                # 1. Check for Apple Silicon NPU (highest priority for NPU platforms)
+                if hasattr(torch.backends, "mps") and torch.backends.mps.is_available():
+                    device = "mps"  # Apple Silicon (includes NPU via MPS)
+                # 2. Check for Intel NPU (Intel Arc with NPU)
+                elif (
+                    hasattr(torch.backends, "xpu")
+                    and getattr(torch.backends, "xpu", None)
+                    and hasattr(getattr(torch.backends, "xpu", None), "is_available")
+                    and getattr(torch.backends, "xpu", None).is_available()  # type: ignore
+                ):
+                    device = "xpu"  # Intel GPU (Arc, Xe) - may include NPU
+                # 3. Fallback to traditional GPUs
+                elif torch.cuda.is_available():
+                    device = "cuda"
+                    logger.info("Using NVIDIA CUDA GPU for embeddings")
+                elif (
+                    hasattr(torch.backends, "hip")
+                    and getattr(torch.backends, "hip", None)
+                    and hasattr(getattr(torch.backends, "hip", None), "is_available")
+                    and getattr(torch.backends, "hip", None).is_available()  # type: ignore
+                ):
+                    device = "hip"  # AMD GPU (ROCm)
+                # 4. Final fallback to CPU
+                if device is None:
+                    device = "cpu"
+                
+                # Load model with timeout protection
+                model = None
+                model_loading_success = False
+                
+                def load_model_with_timeout():
+                    nonlocal model, model_loading_success
+                    try:
+                        from sentence_transformers import SentenceTransformer
+                        
+                        # Try to load with CUDA first
+                        if device == "cuda":
+                            try:
+                                model = SentenceTransformer("Qwen/Qwen3-Embedding-4B", device=device)
+                                logger.info("Using NVIDIA CUDA optimized model")
+                            except Exception as cuda_error:
+                                logger.warning(f"CUDA loading failed: {cuda_error}")
+                                logger.info("Falling back to CPU loading...")
+                                model = SentenceTransformer("Qwen/Qwen3-Embedding-4B", device="cpu")
+                                logger.info("Loaded Qwen/Qwen3-Embedding-4B on CPU due to CUDA memory constraints")
+                        else:
+                            model = SentenceTransformer("Qwen/Qwen3-Embedding-4B", device=device)
+                            logger.info("Loaded original Qwen/Qwen3-Embedding-4B")
 
-            # Detect platform (NPU first, then GPU, then CPU)
-            device = None
+                        # Optimize model for inference
+                        model.eval()
+                        model_loading_success = True
+                        
+                    except Exception as model_error:
+                        logger.error(f"Failed to load Qwen model: {model_error}")
+                        model_loading_success = False
 
-            # 1. Check for Apple Silicon NPU (highest priority for NPU platforms)
-            if hasattr(torch.backends, "mps") and torch.backends.mps.is_available():
-                device = "mps"  # Apple Silicon (includes NPU via MPS)
-            # 2. Check for Intel NPU (Intel Arc with NPU)
-            elif (
-                hasattr(torch.backends, "xpu")
-                and getattr(torch.backends, "xpu", None)
-                and hasattr(getattr(torch.backends, "xpu", None), "is_available")
-                and getattr(torch.backends, "xpu", None).is_available()  # type: ignore
-            ):
-                device = "xpu"  # Intel GPU (Arc, Xe) - may include NPU
-            # 3. Fallback to traditional GPUs
-            elif torch.cuda.is_available():
-                device = "cuda"
-            elif (
-                hasattr(torch.backends, "hip")
-                and getattr(torch.backends, "hip", None)
-                and hasattr(getattr(torch.backends, "hip", None), "is_available")
-                and getattr(torch.backends, "hip", None).is_available()  # type: ignore
-            ):
-                device = "hip"  # AMD GPU (ROCm)
-            # 4. Final fallback to CPU
-            if device is None:
-                device = "cpu"
-
-            # Use cached embedder if available, otherwise get new one
-            if not hasattr(self, "_local_embedder") or self._local_embedder is None:  # type: ignore
-                self._local_embedder = self._get_local_embedder()
-
-            if self._local_embedder is None:
-                logger.error("No local embedder available for ChromaDB embedding function")
-                return None
-
-            model = self._local_embedder
-
+                # Start model loading in a separate thread with timeout
+                model_thread = threading.Thread(target=load_model_with_timeout, daemon=True)
+                model_thread.start()
+                
+                # Wait for model loading with timeout (30 seconds)
+                model_thread.join(timeout=30.0)
+                
+                if not model_loading_success or model is None:
+                    logger.error("Model loading failed or timed out")
+                    # Fallback to default embedding function
+                    logger.warning("Falling back to default ChromaDB embedding function")
+                    return None
+            
             # Create a proper ChromaDB embedding function class
             class QwenEmbeddingFunction:
                 def __init__(self, model: any) -> None:  # type: ignore
                     self.model = model
-
+                    # Set global model reference to avoid redundant loading
+                    global _global_qwen_model
+                    _global_qwen_model = model
+                
                 def __call__(self, input: any) -> any:  # type: ignore
                     # Handle both single string and list of strings
                     if isinstance(input, str):
@@ -1442,12 +1762,12 @@ class MemoryResource(SyncAPIResource):
                         embeddings = self.model.encode([input])  # type: ignore
                         if len(embeddings) > 0:
                             return embeddings[0].tolist()  # type: ignore
-                        # Fallback: encode single input directly
+                            # Fallback: encode single input directly
                         return self.model.encode(input).tolist()  # type: ignore
                     except Exception as e:
                         # Fallback: encode single input directly
                         return self.model.encode(input).tolist()  # type: ignore
-
+                
                 def embed_documents(self, input: any) -> any:  # type: ignore
                     # Method required by ChromaDB for document embedding
                     try:
@@ -1459,11 +1779,11 @@ class MemoryResource(SyncAPIResource):
                     except Exception as e:
                         # Fallback: handle single string
                         return self.model.encode([input]).tolist()  # type: ignore
-
+            
             embedding_function = QwenEmbeddingFunction(model)  # type: ignore
             logger.info(f"Qwen embedding function created successfully: {embedding_function is not None}")
             return embedding_function
-
+            
         except Exception as e:
             logger.error(f"Error creating Qwen embedding function: {e}")
             return None
@@ -1475,10 +1795,10 @@ class MemoryResource(SyncAPIResource):
         from .._logging import get_logger
 
         logger = get_logger(__name__)
-
+        
         if not hasattr(self, "_chroma_collection") or self._chroma_collection is None:  # type: ignore
             return []
-
+        
         try:
             # Time the embedding generation
             embedding_start = time.time()
@@ -1555,16 +1875,16 @@ class MemoryResource(SyncAPIResource):
 
             embedding_time = time.time() - embedding_start
             logger.info(f"Embedding generation took: {embedding_time:.3f}s")
-
+            
             if not query_embedding:
                 return []
-
+            
             # Check for dimension mismatch before querying
             self._check_embedding_dimensions_before_query(query_embedding)
 
             # Time the ChromaDB vector search
             search_start = time.time()
-
+            
             # Perform vector search in ChromaDB
             try:
                 # Optimized ChromaDB query with performance settings
@@ -1580,7 +1900,7 @@ class MemoryResource(SyncAPIResource):
                 if "dimension" in str(e).lower():
                     logger.error(f"Embedding dimension mismatch: {e}")
                     logger.info("Attempting to fix dimension mismatch by recreating collection...")
-
+                    
                     # Try to fix the dimension mismatch immediately
                     if self._fix_dimension_mismatch_immediately():
                         logger.info("Collection recreated successfully, retrying search...")
@@ -1602,7 +1922,7 @@ class MemoryResource(SyncAPIResource):
                         return []
                 else:
                     raise e
-
+            
             search_time = time.time() - search_start
             logger.info(f"ChromaDB vector search took: {search_time:.3f}s")
 
@@ -1612,7 +1932,7 @@ class MemoryResource(SyncAPIResource):
             else:
                 logger.info("No relevant tier0 items found locally")
                 return []
-
+                
         except Exception as e:
             logger.error(f"Error in local tier0 search: {e}")
             return []
@@ -1622,21 +1942,21 @@ class MemoryResource(SyncAPIResource):
         from .._logging import get_logger
 
         logger = get_logger(__name__)
-
+        
         try:
             if not hasattr(self, "_chroma_collection") or self._chroma_collection is None:  # type: ignore
                 return False
-
+            
             collection_name = self._chroma_collection.name  # type: ignore
             logger.info(f"Recreating collection '{collection_name}' with correct embedding dimensions...")
-
+            
             # Delete existing collection
             try:
                 self._chroma_client.delete_collection(name=collection_name)
                 logger.info(f"Deleted existing collection: {collection_name}")
             except Exception as delete_e:
                 logger.warning(f"Error deleting collection (may not exist): {delete_e}")
-
+            
             # Create new collection with Qwen3-4B embedding function
             embedding_function = self._get_qwen_embedding_function()
             if embedding_function:
@@ -1653,7 +1973,7 @@ class MemoryResource(SyncAPIResource):
             else:
                 logger.error("Failed to get Qwen3-4B embedding function")
                 return False
-
+                
         except Exception as e:
             logger.error(f"Error fixing dimension mismatch: {e}")
             return False
@@ -1663,15 +1983,15 @@ class MemoryResource(SyncAPIResource):
         from .._logging import get_logger
 
         logger = get_logger(__name__)
-
+        
         try:
             if not hasattr(self, "_chroma_collection") or self._chroma_collection is None:  # type: ignore
                 return
-
+            
             # Get query embedding dimension
             query_dim = len(query_embedding)
             logger.debug(f"Query embedding dimension: {query_dim}")
-
+            
             # Check if collection has custom embedding function (using correct attribute name)
             if hasattr(self._chroma_collection, "_embedding_function") and self._chroma_collection._embedding_function:
                 # Collection has custom embedding function (should be 2560 dimensions for Qwen3-4B)
@@ -1695,7 +2015,7 @@ class MemoryResource(SyncAPIResource):
                     logger.info("The collection needs to be recreated with correct embedding dimensions")
                 else:
                     logger.debug(f"Query dimensions match collection: {query_dim} dimensions")
-
+                
         except Exception as e:
             logger.debug(f"Error checking embedding dimensions: {e}")
 
@@ -1704,14 +2024,14 @@ class MemoryResource(SyncAPIResource):
         from .._logging import get_logger
 
         logger = get_logger(__name__)
-
+        
         try:
             # Get expected embedding dimension from tier0 data
             expected_dim = None
             if tier0_data and isinstance(tier0_data[0], dict) and "embedding" in tier0_data[0]:
                 expected_dim = len(tier0_data[0]["embedding"])
                 logger.info(f"Expected embedding dimension from tier0 data: {expected_dim}")
-
+            
             # If we have server embeddings, check if collection dimensions match
             if expected_dim is not None:
                 try:
@@ -1723,19 +2043,19 @@ class MemoryResource(SyncAPIResource):
                     else:
                         # Collection uses default embedding function (384 dimensions)
                         logger.info("Collection uses default embedding function (384 dimensions)")
-
+                        
                         # If expected dimension is not 384, we need to recreate the collection
                         if expected_dim != 384:
                             logger.warning(
                                 f"Dimension mismatch detected: collection expects 384, tier0 data has {expected_dim}"
                             )
                             logger.info("Recreating collection with correct embedding dimensions...")
-
+                            
                             # Delete existing collection
                             collection_name = getattr(collection, 'name', 'unknown')  # type: ignore
                             self._chroma_client.delete_collection(name=collection_name)
                             logger.info(f"Deleted existing collection: {collection_name}")
-
+                            
                             # Create new collection with Qwen3-4B embedding function
                             embedding_function = self._get_qwen_embedding_function()
                             logger.info(f"Embedding function created: {embedding_function is not None}")
@@ -1776,12 +2096,12 @@ class MemoryResource(SyncAPIResource):
                                     "Failed to get Qwen3-4B embedding function - cannot fix dimension mismatch"
                                 )
                                 return
-
+                        
                 except Exception as e:
                     logger.debug(f"Could not check collection dimensions: {e}")
                     # If we can't check dimensions, try to proceed and let ChromaDB handle the error
                     pass
-
+                    
         except Exception as e:
             logger.error(f"Error checking embedding dimensions: {e}")
 
@@ -1790,7 +2110,7 @@ class MemoryResource(SyncAPIResource):
         from .._logging import get_logger
 
         logger = get_logger(__name__)
-
+        
         try:
             # Get existing data from collection
             existing_data = {}
@@ -1806,7 +2126,7 @@ class MemoryResource(SyncAPIResource):
             except Exception as e:
                 logger.debug(f"No existing data found in collection: {e}")
                 existing_data = {}
-
+            
             # Compare new data with existing data
             new_documents = []
             new_metadatas = []
@@ -1815,7 +2135,7 @@ class MemoryResource(SyncAPIResource):
             updated_metadatas = []
             updated_ids = []
             unchanged_count = 0
-
+            
             for i, doc_id in enumerate(ids):
                 if doc_id not in existing_data:
                     # New document
@@ -1827,10 +2147,10 @@ class MemoryResource(SyncAPIResource):
                     existing_doc = existing_data[doc_id]
                     current_doc = documents[i]
                     current_meta = metadatas[i]
-
+                    
                     # Compare document content
                     content_changed = existing_doc["document"] != current_doc
-
+                    
                     # Compare metadata (check key fields)
                     metadata_changed = False
                     if existing_doc["metadata"] and current_meta:
@@ -1843,7 +2163,7 @@ class MemoryResource(SyncAPIResource):
                                     f"Metadata field '{field}' changed: '{existing_doc['metadata'].get(field)}' -> '{current_meta.get(field)}'"
                                 )
                                 break
-
+                    
                     if content_changed or metadata_changed:
                         # Document has changed
                         updated_documents.append(documents[i])
@@ -1856,13 +2176,13 @@ class MemoryResource(SyncAPIResource):
                         # Document is unchanged
                         unchanged_count += 1
                         logger.debug(f"Document {doc_id} is unchanged")
-
+            
             # Prepare summary
             total_new = len(new_documents)
             total_updated = len(updated_documents)
             total_unchanged = unchanged_count
             has_changes = total_new > 0 or total_updated > 0
-
+            
             summary_parts = []
             if total_new > 0:
                 summary_parts.append(f"{total_new} new")
@@ -1870,11 +2190,11 @@ class MemoryResource(SyncAPIResource):
                 summary_parts.append(f"{total_updated} updated")
             if total_unchanged > 0:
                 summary_parts.append(f"{total_unchanged} unchanged")
-
+            
             summary = ", ".join(summary_parts) if summary_parts else "no data"
-
+            
             logger.info(f"Tier0 data comparison: {summary}")
-
+            
             return {
                 "has_changes": has_changes,
                 "summary": summary,
@@ -1886,7 +2206,7 @@ class MemoryResource(SyncAPIResource):
                 "updated_ids": updated_ids,
                 "unchanged_count": unchanged_count,
             }
-
+            
         except Exception as e:
             logger.error(f"Error comparing tier0 data: {e}")
             # Fallback: treat all as new documents
@@ -1909,14 +2229,14 @@ class MemoryResource(SyncAPIResource):
         from .._logging import get_logger
 
         logger = get_logger(__name__)
-
+        
         try:
             logger.info("Attempting to import ChromaDB...")
             import chromadb  # type: ignore
             from chromadb.config import Settings  # type: ignore
 
             logger.info("ChromaDB imported successfully")
-
+            
             # Initialize ChromaDB client (singleton pattern)
             if not hasattr(self, "_chroma_client"):
                 # Get ChromaDB path from environment variable or use default
@@ -1926,13 +2246,13 @@ class MemoryResource(SyncAPIResource):
                 try:
                     # Use the new ChromaDB client configuration (non-deprecated)
                     self._chroma_client = chromadb.PersistentClient(
-                        path=chroma_path,
-                        settings=Settings(
+                    path=chroma_path,
+                    settings=Settings(
                             anonymized_telemetry=False,
                             allow_reset=True,
                             is_persistent=True,
                         ),
-                    )
+                )
                     logger.info("Initialized ChromaDB persistent client")
                 except Exception as chroma_error:
                     if "deprecated" in str(chroma_error).lower():
@@ -1958,11 +2278,11 @@ class MemoryResource(SyncAPIResource):
                         logger.info("Created new ChromaDB client with clean database")
                     else:
                         raise chroma_error
-
+            
             # Create or get collection for tier0 data
             collection_name = "tier0_goals_okrs"
             logger.info(f"Attempting to get/create collection: {collection_name}")
-
+            
             # Check if we have a valid collection with proper embedding function
             collection_needs_recreation = False
             if (
@@ -1973,16 +2293,35 @@ class MemoryResource(SyncAPIResource):
             ):
                 # Collection is already validated and initialized
                 return
-
+            
             # Check if the existing collection has the correct embedding function
             if hasattr(self, "_chroma_collection") and self._chroma_collection is not None:
                 embedding_function = getattr(self._chroma_collection, "_embedding_function", None)
                 if embedding_function is not None:
-                    if hasattr(embedding_function, "__class__") and "DefaultEmbeddingFunction" in str(
-                        embedding_function.__class__
-                    ):
-                        logger.warning("Existing collection uses default embedding function (384 dims)")
-                        collection_needs_recreation = True
+                    # Check if it's a default embedding function by testing dimensions
+                    try:
+                        # Test the embedding function to see if it produces 384-dim (default) or 2560-dim (Qwen3-4B) embeddings
+                        test_embedding = embedding_function.embed_query("test")
+                        if len(test_embedding) == 384:
+                            logger.warning("Existing collection uses default embedding function (384 dims)")
+                            collection_needs_recreation = True
+                        elif len(test_embedding) == 2560:
+                            logger.info("Existing collection has correct Qwen3-4B embedding function (2560 dims)")
+                            # Verify it has the required methods
+                            if not hasattr(embedding_function, "embed_documents"):
+                                logger.warning("Collection has correct dimensions but missing embed_documents method - will recreate")
+                                collection_needs_recreation = True
+                        else:
+                            logger.warning(f"Existing collection has unexpected embedding dimensions: {len(test_embedding)} - will recreate")
+                            collection_needs_recreation = True
+                    except Exception as e:
+                        logger.warning(f"Could not test embedding function: {e}")
+                        # Fallback to class name check
+                        if hasattr(embedding_function, "__class__") and "DefaultEmbeddingFunction" in str(
+                            embedding_function.__class__
+                        ):
+                            logger.warning("Existing collection uses default embedding function (384 dims)")
+                            collection_needs_recreation = True
                     else:
                         # It's a custom embedding function - test it
                         try:
@@ -2008,24 +2347,54 @@ class MemoryResource(SyncAPIResource):
                 else:
                     logger.warning("Existing collection has no embedding function (384 dims)")
                     collection_needs_recreation = True
-
+            
             # Try to get existing collection first
             if not hasattr(self, "_chroma_collection") or self._chroma_collection is None:  # type: ignore
                 try:
                     logger.info("Trying to get existing collection...")
                     self._chroma_collection = self._chroma_client.get_collection(name=collection_name)
                     logger.info(f"Using existing ChromaDB collection: {collection_name}")
-
+                    
                     # Validate the loaded collection's embedding function
                     embedding_function = getattr(self._chroma_collection, "_embedding_function", None)
+                    
+                    # Check collection metadata first for embedding model info
+                    collection_metadata = getattr(self._chroma_collection, "metadata", {})
+                    has_qwen_metadata = (
+                        collection_metadata.get("embedding_model") == "Qwen3-4B" or
+                        collection_metadata.get("embedding_dimensions") == "2560"
+                    )
+                    
                     if embedding_function is not None:
-                        if hasattr(embedding_function, "__class__") and "DefaultEmbeddingFunction" in str(
-                            embedding_function.__class__
-                        ):
-                            logger.warning(
-                                "Loaded collection uses default embedding function (384 dims) - will recreate"
-                            )
-                            collection_needs_recreation = True
+                        # Test the embedding function to see if it produces the correct dimensions
+                        try:
+                            test_embedding = embedding_function.embed_query("test")
+                            if len(test_embedding) == 384:
+                                if has_qwen_metadata:
+                                    logger.info("Collection has Qwen3-4B metadata but default embedding function - will recreate")
+                                else:
+                                    logger.warning(
+                                        "Loaded collection uses default embedding function (384 dims) - will recreate"
+                                    )
+                                collection_needs_recreation = True
+                            elif len(test_embedding) == 2560:
+                                logger.info("Collection has correct Qwen3-4B embedding function (2560 dims)")
+                            else:
+                                logger.warning(f"Collection has unexpected embedding dimensions: {len(test_embedding)} - will recreate")
+                                collection_needs_recreation = True
+                        except Exception as e:
+                            logger.warning(f"Could not test embedding function: {e}")
+                            # Fallback to class name check
+                            if hasattr(embedding_function, "__class__") and "DefaultEmbeddingFunction" in str(
+                                embedding_function.__class__
+                            ):
+                                if has_qwen_metadata:
+                                    logger.info("Collection has Qwen3-4B metadata but default embedding function - will recreate")
+                                else:
+                                    logger.warning(
+                                        "Loaded collection uses default embedding function (384 dims) - will recreate"
+                                    )
+                                collection_needs_recreation = True
                         else:
                             try:
                                 if hasattr(embedding_function, "embed_documents"):
@@ -2039,6 +2408,8 @@ class MemoryResource(SyncAPIResource):
                                         logger.info(
                                             "Loaded collection has correct Qwen3-4B embedding function (2560 dims)"
                                         )
+                                        # Collection is already properly configured, no need to recreate
+                                        collection_needs_recreation = False
                                 else:
                                     logger.warning(
                                         "Loaded collection has custom embedding function but missing embed_documents method - will recreate"
@@ -2050,18 +2421,21 @@ class MemoryResource(SyncAPIResource):
                                 )
                                 collection_needs_recreation = True
                     else:
-                        logger.warning("Loaded collection has no embedding function (384 dims) - will recreate")
+                        if has_qwen_metadata:
+                            logger.warning("Loaded collection has Qwen3-4B metadata but no embedding function - will recreate")
+                        else:
+                            logger.warning("Loaded collection has no embedding function (384 dims) - will recreate")
                         collection_needs_recreation = True
-
+                    
                     # If collection is valid, we can skip creation
                     if not collection_needs_recreation:
                         self._collection_initialized = True
                         return
-
+                        
                 except Exception as e:
                     logger.info(f"Collection doesn't exist or error getting collection: {e}")
                     collection_needs_recreation = True
-
+            
             # Create or recreate collection if needed
             if collection_needs_recreation:
                 logger.info("Collection needs recreation due to embedding function mismatch")
@@ -2071,7 +2445,7 @@ class MemoryResource(SyncAPIResource):
                     logger.info(f"Deleted existing collection: {collection_name}")
                 except Exception as delete_e:
                     logger.debug(f"No existing collection to delete: {delete_e}")
-
+                
                 # Create collection with consistent embedding function
                 logger.info("Creating collection with consistent embedding function...")
                 embedding_function = self._get_qwen_embedding_function()
@@ -2085,7 +2459,7 @@ class MemoryResource(SyncAPIResource):
                         # Create collection with optimized settings for performance
                         # Cast to Any to satisfy ChromaDB's EmbeddingFunction protocol
                         from typing import Any
-
+                        
                         self._chroma_collection = self._chroma_client.create_collection(
                             name=collection_name,
                             embedding_function=cast(Any, embedding_function),
@@ -2099,6 +2473,13 @@ class MemoryResource(SyncAPIResource):
                             },
                         )
                         logger.info(f"Created new ChromaDB collection with Qwen3-4B embeddings: {collection_name}")
+                        
+                        # Verify the embedding function was properly stored
+                        stored_embedding_function = getattr(self._chroma_collection, "_embedding_function", None)
+                        if stored_embedding_function:
+                            logger.info("✅ Embedding function properly stored in collection")
+                        else:
+                            logger.warning("⚠️ Embedding function not properly stored in collection")
 
                         # Optimize the collection for better performance
                         self._optimize_chromadb_collection()
@@ -2123,7 +2504,7 @@ class MemoryResource(SyncAPIResource):
                         metadata={"description": "Tier0 goals, OKRs, and use-cases from sync_tiers"},
                     )
                     logger.info(f"Created new ChromaDB collection without custom embedding function: {collection_name}")
-
+                
                 # Verify collection was created successfully
                 if self._chroma_collection is None:
                     logger.error("Failed to create ChromaDB collection - collection is None")  # type: ignore
@@ -2131,45 +2512,45 @@ class MemoryResource(SyncAPIResource):
                     self._chroma_collection = None  # type: ignore
                 else:
                     logger.info(f"ChromaDB collection created successfully: {self._chroma_collection.name}")
-
+            
             collection = self._chroma_collection
-
+            
             # Check for dimension mismatch and fix if needed
             self._check_and_fix_embedding_dimensions(collection, tier0_data)
-
+            
             # Update collection reference in case it was recreated
             collection = self._chroma_collection
-
+            
             # Verify collection is still valid
             if collection is None:
                 logger.error("ChromaDB collection is None after dimension mismatch fix")  # type: ignore
                 # Set _chroma_collection to None to indicate failure
                 self._chroma_collection = None  # type: ignore
                 return
-
+            
             logger.info(f"Using ChromaDB collection: {collection.name}")
-
+            
             # Prepare documents for ChromaDB
             documents = []
             metadatas = []
             ids = []
-
+            
             for i, item in enumerate(tier0_data):
                 # Extract content for embedding
                 content = str(item)
                 if isinstance(item, dict):
                     content = str(item.get("content", item.get("description", str(item))))
-
+                
                 # Create metadata - use item's metadata if exists, otherwise create default
                 if isinstance(item, dict):
                     # Start with item's metadata if it exists
                     metadata = dict(item.get("metadata", {}))
-
+                    
                     # Add/override with our standard fields
                     metadata.update(
                         {
-                            "source": "sync_tiers",
-                            "tier": 0,
+                        "source": "sync_tiers",
+                        "tier": 0,
                             "type": str(item.get("type", "unknown")),
                             "topics": str(item.get("topics", [])),
                             "id": str(item.get("id", f"tier0_{i}")),
@@ -2179,14 +2560,14 @@ class MemoryResource(SyncAPIResource):
                 else:
                     # Fallback for non-dict items
                     metadata = {"source": "sync_tiers", "tier": 0, "type": "unknown", "topics": "unknown"}  # type: ignore
-
+                
                 documents.append(content)
                 metadatas.append(metadata)
                 item_id = f"tier0_{i}"
                 if isinstance(item, dict) and "id" in item:
                     item_id = f"tier0_{i}_{item['id']}"
                 ids.append(item_id)
-
+            
             # Extract embeddings from server response
             embeddings = []
             if tier0_data and isinstance(tier0_data[0], dict) and "embedding" in tier0_data[0]:
@@ -2210,7 +2591,7 @@ class MemoryResource(SyncAPIResource):
             else:
                 logger.info("No server embeddings found, will generate locally")
                 embeddings = [None] * len(documents)
-
+            
             # Generate local embeddings for items without server embeddings
             if any(emb is None for emb in embeddings):
                 logger.info("Generating local embeddings for missing items...")
@@ -2218,7 +2599,7 @@ class MemoryResource(SyncAPIResource):
                     import time
 
                     start_time = time.time()
-
+                    
                     # Use the same embedding function as the collection to ensure dimension consistency
                     if hasattr(self, "_chroma_collection") and self._chroma_collection is not None:
                         # Prefer the collection's embedding function only if it provides a usable API
@@ -2235,14 +2616,14 @@ class MemoryResource(SyncAPIResource):
                         # No collection available, use local embedder
                         embedder = self._get_local_embedder()  # type: ignore
                         logger.info("Using local embedder (no collection available)")
-
+                    
                     if embedder:
                         local_embedding_count = 0
                         for i, embedding in enumerate(embeddings):
                             if embedding is None:
                                 try:
                                     item_start_time = time.time()
-
+                                    
                                     # Use the appropriate embedding method based on embedder type
                                     if hasattr(embedder, "embed_documents"):
                                         # ChromaDB embedding function
@@ -2250,7 +2631,7 @@ class MemoryResource(SyncAPIResource):
                                     else:
                                         # SentenceTransformer model
                                         local_embedding = embedder.encode([documents[i]])[0].tolist()  # type: ignore
-
+                                    
                                     item_time = time.time() - item_start_time
                                     embeddings[i] = local_embedding
                                     local_embedding_count += 1
@@ -2259,7 +2640,7 @@ class MemoryResource(SyncAPIResource):
                                     )
                                 except Exception as e:
                                     logger.error(f"Failed to generate local embedding for item {i}: {e}")
-
+                        
                         total_time = time.time() - start_time
                         if local_embedding_count > 0:
                             avg_time = total_time / local_embedding_count
@@ -2270,15 +2651,15 @@ class MemoryResource(SyncAPIResource):
                         logger.warning("No local embedder available for missing embeddings")
                 except Exception as e:
                     logger.error(f"Error generating local embeddings: {e}")
-
+            
             # Add documents to ChromaDB (compare with existing data)
             if documents:
                 # Compare new data with existing data to detect changes
                 comparison_result = self._compare_tier0_data(collection, tier0_data, documents, metadatas, ids)
-
+                
                 if comparison_result["has_changes"]:
                     logger.info(f"Detected changes in tier0 data: {comparison_result['summary']}")
-
+                    
                     # Only add/update documents that are new or changed
                     new_documents = comparison_result["new_documents"]
                     new_metadatas = comparison_result["new_metadatas"]
@@ -2286,7 +2667,7 @@ class MemoryResource(SyncAPIResource):
                     updated_documents = comparison_result["updated_documents"]
                     updated_metadatas = comparison_result["updated_metadatas"]
                     updated_ids = comparison_result["updated_ids"]
-
+                
                     # Add new documents
                     if new_documents:
                         # Filter embeddings for new documents only
@@ -2294,7 +2675,7 @@ class MemoryResource(SyncAPIResource):
                         for doc_id in new_ids:  # type: ignore
                             original_index = ids.index(doc_id)
                             new_embeddings.append(embeddings[original_index])
-
+                        
                         # Add documents with embeddings if available; filter out invalid/None
                         filtered_docs = []
                         filtered_meta = []
@@ -2321,7 +2702,7 @@ class MemoryResource(SyncAPIResource):
                         else:
                             collection.add(documents=new_documents, metadatas=new_metadatas, ids=new_ids)
                             logger.info(f"Added {len(new_documents)} new documents with ChromaDB default embeddings")
-
+                    
                     # Update existing documents that have changed
                     if updated_documents:
                         # Filter embeddings for updated documents
@@ -2329,7 +2710,7 @@ class MemoryResource(SyncAPIResource):
                         for doc_id in updated_ids:  # type: ignore
                             original_index = ids.index(doc_id)
                             updated_embeddings.append(embeddings[original_index])
-
+                        
                         # Update documents (ChromaDB doesn't have direct update, so we delete and re-add)
                         try:
                             collection.delete(ids=updated_ids)
@@ -2379,14 +2760,14 @@ class MemoryResource(SyncAPIResource):
                                     documents=updated_documents, metadatas=updated_metadatas, ids=updated_ids
                                 )
                             logger.info(f"Added {len(updated_documents)} documents as new (update failed)")
-
+                    
                     total_changes = len(new_documents) + len(updated_documents)
                     logger.info(
                         f"ChromaDB updated: {len(new_documents)} new, {len(updated_documents)} updated, {total_changes} total changes"
                     )
                 else:
                     logger.info(f"No changes detected in tier0 data - ChromaDB collection unchanged")  # type: ignore
-
+                
                 # Query to verify storage (use safe query method)
                 try:
                     # Check if we can safely query without dimension mismatch
@@ -2397,7 +2778,7 @@ class MemoryResource(SyncAPIResource):
                             # Test the embedding function to ensure it produces the right dimensions
                             test_embedding = collection._embedding_function.embed_documents(["test"])[0]  # type: ignore
                             logger.info(f"Collection embedding function test successful (dim: {len(test_embedding)})")
-
+                            
                             # Now query using the collection's embedding function
                             results = collection.query(
                                 query_texts=["goals objectives"], n_results=min(3, len(documents))
@@ -2427,14 +2808,14 @@ class MemoryResource(SyncAPIResource):
                         "This indicates the collection was created with different embedding dimensions than expected"
                     )
                     logger.info("The collection will need to be recreated with the correct embedding function")
-
+                    
                     # Try alternative verification method
                     try:
                         count = collection.count()
                         logger.info(f"ChromaDB collection contains {count} documents (verified via count)")
                     except Exception as count_e:
                         logger.warning(f"Could not verify collection via count: {count_e}")
-
+                    
                     # Mark collection as needing recreation due to dimension mismatch
                     logger.warning("Collection has dimension mismatch - will be recreated on next run")
                     if hasattr(self, "_chroma_collection"):
@@ -2447,7 +2828,7 @@ class MemoryResource(SyncAPIResource):
                             self._chroma_collection = None  # type: ignore
                         except Exception as delete_e:
                             logger.warning(f"Could not delete problematic collection: {delete_e}")
-
+                
         except ImportError:
             logger.warning("ChromaDB not available - install with: pip install chromadb")
             logger.warning("Tier0 data will not be stored in vector database")
@@ -2568,21 +2949,21 @@ class MemoryResource(SyncAPIResource):
         from .._logging import get_logger
 
         logger = get_logger(__name__)
-
+        
         ondevice_processing = os.environ.get("PAPR_ONDEVICE_PROCESSING", "false").lower() in ("true", "1", "yes", "on")
-
+        
         # Check if ondevice processing was disabled due to CPU fallback
         if hasattr(self, "_ondevice_processing_disabled") and self._ondevice_processing_disabled:
             ondevice_processing = False
             logger.info("Ondevice processing disabled due to CPU fallback - using API processing")
-
+        
         # Search tier0 data locally for context enhancement if enabled
             tier0_context: list[str] = []
         # Debug logging
         logger.info(
             f"DEBUG: ondevice_processing={ondevice_processing}, hasattr={hasattr(self, '_chroma_collection')}, collection_not_none={getattr(self, '_chroma_collection', None) is not None}"
         )
-
+        
         if ondevice_processing and hasattr(self, "_chroma_collection") and self._chroma_collection is not None:
             import time
 
@@ -2591,7 +2972,15 @@ class MemoryResource(SyncAPIResource):
             n_results = max_memories if max_memories is not NOT_GIVEN else 5
             # Type assertion to help Pyright understand this is always an int
             assert isinstance(n_results, int), "n_results must be an int"
-            tier0_context = self._search_tier0_locally(query, n_results=n_results) or []
+            
+            # Check if model is loaded, fallback to server-side search if not
+            global _model_loading_complete
+            if not _model_loading_complete:
+                logger.info("Model still loading in background, using server-side search for optimal UX")
+                tier0_context = []
+            else:
+                tier0_context = self._search_tier0_locally(query, n_results=n_results) or []
+            
             search_time = time.time() - start_time
             logger.info(f"Local tier0 search completed in {search_time:.2f}s")
             if tier0_context:
@@ -2619,10 +3008,10 @@ class MemoryResource(SyncAPIResource):
                             memories.append(
                                 DataMemory.model_validate(
                                     {
-                                        "id": f"tier0_{i}",
-                                        "acl": {},
-                                        "content": content,
-                                        "type": "tier0",
+                                "id": f"tier0_{i}",
+                                "acl": {},
+                                "content": content,
+                                "type": "tier0",
                                         "user_id": "local",
                                     }
                                 )
@@ -2631,14 +3020,14 @@ class MemoryResource(SyncAPIResource):
                             logger.error(f"Failed to create DataMemory with model_validate: {e2}")
                             # Skip this item
                             continue
-
+                
                 # Return search results with proper SearchResponse structure
                 return SearchResponse(data=Data(memories=memories, nodes=[]), status="success")
         elif not ondevice_processing:
             logger.info("On-device processing disabled - using API-only search")
         else:
             logger.info("No ChromaDB collection available for local search")
-
+        
         # Perform the main search
         extra_headers = {**strip_not_given({"Accept-Encoding": accept_encoding}), **(extra_headers or {})}
         return self._post(
@@ -3158,7 +3547,7 @@ class AsyncMemoryResource(AsyncAPIResource):
         from .._logging import get_logger
 
         logger = get_logger(__name__)
-
+        
         try:
             # Call the async sync_tiers method with hardcoded parameters
             # Get max_tier0 from environment variable with fallback to 2
@@ -3169,7 +3558,7 @@ class AsyncMemoryResource(AsyncAPIResource):
                 max_tier0_value = int(max_tier0_env)
             except ValueError:
                 max_tier0_value = 2  # fallback to default if invalid
-
+            
             sync_response = await self.sync_tiers(
                 include_embeddings=True,
                 embed_limit=max_tier0_value,
@@ -3180,20 +3569,20 @@ class AsyncMemoryResource(AsyncAPIResource):
                 extra_body=extra_body,
                 timeout=timeout,
             )
-
+            
             if sync_response:
                 # Extract tier0 data using SyncTiersResponse model
                 tier0_data = sync_response.tier0
                 tier1_data = sync_response.tier1
-
+                
                 if tier0_data:
                     logger.info(f"Found {len(tier0_data)} tier0 items in sync response")
                     for i in range(min(3, len(tier0_data))):
                         logger.debug(f"Tier0 {i + 1}: Item extracted")
-
+                
                 if tier1_data:
                     logger.info(f"Found {len(tier1_data)} tier1 items in sync response")
-
+                
                 # Store tier0 data in ChromaDB
                 if tier0_data:
                     logger.info(f"Using {len(tier0_data)} tier0 items for search enhancement")
@@ -3201,7 +3590,7 @@ class AsyncMemoryResource(AsyncAPIResource):
                     logger.info("Async version does not support local storage")
                 else:
                     logger.info("No tier0 data found in sync response")
-
+                    
         except Exception as e:
             logger.error(f"Error in sync_tiers processing: {e}")
 
@@ -3308,7 +3697,7 @@ class AsyncMemoryResource(AsyncAPIResource):
         """
         # Note: AsyncMemoryResource does not support ondevice processing
         # Ondevice processing is only available in the synchronous MemoryResource
-
+        
         # Perform the main search
         extra_headers = {**strip_not_given({"Accept-Encoding": accept_encoding}), **(extra_headers or {})}
         return await self._post(

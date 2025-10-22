@@ -6,8 +6,8 @@ from Hugging Face when users enable CoreML without having a local model.
 """
 import os
 import logging
-from pathlib import Path
 from typing import Optional
+from pathlib import Path
 
 logger = logging.getLogger(__name__)
 
@@ -151,5 +151,5 @@ def resolve_coreml_model_path(specified_path: Optional[str] = None) -> str:
             "2. Manually convert: python scripts/coreml_models/convert_qwen_coreml.py "
             "--hf Qwen/Qwen3-Embedding-4B --out ./coreml/model.mlpackage --fp16\n"
             "3. Specify model path: export PAPR_COREML_MODEL=/path/to/model.mlpackage"
-        )
+        ) from e
 
