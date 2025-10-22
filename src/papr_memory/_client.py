@@ -123,20 +123,13 @@ class Papr(SyncAPIClient):
 
         if ondevice_processing:
             try:
-                logger.info("Initializing sync_tiers and ChromaDB collection")
-                self.memory._process_sync_tiers_and_store()
+                # Start background initialization for truly non-blocking client creation
+                logger.info("Starting background initialization for optimal user experience")
+                self.memory._start_background_initialization()
 
-                # Preload the embedding model to avoid loading overhead during search
-                logger.info("Preloading embedding model for faster search performance")
-                self.memory._preload_embedding_model()
-
-                # Start background sync task for periodic updates
-                logger.info("Starting background sync task")
-                self.memory._start_background_sync()
-
-                logger.info("Client initialization completed successfully")
+                logger.info("Client initialization completed successfully (all setup in background)")
             except Exception as e:
-                logger.warning(f"Failed to initialize sync_tiers during client setup: {e}")
+                logger.warning(f"Failed to start background initialization: {e}")
                 logger.warning("Client will still work, but local search features may be limited")
 
         log_ondevice_status(logger, ondevice_processing)
