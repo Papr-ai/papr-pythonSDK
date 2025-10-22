@@ -2,17 +2,17 @@
 
 from __future__ import annotations
 
+import os as _os
 import warnings
 from typing import Iterable, Optional, cast
+
+import httpx
 
 # Suppress deprecation warning from sentence_transformers
 warnings.filterwarnings("ignore", message=".*_target_device.*deprecated.*", category=UserWarning)
 
 # Silence HF tokenizers fork warnings globally
-import os as _os
 _os.environ.setdefault("TOKENIZERS_PARALLELISM", "false")
-
-import httpx
 
 from ..types import (
     MemoryType,
@@ -701,9 +701,10 @@ class MemoryResource(SyncAPIResource):
             enable_coreml = os.environ.get("PAPR_ENABLE_COREML", "false").lower() in ("true", "1", "yes", "on")
             if ("Apple" in device_name or device == "mps") and enable_coreml:
                 try:
-                    from transformers import AutoTokenizer  # type: ignore
-                    import coremltools as ct  # type: ignore
                     import numpy as np  # type: ignore
+                    import coremltools as ct  # type: ignore
+                    from transformers import AutoTokenizer  # type: ignore
+
                     from papr_memory._model_cache import resolve_coreml_model_path
 
                     # Auto-download from HuggingFace if not found locally
@@ -818,7 +819,7 @@ class MemoryResource(SyncAPIResource):
                                     enc: Any = hf_tok(inputs, padding=True, truncation=True, return_tensors=None)
                                 except Exception:
                                     if not callable(self.tokenizer):
-                                        raise TypeError("MLX tokenizer is not callable; falling back to ST embedder")
+                                        raise TypeError("MLX tokenizer is not callable; falling back to ST embedder") from None
                                     tok: Callable[..., Any] = cast(Callable[..., Any], self.tokenizer)
                                     enc = tok(inputs, return_tensors=None, padding=True, truncation=True)
                                 # Some MLX models expose a nested .model; try both
@@ -833,10 +834,10 @@ class MemoryResource(SyncAPIResource):
                                     output_hidden_states=True,
                                 )
                                 hidden: object | None = None
-                                if hasattr(outputs, "hidden_states") and getattr(outputs, "hidden_states"):
-                                    hidden = getattr(outputs, "hidden_states")[-1]
+                                if hasattr(outputs, "hidden_states") and outputs.hidden_states:
+                                    hidden = outputs.hidden_states[-1]
                                 elif hasattr(outputs, "last_hidden_state"):
-                                    hidden = getattr(outputs, "last_hidden_state")
+                                    hidden = outputs.last_hidden_state
 
                                 if hidden is None:
                                     raise RuntimeError("MLX model did not return hidden states for pooling")
@@ -1462,9 +1463,10 @@ class MemoryResource(SyncAPIResource):
                         logger.info(f"⏱️ Model loading started at {time.strftime('%H:%M:%S', time.localtime(model_start))}")
 
                         # Load model with timeout protection
+                        import threading
+
                         import torch
                         from sentence_transformers import SentenceTransformer
-                        import threading
 
                         # Detect platform
                         device = None
@@ -1641,9 +1643,9 @@ class MemoryResource(SyncAPIResource):
 
     def _get_qwen_embedding_function(self) -> object:
         """Get Qwen-based embedding function for ChromaDB using the correct interface with timeout protection"""
-        from .._logging import get_logger
         import threading
-        import time
+
+        from .._logging import get_logger
 
         logger = get_logger(__name__)
         
