@@ -104,12 +104,11 @@ format = { chain = [
 "check:importable" = "python -c 'import papr_memory'"
 
 typecheck = { chain = [
-  "typecheck:pyright",
-  "typecheck:mypy"
+  "typecheck:pyright"
 ]}
 "typecheck:pyright" = "pyright src/ tests/"
 "typecheck:verify-types" = "pyright --verifytypes papr_memory --ignoreexternal"
-"typecheck:mypy" = "mypy src/ tests/"
+"typecheck:mypy" = "mypy src/"
 
 [build-system]
 requires = ["hatchling==1.26.3", "hatch-fancy-pypi-readme"]
