@@ -1952,7 +1952,7 @@ class MemoryResource(SyncAPIResource):
             retrieval_logging_service.end_chromadb_timing(metrics, num_results)
             
             # End query timing and log comprehensive metrics
-            device_type = "cuda" if hasattr(self, "_device") and self._device == "cuda" else "cpu"
+            device_type = "cuda" if hasattr(self, "_qwen_model") and self._qwen_model is not None else "cpu"
             retrieval_logging_service.end_query_timing(metrics, device_type)
             
             # Log to Parse Server (non-blocking)
@@ -2542,7 +2542,7 @@ class MemoryResource(SyncAPIResource):
                         from papr_memory._retrieval_logging import retrieval_logging_service
                         try:
                             collection_info = self._chroma_collection.get()  # type: ignore
-                            num_documents = len(collection_info.get("documents", [])) if collection_info else 0
+                            num_documents = len(collection_info.get("documents", [])) if collection_info and collection_info.get("documents") else 0
                             embedding_function_name = "Qwen3-4B" if embedding_function else "DefaultEmbeddingFunction"
                             retrieval_logging_service.log_chromadb_metrics(
                                 collection_name, 

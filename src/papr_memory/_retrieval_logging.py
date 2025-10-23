@@ -105,7 +105,7 @@ class RetrievalLoggingService:
         
         logger.info(f"✅ ChromaDB search completed in {metrics.chromadb_latency_ms:.2f}ms ({num_results} results)")
     
-    def end_query_timing(self, metrics: RetrievalMetrics, device_type: str = None) -> None:
+    def end_query_timing(self, metrics: RetrievalMetrics, device_type: Optional[str] = None) -> None:
         """End timing the entire query and log final metrics"""
         if not self.enable_metrics or not metrics.query_start_time:
             return
@@ -144,7 +144,8 @@ class RetrievalLoggingService:
             
             # Log to console with structured format
             logger.info("📊 On-Device Retrieval Metrics:")
-            logger.info(f"   🔍 Query: '{metrics.query_text[:50]}{'...' if len(metrics.query_text) > 50 else ''}'")
+            query_display = metrics.query_text or ""
+            logger.info(f"   🔍 Query: '{query_display[:50]}{'...' if len(query_display) > 50 else ''}'")
             logger.info(f"   ⏱️  Total Latency: {metrics.total_latency_ms:.2f}ms")
             logger.info(f"   🧠 Embedding: {metrics.embedding_latency_ms:.2f}ms (dim: {metrics.embedding_dimensions})")
             logger.info(f"   🔍 ChromaDB: {metrics.chromadb_latency_ms:.2f}ms ({metrics.num_results} results)")
@@ -159,6 +160,9 @@ class RetrievalLoggingService:
     
     def _write_metrics_to_file(self, metrics_summary: Dict[str, Any]) -> None:
         """Write metrics to log file"""
+        if not self.log_file:
+            return
+            
         try:
             log_entry = {
                 "type": "retrieval_metrics",
@@ -171,7 +175,7 @@ class RetrievalLoggingService:
         except Exception as e:
             logger.error(f"Error writing metrics to file: {e}")
     
-    def log_performance_comparison(self, local_latency_ms: float, server_latency_ms: float = None) -> None:
+    def log_performance_comparison(self, local_latency_ms: float, server_latency_ms: Optional[float] = None) -> None:
         """Log performance comparison between local and server search"""
         if not self.enable_metrics:
             return
@@ -209,18 +213,18 @@ class RetrievalLoggingService:
     async def log_to_parse_server(
         self,
         metrics: RetrievalMetrics,
-        user_id: str = None,
-        workspace_id: str = None,
-        session_id: str = None,
-        post_id: str = None,
-        user_message_id: str = None,
-        assistant_message_id: str = None,
-        goal_classification_scores: List[float] = None,
-        use_case_classification_scores: List[float] = None,
-        step_classification_scores: List[float] = None,
-        related_goals: List[str] = None,
-        related_use_cases: List[str] = None,
-        related_steps: List[str] = None
+        user_id: Optional[str] = None,
+        workspace_id: Optional[str] = None,
+        session_id: Optional[str] = None,
+        post_id: Optional[str] = None,
+        user_message_id: Optional[str] = None,
+        assistant_message_id: Optional[str] = None,
+        goal_classification_scores: Optional[List[float]] = None,
+        use_case_classification_scores: Optional[List[float]] = None,
+        step_classification_scores: Optional[List[float]] = None,
+        related_goals: Optional[List[str]] = None,
+        related_use_cases: Optional[List[str]] = None,
+        related_steps: Optional[List[str]] = None
     ) -> Optional[str]:
         """Log retrieval metrics to Parse Server QueryLog collection"""
         
@@ -234,7 +238,7 @@ class RetrievalLoggingService:
             
             # Log to Parse Server
             query_log_id = await parse_logging_service.log_retrieval_metrics(
-                query=metrics.query_text,
+                query=metrics.query_text or "",
                 retrieval_latency_ms=metrics.total_latency_ms or 0,
                 total_processing_time_ms=metrics.total_latency_ms or 0,
                 query_embedding_tokens=query_embedding_tokens,
@@ -267,18 +271,18 @@ class RetrievalLoggingService:
     def log_to_parse_server_sync(
         self,
         metrics: RetrievalMetrics,
-        user_id: str = None,
-        workspace_id: str = None,
-        session_id: str = None,
-        post_id: str = None,
-        user_message_id: str = None,
-        assistant_message_id: str = None,
-        goal_classification_scores: List[float] = None,
-        use_case_classification_scores: List[float] = None,
-        step_classification_scores: List[float] = None,
-        related_goals: List[str] = None,
-        related_use_cases: List[str] = None,
-        related_steps: List[str] = None
+        user_id: Optional[str] = None,
+        workspace_id: Optional[str] = None,
+        session_id: Optional[str] = None,
+        post_id: Optional[str] = None,
+        user_message_id: Optional[str] = None,
+        assistant_message_id: Optional[str] = None,
+        goal_classification_scores: Optional[List[float]] = None,
+        use_case_classification_scores: Optional[List[float]] = None,
+        step_classification_scores: Optional[List[float]] = None,
+        related_goals: Optional[List[str]] = None,
+        related_use_cases: Optional[List[str]] = None,
+        related_steps: Optional[List[str]] = None
     ) -> Optional[str]:
         """Synchronous wrapper for Parse Server logging"""
         try:

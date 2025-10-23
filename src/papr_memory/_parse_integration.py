@@ -46,22 +46,22 @@ class QueryLog:
         infrastructureRegion: str = "us-east-1",
         rankingEnabled: bool = True,
         enabledAgenticGraph: bool = False,
-        tierSequence: List[int] = None,
-        predictedTier: str = None,  # Not populated yet
-        tierPredictionConfidence: float = None,  # Not populated yet
+        tierSequence: Optional[List[int]] = None,
+        predictedTier: Optional[str] = None,  # Not populated yet
+        tierPredictionConfidence: Optional[float] = None,  # Not populated yet
         onDevice: bool = True,  # True for on-device processing
         SDKLog: bool = True,  # True for SDK-generated logs
-        goalClassificationScores: List[float] = None,
-        useCaseClassificationScores: List[float] = None,
-        stepClassificationScores: List[float] = None,
-        relatedGoals: List[ParsePointer] = None,
-        relatedUseCases: List[ParsePointer] = None,
-        relatedSteps: List[ParsePointer] = None,
-        post: ParsePointer = None,
-        userMessage: ParsePointer = None,
-        assistantMessage: ParsePointer = None,
-        sessionId: str = None,
-        objectId: str = None
+        goalClassificationScores: Optional[List[float]] = None,
+        useCaseClassificationScores: Optional[List[float]] = None,
+        stepClassificationScores: Optional[List[float]] = None,
+        relatedGoals: Optional[List[ParsePointer]] = None,
+        relatedUseCases: Optional[List[ParsePointer]] = None,
+        relatedSteps: Optional[List[ParsePointer]] = None,
+        post: Optional[ParsePointer] = None,
+        userMessage: Optional[ParsePointer] = None,
+        assistantMessage: Optional[ParsePointer] = None,
+        sessionId: Optional[str] = None,
+        objectId: Optional[str] = None
     ):
         self.user = user
         self.workspace = workspace
@@ -176,18 +176,18 @@ class ParseServerLoggingService:
         total_processing_time_ms: float,
         query_embedding_tokens: int,
         retrieved_memory_tokens: int,
-        user_id: str = None,
-        workspace_id: str = None,
-        session_id: str = None,
-        post_id: str = None,
-        user_message_id: str = None,
-        assistant_message_id: str = None,
-        goal_classification_scores: List[float] = None,
-        use_case_classification_scores: List[float] = None,
-        step_classification_scores: List[float] = None,
-        related_goals: List[str] = None,
-        related_use_cases: List[str] = None,
-        related_steps: List[str] = None
+        user_id: Optional[str] = None,
+        workspace_id: Optional[str] = None,
+        session_id: Optional[str] = None,
+        post_id: Optional[str] = None,
+        user_message_id: Optional[str] = None,
+        assistant_message_id: Optional[str] = None,
+        goal_classification_scores: Optional[List[float]] = None,
+        use_case_classification_scores: Optional[List[float]] = None,
+        step_classification_scores: Optional[List[float]] = None,
+        related_goals: Optional[List[str]] = None,
+        related_use_cases: Optional[List[str]] = None,
+        related_steps: Optional[List[str]] = None
     ) -> Optional[str]:
         """Log retrieval metrics to Parse Server QueryLog collection"""
         
@@ -240,18 +240,18 @@ class ParseServerLoggingService:
         total_processing_time_ms: float,
         query_embedding_tokens: int,
         retrieved_memory_tokens: int,
-        user_id: str = None,
-        workspace_id: str = None,
-        session_id: str = None,
-        post_id: str = None,
-        user_message_id: str = None,
-        assistant_message_id: str = None,
-        goal_classification_scores: List[float] = None,
-        use_case_classification_scores: List[float] = None,
-        step_classification_scores: List[float] = None,
-        related_goals: List[str] = None,
-        related_use_cases: List[str] = None,
-        related_steps: List[str] = None
+        user_id: Optional[str] = None,
+        workspace_id: Optional[str] = None,
+        session_id: Optional[str] = None,
+        post_id: Optional[str] = None,
+        user_message_id: Optional[str] = None,
+        assistant_message_id: Optional[str] = None,
+        goal_classification_scores: Optional[List[float]] = None,
+        use_case_classification_scores: Optional[List[float]] = None,
+        step_classification_scores: Optional[List[float]] = None,
+        related_goals: Optional[List[str]] = None,
+        related_use_cases: Optional[List[str]] = None,
+        related_steps: Optional[List[str]] = None
     ) -> QueryLog:
         """Create QueryLog object from parameters"""
         
