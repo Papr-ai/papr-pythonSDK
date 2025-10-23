@@ -2542,7 +2542,8 @@ class MemoryResource(SyncAPIResource):
                         from papr_memory._retrieval_logging import retrieval_logging_service
                         try:
                             collection_info = self._chroma_collection.get()  # type: ignore
-                            num_documents = len(collection_info.get("documents", [])) if collection_info and collection_info.get("documents") else 0
+                            documents = collection_info.get("documents", []) if collection_info else []
+                            num_documents = len(documents) if documents is not None else 0
                             embedding_function_name = "Qwen3-4B" if embedding_function else "DefaultEmbeddingFunction"
                             retrieval_logging_service.log_chromadb_metrics(
                                 collection_name, 
