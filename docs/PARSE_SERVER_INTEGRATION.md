@@ -17,6 +17,7 @@ Set the following environment variables to enable Parse Server logging:
 export PAPR_PARSE_SERVER_URL="https://your-parse-server.com/parse"
 export PAPR_PARSE_APP_ID="your-app-id"
 export PAPR_PARSE_MASTER_KEY="your-master-key"  # or PAPR_PARSE_API_KEY
+export PAPR_MEMORY_API_KEY="your-sdk-api-key"  # SDK API key for user lookup
 
 # Enable metrics logging
 export PAPR_ENABLE_METRICS="true"
@@ -118,12 +119,43 @@ response = client.memory.search(
 )
 ```
 
-### Advanced Usage with User Context
+### User ID Resolution Logic
+
+The SDK determines the user_id for Parse Server logging based on the search metadata:
+
+1. **SDK API Key Lookup**: The SDK queries the `_User` collection using the configured SDK API key to get the developer ID
+2. **User Collection Query**: Searches for users where `apiKey` matches the configured `PAPR_MEMORY_API_KEY`
+3. **Metadata-based Resolution**:
+   - **If `metadata.user_id` is provided**: Use this user_id directly in QueryLog
+   - **If `metadata.user_id` is not provided**: Use developer ID (auto-resolved from SDK API key)
+4. **Default Fallback**: If resolution fails, uses "default_user"
 
 ```python
-# The SDK automatically logs with default user/workspace IDs
-# For custom user context, you can modify the Parse Server integration
-# to accept user_id and workspace_id parameters
+# Case 1: metadata.user_id provided -> use this user_id directly
+from papr_memory.types import MemoryMetadata
+
+client.memory.search(
+    query="specific user search",
+    metadata=MemoryMetadata(user_id="specific-user-456")  # Will log with this user_id
+)
+
+# Case 2: no metadata.user_id -> use developer ID (auto-resolved from API key)
+client.memory.search(
+    query="developer search"  # Will log with developer ID
+)
+
+# Case 3: metadata provided but no user_id -> use developer ID
+client.memory.search(
+    query="search with other metadata",
+    metadata=MemoryMetadata(location="office")  # Will log with developer ID
+)
+```
+
+## Advanced Usage with User Context
+
+```python
+# The SDK automatically logs with resolved user IDs
+# User resolution happens in background thread (non-blocking)
 ```
 
 ## Logging Behavior

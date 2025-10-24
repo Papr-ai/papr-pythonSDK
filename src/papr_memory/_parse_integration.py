@@ -6,7 +6,8 @@ to the same Parse Server database used by the memory server.
 """
 
 import os
-from typing import Any, Dict, List, Optional
+import json
+from typing import Any, Dict, List, Tuple, Optional
 
 import httpx
 
@@ -153,7 +154,8 @@ class ParseServerLoggingService:
         self.parse_server_url = os.environ.get("PAPR_PARSE_SERVER_URL")
         self.parse_app_id = os.environ.get("PAPR_PARSE_APP_ID")
         self.parse_master_key = os.environ.get("PAPR_PARSE_MASTER_KEY")
-        self.parse_api_key = os.environ.get("PAPR_PARSE_API_KEY")
+        self.parse_api_key = os.environ.get("PAPR_PARSE_API_KEY")  # Parse Server API key
+        self.memory_api_key = os.environ.get("PAPR_MEMORY_API_KEY")  # SDK API key for user lookup
         self.enabled = self._is_enabled()
         
         if self.enabled:
@@ -166,7 +168,8 @@ class ParseServerLoggingService:
         return bool(
             self.parse_server_url and 
             self.parse_app_id and 
-            (self.parse_master_key or self.parse_api_key)
+            (self.parse_master_key or self.parse_api_key) and
+            self.memory_api_key  # Need SDK API key for user lookup
         )
     
     async def log_retrieval_metrics(
@@ -351,6 +354,129 @@ class ParseServerLoggingService:
         except Exception as e:
             logger.error(f"Error sending to Parse Server: {e}")
             return None
+    
+    async def _get_user_id_from_api_key(self, api_key: str) -> Optional[str]:
+        """Query Parse Server User collection to get user ID from SDK API key"""
+        if not self.parse_server_url or not self.parse_app_id:
+            return None
+            
+        try:
+            # Use Parse Server API key for authentication, but search by SDK API key
+            headers = {
+                "X-Parse-Application-Id": self.parse_app_id,
+                "Content-Type": "application/json"
+            }
+            
+            # Use the correct authentication header
+            if self.parse_master_key:
+                headers["X-Parse-Master-Key"] = self.parse_master_key
+            elif self.parse_api_key:
+                headers["X-Parse-REST-API-Key"] = self.parse_api_key
+            
+            # Query User collection to find user by SDK API key
+            url = f"{self.parse_server_url}/classes/_User"
+            params = {
+                "where": json.dumps({"userAPIkey": api_key}),  # Search by SDK API key
+                "limit": 10,  # Get multiple users to handle duplicates
+                "order": "-updatedAt"  # Order by most recently updated
+            }
+            
+            async with httpx.AsyncClient() as client:
+                response = await client.get(url, headers=headers, params=params)
+                response.raise_for_status()
+                
+                data = response.json()
+                results = data.get("results", [])
+                
+                if results:
+                    if len(results) > 1:
+                        logger.warning(f"Found {len(results)} users with same API key, using most recent")
+                    
+                    # Use the first result (most recently updated due to ordering)
+                    user_id = results[0].get("objectId")
+                    logger.debug(f"Found user ID: {user_id} for SDK API key")
+                    return user_id
+                else:
+                    logger.warning(f"No user found for SDK API key")
+                    return None
+                    
+        except Exception as e:
+            logger.error(f"Error querying User collection: {e}")
+            return None
+    
+    async def get_developer_id(self) -> Optional[str]:
+        """Get the developer ID from the SDK API key"""
+        if not self.memory_api_key:
+            return None
+        return await self._get_user_id_from_api_key(self.memory_api_key)
+    
+    async def resolve_user_for_search(
+        self,
+        query: str,  # noqa: ARG002
+        metadata: Optional[Dict[str, Any]] = None,
+        user_id: Optional[str] = None,
+        external_user_id: Optional[str] = None,
+        httpx_client: Optional[httpx.AsyncClient] = None  # noqa: ARG002
+    ) -> Tuple[Optional[str], Optional[str]]:
+        """
+        Resolve user ID for search based on search parameters.
+        Returns: (resolved_user_id, developer_user_id)
+        """
+        try:
+            logger.info("Starting user resolution for search")
+            
+            # Get developer ID from API key
+            developer_user_id = await self.get_developer_id()
+            if not developer_user_id:
+                logger.warning("Could not resolve developer ID from API key")
+                return None, None
+            
+            logger.info(f"Developer ID resolved: {developer_user_id}")
+            
+            # Check if any user identification is provided in the search request
+            has_user_id = user_id is not None
+            has_external_user_id = external_user_id is not None
+            has_metadata_user_id = metadata and metadata.get('user_id') is not None
+            has_metadata_external_user_id = metadata and metadata.get('external_user_id') is not None
+            
+            # Case 1: Developer is the end user (no user identification provided)
+            if not has_user_id and not has_external_user_id and not has_metadata_user_id and not has_metadata_external_user_id:
+                logger.info("Case 1: Developer is end user - no additional user identification provided")
+                return developer_user_id, developer_user_id
+            
+            # Case 2: User ID provided directly
+            elif has_user_id:
+                logger.info(f"Case 2: User ID provided directly: {user_id}")
+                return user_id, developer_user_id
+            
+            # Case 3: External user ID provided
+            elif has_external_user_id:
+                logger.info(f"Case 3: External user ID provided: {external_user_id}")
+                # For external_user_id, we still use the developer ID in QueryLog
+                # but the search will be filtered by external_user_id
+                return developer_user_id, developer_user_id
+            
+            # Case 4: User ID in metadata
+            elif has_metadata_user_id:
+                metadata_user_id = metadata.get('user_id') if metadata else None
+                logger.info(f"Case 4: User ID in metadata: {metadata_user_id}")
+                return metadata_user_id, developer_user_id
+            
+            # Case 5: External user ID in metadata
+            elif has_metadata_external_user_id:
+                external_user_id_in_metadata = metadata.get('external_user_id') if metadata else None
+                logger.info(f"Case 5: External user ID in metadata: {external_user_id_in_metadata}")
+                # For external_user_id in metadata, we still use the developer ID in QueryLog
+                return developer_user_id, developer_user_id
+            
+            # Default fallback
+            else:
+                logger.info("Default case: Using developer ID")
+                return developer_user_id, developer_user_id
+                
+        except Exception as e:
+            logger.error(f"Error in user resolution for search: {e}")
+            return None, None
 
 
 # Global instance

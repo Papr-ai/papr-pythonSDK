@@ -282,35 +282,117 @@ class RetrievalLoggingService:
         step_classification_scores: Optional[List[float]] = None,
         related_goals: Optional[List[str]] = None,
         related_use_cases: Optional[List[str]] = None,
-        related_steps: Optional[List[str]] = None
+        related_steps: Optional[List[str]] = None,
+        search_context: Optional[Dict[str, Any]] = None
     ) -> Optional[str]:
-        """Synchronous wrapper for Parse Server logging"""
+        """Synchronous wrapper for Parse Server logging with background user resolution"""
         try:
-            # Run async function in event loop
-            loop = asyncio.get_event_loop()
-            if loop.is_running():
-                # If we're already in an event loop, create a task
-                task = asyncio.create_task(
-                    self.log_to_parse_server(
-                        metrics, user_id, workspace_id, session_id, post_id,
-                        user_message_id, assistant_message_id, goal_classification_scores,
-                        use_case_classification_scores, step_classification_scores,
-                        related_goals, related_use_cases, related_steps
+            # If search_context is provided, resolve user in background
+            if search_context:
+                # Create background task for user resolution and Parse Server logging
+                loop = asyncio.get_event_loop()
+                if loop.is_running():
+                    # If we're already in an event loop, create a task
+                    task = asyncio.create_task(
+                        self._log_to_parse_server_with_user_resolution(
+                            metrics, search_context, workspace_id, session_id, post_id,
+                            user_message_id, assistant_message_id, goal_classification_scores,
+                            use_case_classification_scores, step_classification_scores,
+                            related_goals, related_use_cases, related_steps
+                        )
                     )
-                )
-                # Don't wait for completion to avoid blocking
-                return None
+                    # Don't wait for completion to avoid blocking
+                    return None
+                else:
+                    return loop.run_until_complete(
+                        self._log_to_parse_server_with_user_resolution(
+                            metrics, search_context, workspace_id, session_id, post_id,
+                            user_message_id, assistant_message_id, goal_classification_scores,
+                            use_case_classification_scores, step_classification_scores,
+                            related_goals, related_use_cases, related_steps
+                        )
+                    )
             else:
-                return loop.run_until_complete(
-                    self.log_to_parse_server(
-                        metrics, user_id, workspace_id, session_id, post_id,
-                        user_message_id, assistant_message_id, goal_classification_scores,
-                        use_case_classification_scores, step_classification_scores,
-                        related_goals, related_use_cases, related_steps
+                # Original behavior without search context
+                loop = asyncio.get_event_loop()
+                if loop.is_running():
+                    # If we're already in an event loop, create a task
+                    task = asyncio.create_task(
+                        self.log_to_parse_server(
+                            metrics, user_id, workspace_id, session_id, post_id,
+                            user_message_id, assistant_message_id, goal_classification_scores,
+                            use_case_classification_scores, step_classification_scores,
+                            related_goals, related_use_cases, related_steps
+                        )
                     )
-                )
+                    # Don't wait for completion to avoid blocking
+                    return None
+                else:
+                    return loop.run_until_complete(
+                        self.log_to_parse_server(
+                            metrics, user_id, workspace_id, session_id, post_id,
+                            user_message_id, assistant_message_id, goal_classification_scores,
+                            use_case_classification_scores, step_classification_scores,
+                            related_goals, related_use_cases, related_steps
+                        )
+                    )
         except Exception as e:
             logger.error(f"Error in sync Parse Server logging: {e}")
+            return None
+    
+    async def _log_to_parse_server_with_user_resolution(
+        self,
+        metrics: RetrievalMetrics,
+        search_context: Dict[str, Any],
+        workspace_id: Optional[str] = None,
+        session_id: Optional[str] = None,
+        post_id: Optional[str] = None,
+        user_message_id: Optional[str] = None,
+        assistant_message_id: Optional[str] = None,
+        goal_classification_scores: Optional[List[float]] = None,
+        use_case_classification_scores: Optional[List[float]] = None,
+        step_classification_scores: Optional[List[float]] = None,
+        related_goals: Optional[List[str]] = None,
+        related_use_cases: Optional[List[str]] = None,
+        related_steps: Optional[List[str]] = None
+    ) -> Optional[str]:
+        """Background user resolution and Parse Server logging"""
+        try:
+            from papr_memory._parse_integration import parse_logging_service
+            
+            # Resolve user in background
+            resolved_user_id, developer_user_id = await parse_logging_service.resolve_user_for_search(
+                query=search_context.get('query', ''),
+                metadata=search_context.get('metadata'),
+                user_id=search_context.get('user_id'),
+                external_user_id=search_context.get('external_user_id')
+            )
+            
+            logger.debug(f"Background user resolution completed: {resolved_user_id}")
+            
+            # Log to Parse Server with resolved user ID
+            return await parse_logging_service.log_retrieval_metrics(
+                query=search_context.get('query', ''),
+                retrieval_latency_ms=metrics.total_latency_ms or 0,
+                total_processing_time_ms=metrics.total_latency_ms or 0,
+                query_embedding_tokens=len(metrics.query_text.split()) if metrics.query_text else 0,
+                retrieved_memory_tokens=metrics.num_results * 50,
+                user_id=resolved_user_id,
+                workspace_id=workspace_id,
+                session_id=session_id,
+                post_id=post_id,
+                user_message_id=user_message_id,
+                assistant_message_id=assistant_message_id,
+                goal_classification_scores=goal_classification_scores,
+                use_case_classification_scores=use_case_classification_scores,
+                step_classification_scores=step_classification_scores,
+                related_goals=related_goals,
+                related_use_cases=related_use_cases,
+                related_steps=related_steps
+            )
+            
+        except Exception as e:
+            logger.error(f"Error in background user resolution and Parse Server logging: {e}")
             return None
 
 

@@ -1796,7 +1796,14 @@ class MemoryResource(SyncAPIResource):
             logger.error(f"Error creating Qwen embedding function: {e}")
             return None
 
-    def _search_tier0_locally(self, query: str, n_results: int = 5) -> list[str] | None:
+    def _search_tier0_locally(
+        self, 
+        query: str, 
+        n_results: int = 5,
+        metadata: Optional[MemoryMetadataParam] | NotGiven = NOT_GIVEN,
+        user_id: Optional[str] | NotGiven = NOT_GIVEN,
+        external_user_id: Optional[str] | NotGiven = NOT_GIVEN
+    ) -> list[str] | None:
         """Search tier0 data using local vector search"""
         import time
 
@@ -1955,9 +1962,20 @@ class MemoryResource(SyncAPIResource):
             device_type = "cuda" if hasattr(self, "_qwen_model") and self._qwen_model is not None else "cpu"
             retrieval_logging_service.end_query_timing(metrics, device_type)
             
-            # Log to Parse Server (non-blocking)
+            # Log to Parse Server (non-blocking) - user resolution will happen in background
             try:
-                retrieval_logging_service.log_to_parse_server_sync(metrics)
+                # Pass search context to Parse Server logging for background user resolution
+                search_context = {
+                    'query': query,
+                    'metadata': metadata if metadata != NOT_GIVEN else None,
+                    'user_id': user_id if user_id != NOT_GIVEN else None,
+                    'external_user_id': external_user_id if external_user_id != NOT_GIVEN else None
+                }
+                
+                retrieval_logging_service.log_to_parse_server_sync(
+                    metrics, 
+                    search_context=search_context
+                )
             except Exception as parse_e:
                 logger.warning(f"Parse Server logging failed: {parse_e}")
 
@@ -3082,7 +3100,13 @@ class MemoryResource(SyncAPIResource):
                 logger.info("Model still loading in background, using server-side search for optimal UX")
                 tier0_context = []
             else:
-                tier0_context = self._search_tier0_locally(query, n_results=n_results) or []
+                tier0_context = self._search_tier0_locally(
+                    query, 
+                    n_results=n_results,
+                    metadata=metadata,
+                    user_id=user_id,
+                    external_user_id=external_user_id
+                ) or []
             
             search_time = time.time() - start_time
             logger.info(f"Local tier0 search completed in {search_time:.2f}s")
