@@ -1974,7 +1974,8 @@ class MemoryResource(SyncAPIResource):
                 
                 retrieval_logging_service.log_to_parse_server_sync(
                     metrics, 
-                    search_context=search_context
+                    search_context=search_context,
+                    ranking_enabled=True  # Default to True, can be made configurable
                 )
             except Exception as parse_e:
                 logger.warning(f"Parse Server logging failed: {parse_e}")
