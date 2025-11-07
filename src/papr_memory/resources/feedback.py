@@ -96,6 +96,8 @@ class FeedbackResource(SyncAPIResource):
         feedback_data: feedback_submit_params.FeedbackData,
         search_id: str,
         external_user_id: Optional[str] | Omit = omit,
+        namespace_id: Optional[str] | Omit = omit,
+        organization_id: Optional[str] | Omit = omit,
         user_id: Optional[str] | Omit = omit,
         # Use the following arguments if you need to pass additional parameters to the API that aren't available via kwargs.
         # The extra values given here take precedence over values defined on the client or passed to this method.
@@ -136,6 +138,12 @@ class FeedbackResource(SyncAPIResource):
 
           external_user_id: External user ID for developer API keys acting on behalf of end users
 
+          namespace_id: Optional namespace ID for multi-tenant feedback scoping. When provided, feedback
+              is scoped to this namespace.
+
+          organization_id: Optional organization ID for multi-tenant feedback scoping. When provided,
+              feedback is scoped to this organization.
+
           user_id: Internal user ID (if not provided, will be resolved from authentication)
 
           extra_headers: Send extra headers
@@ -153,6 +161,8 @@ class FeedbackResource(SyncAPIResource):
                     "feedback_data": feedback_data,
                     "search_id": search_id,
                     "external_user_id": external_user_id,
+                    "namespace_id": namespace_id,
+                    "organization_id": organization_id,
                     "user_id": user_id,
                 },
                 feedback_submit_params.FeedbackSubmitParams,
@@ -291,6 +301,8 @@ class AsyncFeedbackResource(AsyncAPIResource):
         feedback_data: feedback_submit_params.FeedbackData,
         search_id: str,
         external_user_id: Optional[str] | Omit = omit,
+        namespace_id: Optional[str] | Omit = omit,
+        organization_id: Optional[str] | Omit = omit,
         user_id: Optional[str] | Omit = omit,
         # Use the following arguments if you need to pass additional parameters to the API that aren't available via kwargs.
         # The extra values given here take precedence over values defined on the client or passed to this method.
@@ -331,6 +343,12 @@ class AsyncFeedbackResource(AsyncAPIResource):
 
           external_user_id: External user ID for developer API keys acting on behalf of end users
 
+          namespace_id: Optional namespace ID for multi-tenant feedback scoping. When provided, feedback
+              is scoped to this namespace.
+
+          organization_id: Optional organization ID for multi-tenant feedback scoping. When provided,
+              feedback is scoped to this organization.
+
           user_id: Internal user ID (if not provided, will be resolved from authentication)
 
           extra_headers: Send extra headers
@@ -348,6 +366,8 @@ class AsyncFeedbackResource(AsyncAPIResource):
                     "feedback_data": feedback_data,
                     "search_id": search_id,
                     "external_user_id": external_user_id,
+                    "namespace_id": namespace_id,
+                    "organization_id": organization_id,
                     "user_id": user_id,
                 },
                 feedback_submit_params.FeedbackSubmitParams,

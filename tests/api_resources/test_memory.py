@@ -49,6 +49,7 @@ class TestMemory:
             ],
             metadata={
                 "assistant_message": "assistantMessage",
+                "category": "preference",
                 "conversation_id": "conversationId",
                 "created_at": "createdAt",
                 "custom_metadata": {"foo": "string"},
@@ -60,11 +61,14 @@ class TestMemory:
                 "goal_classification_scores": [0],
                 "hierarchical_structures": "hierarchical_structures",
                 "location": "location",
+                "namespace_id": "namespace_id",
+                "organization_id": "organization_id",
                 "page_id": "pageId",
                 "post": "post",
                 "related_goals": ["string"],
                 "related_steps": ["string"],
                 "related_use_cases": ["string"],
+                "role": "user",
                 "role_read_access": ["string"],
                 "role_write_access": ["string"],
                 "session_id": "sessionId",
@@ -72,6 +76,7 @@ class TestMemory:
                 "source_url": "sourceUrl",
                 "step_classification_scores": [0],
                 "topics": ["string"],
+                "upload_id": "upload_id",
                 "use_case_classification_scores": [0],
                 "user_id": "user_id",
                 "user_read_access": ["string"],
@@ -81,6 +86,8 @@ class TestMemory:
                 "workspace_read_access": ["string"],
                 "workspace_write_access": ["string"],
             },
+            namespace_id="namespace_id",
+            organization_id="organization_id",
             relationships_json=[
                 {
                     "relation_type": "updates",
@@ -183,8 +190,7 @@ class TestMemory:
     @parametrize
     def test_method_add(self, client: Papr) -> None:
         memory = client.memory.add(
-            content="Meeting notes from the product planning session",
-            type="text",
+            content="Meeting with John Smith from Acme Corp about the Q4 project timeline",
         )
         assert_matches_type(AddMemoryResponse, memory, path=["response"])
 
@@ -192,23 +198,57 @@ class TestMemory:
     @parametrize
     def test_method_add_with_all_params(self, client: Papr) -> None:
         memory = client.memory.add(
-            content="Meeting notes from the product planning session",
-            type="text",
+            content="Meeting with John Smith from Acme Corp about the Q4 project timeline",
             skip_background_processing=True,
             context=[
                 {
-                    "content": "Let's discuss the Q2 product roadmap",
+                    "content": "Let's discuss the Q4 project timeline with John",
                     "role": "user",
                 },
                 {
-                    "content": "I'll help you plan the roadmap. What are your key objectives?",
+                    "content": "I'll help you prepare for the timeline discussion. What are your key milestones?",
                     "role": "assistant",
                 },
             ],
+            graph_generation={
+                "auto": {
+                    "property_overrides": [
+                        {
+                            "node_label": "User",
+                            "set": {
+                                "id": "bar",
+                                "role": "bar",
+                            },
+                            "match": {"name": "bar"},
+                        }
+                    ],
+                    "schema_id": "schema_id",
+                    "simple_schema_mode": True,
+                },
+                "manual": {
+                    "nodes": [
+                        {
+                            "id": "x",
+                            "label": "x",
+                            "properties": {"foo": "bar"},
+                        }
+                    ],
+                    "relationships": [
+                        {
+                            "relationship_type": "x",
+                            "source_node_id": "x",
+                            "target_node_id": "x",
+                            "properties": {"foo": "bar"},
+                        }
+                    ],
+                },
+                "mode": "auto",
+            },
             metadata={
                 "assistant_message": "assistantMessage",
+                "category": "preference",
                 "conversation_id": "conv-123",
-                "created_at": "2024-03-21T10:00:00Z",
+                "created_at": "2024-10-04T10:00:00Z",
                 "custom_metadata": {"foo": "string"},
                 "emoji_tags": ["string"],
                 "emotion_tags": ["string"],
@@ -216,20 +256,24 @@ class TestMemory:
                 "external_user_read_access": ["external_user_123", "external_user_789"],
                 "external_user_write_access": ["external_user_123"],
                 "goal_classification_scores": [0],
-                "hierarchical_structures": "Business/Planning/Product",
+                "hierarchical_structures": "Business/Meetings/Project Planning",
                 "location": "Conference Room A",
+                "namespace_id": "namespace_id",
+                "organization_id": "organization_id",
                 "page_id": "pageId",
                 "post": "post",
                 "related_goals": ["string"],
                 "related_steps": ["string"],
                 "related_use_cases": ["string"],
+                "role": "user",
                 "role_read_access": ["string"],
                 "role_write_access": ["string"],
                 "session_id": "sessionId",
                 "source_type": "sourceType",
-                "source_url": "https://meeting-notes.example.com/123",
+                "source_url": "https://calendar.example.com/meeting/123",
                 "step_classification_scores": [0],
-                "topics": ["string"],
+                "topics": ["product", "planning"],
+                "upload_id": "upload_id",
                 "use_case_classification_scores": [0],
                 "user_id": "user_id",
                 "user_read_access": ["string"],
@@ -239,15 +283,18 @@ class TestMemory:
                 "workspace_read_access": ["string"],
                 "workspace_write_access": ["string"],
             },
+            namespace_id="namespace_id",
+            organization_id="organization_id",
             relationships_json=[
                 {
-                    "relation_type": "follows",
-                    "metadata": {"relevance": "bar"},
-                    "related_item_id": "previous_memory_item_id",
-                    "related_item_type": "TextMemoryItem",
+                    "relation_type": "relation_type",
+                    "metadata": {"foo": "bar"},
+                    "related_item_id": "related_item_id",
+                    "related_item_type": "related_item_type",
                     "relationship_type": "previous_memory_item_id",
                 }
             ],
+            type="text",
         )
         assert_matches_type(AddMemoryResponse, memory, path=["response"])
 
@@ -255,8 +302,7 @@ class TestMemory:
     @parametrize
     def test_raw_response_add(self, client: Papr) -> None:
         response = client.memory.with_raw_response.add(
-            content="Meeting notes from the product planning session",
-            type="text",
+            content="Meeting with John Smith from Acme Corp about the Q4 project timeline",
         )
 
         assert response.is_closed is True
@@ -268,8 +314,7 @@ class TestMemory:
     @parametrize
     def test_streaming_response_add(self, client: Papr) -> None:
         with client.memory.with_streaming_response.add(
-            content="Meeting notes from the product planning session",
-            type="text",
+            content="Meeting with John Smith from Acme Corp about the Q4 project timeline",
         ) as response:
             assert not response.is_closed
             assert response.http_request.headers.get("X-Stainless-Lang") == "python"
@@ -284,14 +329,8 @@ class TestMemory:
     def test_method_add_batch(self, client: Papr) -> None:
         memory = client.memory.add_batch(
             memories=[
-                {
-                    "content": "Meeting notes from the product planning session",
-                    "type": "text",
-                },
-                {
-                    "content": "Follow-up tasks from the planning meeting",
-                    "type": "text",
-                },
+                {"content": "Meeting notes from the product planning session"},
+                {"content": "Follow-up tasks from the planning meeting"},
             ],
         )
         assert_matches_type(BatchMemoryResponse, memory, path=["response"])
@@ -303,19 +342,53 @@ class TestMemory:
             memories=[
                 {
                     "content": "Meeting notes from the product planning session",
-                    "type": "text",
                     "context": [
                         {
-                            "content": "Let's discuss the Q2 product roadmap",
+                            "content": "Let's discuss the Q4 project timeline with John",
                             "role": "user",
                         },
                         {
-                            "content": "I'll help you plan the roadmap. What are your key objectives?",
+                            "content": "I'll help you prepare for the timeline discussion. What are your key milestones?",
                             "role": "assistant",
                         },
                     ],
+                    "graph_generation": {
+                        "auto": {
+                            "property_overrides": [
+                                {
+                                    "node_label": "User",
+                                    "set": {
+                                        "id": "bar",
+                                        "role": "bar",
+                                    },
+                                    "match": {"name": "bar"},
+                                }
+                            ],
+                            "schema_id": "schema_id",
+                            "simple_schema_mode": True,
+                        },
+                        "manual": {
+                            "nodes": [
+                                {
+                                    "id": "x",
+                                    "label": "x",
+                                    "properties": {"foo": "bar"},
+                                }
+                            ],
+                            "relationships": [
+                                {
+                                    "relationship_type": "x",
+                                    "source_node_id": "x",
+                                    "target_node_id": "x",
+                                    "properties": {"foo": "bar"},
+                                }
+                            ],
+                        },
+                        "mode": "auto",
+                    },
                     "metadata": {
                         "assistant_message": "assistantMessage",
+                        "category": "preference",
                         "conversation_id": "conversationId",
                         "created_at": "2024-03-21T10:00:00Z",
                         "custom_metadata": {"foo": "string"},
@@ -327,11 +400,14 @@ class TestMemory:
                         "goal_classification_scores": [0],
                         "hierarchical_structures": "hierarchical_structures",
                         "location": "location",
+                        "namespace_id": "namespace_id",
+                        "organization_id": "organization_id",
                         "page_id": "pageId",
                         "post": "post",
                         "related_goals": ["string"],
                         "related_steps": ["string"],
                         "related_use_cases": ["string"],
+                        "role": "user",
                         "role_read_access": ["string"],
                         "role_write_access": ["string"],
                         "session_id": "sessionId",
@@ -339,6 +415,7 @@ class TestMemory:
                         "source_url": "sourceUrl",
                         "step_classification_scores": [0],
                         "topics": ["string"],
+                        "upload_id": "upload_id",
                         "use_case_classification_scores": [0],
                         "user_id": "user_id",
                         "user_read_access": ["string"],
@@ -348,31 +425,68 @@ class TestMemory:
                         "workspace_read_access": ["string"],
                         "workspace_write_access": ["string"],
                     },
+                    "namespace_id": "namespace_id",
+                    "organization_id": "organization_id",
                     "relationships_json": [
                         {
-                            "relation_type": "follows",
-                            "metadata": {"relevance": "bar"},
-                            "related_item_id": "previous_memory_item_id",
-                            "related_item_type": "TextMemoryItem",
+                            "relation_type": "relation_type",
+                            "metadata": {"foo": "bar"},
+                            "related_item_id": "related_item_id",
+                            "related_item_type": "related_item_type",
                             "relationship_type": "previous_memory_item_id",
                         }
                     ],
+                    "type": "text",
                 },
                 {
                     "content": "Follow-up tasks from the planning meeting",
-                    "type": "text",
                     "context": [
                         {
-                            "content": "Let's discuss the Q2 product roadmap",
+                            "content": "Let's discuss the Q4 project timeline with John",
                             "role": "user",
                         },
                         {
-                            "content": "I'll help you plan the roadmap. What are your key objectives?",
+                            "content": "I'll help you prepare for the timeline discussion. What are your key milestones?",
                             "role": "assistant",
                         },
                     ],
+                    "graph_generation": {
+                        "auto": {
+                            "property_overrides": [
+                                {
+                                    "node_label": "User",
+                                    "set": {
+                                        "id": "bar",
+                                        "role": "bar",
+                                    },
+                                    "match": {"name": "bar"},
+                                }
+                            ],
+                            "schema_id": "schema_id",
+                            "simple_schema_mode": True,
+                        },
+                        "manual": {
+                            "nodes": [
+                                {
+                                    "id": "x",
+                                    "label": "x",
+                                    "properties": {"foo": "bar"},
+                                }
+                            ],
+                            "relationships": [
+                                {
+                                    "relationship_type": "x",
+                                    "source_node_id": "x",
+                                    "target_node_id": "x",
+                                    "properties": {"foo": "bar"},
+                                }
+                            ],
+                        },
+                        "mode": "auto",
+                    },
                     "metadata": {
                         "assistant_message": "assistantMessage",
+                        "category": "preference",
                         "conversation_id": "conversationId",
                         "created_at": "2024-03-21T11:00:00Z",
                         "custom_metadata": {"foo": "string"},
@@ -384,11 +498,14 @@ class TestMemory:
                         "goal_classification_scores": [0],
                         "hierarchical_structures": "hierarchical_structures",
                         "location": "location",
+                        "namespace_id": "namespace_id",
+                        "organization_id": "organization_id",
                         "page_id": "pageId",
                         "post": "post",
                         "related_goals": ["string"],
                         "related_steps": ["string"],
                         "related_use_cases": ["string"],
+                        "role": "user",
                         "role_read_access": ["string"],
                         "role_write_access": ["string"],
                         "session_id": "sessionId",
@@ -396,6 +513,7 @@ class TestMemory:
                         "source_url": "sourceUrl",
                         "step_classification_scores": [0],
                         "topics": ["string"],
+                        "upload_id": "upload_id",
                         "use_case_classification_scores": [0],
                         "user_id": "user_id",
                         "user_read_access": ["string"],
@@ -405,20 +523,59 @@ class TestMemory:
                         "workspace_read_access": ["string"],
                         "workspace_write_access": ["string"],
                     },
+                    "namespace_id": "namespace_id",
+                    "organization_id": "organization_id",
                     "relationships_json": [
                         {
-                            "relation_type": "follows",
-                            "metadata": {"relevance": "bar"},
-                            "related_item_id": "previous_memory_item_id",
-                            "related_item_type": "TextMemoryItem",
+                            "relation_type": "relation_type",
+                            "metadata": {"foo": "bar"},
+                            "related_item_id": "related_item_id",
+                            "related_item_type": "related_item_type",
                             "relationship_type": "previous_memory_item_id",
                         }
                     ],
+                    "type": "text",
                 },
             ],
             skip_background_processing=True,
             batch_size=10,
             external_user_id="external_user_abcde",
+            graph_generation={
+                "auto": {
+                    "property_overrides": [
+                        {
+                            "node_label": "User",
+                            "set": {
+                                "id": "bar",
+                                "role": "bar",
+                            },
+                            "match": {"name": "bar"},
+                        }
+                    ],
+                    "schema_id": "schema_id",
+                    "simple_schema_mode": True,
+                },
+                "manual": {
+                    "nodes": [
+                        {
+                            "id": "x",
+                            "label": "x",
+                            "properties": {"foo": "bar"},
+                        }
+                    ],
+                    "relationships": [
+                        {
+                            "relationship_type": "x",
+                            "source_node_id": "x",
+                            "target_node_id": "x",
+                            "properties": {"foo": "bar"},
+                        }
+                    ],
+                },
+                "mode": "auto",
+            },
+            namespace_id="namespace_id",
+            organization_id="organization_id",
             user_id="internal_user_id_12345",
             webhook_secret="webhook_secret",
             webhook_url="webhook_url",
@@ -430,14 +587,8 @@ class TestMemory:
     def test_raw_response_add_batch(self, client: Papr) -> None:
         response = client.memory.with_raw_response.add_batch(
             memories=[
-                {
-                    "content": "Meeting notes from the product planning session",
-                    "type": "text",
-                },
-                {
-                    "content": "Follow-up tasks from the planning meeting",
-                    "type": "text",
-                },
+                {"content": "Meeting notes from the product planning session"},
+                {"content": "Follow-up tasks from the planning meeting"},
             ],
         )
 
@@ -451,14 +602,8 @@ class TestMemory:
     def test_streaming_response_add_batch(self, client: Papr) -> None:
         with client.memory.with_streaming_response.add_batch(
             memories=[
-                {
-                    "content": "Meeting notes from the product planning session",
-                    "type": "text",
-                },
-                {
-                    "content": "Follow-up tasks from the planning meeting",
-                    "type": "text",
-                },
+                {"content": "Meeting notes from the product planning session"},
+                {"content": "Follow-up tasks from the planning meeting"},
             ],
         ) as response:
             assert not response.is_closed
@@ -562,15 +707,17 @@ class TestMemory:
     def test_method_search_with_all_params(self, client: Papr) -> None:
         memory = client.memory.search(
             query="Find recurring customer complaints about API performance from the last month. Focus on issues that multiple customers have mentioned and any specific feature requests or workflow improvements they've suggested.",
+            query_enable_agentic_graph=True,
             max_memories=10,
             max_nodes=10,
-            enable_agentic_graph=True,
-            external_user_id="external_abc",
+            body_enable_agentic_graph=False,
+            external_user_id="external_user_123",
             metadata={
                 "assistant_message": "assistantMessage",
+                "category": "preference",
                 "conversation_id": "conversationId",
                 "created_at": "createdAt",
-                "custom_metadata": {"priority": "high"},
+                "custom_metadata": {"foo": "string"},
                 "emoji_tags": ["string"],
                 "emotion_tags": ["string"],
                 "external_user_id": "external_user_id",
@@ -578,12 +725,15 @@ class TestMemory:
                 "external_user_write_access": ["string"],
                 "goal_classification_scores": [0],
                 "hierarchical_structures": "hierarchical_structures",
-                "location": "US",
+                "location": "location",
+                "namespace_id": "namespace_id",
+                "organization_id": "organization_id",
                 "page_id": "pageId",
                 "post": "post",
                 "related_goals": ["string"],
                 "related_steps": ["string"],
                 "related_use_cases": ["string"],
+                "role": "user",
                 "role_read_access": ["string"],
                 "role_write_access": ["string"],
                 "session_id": "sessionId",
@@ -591,6 +741,7 @@ class TestMemory:
                 "source_url": "sourceUrl",
                 "step_classification_scores": [0],
                 "topics": ["string"],
+                "upload_id": "upload_id",
                 "use_case_classification_scores": [0],
                 "user_id": "user_id",
                 "user_read_access": ["string"],
@@ -600,8 +751,35 @@ class TestMemory:
                 "workspace_read_access": ["string"],
                 "workspace_write_access": ["string"],
             },
-            rank_results=False,
-            user_id="user123",
+            namespace_id="namespace_id",
+            organization_id="organization_id",
+            rank_results=True,
+            schema_id="schema_id",
+            search_override={
+                "pattern": {
+                    "relationship_type": "ASSOCIATED_WITH",
+                    "source_label": "Memory",
+                    "target_label": "Person",
+                    "direction": "->",
+                },
+                "filters": [
+                    {
+                        "node_type": "Person",
+                        "operator": "CONTAINS",
+                        "property_name": "name",
+                        "value": "John",
+                    },
+                    {
+                        "node_type": "Memory",
+                        "operator": "IN",
+                        "property_name": "topics",
+                        "value": ["project", "meeting"],
+                    },
+                ],
+                "return_properties": ["name", "content", "createdAt"],
+            },
+            simple_schema_mode=True,
+            user_id="user_id",
             accept_encoding="Accept-Encoding",
         )
         assert_matches_type(SearchResponse, memory, path=["response"])
@@ -664,6 +842,7 @@ class TestAsyncMemory:
             ],
             metadata={
                 "assistant_message": "assistantMessage",
+                "category": "preference",
                 "conversation_id": "conversationId",
                 "created_at": "createdAt",
                 "custom_metadata": {"foo": "string"},
@@ -675,11 +854,14 @@ class TestAsyncMemory:
                 "goal_classification_scores": [0],
                 "hierarchical_structures": "hierarchical_structures",
                 "location": "location",
+                "namespace_id": "namespace_id",
+                "organization_id": "organization_id",
                 "page_id": "pageId",
                 "post": "post",
                 "related_goals": ["string"],
                 "related_steps": ["string"],
                 "related_use_cases": ["string"],
+                "role": "user",
                 "role_read_access": ["string"],
                 "role_write_access": ["string"],
                 "session_id": "sessionId",
@@ -687,6 +869,7 @@ class TestAsyncMemory:
                 "source_url": "sourceUrl",
                 "step_classification_scores": [0],
                 "topics": ["string"],
+                "upload_id": "upload_id",
                 "use_case_classification_scores": [0],
                 "user_id": "user_id",
                 "user_read_access": ["string"],
@@ -696,6 +879,8 @@ class TestAsyncMemory:
                 "workspace_read_access": ["string"],
                 "workspace_write_access": ["string"],
             },
+            namespace_id="namespace_id",
+            organization_id="organization_id",
             relationships_json=[
                 {
                     "relation_type": "updates",
@@ -798,8 +983,7 @@ class TestAsyncMemory:
     @parametrize
     async def test_method_add(self, async_client: AsyncPapr) -> None:
         memory = await async_client.memory.add(
-            content="Meeting notes from the product planning session",
-            type="text",
+            content="Meeting with John Smith from Acme Corp about the Q4 project timeline",
         )
         assert_matches_type(AddMemoryResponse, memory, path=["response"])
 
@@ -807,23 +991,57 @@ class TestAsyncMemory:
     @parametrize
     async def test_method_add_with_all_params(self, async_client: AsyncPapr) -> None:
         memory = await async_client.memory.add(
-            content="Meeting notes from the product planning session",
-            type="text",
+            content="Meeting with John Smith from Acme Corp about the Q4 project timeline",
             skip_background_processing=True,
             context=[
                 {
-                    "content": "Let's discuss the Q2 product roadmap",
+                    "content": "Let's discuss the Q4 project timeline with John",
                     "role": "user",
                 },
                 {
-                    "content": "I'll help you plan the roadmap. What are your key objectives?",
+                    "content": "I'll help you prepare for the timeline discussion. What are your key milestones?",
                     "role": "assistant",
                 },
             ],
+            graph_generation={
+                "auto": {
+                    "property_overrides": [
+                        {
+                            "node_label": "User",
+                            "set": {
+                                "id": "bar",
+                                "role": "bar",
+                            },
+                            "match": {"name": "bar"},
+                        }
+                    ],
+                    "schema_id": "schema_id",
+                    "simple_schema_mode": True,
+                },
+                "manual": {
+                    "nodes": [
+                        {
+                            "id": "x",
+                            "label": "x",
+                            "properties": {"foo": "bar"},
+                        }
+                    ],
+                    "relationships": [
+                        {
+                            "relationship_type": "x",
+                            "source_node_id": "x",
+                            "target_node_id": "x",
+                            "properties": {"foo": "bar"},
+                        }
+                    ],
+                },
+                "mode": "auto",
+            },
             metadata={
                 "assistant_message": "assistantMessage",
+                "category": "preference",
                 "conversation_id": "conv-123",
-                "created_at": "2024-03-21T10:00:00Z",
+                "created_at": "2024-10-04T10:00:00Z",
                 "custom_metadata": {"foo": "string"},
                 "emoji_tags": ["string"],
                 "emotion_tags": ["string"],
@@ -831,20 +1049,24 @@ class TestAsyncMemory:
                 "external_user_read_access": ["external_user_123", "external_user_789"],
                 "external_user_write_access": ["external_user_123"],
                 "goal_classification_scores": [0],
-                "hierarchical_structures": "Business/Planning/Product",
+                "hierarchical_structures": "Business/Meetings/Project Planning",
                 "location": "Conference Room A",
+                "namespace_id": "namespace_id",
+                "organization_id": "organization_id",
                 "page_id": "pageId",
                 "post": "post",
                 "related_goals": ["string"],
                 "related_steps": ["string"],
                 "related_use_cases": ["string"],
+                "role": "user",
                 "role_read_access": ["string"],
                 "role_write_access": ["string"],
                 "session_id": "sessionId",
                 "source_type": "sourceType",
-                "source_url": "https://meeting-notes.example.com/123",
+                "source_url": "https://calendar.example.com/meeting/123",
                 "step_classification_scores": [0],
-                "topics": ["string"],
+                "topics": ["product", "planning"],
+                "upload_id": "upload_id",
                 "use_case_classification_scores": [0],
                 "user_id": "user_id",
                 "user_read_access": ["string"],
@@ -854,15 +1076,18 @@ class TestAsyncMemory:
                 "workspace_read_access": ["string"],
                 "workspace_write_access": ["string"],
             },
+            namespace_id="namespace_id",
+            organization_id="organization_id",
             relationships_json=[
                 {
-                    "relation_type": "follows",
-                    "metadata": {"relevance": "bar"},
-                    "related_item_id": "previous_memory_item_id",
-                    "related_item_type": "TextMemoryItem",
+                    "relation_type": "relation_type",
+                    "metadata": {"foo": "bar"},
+                    "related_item_id": "related_item_id",
+                    "related_item_type": "related_item_type",
                     "relationship_type": "previous_memory_item_id",
                 }
             ],
+            type="text",
         )
         assert_matches_type(AddMemoryResponse, memory, path=["response"])
 
@@ -870,8 +1095,7 @@ class TestAsyncMemory:
     @parametrize
     async def test_raw_response_add(self, async_client: AsyncPapr) -> None:
         response = await async_client.memory.with_raw_response.add(
-            content="Meeting notes from the product planning session",
-            type="text",
+            content="Meeting with John Smith from Acme Corp about the Q4 project timeline",
         )
 
         assert response.is_closed is True
@@ -883,8 +1107,7 @@ class TestAsyncMemory:
     @parametrize
     async def test_streaming_response_add(self, async_client: AsyncPapr) -> None:
         async with async_client.memory.with_streaming_response.add(
-            content="Meeting notes from the product planning session",
-            type="text",
+            content="Meeting with John Smith from Acme Corp about the Q4 project timeline",
         ) as response:
             assert not response.is_closed
             assert response.http_request.headers.get("X-Stainless-Lang") == "python"
@@ -899,14 +1122,8 @@ class TestAsyncMemory:
     async def test_method_add_batch(self, async_client: AsyncPapr) -> None:
         memory = await async_client.memory.add_batch(
             memories=[
-                {
-                    "content": "Meeting notes from the product planning session",
-                    "type": "text",
-                },
-                {
-                    "content": "Follow-up tasks from the planning meeting",
-                    "type": "text",
-                },
+                {"content": "Meeting notes from the product planning session"},
+                {"content": "Follow-up tasks from the planning meeting"},
             ],
         )
         assert_matches_type(BatchMemoryResponse, memory, path=["response"])
@@ -918,19 +1135,53 @@ class TestAsyncMemory:
             memories=[
                 {
                     "content": "Meeting notes from the product planning session",
-                    "type": "text",
                     "context": [
                         {
-                            "content": "Let's discuss the Q2 product roadmap",
+                            "content": "Let's discuss the Q4 project timeline with John",
                             "role": "user",
                         },
                         {
-                            "content": "I'll help you plan the roadmap. What are your key objectives?",
+                            "content": "I'll help you prepare for the timeline discussion. What are your key milestones?",
                             "role": "assistant",
                         },
                     ],
+                    "graph_generation": {
+                        "auto": {
+                            "property_overrides": [
+                                {
+                                    "node_label": "User",
+                                    "set": {
+                                        "id": "bar",
+                                        "role": "bar",
+                                    },
+                                    "match": {"name": "bar"},
+                                }
+                            ],
+                            "schema_id": "schema_id",
+                            "simple_schema_mode": True,
+                        },
+                        "manual": {
+                            "nodes": [
+                                {
+                                    "id": "x",
+                                    "label": "x",
+                                    "properties": {"foo": "bar"},
+                                }
+                            ],
+                            "relationships": [
+                                {
+                                    "relationship_type": "x",
+                                    "source_node_id": "x",
+                                    "target_node_id": "x",
+                                    "properties": {"foo": "bar"},
+                                }
+                            ],
+                        },
+                        "mode": "auto",
+                    },
                     "metadata": {
                         "assistant_message": "assistantMessage",
+                        "category": "preference",
                         "conversation_id": "conversationId",
                         "created_at": "2024-03-21T10:00:00Z",
                         "custom_metadata": {"foo": "string"},
@@ -942,11 +1193,14 @@ class TestAsyncMemory:
                         "goal_classification_scores": [0],
                         "hierarchical_structures": "hierarchical_structures",
                         "location": "location",
+                        "namespace_id": "namespace_id",
+                        "organization_id": "organization_id",
                         "page_id": "pageId",
                         "post": "post",
                         "related_goals": ["string"],
                         "related_steps": ["string"],
                         "related_use_cases": ["string"],
+                        "role": "user",
                         "role_read_access": ["string"],
                         "role_write_access": ["string"],
                         "session_id": "sessionId",
@@ -954,6 +1208,7 @@ class TestAsyncMemory:
                         "source_url": "sourceUrl",
                         "step_classification_scores": [0],
                         "topics": ["string"],
+                        "upload_id": "upload_id",
                         "use_case_classification_scores": [0],
                         "user_id": "user_id",
                         "user_read_access": ["string"],
@@ -963,31 +1218,68 @@ class TestAsyncMemory:
                         "workspace_read_access": ["string"],
                         "workspace_write_access": ["string"],
                     },
+                    "namespace_id": "namespace_id",
+                    "organization_id": "organization_id",
                     "relationships_json": [
                         {
-                            "relation_type": "follows",
-                            "metadata": {"relevance": "bar"},
-                            "related_item_id": "previous_memory_item_id",
-                            "related_item_type": "TextMemoryItem",
+                            "relation_type": "relation_type",
+                            "metadata": {"foo": "bar"},
+                            "related_item_id": "related_item_id",
+                            "related_item_type": "related_item_type",
                             "relationship_type": "previous_memory_item_id",
                         }
                     ],
+                    "type": "text",
                 },
                 {
                     "content": "Follow-up tasks from the planning meeting",
-                    "type": "text",
                     "context": [
                         {
-                            "content": "Let's discuss the Q2 product roadmap",
+                            "content": "Let's discuss the Q4 project timeline with John",
                             "role": "user",
                         },
                         {
-                            "content": "I'll help you plan the roadmap. What are your key objectives?",
+                            "content": "I'll help you prepare for the timeline discussion. What are your key milestones?",
                             "role": "assistant",
                         },
                     ],
+                    "graph_generation": {
+                        "auto": {
+                            "property_overrides": [
+                                {
+                                    "node_label": "User",
+                                    "set": {
+                                        "id": "bar",
+                                        "role": "bar",
+                                    },
+                                    "match": {"name": "bar"},
+                                }
+                            ],
+                            "schema_id": "schema_id",
+                            "simple_schema_mode": True,
+                        },
+                        "manual": {
+                            "nodes": [
+                                {
+                                    "id": "x",
+                                    "label": "x",
+                                    "properties": {"foo": "bar"},
+                                }
+                            ],
+                            "relationships": [
+                                {
+                                    "relationship_type": "x",
+                                    "source_node_id": "x",
+                                    "target_node_id": "x",
+                                    "properties": {"foo": "bar"},
+                                }
+                            ],
+                        },
+                        "mode": "auto",
+                    },
                     "metadata": {
                         "assistant_message": "assistantMessage",
+                        "category": "preference",
                         "conversation_id": "conversationId",
                         "created_at": "2024-03-21T11:00:00Z",
                         "custom_metadata": {"foo": "string"},
@@ -999,11 +1291,14 @@ class TestAsyncMemory:
                         "goal_classification_scores": [0],
                         "hierarchical_structures": "hierarchical_structures",
                         "location": "location",
+                        "namespace_id": "namespace_id",
+                        "organization_id": "organization_id",
                         "page_id": "pageId",
                         "post": "post",
                         "related_goals": ["string"],
                         "related_steps": ["string"],
                         "related_use_cases": ["string"],
+                        "role": "user",
                         "role_read_access": ["string"],
                         "role_write_access": ["string"],
                         "session_id": "sessionId",
@@ -1011,6 +1306,7 @@ class TestAsyncMemory:
                         "source_url": "sourceUrl",
                         "step_classification_scores": [0],
                         "topics": ["string"],
+                        "upload_id": "upload_id",
                         "use_case_classification_scores": [0],
                         "user_id": "user_id",
                         "user_read_access": ["string"],
@@ -1020,20 +1316,59 @@ class TestAsyncMemory:
                         "workspace_read_access": ["string"],
                         "workspace_write_access": ["string"],
                     },
+                    "namespace_id": "namespace_id",
+                    "organization_id": "organization_id",
                     "relationships_json": [
                         {
-                            "relation_type": "follows",
-                            "metadata": {"relevance": "bar"},
-                            "related_item_id": "previous_memory_item_id",
-                            "related_item_type": "TextMemoryItem",
+                            "relation_type": "relation_type",
+                            "metadata": {"foo": "bar"},
+                            "related_item_id": "related_item_id",
+                            "related_item_type": "related_item_type",
                             "relationship_type": "previous_memory_item_id",
                         }
                     ],
+                    "type": "text",
                 },
             ],
             skip_background_processing=True,
             batch_size=10,
             external_user_id="external_user_abcde",
+            graph_generation={
+                "auto": {
+                    "property_overrides": [
+                        {
+                            "node_label": "User",
+                            "set": {
+                                "id": "bar",
+                                "role": "bar",
+                            },
+                            "match": {"name": "bar"},
+                        }
+                    ],
+                    "schema_id": "schema_id",
+                    "simple_schema_mode": True,
+                },
+                "manual": {
+                    "nodes": [
+                        {
+                            "id": "x",
+                            "label": "x",
+                            "properties": {"foo": "bar"},
+                        }
+                    ],
+                    "relationships": [
+                        {
+                            "relationship_type": "x",
+                            "source_node_id": "x",
+                            "target_node_id": "x",
+                            "properties": {"foo": "bar"},
+                        }
+                    ],
+                },
+                "mode": "auto",
+            },
+            namespace_id="namespace_id",
+            organization_id="organization_id",
             user_id="internal_user_id_12345",
             webhook_secret="webhook_secret",
             webhook_url="webhook_url",
@@ -1045,14 +1380,8 @@ class TestAsyncMemory:
     async def test_raw_response_add_batch(self, async_client: AsyncPapr) -> None:
         response = await async_client.memory.with_raw_response.add_batch(
             memories=[
-                {
-                    "content": "Meeting notes from the product planning session",
-                    "type": "text",
-                },
-                {
-                    "content": "Follow-up tasks from the planning meeting",
-                    "type": "text",
-                },
+                {"content": "Meeting notes from the product planning session"},
+                {"content": "Follow-up tasks from the planning meeting"},
             ],
         )
 
@@ -1066,14 +1395,8 @@ class TestAsyncMemory:
     async def test_streaming_response_add_batch(self, async_client: AsyncPapr) -> None:
         async with async_client.memory.with_streaming_response.add_batch(
             memories=[
-                {
-                    "content": "Meeting notes from the product planning session",
-                    "type": "text",
-                },
-                {
-                    "content": "Follow-up tasks from the planning meeting",
-                    "type": "text",
-                },
+                {"content": "Meeting notes from the product planning session"},
+                {"content": "Follow-up tasks from the planning meeting"},
             ],
         ) as response:
             assert not response.is_closed
@@ -1177,15 +1500,17 @@ class TestAsyncMemory:
     async def test_method_search_with_all_params(self, async_client: AsyncPapr) -> None:
         memory = await async_client.memory.search(
             query="Find recurring customer complaints about API performance from the last month. Focus on issues that multiple customers have mentioned and any specific feature requests or workflow improvements they've suggested.",
+            query_enable_agentic_graph=True,
             max_memories=10,
             max_nodes=10,
-            enable_agentic_graph=True,
-            external_user_id="external_abc",
+            body_enable_agentic_graph=False,
+            external_user_id="external_user_123",
             metadata={
                 "assistant_message": "assistantMessage",
+                "category": "preference",
                 "conversation_id": "conversationId",
                 "created_at": "createdAt",
-                "custom_metadata": {"priority": "high"},
+                "custom_metadata": {"foo": "string"},
                 "emoji_tags": ["string"],
                 "emotion_tags": ["string"],
                 "external_user_id": "external_user_id",
@@ -1193,12 +1518,15 @@ class TestAsyncMemory:
                 "external_user_write_access": ["string"],
                 "goal_classification_scores": [0],
                 "hierarchical_structures": "hierarchical_structures",
-                "location": "US",
+                "location": "location",
+                "namespace_id": "namespace_id",
+                "organization_id": "organization_id",
                 "page_id": "pageId",
                 "post": "post",
                 "related_goals": ["string"],
                 "related_steps": ["string"],
                 "related_use_cases": ["string"],
+                "role": "user",
                 "role_read_access": ["string"],
                 "role_write_access": ["string"],
                 "session_id": "sessionId",
@@ -1206,6 +1534,7 @@ class TestAsyncMemory:
                 "source_url": "sourceUrl",
                 "step_classification_scores": [0],
                 "topics": ["string"],
+                "upload_id": "upload_id",
                 "use_case_classification_scores": [0],
                 "user_id": "user_id",
                 "user_read_access": ["string"],
@@ -1215,8 +1544,35 @@ class TestAsyncMemory:
                 "workspace_read_access": ["string"],
                 "workspace_write_access": ["string"],
             },
-            rank_results=False,
-            user_id="user123",
+            namespace_id="namespace_id",
+            organization_id="organization_id",
+            rank_results=True,
+            schema_id="schema_id",
+            search_override={
+                "pattern": {
+                    "relationship_type": "ASSOCIATED_WITH",
+                    "source_label": "Memory",
+                    "target_label": "Person",
+                    "direction": "->",
+                },
+                "filters": [
+                    {
+                        "node_type": "Person",
+                        "operator": "CONTAINS",
+                        "property_name": "name",
+                        "value": "John",
+                    },
+                    {
+                        "node_type": "Memory",
+                        "operator": "IN",
+                        "property_name": "topics",
+                        "value": ["project", "meeting"],
+                    },
+                ],
+                "return_properties": ["name", "content", "createdAt"],
+            },
+            simple_schema_mode=True,
+            user_id="user_id",
             accept_encoding="Accept-Encoding",
         )
         assert_matches_type(SearchResponse, memory, path=["response"])

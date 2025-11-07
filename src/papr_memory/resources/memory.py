@@ -67,6 +67,8 @@ class MemoryResource(SyncAPIResource):
         content: Optional[str] | Omit = omit,
         context: Optional[Iterable[ContextItemParam]] | Omit = omit,
         metadata: Optional[MemoryMetadataParam] | Omit = omit,
+        namespace_id: Optional[str] | Omit = omit,
+        organization_id: Optional[str] | Omit = omit,
         relationships_json: Optional[Iterable[RelationshipItemParam]] | Omit = omit,
         type: Optional[MemoryType] | Omit = omit,
         # Use the following arguments if you need to pass additional parameters to the API that aren't available via kwargs.
@@ -98,6 +100,12 @@ class MemoryResource(SyncAPIResource):
 
           metadata: Metadata for memory request
 
+          namespace_id: Optional namespace ID for multi-tenant memory scoping. When provided, update is
+              scoped to memories within this namespace.
+
+          organization_id: Optional organization ID for multi-tenant memory scoping. When provided, update
+              is scoped to memories within this organization.
+
           relationships_json: Updated relationships for Graph DB (neo4J)
 
           type: Valid memory types
@@ -119,6 +127,8 @@ class MemoryResource(SyncAPIResource):
                     "content": content,
                     "context": context,
                     "metadata": metadata,
+                    "namespace_id": namespace_id,
+                    "organization_id": organization_id,
                     "relationships_json": relationships_json,
                     "type": type,
                 },
@@ -183,11 +193,14 @@ class MemoryResource(SyncAPIResource):
         self,
         *,
         content: str,
-        type: MemoryType,
         skip_background_processing: bool | Omit = omit,
         context: Optional[Iterable[ContextItemParam]] | Omit = omit,
+        graph_generation: Optional[memory_add_params.GraphGeneration] | Omit = omit,
         metadata: Optional[MemoryMetadataParam] | Omit = omit,
+        namespace_id: Optional[str] | Omit = omit,
+        organization_id: Optional[str] | Omit = omit,
         relationships_json: Optional[Iterable[RelationshipItemParam]] | Omit = omit,
+        type: MemoryType | Omit = omit,
         # Use the following arguments if you need to pass additional parameters to the API that aren't available via kwargs.
         # The extra values given here take precedence over values defined on the client or passed to this method.
         extra_headers: Headers | None = None,
@@ -209,20 +222,37 @@ class MemoryResource(SyncAPIResource):
             - Content-Type: application/json
             - X-Client-Type: (e.g., 'papr_plugin', 'browser_extension')
 
+            **Role-Based Memory Categories**:
+            - **User memories**: preference, task, goal, facts, context
+            - **Assistant memories**: skills, learning
+
+            **New Metadata Fields**:
+            - `metadata.role`: Optional field to specify who generated the memory (user or assistant)
+            - `metadata.category`: Optional field for memory categorization based on role
+            - Both fields are stored within metadata at the same level as topics, location, etc.
+
             The API validates content size against MAX_CONTENT_LENGTH environment variable (defaults to 15000 bytes).
 
         Args:
           content: The content of the memory item you want to add to memory
 
-          type: Valid memory types
-
           skip_background_processing: If True, skips adding background tasks for processing
 
           context: Context can be conversation history or any relevant context for a memory item
 
+          graph_generation: Graph generation configuration
+
           metadata: Metadata for memory request
 
+          namespace_id: Optional namespace ID for multi-tenant memory scoping. When provided, memory is
+              associated with this namespace.
+
+          organization_id: Optional organization ID for multi-tenant memory scoping. When provided, memory
+              is associated with this organization.
+
           relationships_json: Array of relationships that we can use in Graph DB (neo4J)
+
+          type: Memory item type; defaults to 'text' if omitted
 
           extra_headers: Send extra headers
 
@@ -237,10 +267,13 @@ class MemoryResource(SyncAPIResource):
             body=maybe_transform(
                 {
                     "content": content,
-                    "type": type,
                     "context": context,
+                    "graph_generation": graph_generation,
                     "metadata": metadata,
+                    "namespace_id": namespace_id,
+                    "organization_id": organization_id,
                     "relationships_json": relationships_json,
+                    "type": type,
                 },
                 memory_add_params.MemoryAddParams,
             ),
@@ -263,6 +296,9 @@ class MemoryResource(SyncAPIResource):
         skip_background_processing: bool | Omit = omit,
         batch_size: Optional[int] | Omit = omit,
         external_user_id: Optional[str] | Omit = omit,
+        graph_generation: Optional[memory_add_batch_params.GraphGeneration] | Omit = omit,
+        namespace_id: Optional[str] | Omit = omit,
+        organization_id: Optional[str] | Omit = omit,
         user_id: Optional[str] | Omit = omit,
         webhook_secret: Optional[str] | Omit = omit,
         webhook_url: Optional[str] | Omit = omit,
@@ -299,6 +335,14 @@ class MemoryResource(SyncAPIResource):
           external_user_id: External user ID for all memories in the batch. If provided and user_id is not,
               will be resolved to internal user ID.
 
+          graph_generation: Graph generation configuration
+
+          namespace_id: Optional namespace ID for multi-tenant batch memory scoping. When provided, all
+              memories in the batch are associated with this namespace.
+
+          organization_id: Optional organization ID for multi-tenant batch memory scoping. When provided,
+              all memories in the batch are associated with this organization.
+
           user_id: Internal user ID for all memories in the batch. If not provided, developer's
               user ID will be used.
 
@@ -323,6 +367,9 @@ class MemoryResource(SyncAPIResource):
                     "memories": memories,
                     "batch_size": batch_size,
                     "external_user_id": external_user_id,
+                    "graph_generation": graph_generation,
+                    "namespace_id": namespace_id,
+                    "organization_id": organization_id,
                     "user_id": user_id,
                     "webhook_secret": webhook_secret,
                     "webhook_url": webhook_url,
@@ -455,12 +502,18 @@ class MemoryResource(SyncAPIResource):
         self,
         *,
         query: str,
+        query_enable_agentic_graph: Optional[bool] | Omit = omit,
         max_memories: int | Omit = omit,
         max_nodes: int | Omit = omit,
-        enable_agentic_graph: bool | Omit = omit,
+        body_enable_agentic_graph: bool | Omit = omit,
         external_user_id: Optional[str] | Omit = omit,
         metadata: Optional[MemoryMetadataParam] | Omit = omit,
+        namespace_id: Optional[str] | Omit = omit,
+        organization_id: Optional[str] | Omit = omit,
         rank_results: bool | Omit = omit,
+        schema_id: Optional[str] | Omit = omit,
+        search_override: Optional[memory_search_params.SearchOverride] | Omit = omit,
+        simple_schema_mode: bool | Omit = omit,
         user_id: Optional[str] | Omit = omit,
         accept_encoding: str | Omit = omit,
         # Use the following arguments if you need to pass additional parameters to the API that aren't available via kwargs.
@@ -479,6 +532,19 @@ class MemoryResource(SyncAPIResource):
             - API Key in `X-API-Key` header
             - Session token in `X-Session-Token` header
 
+            **Custom Schema Support**:
+            This endpoint supports both system-defined and custom user-defined node types:
+            - **System nodes**: Memory, Person, Company, Project, Task, Insight, Meeting, Opportunity, Code
+            - **Custom nodes**: Defined by developers via UserGraphSchema (e.g., Developer, Product, Customer, Function)
+
+            When custom schema nodes are returned:
+            - Each custom node includes a `schema_id` field referencing the UserGraphSchema
+            - The response includes a `schemas_used` array listing all schema IDs used
+            - Use `GET /v1/schemas/{schema_id}` to retrieve full schema definitions including:
+              - Node type definitions and properties
+              - Relationship type definitions and constraints
+              - Validation rules and requirements
+
             **Recommended Headers**:
             ```
             Accept-Encoding: gzip
@@ -496,6 +562,12 @@ class MemoryResource(SyncAPIResource):
             - "customer feedback" → identifies your customers first, then finds their specific feedback
             - "project issues" → identifies your projects first, then finds related issues
             - "team meeting notes" → identifies your team members first, then finds meeting notes
+            - "code functions" → identifies your functions first, then finds related code
+
+            **Role-Based Memory Filtering:**
+            Filter memories by role and category using metadata fields:
+            - `metadata.role`: Filter by "user" or "assistant"
+            - `metadata.category`: Filter by category (user: preference, task, goal, facts, context | assistant: skills, learning)
 
             **User Resolution Precedence:**
             - If both user_id and external_user_id are provided, user_id takes precedence.
@@ -512,6 +584,10 @@ class MemoryResource(SyncAPIResource):
               impacts.' 'Find insights about team collaboration and communication patterns
               from recent meetings and discussions.'
 
+          query_enable_agentic_graph: HIGHLY RECOMMENDED: Enable agentic graph search for intelligent, context-aware
+              results. Can be set via URL parameter or JSON body. URL parameter takes
+              precedence if both are provided.
+
           max_memories: HIGHLY RECOMMENDED: Maximum number of memories to return. Use at least 15-20 for
               comprehensive results. Lower values (5-10) may miss relevant information.
               Default is 20 for optimal coverage.
@@ -520,7 +596,7 @@ class MemoryResource(SyncAPIResource):
               for comprehensive graph results. Lower values may miss important entity
               relationships. Default is 15 for optimal coverage.
 
-          enable_agentic_graph: HIGHLY RECOMMENDED: Enable agentic graph search for intelligent, context-aware
+          body_enable_agentic_graph: HIGHLY RECOMMENDED: Enable agentic graph search for intelligent, context-aware
               results. When enabled, the system can understand ambiguous references by first
               identifying specific entities from your memory graph, then performing targeted
               searches. Examples: 'customer feedback' → identifies your customers first, then
@@ -535,10 +611,26 @@ class MemoryResource(SyncAPIResource):
 
           metadata: Metadata for memory request
 
+          namespace_id: Optional namespace ID for multi-tenant search scoping. When provided, search is
+              scoped to memories within this namespace.
+
+          organization_id: Optional organization ID for multi-tenant search scoping. When provided, search
+              is scoped to memories within this organization.
+
           rank_results: Whether to enable additional ranking of search results. Default is false because
               results are already ranked when using an LLM for search (recommended approach).
               Only enable this if you're not using an LLM in your search pipeline and need
               additional result ranking.
+
+          schema_id: Optional user-defined schema ID to use for this search. If provided, this schema
+              (plus system schema) will be used for query generation. If not provided, system
+              will automatically select relevant schema based on query content.
+
+          search_override: Complete search override specification provided by developer
+
+          simple_schema_mode: If true, uses simple schema mode: system schema + ONE most relevant user schema.
+              This ensures better consistency between add/search operations and reduces query
+              complexity. Recommended for production use.
 
           user_id: Optional internal user ID to filter search results by a specific user. If not
               provided, results are not filtered by user. If both user_id and external_user_id
@@ -558,10 +650,15 @@ class MemoryResource(SyncAPIResource):
             body=maybe_transform(
                 {
                     "query": query,
-                    "enable_agentic_graph": enable_agentic_graph,
+                    "body_enable_agentic_graph": body_enable_agentic_graph,
                     "external_user_id": external_user_id,
                     "metadata": metadata,
+                    "namespace_id": namespace_id,
+                    "organization_id": organization_id,
                     "rank_results": rank_results,
+                    "schema_id": schema_id,
+                    "search_override": search_override,
+                    "simple_schema_mode": simple_schema_mode,
                     "user_id": user_id,
                 },
                 memory_search_params.MemorySearchParams,
@@ -573,6 +670,7 @@ class MemoryResource(SyncAPIResource):
                 timeout=timeout,
                 query=maybe_transform(
                     {
+                        "query_enable_agentic_graph": query_enable_agentic_graph,
                         "max_memories": max_memories,
                         "max_nodes": max_nodes,
                     },
@@ -610,6 +708,8 @@ class AsyncMemoryResource(AsyncAPIResource):
         content: Optional[str] | Omit = omit,
         context: Optional[Iterable[ContextItemParam]] | Omit = omit,
         metadata: Optional[MemoryMetadataParam] | Omit = omit,
+        namespace_id: Optional[str] | Omit = omit,
+        organization_id: Optional[str] | Omit = omit,
         relationships_json: Optional[Iterable[RelationshipItemParam]] | Omit = omit,
         type: Optional[MemoryType] | Omit = omit,
         # Use the following arguments if you need to pass additional parameters to the API that aren't available via kwargs.
@@ -641,6 +741,12 @@ class AsyncMemoryResource(AsyncAPIResource):
 
           metadata: Metadata for memory request
 
+          namespace_id: Optional namespace ID for multi-tenant memory scoping. When provided, update is
+              scoped to memories within this namespace.
+
+          organization_id: Optional organization ID for multi-tenant memory scoping. When provided, update
+              is scoped to memories within this organization.
+
           relationships_json: Updated relationships for Graph DB (neo4J)
 
           type: Valid memory types
@@ -662,6 +768,8 @@ class AsyncMemoryResource(AsyncAPIResource):
                     "content": content,
                     "context": context,
                     "metadata": metadata,
+                    "namespace_id": namespace_id,
+                    "organization_id": organization_id,
                     "relationships_json": relationships_json,
                     "type": type,
                 },
@@ -726,11 +834,14 @@ class AsyncMemoryResource(AsyncAPIResource):
         self,
         *,
         content: str,
-        type: MemoryType,
         skip_background_processing: bool | Omit = omit,
         context: Optional[Iterable[ContextItemParam]] | Omit = omit,
+        graph_generation: Optional[memory_add_params.GraphGeneration] | Omit = omit,
         metadata: Optional[MemoryMetadataParam] | Omit = omit,
+        namespace_id: Optional[str] | Omit = omit,
+        organization_id: Optional[str] | Omit = omit,
         relationships_json: Optional[Iterable[RelationshipItemParam]] | Omit = omit,
+        type: MemoryType | Omit = omit,
         # Use the following arguments if you need to pass additional parameters to the API that aren't available via kwargs.
         # The extra values given here take precedence over values defined on the client or passed to this method.
         extra_headers: Headers | None = None,
@@ -752,20 +863,37 @@ class AsyncMemoryResource(AsyncAPIResource):
             - Content-Type: application/json
             - X-Client-Type: (e.g., 'papr_plugin', 'browser_extension')
 
+            **Role-Based Memory Categories**:
+            - **User memories**: preference, task, goal, facts, context
+            - **Assistant memories**: skills, learning
+
+            **New Metadata Fields**:
+            - `metadata.role`: Optional field to specify who generated the memory (user or assistant)
+            - `metadata.category`: Optional field for memory categorization based on role
+            - Both fields are stored within metadata at the same level as topics, location, etc.
+
             The API validates content size against MAX_CONTENT_LENGTH environment variable (defaults to 15000 bytes).
 
         Args:
           content: The content of the memory item you want to add to memory
 
-          type: Valid memory types
-
           skip_background_processing: If True, skips adding background tasks for processing
 
           context: Context can be conversation history or any relevant context for a memory item
 
+          graph_generation: Graph generation configuration
+
           metadata: Metadata for memory request
 
+          namespace_id: Optional namespace ID for multi-tenant memory scoping. When provided, memory is
+              associated with this namespace.
+
+          organization_id: Optional organization ID for multi-tenant memory scoping. When provided, memory
+              is associated with this organization.
+
           relationships_json: Array of relationships that we can use in Graph DB (neo4J)
+
+          type: Memory item type; defaults to 'text' if omitted
 
           extra_headers: Send extra headers
 
@@ -780,10 +908,13 @@ class AsyncMemoryResource(AsyncAPIResource):
             body=await async_maybe_transform(
                 {
                     "content": content,
-                    "type": type,
                     "context": context,
+                    "graph_generation": graph_generation,
                     "metadata": metadata,
+                    "namespace_id": namespace_id,
+                    "organization_id": organization_id,
                     "relationships_json": relationships_json,
+                    "type": type,
                 },
                 memory_add_params.MemoryAddParams,
             ),
@@ -806,6 +937,9 @@ class AsyncMemoryResource(AsyncAPIResource):
         skip_background_processing: bool | Omit = omit,
         batch_size: Optional[int] | Omit = omit,
         external_user_id: Optional[str] | Omit = omit,
+        graph_generation: Optional[memory_add_batch_params.GraphGeneration] | Omit = omit,
+        namespace_id: Optional[str] | Omit = omit,
+        organization_id: Optional[str] | Omit = omit,
         user_id: Optional[str] | Omit = omit,
         webhook_secret: Optional[str] | Omit = omit,
         webhook_url: Optional[str] | Omit = omit,
@@ -842,6 +976,14 @@ class AsyncMemoryResource(AsyncAPIResource):
           external_user_id: External user ID for all memories in the batch. If provided and user_id is not,
               will be resolved to internal user ID.
 
+          graph_generation: Graph generation configuration
+
+          namespace_id: Optional namespace ID for multi-tenant batch memory scoping. When provided, all
+              memories in the batch are associated with this namespace.
+
+          organization_id: Optional organization ID for multi-tenant batch memory scoping. When provided,
+              all memories in the batch are associated with this organization.
+
           user_id: Internal user ID for all memories in the batch. If not provided, developer's
               user ID will be used.
 
@@ -866,6 +1008,9 @@ class AsyncMemoryResource(AsyncAPIResource):
                     "memories": memories,
                     "batch_size": batch_size,
                     "external_user_id": external_user_id,
+                    "graph_generation": graph_generation,
+                    "namespace_id": namespace_id,
+                    "organization_id": organization_id,
                     "user_id": user_id,
                     "webhook_secret": webhook_secret,
                     "webhook_url": webhook_url,
@@ -998,12 +1143,18 @@ class AsyncMemoryResource(AsyncAPIResource):
         self,
         *,
         query: str,
+        query_enable_agentic_graph: Optional[bool] | Omit = omit,
         max_memories: int | Omit = omit,
         max_nodes: int | Omit = omit,
-        enable_agentic_graph: bool | Omit = omit,
+        body_enable_agentic_graph: bool | Omit = omit,
         external_user_id: Optional[str] | Omit = omit,
         metadata: Optional[MemoryMetadataParam] | Omit = omit,
+        namespace_id: Optional[str] | Omit = omit,
+        organization_id: Optional[str] | Omit = omit,
         rank_results: bool | Omit = omit,
+        schema_id: Optional[str] | Omit = omit,
+        search_override: Optional[memory_search_params.SearchOverride] | Omit = omit,
+        simple_schema_mode: bool | Omit = omit,
         user_id: Optional[str] | Omit = omit,
         accept_encoding: str | Omit = omit,
         # Use the following arguments if you need to pass additional parameters to the API that aren't available via kwargs.
@@ -1022,6 +1173,19 @@ class AsyncMemoryResource(AsyncAPIResource):
             - API Key in `X-API-Key` header
             - Session token in `X-Session-Token` header
 
+            **Custom Schema Support**:
+            This endpoint supports both system-defined and custom user-defined node types:
+            - **System nodes**: Memory, Person, Company, Project, Task, Insight, Meeting, Opportunity, Code
+            - **Custom nodes**: Defined by developers via UserGraphSchema (e.g., Developer, Product, Customer, Function)
+
+            When custom schema nodes are returned:
+            - Each custom node includes a `schema_id` field referencing the UserGraphSchema
+            - The response includes a `schemas_used` array listing all schema IDs used
+            - Use `GET /v1/schemas/{schema_id}` to retrieve full schema definitions including:
+              - Node type definitions and properties
+              - Relationship type definitions and constraints
+              - Validation rules and requirements
+
             **Recommended Headers**:
             ```
             Accept-Encoding: gzip
@@ -1039,6 +1203,12 @@ class AsyncMemoryResource(AsyncAPIResource):
             - "customer feedback" → identifies your customers first, then finds their specific feedback
             - "project issues" → identifies your projects first, then finds related issues
             - "team meeting notes" → identifies your team members first, then finds meeting notes
+            - "code functions" → identifies your functions first, then finds related code
+
+            **Role-Based Memory Filtering:**
+            Filter memories by role and category using metadata fields:
+            - `metadata.role`: Filter by "user" or "assistant"
+            - `metadata.category`: Filter by category (user: preference, task, goal, facts, context | assistant: skills, learning)
 
             **User Resolution Precedence:**
             - If both user_id and external_user_id are provided, user_id takes precedence.
@@ -1055,6 +1225,10 @@ class AsyncMemoryResource(AsyncAPIResource):
               impacts.' 'Find insights about team collaboration and communication patterns
               from recent meetings and discussions.'
 
+          query_enable_agentic_graph: HIGHLY RECOMMENDED: Enable agentic graph search for intelligent, context-aware
+              results. Can be set via URL parameter or JSON body. URL parameter takes
+              precedence if both are provided.
+
           max_memories: HIGHLY RECOMMENDED: Maximum number of memories to return. Use at least 15-20 for
               comprehensive results. Lower values (5-10) may miss relevant information.
               Default is 20 for optimal coverage.
@@ -1063,7 +1237,7 @@ class AsyncMemoryResource(AsyncAPIResource):
               for comprehensive graph results. Lower values may miss important entity
               relationships. Default is 15 for optimal coverage.
 
-          enable_agentic_graph: HIGHLY RECOMMENDED: Enable agentic graph search for intelligent, context-aware
+          body_enable_agentic_graph: HIGHLY RECOMMENDED: Enable agentic graph search for intelligent, context-aware
               results. When enabled, the system can understand ambiguous references by first
               identifying specific entities from your memory graph, then performing targeted
               searches. Examples: 'customer feedback' → identifies your customers first, then
@@ -1078,10 +1252,26 @@ class AsyncMemoryResource(AsyncAPIResource):
 
           metadata: Metadata for memory request
 
+          namespace_id: Optional namespace ID for multi-tenant search scoping. When provided, search is
+              scoped to memories within this namespace.
+
+          organization_id: Optional organization ID for multi-tenant search scoping. When provided, search
+              is scoped to memories within this organization.
+
           rank_results: Whether to enable additional ranking of search results. Default is false because
               results are already ranked when using an LLM for search (recommended approach).
               Only enable this if you're not using an LLM in your search pipeline and need
               additional result ranking.
+
+          schema_id: Optional user-defined schema ID to use for this search. If provided, this schema
+              (plus system schema) will be used for query generation. If not provided, system
+              will automatically select relevant schema based on query content.
+
+          search_override: Complete search override specification provided by developer
+
+          simple_schema_mode: If true, uses simple schema mode: system schema + ONE most relevant user schema.
+              This ensures better consistency between add/search operations and reduces query
+              complexity. Recommended for production use.
 
           user_id: Optional internal user ID to filter search results by a specific user. If not
               provided, results are not filtered by user. If both user_id and external_user_id
@@ -1101,10 +1291,15 @@ class AsyncMemoryResource(AsyncAPIResource):
             body=await async_maybe_transform(
                 {
                     "query": query,
-                    "enable_agentic_graph": enable_agentic_graph,
+                    "body_enable_agentic_graph": body_enable_agentic_graph,
                     "external_user_id": external_user_id,
                     "metadata": metadata,
+                    "namespace_id": namespace_id,
+                    "organization_id": organization_id,
                     "rank_results": rank_results,
+                    "schema_id": schema_id,
+                    "search_override": search_override,
+                    "simple_schema_mode": simple_schema_mode,
                     "user_id": user_id,
                 },
                 memory_search_params.MemorySearchParams,
@@ -1116,6 +1311,7 @@ class AsyncMemoryResource(AsyncAPIResource):
                 timeout=timeout,
                 query=await async_maybe_transform(
                     {
+                        "query_enable_agentic_graph": query_enable_agentic_graph,
                         "max_memories": max_memories,
                         "max_nodes": max_nodes,
                     },

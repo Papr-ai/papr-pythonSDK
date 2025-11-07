@@ -98,6 +98,8 @@ class TestFeedback:
             },
             search_id="abc123def456",
             external_user_id="dev_api_key_123",
+            namespace_id="namespace_id",
+            organization_id="organization_id",
             user_id="abc123def456",
         )
         assert_matches_type(FeedbackResponse, feedback, path=["response"])
@@ -181,6 +183,8 @@ class TestFeedback:
                     },
                     "search_id": "abc123def456",
                     "external_user_id": "dev_api_key_123",
+                    "namespace_id": "namespace_id",
+                    "organization_id": "organization_id",
                     "user_id": "abc123def456",
                 }
             ],
@@ -317,6 +321,8 @@ class TestAsyncFeedback:
             },
             search_id="abc123def456",
             external_user_id="dev_api_key_123",
+            namespace_id="namespace_id",
+            organization_id="organization_id",
             user_id="abc123def456",
         )
         assert_matches_type(FeedbackResponse, feedback, path=["response"])
@@ -400,6 +406,8 @@ class TestAsyncFeedback:
                     },
                     "search_id": "abc123def456",
                     "external_user_id": "dev_api_key_123",
+                    "namespace_id": "namespace_id",
+                    "organization_id": "organization_id",
                     "user_id": "abc123def456",
                 }
             ],
