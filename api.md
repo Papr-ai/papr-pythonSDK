@@ -21,7 +21,6 @@ from papr_memory.types import (
 Methods:
 
 - <code title="post /v1/user">client.user.<a href="./src/papr_memory/resources/user.py">create</a>(\*\*<a href="src/papr_memory/types/user_create_params.py">params</a>) -> <a href="./src/papr_memory/types/user_response.py">UserResponse</a></code>
-- <code title="put /v1/user/{user_id}">client.user.<a href="./src/papr_memory/resources/user.py">update</a>(user_id, \*\*<a href="src/papr_memory/types/user_update_params.py">params</a>) -> <a href="./src/papr_memory/types/user_response.py">UserResponse</a></code>
 - <code title="get /v1/user">client.user.<a href="./src/papr_memory/resources/user.py">list</a>(\*\*<a href="src/papr_memory/types/user_list_params.py">params</a>) -> <a href="./src/papr_memory/types/user_list_response.py">UserListResponse</a></code>
 - <code title="delete /v1/user/{user_id}">client.user.<a href="./src/papr_memory/resources/user.py">delete</a>(user_id, \*\*<a href="src/papr_memory/types/user_delete_params.py">params</a>) -> <a href="./src/papr_memory/types/user_delete_response.py">UserDeleteResponse</a></code>
 - <code title="post /v1/user/batch">client.user.<a href="./src/papr_memory/resources/user.py">create_batch</a>(\*\*<a href="src/papr_memory/types/user_create_batch_params.py">params</a>) -> <a href="./src/papr_memory/types/user_create_batch_response.py">UserCreateBatchResponse</a></code>
@@ -118,7 +117,6 @@ Methods:
 - <code title="get /v1/schemas/{schema_id}">client.schemas.<a href="./src/papr_memory/resources/schemas.py">retrieve</a>(schema_id) -> <a href="./src/papr_memory/types/schema_retrieve_response.py">SchemaRetrieveResponse</a></code>
 - <code title="put /v1/schemas/{schema_id}">client.schemas.<a href="./src/papr_memory/resources/schemas.py">update</a>(schema_id, \*\*<a href="src/papr_memory/types/schema_update_params.py">params</a>) -> <a href="./src/papr_memory/types/schema_update_response.py">SchemaUpdateResponse</a></code>
 - <code title="get /v1/schemas">client.schemas.<a href="./src/papr_memory/resources/schemas.py">list</a>(\*\*<a href="src/papr_memory/types/schema_list_params.py">params</a>) -> <a href="./src/papr_memory/types/schema_list_response.py">SchemaListResponse</a></code>
-- <code title="delete /v1/schemas/{schema_id}">client.schemas.<a href="./src/papr_memory/resources/schemas.py">delete</a>(schema_id) -> object</code>
 - <code title="post /v1/schemas/{schema_id}/activate">client.schemas.<a href="./src/papr_memory/resources/schemas.py">activate</a>(schema_id, \*\*<a href="src/papr_memory/types/schema_activate_params.py">params</a>) -> object</code>
 
 # Graphql

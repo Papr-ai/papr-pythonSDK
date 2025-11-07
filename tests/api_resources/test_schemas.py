@@ -256,48 +256,6 @@ class TestSchemas:
 
     @pytest.mark.skip(reason="Prism tests are disabled")
     @parametrize
-    def test_method_delete(self, client: Papr) -> None:
-        schema = client.schemas.delete(
-            "schema_id",
-        )
-        assert_matches_type(object, schema, path=["response"])
-
-    @pytest.mark.skip(reason="Prism tests are disabled")
-    @parametrize
-    def test_raw_response_delete(self, client: Papr) -> None:
-        response = client.schemas.with_raw_response.delete(
-            "schema_id",
-        )
-
-        assert response.is_closed is True
-        assert response.http_request.headers.get("X-Stainless-Lang") == "python"
-        schema = response.parse()
-        assert_matches_type(object, schema, path=["response"])
-
-    @pytest.mark.skip(reason="Prism tests are disabled")
-    @parametrize
-    def test_streaming_response_delete(self, client: Papr) -> None:
-        with client.schemas.with_streaming_response.delete(
-            "schema_id",
-        ) as response:
-            assert not response.is_closed
-            assert response.http_request.headers.get("X-Stainless-Lang") == "python"
-
-            schema = response.parse()
-            assert_matches_type(object, schema, path=["response"])
-
-        assert cast(Any, response.is_closed) is True
-
-    @pytest.mark.skip(reason="Prism tests are disabled")
-    @parametrize
-    def test_path_params_delete(self, client: Papr) -> None:
-        with pytest.raises(ValueError, match=r"Expected a non-empty value for `schema_id` but received ''"):
-            client.schemas.with_raw_response.delete(
-                "",
-            )
-
-    @pytest.mark.skip(reason="Prism tests are disabled")
-    @parametrize
     def test_method_activate(self, client: Papr) -> None:
         schema = client.schemas.activate(
             schema_id="schema_id",
@@ -583,48 +541,6 @@ class TestAsyncSchemas:
             assert_matches_type(SchemaListResponse, schema, path=["response"])
 
         assert cast(Any, response.is_closed) is True
-
-    @pytest.mark.skip(reason="Prism tests are disabled")
-    @parametrize
-    async def test_method_delete(self, async_client: AsyncPapr) -> None:
-        schema = await async_client.schemas.delete(
-            "schema_id",
-        )
-        assert_matches_type(object, schema, path=["response"])
-
-    @pytest.mark.skip(reason="Prism tests are disabled")
-    @parametrize
-    async def test_raw_response_delete(self, async_client: AsyncPapr) -> None:
-        response = await async_client.schemas.with_raw_response.delete(
-            "schema_id",
-        )
-
-        assert response.is_closed is True
-        assert response.http_request.headers.get("X-Stainless-Lang") == "python"
-        schema = await response.parse()
-        assert_matches_type(object, schema, path=["response"])
-
-    @pytest.mark.skip(reason="Prism tests are disabled")
-    @parametrize
-    async def test_streaming_response_delete(self, async_client: AsyncPapr) -> None:
-        async with async_client.schemas.with_streaming_response.delete(
-            "schema_id",
-        ) as response:
-            assert not response.is_closed
-            assert response.http_request.headers.get("X-Stainless-Lang") == "python"
-
-            schema = await response.parse()
-            assert_matches_type(object, schema, path=["response"])
-
-        assert cast(Any, response.is_closed) is True
-
-    @pytest.mark.skip(reason="Prism tests are disabled")
-    @parametrize
-    async def test_path_params_delete(self, async_client: AsyncPapr) -> None:
-        with pytest.raises(ValueError, match=r"Expected a non-empty value for `schema_id` but received ''"):
-            await async_client.schemas.with_raw_response.delete(
-                "",
-            )
 
     @pytest.mark.skip(reason="Prism tests are disabled")
     @parametrize
