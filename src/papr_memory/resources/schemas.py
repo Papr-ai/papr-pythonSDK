@@ -317,44 +317,6 @@ class SchemasResource(SyncAPIResource):
             cast_to=SchemaListResponse,
         )
 
-    def delete(
-        self,
-        schema_id: str,
-        *,
-        # Use the following arguments if you need to pass additional parameters to the API that aren't available via kwargs.
-        # The extra values given here take precedence over values defined on the client or passed to this method.
-        extra_headers: Headers | None = None,
-        extra_query: Query | None = None,
-        extra_body: Body | None = None,
-        timeout: float | httpx.Timeout | None | NotGiven = not_given,
-    ) -> object:
-        """Delete a schema.
-
-            Soft deletes the schema by marking it as archived.
-
-        The schema data and
-            associated graph nodes/relationships are preserved for data integrity.
-            User must have write access to the schema.
-
-        Args:
-          extra_headers: Send extra headers
-
-          extra_query: Add additional query parameters to the request
-
-          extra_body: Add additional JSON properties to the request
-
-          timeout: Override the client-level default timeout for this request, in seconds
-        """
-        if not schema_id:
-            raise ValueError(f"Expected a non-empty value for `schema_id` but received {schema_id!r}")
-        return self._delete(
-            f"/v1/schemas/{schema_id}",
-            options=make_request_options(
-                extra_headers=extra_headers, extra_query=extra_query, extra_body=extra_body, timeout=timeout
-            ),
-            cast_to=object,
-        )
-
     def activate(
         self,
         schema_id: str,
@@ -686,44 +648,6 @@ class AsyncSchemasResource(AsyncAPIResource):
             cast_to=SchemaListResponse,
         )
 
-    async def delete(
-        self,
-        schema_id: str,
-        *,
-        # Use the following arguments if you need to pass additional parameters to the API that aren't available via kwargs.
-        # The extra values given here take precedence over values defined on the client or passed to this method.
-        extra_headers: Headers | None = None,
-        extra_query: Query | None = None,
-        extra_body: Body | None = None,
-        timeout: float | httpx.Timeout | None | NotGiven = not_given,
-    ) -> object:
-        """Delete a schema.
-
-            Soft deletes the schema by marking it as archived.
-
-        The schema data and
-            associated graph nodes/relationships are preserved for data integrity.
-            User must have write access to the schema.
-
-        Args:
-          extra_headers: Send extra headers
-
-          extra_query: Add additional query parameters to the request
-
-          extra_body: Add additional JSON properties to the request
-
-          timeout: Override the client-level default timeout for this request, in seconds
-        """
-        if not schema_id:
-            raise ValueError(f"Expected a non-empty value for `schema_id` but received {schema_id!r}")
-        return await self._delete(
-            f"/v1/schemas/{schema_id}",
-            options=make_request_options(
-                extra_headers=extra_headers, extra_query=extra_query, extra_body=extra_body, timeout=timeout
-            ),
-            cast_to=object,
-        )
-
     async def activate(
         self,
         schema_id: str,
@@ -782,9 +706,6 @@ class SchemasResourceWithRawResponse:
         self.list = to_raw_response_wrapper(
             schemas.list,
         )
-        self.delete = to_raw_response_wrapper(
-            schemas.delete,
-        )
         self.activate = to_raw_response_wrapper(
             schemas.activate,
         )
@@ -805,9 +726,6 @@ class AsyncSchemasResourceWithRawResponse:
         )
         self.list = async_to_raw_response_wrapper(
             schemas.list,
-        )
-        self.delete = async_to_raw_response_wrapper(
-            schemas.delete,
         )
         self.activate = async_to_raw_response_wrapper(
             schemas.activate,
@@ -830,9 +748,6 @@ class SchemasResourceWithStreamingResponse:
         self.list = to_streamed_response_wrapper(
             schemas.list,
         )
-        self.delete = to_streamed_response_wrapper(
-            schemas.delete,
-        )
         self.activate = to_streamed_response_wrapper(
             schemas.activate,
         )
@@ -853,9 +768,6 @@ class AsyncSchemasResourceWithStreamingResponse:
         )
         self.list = async_to_streamed_response_wrapper(
             schemas.list,
-        )
-        self.delete = async_to_streamed_response_wrapper(
-            schemas.delete,
         )
         self.activate = async_to_streamed_response_wrapper(
             schemas.activate,

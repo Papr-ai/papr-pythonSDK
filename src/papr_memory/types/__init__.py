@@ -19,7 +19,6 @@ from .schema_list_params import SchemaListParams as SchemaListParams
 from .user_create_params import UserCreateParams as UserCreateParams
 from .user_delete_params import UserDeleteParams as UserDeleteParams
 from .user_list_response import UserListResponse as UserListResponse
-from .user_update_params import UserUpdateParams as UserUpdateParams
 from .add_memory_response import AddMemoryResponse as AddMemoryResponse
 from .parse_pointer_param import ParsePointerParam as ParsePointerParam
 from .memory_delete_params import MemoryDeleteParams as MemoryDeleteParams
