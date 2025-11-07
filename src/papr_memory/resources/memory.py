@@ -23,16 +23,6 @@ from papr_memory.types import (
     memory_add_batch_params,
     memory_delete_all_params,
 )
-from .._types import Body, Omit, Query, Headers, NotGiven, omit, not_given
-from .._utils import maybe_transform, strip_not_given, async_maybe_transform
-from .._compat import cached_property
-from .._resource import SyncAPIResource, AsyncAPIResource
-from .._response import (
-    to_raw_response_wrapper,
-    to_streamed_response_wrapper,
-    async_to_raw_response_wrapper,
-    async_to_streamed_response_wrapper,
-)
 from papr_memory._base_client import make_request_options
 from papr_memory.types.search_response import SearchResponse
 from papr_memory.types.add_memory_param import AddMemoryParam
@@ -45,6 +35,17 @@ from papr_memory.types.memory_metadata_param import MemoryMetadataParam
 from papr_memory.types.memory_delete_response import MemoryDeleteResponse
 from papr_memory.types.memory_update_response import MemoryUpdateResponse
 from papr_memory.types.relationship_item_param import RelationshipItemParam
+
+from .._types import Body, Omit, Query, Headers, NotGiven, omit, not_given
+from .._utils import maybe_transform, strip_not_given, async_maybe_transform
+from .._compat import cached_property
+from .._resource import SyncAPIResource, AsyncAPIResource
+from .._response import (
+    to_raw_response_wrapper,
+    to_streamed_response_wrapper,
+    async_to_raw_response_wrapper,
+    async_to_streamed_response_wrapper,
+)
 
 __all__ = ["MemoryResource", "AsyncMemoryResource"]
 
