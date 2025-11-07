@@ -1,30 +1,18 @@
 # File generated from our OpenAPI spec by Stainless. See CONTRIBUTING.md for details.
 
 from typing import List, Optional
-from datetime import datetime
-
-from pydantic import Field as FieldInfo
 
 from .._models import BaseModel
+from .shared.add_memory_item import AddMemoryItem
 
-__all__ = ["AddMemoryResponse", "Data"]
-
-
-class Data(BaseModel):
-    created_at: datetime = FieldInfo(alias="createdAt")
-
-    memory_id: str = FieldInfo(alias="memoryId")
-
-    object_id: str = FieldInfo(alias="objectId")
-
-    memory_chunk_ids: Optional[List[str]] = FieldInfo(alias="memoryChunkIds", default=None)
+__all__ = ["AddMemoryResponse"]
 
 
 class AddMemoryResponse(BaseModel):
     code: Optional[int] = None
     """HTTP status code"""
 
-    data: Optional[List[Data]] = None
+    data: Optional[List[AddMemoryItem]] = None
     """List of memory items if successful"""
 
     details: Optional[object] = None

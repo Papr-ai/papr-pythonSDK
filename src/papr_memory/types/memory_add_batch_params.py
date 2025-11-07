@@ -6,6 +6,7 @@ from typing import Iterable, Optional
 from typing_extensions import Required, TypedDict
 
 from .add_memory_param import AddMemoryParam
+from .graph_generation_param import GraphGenerationParam
 
 __all__ = ["MemoryAddBatchParams"]
 
@@ -24,6 +25,21 @@ class MemoryAddBatchParams(TypedDict, total=False):
     """External user ID for all memories in the batch.
 
     If provided and user_id is not, will be resolved to internal user ID.
+    """
+
+    graph_generation: Optional[GraphGenerationParam]
+    """Graph generation configuration"""
+
+    namespace_id: Optional[str]
+    """Optional namespace ID for multi-tenant batch memory scoping.
+
+    When provided, all memories in the batch are associated with this namespace.
+    """
+
+    organization_id: Optional[str]
+    """Optional organization ID for multi-tenant batch memory scoping.
+
+    When provided, all memories in the batch are associated with this organization.
     """
 
     user_id: Optional[str]

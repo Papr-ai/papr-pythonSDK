@@ -1,6 +1,7 @@
 # File generated from our OpenAPI spec by Stainless. See CONTRIBUTING.md for details.
 
 from typing import TYPE_CHECKING, Dict, List, Union, Optional
+from typing_extensions import Literal
 
 from pydantic import Field as FieldInfo
 
@@ -11,6 +12,13 @@ __all__ = ["MemoryMetadata"]
 
 class MemoryMetadata(BaseModel):
     assistant_message: Optional[str] = FieldInfo(alias="assistantMessage", default=None)
+
+    category: Optional[Literal["preference", "task", "goal", "fact", "context", "skills", "learning"]] = None
+    """Memory category based on role.
+
+    For users: preference, task, goal, fact, context. For assistants: skills,
+    learning, task, goal, fact, context.
+    """
 
     conversation_id: Optional[str] = FieldInfo(alias="conversationId", default=None)
 
@@ -43,6 +51,10 @@ class MemoryMetadata(BaseModel):
 
     location: Optional[str] = None
 
+    namespace_id: Optional[str] = None
+
+    organization_id: Optional[str] = None
+
     page_id: Optional[str] = FieldInfo(alias="pageId", default=None)
 
     post: Optional[str] = None
@@ -52,6 +64,9 @@ class MemoryMetadata(BaseModel):
     related_steps: Optional[List[str]] = FieldInfo(alias="relatedSteps", default=None)
 
     related_use_cases: Optional[List[str]] = FieldInfo(alias="relatedUseCases", default=None)
+
+    role: Optional[Literal["user", "assistant"]] = None
+    """Role of the message sender"""
 
     role_read_access: Optional[List[str]] = None
 
@@ -66,6 +81,9 @@ class MemoryMetadata(BaseModel):
     step_classification_scores: Optional[List[float]] = FieldInfo(alias="stepClassificationScores", default=None)
 
     topics: Optional[List[str]] = None
+
+    upload_id: Optional[str] = None
+    """Upload ID for document processing workflows"""
 
     use_case_classification_scores: Optional[List[float]] = FieldInfo(alias="useCaseClassificationScores", default=None)
 
@@ -85,7 +103,13 @@ class MemoryMetadata(BaseModel):
 
     pydantic_extra__: Dict[str, object] = FieldInfo(init=False)  # pyright: ignore[reportIncompatibleVariableOverride]
     if TYPE_CHECKING:
+        # Some versions of Pydantic <2.8.0 have a bug and don’t allow assigning a
+        # value to this field, so for compatibility we avoid doing it at runtime.
+        __pydantic_extra__: Dict[str, object] = FieldInfo(init=False)  # pyright: ignore[reportIncompatibleVariableOverride]
+
         # Stub to indicate that arbitrary properties are accepted.
         # To access properties that are not valid identifiers you can use `getattr`, e.g.
         # `getattr(obj, '$type')`
         def __getattr__(self, attr: str) -> object: ...
+    else:
+        __pydantic_extra__: Dict[str, object]

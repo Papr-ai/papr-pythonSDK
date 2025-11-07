@@ -22,6 +22,18 @@ class FeedbackSubmitParams(TypedDict, total=False):
     external_user_id: Optional[str]
     """External user ID for developer API keys acting on behalf of end users"""
 
+    namespace_id: Optional[str]
+    """Optional namespace ID for multi-tenant feedback scoping.
+
+    When provided, feedback is scoped to this namespace.
+    """
+
+    organization_id: Optional[str]
+    """Optional organization ID for multi-tenant feedback scoping.
+
+    When provided, feedback is scoped to this organization.
+    """
+
     user_id: Optional[str]
     """Internal user ID (if not provided, will be resolved from authentication)"""
 

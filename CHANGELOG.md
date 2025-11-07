@@ -1,5 +1,37 @@
 # Changelog
 
+## 2.15.0 (2025-11-07)
+
+Full Changelog: [v2.14.0...v2.15.0](https://github.com/Papr-ai/papr-pythonSDK/compare/v2.14.0...v2.15.0)
+
+### Features
+
+* **api:** manual updates ([cb73728](https://github.com/Papr-ai/papr-pythonSDK/commit/cb73728aafdf2f0d8a5fc1748b6073ef63c25441))
+* **api:** manual updates ([af3d28a](https://github.com/Papr-ai/papr-pythonSDK/commit/af3d28a9af0c404ad97e52f3320c46fe0c8a5170))
+* **api:** manual updates ([d5bc2a6](https://github.com/Papr-ai/papr-pythonSDK/commit/d5bc2a642e0981fe15eb746c8c1f60aa376f7d02))
+* **api:** manual updates ([54bf211](https://github.com/Papr-ai/papr-pythonSDK/commit/54bf21156a92cce108f1fcccffaaf8cdbd5833df))
+* **api:** manual updates ([f456d86](https://github.com/Papr-ai/papr-pythonSDK/commit/f456d86dc8d97ec9e8e6ee0ea49b2ee13d66e224))
+* **api:** manual updates ([f72c22b](https://github.com/Papr-ai/papr-pythonSDK/commit/f72c22bc4b7fef6127d957264bfd0d567cfe4ed1))
+
+
+### Bug Fixes
+
+* **client:** close streams without requiring full consumption ([60d5c8d](https://github.com/Papr-ai/papr-pythonSDK/commit/60d5c8d4876dcc73b4131c9259612ba85d2cc5a8))
+* **compat:** compat with `pydantic&lt;2.8.0` when using additional fields ([a8ce491](https://github.com/Papr-ai/papr-pythonSDK/commit/a8ce491375ac71e81243ea95116db88d968d20df))
+
+
+### Chores
+
+* bump `httpx-aiohttp` version to 0.1.9 ([6ad9ac3](https://github.com/Papr-ai/papr-pythonSDK/commit/6ad9ac3f9e7ab2ce1f021ac773659f56b66a6e61))
+* do not install brew dependencies in ./scripts/bootstrap by default ([8933182](https://github.com/Papr-ai/papr-pythonSDK/commit/8933182759f18e3b007985e1054f3af66d8a0b4f))
+* improve example values ([4a251d9](https://github.com/Papr-ai/papr-pythonSDK/commit/4a251d91445218a65beda3f1850f90793be5fbfb))
+* **internal/tests:** avoid race condition with implicit client cleanup ([1ff59e8](https://github.com/Papr-ai/papr-pythonSDK/commit/1ff59e898f1f966e6e740c3831c73a471c1780d2))
+* **internal:** detect missing future annotations with ruff ([22c7240](https://github.com/Papr-ai/papr-pythonSDK/commit/22c7240a5f69127c14cfa279fe17f4df3c3fea5c))
+* **internal:** move mypy configurations to `pyproject.toml` file ([2919d5c](https://github.com/Papr-ai/papr-pythonSDK/commit/2919d5c0e5c5861b86d865fbafd63098cf6ad3ff))
+* **internal:** update pydantic dependency ([8bf7777](https://github.com/Papr-ai/papr-pythonSDK/commit/8bf7777e5ad4afaf74a8db90713efc28f1f88bf0))
+* **tests:** simplify `get_platform` test ([5e0cb1f](https://github.com/Papr-ai/papr-pythonSDK/commit/5e0cb1f4fc3c255682f672deb7cad924153880df))
+* **types:** change optional parameter type from NotGiven to Omit ([f5e71dc](https://github.com/Papr-ai/papr-pythonSDK/commit/f5e71dca2a1ee9ec7ea90f3f4b75eb7eaafd120d))
+
 ## 2.14.0 (2025-09-04)
 
 Full Changelog: [v2.13.0...v2.14.0](https://github.com/Papr-ai/papr-pythonSDK/compare/v2.13.0...v2.14.0)

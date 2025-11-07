@@ -16,22 +16,13 @@ _os.environ.setdefault("TOKENIZERS_PARALLELISM", "false")
 
 from papr_memory.types import (
     MemoryType,
+    GraphGenerationParam,
     memory_add_params,
     memory_delete_params,
     memory_search_params,
     memory_update_params,
     memory_add_batch_params,
     memory_delete_all_params,
-)
-from papr_memory._types import NOT_GIVEN, Body, Query, Headers, NotGiven
-from papr_memory._utils import maybe_transform, strip_not_given, async_maybe_transform
-from papr_memory._compat import cached_property
-from papr_memory._resource import SyncAPIResource, AsyncAPIResource
-from papr_memory._response import (
-    to_raw_response_wrapper,
-    to_streamed_response_wrapper,
-    async_to_raw_response_wrapper,
-    async_to_streamed_response_wrapper,
 )
 from papr_memory._base_client import make_request_options
 from papr_memory.types.search_response import SearchResponse
@@ -45,6 +36,17 @@ from papr_memory.types.memory_metadata_param import MemoryMetadataParam
 from papr_memory.types.memory_delete_response import MemoryDeleteResponse
 from papr_memory.types.memory_update_response import MemoryUpdateResponse
 from papr_memory.types.relationship_item_param import RelationshipItemParam
+
+from .._types import Body, Omit, Query, Headers, NotGiven, omit, not_given
+from .._utils import maybe_transform, strip_not_given, async_maybe_transform
+from .._compat import cached_property
+from .._resource import SyncAPIResource, AsyncAPIResource
+from .._response import (
+    to_raw_response_wrapper,
+    to_streamed_response_wrapper,
+    async_to_raw_response_wrapper,
+    async_to_streamed_response_wrapper,
+)
 
 __all__ = ["MemoryResource", "AsyncMemoryResource"]
 
@@ -92,17 +94,19 @@ class MemoryResource(SyncAPIResource):
         self,
         memory_id: str,
         *,
-        content: Optional[str] | NotGiven = NOT_GIVEN,
-        context: Optional[Iterable[ContextItemParam]] | NotGiven = NOT_GIVEN,
-        metadata: Optional[MemoryMetadataParam] | NotGiven = NOT_GIVEN,
-        relationships_json: Optional[Iterable[RelationshipItemParam]] | NotGiven = NOT_GIVEN,
-        type: Optional[MemoryType] | NotGiven = NOT_GIVEN,
+        content: Optional[str] | Omit = omit,
+        context: Optional[Iterable[ContextItemParam]] | Omit = omit,
+        metadata: Optional[MemoryMetadataParam] | Omit = omit,
+        namespace_id: Optional[str] | Omit = omit,
+        organization_id: Optional[str] | Omit = omit,
+        relationships_json: Optional[Iterable[RelationshipItemParam]] | Omit = omit,
+        type: Optional[MemoryType] | Omit = omit,
         # Use the following arguments if you need to pass additional parameters to the API that aren't available via kwargs.
         # The extra values given here take precedence over values defined on the client or passed to this method.
         extra_headers: Headers | None = None,
         extra_query: Query | None = None,
         extra_body: Body | None = None,
-        timeout: float | httpx.Timeout | None | NotGiven = NOT_GIVEN,
+        timeout: float | httpx.Timeout | None | NotGiven = not_given,
     ) -> MemoryUpdateResponse:
         """
         Update an existing memory item by ID.
@@ -126,6 +130,12 @@ class MemoryResource(SyncAPIResource):
 
           metadata: Metadata for memory request
 
+          namespace_id: Optional namespace ID for multi-tenant memory scoping. When provided, update is
+              scoped to memories within this namespace.
+
+          organization_id: Optional organization ID for multi-tenant memory scoping. When provided, update
+              is scoped to memories within this organization.
+
           relationships_json: Updated relationships for Graph DB (neo4J)
 
           type: Valid memory types
@@ -147,6 +157,8 @@ class MemoryResource(SyncAPIResource):
                     "content": content,
                     "context": context,
                     "metadata": metadata,
+                    "namespace_id": namespace_id,
+                    "organization_id": organization_id,
                     "relationships_json": relationships_json,
                     "type": type,
                 },
@@ -162,13 +174,13 @@ class MemoryResource(SyncAPIResource):
         self,
         memory_id: str,
         *,
-        skip_parse: bool | NotGiven = NOT_GIVEN,
+        skip_parse: bool | Omit = omit,
         # Use the following arguments if you need to pass additional parameters to the API that aren't available via kwargs.
         # The extra values given here take precedence over values defined on the client or passed to this method.
         extra_headers: Headers | None = None,
         extra_query: Query | None = None,
         extra_body: Body | None = None,
-        timeout: float | httpx.Timeout | None | NotGiven = NOT_GIVEN,
+        timeout: float | httpx.Timeout | None | NotGiven = not_given,
     ) -> MemoryDeleteResponse:
         """
         Delete a memory item by ID.
@@ -211,17 +223,20 @@ class MemoryResource(SyncAPIResource):
         self,
         *,
         content: str,
-        type: MemoryType,
-        skip_background_processing: bool | NotGiven = NOT_GIVEN,
-        context: Optional[Iterable[ContextItemParam]] | NotGiven = NOT_GIVEN,
-        metadata: Optional[MemoryMetadataParam] | NotGiven = NOT_GIVEN,
-        relationships_json: Optional[Iterable[RelationshipItemParam]] | NotGiven = NOT_GIVEN,
+        skip_background_processing: bool | Omit = omit,
+        context: Optional[Iterable[ContextItemParam]] | Omit = omit,
+        graph_generation: Optional[GraphGenerationParam] | Omit = omit,
+        metadata: Optional[MemoryMetadataParam] | Omit = omit,
+        namespace_id: Optional[str] | Omit = omit,
+        organization_id: Optional[str] | Omit = omit,
+        relationships_json: Optional[Iterable[RelationshipItemParam]] | Omit = omit,
+        type: MemoryType | Omit = omit,
         # Use the following arguments if you need to pass additional parameters to the API that aren't available via kwargs.
         # The extra values given here take precedence over values defined on the client or passed to this method.
         extra_headers: Headers | None = None,
         extra_query: Query | None = None,
         extra_body: Body | None = None,
-        timeout: float | httpx.Timeout | None | NotGiven = NOT_GIVEN,
+        timeout: float | httpx.Timeout | None | NotGiven = not_given,
     ) -> AddMemoryResponse:
         """
         Add a new memory item to the system with size validation and background
@@ -237,20 +252,37 @@ class MemoryResource(SyncAPIResource):
             - Content-Type: application/json
             - X-Client-Type: (e.g., 'papr_plugin', 'browser_extension')
 
+            **Role-Based Memory Categories**:
+            - **User memories**: preference, task, goal, facts, context
+            - **Assistant memories**: skills, learning
+
+            **New Metadata Fields**:
+            - `metadata.role`: Optional field to specify who generated the memory (user or assistant)
+            - `metadata.category`: Optional field for memory categorization based on role
+            - Both fields are stored within metadata at the same level as topics, location, etc.
+
             The API validates content size against MAX_CONTENT_LENGTH environment variable (defaults to 15000 bytes).
 
         Args:
           content: The content of the memory item you want to add to memory
 
-          type: Valid memory types
-
           skip_background_processing: If True, skips adding background tasks for processing
 
           context: Context can be conversation history or any relevant context for a memory item
 
+          graph_generation: Graph generation configuration
+
           metadata: Metadata for memory request
 
+          namespace_id: Optional namespace ID for multi-tenant memory scoping. When provided, memory is
+              associated with this namespace.
+
+          organization_id: Optional organization ID for multi-tenant memory scoping. When provided, memory
+              is associated with this organization.
+
           relationships_json: Array of relationships that we can use in Graph DB (neo4J)
+
+          type: Memory item type; defaults to 'text' if omitted
 
           extra_headers: Send extra headers
 
@@ -265,10 +297,13 @@ class MemoryResource(SyncAPIResource):
             body=maybe_transform(
                 {
                     "content": content,
-                    "type": type,
                     "context": context,
+                    "graph_generation": graph_generation,
                     "metadata": metadata,
+                    "namespace_id": namespace_id,
+                    "organization_id": organization_id,
                     "relationships_json": relationships_json,
+                    "type": type,
                 },
                 memory_add_params.MemoryAddParams,
             ),
@@ -288,18 +323,21 @@ class MemoryResource(SyncAPIResource):
         self,
         *,
         memories: Iterable[AddMemoryParam],
-        skip_background_processing: bool | NotGiven = NOT_GIVEN,
-        batch_size: Optional[int] | NotGiven = NOT_GIVEN,
-        external_user_id: Optional[str] | NotGiven = NOT_GIVEN,
-        user_id: Optional[str] | NotGiven = NOT_GIVEN,
-        webhook_secret: Optional[str] | NotGiven = NOT_GIVEN,
-        webhook_url: Optional[str] | NotGiven = NOT_GIVEN,
+        skip_background_processing: bool | Omit = omit,
+        batch_size: Optional[int] | Omit = omit,
+        external_user_id: Optional[str] | Omit = omit,
+        graph_generation: Optional[GraphGenerationParam] | Omit = omit,
+        namespace_id: Optional[str] | Omit = omit,
+        organization_id: Optional[str] | Omit = omit,
+        user_id: Optional[str] | Omit = omit,
+        webhook_secret: Optional[str] | Omit = omit,
+        webhook_url: Optional[str] | Omit = omit,
         # Use the following arguments if you need to pass additional parameters to the API that aren't available via kwargs.
         # The extra values given here take precedence over values defined on the client or passed to this method.
         extra_headers: Headers | None = None,
         extra_query: Query | None = None,
         extra_body: Body | None = None,
-        timeout: float | httpx.Timeout | None | NotGiven = NOT_GIVEN,
+        timeout: float | httpx.Timeout | None | NotGiven = not_given,
     ) -> BatchMemoryResponse:
         """
         Add multiple memory items in a batch with size validation and background
@@ -327,6 +365,14 @@ class MemoryResource(SyncAPIResource):
           external_user_id: External user ID for all memories in the batch. If provided and user_id is not,
               will be resolved to internal user ID.
 
+          graph_generation: Graph generation configuration
+
+          namespace_id: Optional namespace ID for multi-tenant batch memory scoping. When provided, all
+              memories in the batch are associated with this namespace.
+
+          organization_id: Optional organization ID for multi-tenant batch memory scoping. When provided,
+              all memories in the batch are associated with this organization.
+
           user_id: Internal user ID for all memories in the batch. If not provided, developer's
               user ID will be used.
 
@@ -351,6 +397,9 @@ class MemoryResource(SyncAPIResource):
                     "memories": memories,
                     "batch_size": batch_size,
                     "external_user_id": external_user_id,
+                    "graph_generation": graph_generation,
+                    "namespace_id": namespace_id,
+                    "organization_id": organization_id,
                     "user_id": user_id,
                     "webhook_secret": webhook_secret,
                     "webhook_url": webhook_url,
@@ -373,15 +422,15 @@ class MemoryResource(SyncAPIResource):
     def delete_all(
         self,
         *,
-        external_user_id: Optional[str] | NotGiven = NOT_GIVEN,
-        skip_parse: bool | NotGiven = NOT_GIVEN,
-        user_id: Optional[str] | NotGiven = NOT_GIVEN,
+        external_user_id: Optional[str] | Omit = omit,
+        skip_parse: bool | Omit = omit,
+        user_id: Optional[str] | Omit = omit,
         # Use the following arguments if you need to pass additional parameters to the API that aren't available via kwargs.
         # The extra values given here take precedence over values defined on the client or passed to this method.
         extra_headers: Headers | None = None,
         extra_query: Query | None = None,
         extra_body: Body | None = None,
-        timeout: float | httpx.Timeout | None | NotGiven = NOT_GIVEN,
+        timeout: float | httpx.Timeout | None | NotGiven = not_given,
     ) -> BatchMemoryResponse:
         """
         Delete all memory items for a user.
@@ -440,16 +489,16 @@ class MemoryResource(SyncAPIResource):
     def sync_tiers(
         self,
         *,
-        include_embeddings: bool | NotGiven = NOT_GIVEN,
-        embed_limit: int | NotGiven = NOT_GIVEN,
-        max_tier0: int | NotGiven = NOT_GIVEN,
-        max_tier1: int | NotGiven = NOT_GIVEN,
+        include_embeddings: bool | NotGiven = not_given,
+        embed_limit: int | NotGiven = not_given,
+        max_tier0: int | NotGiven = not_given,
+        max_tier1: int | NotGiven = not_given,
         # Use the following arguments if you need to pass additional parameters to the API that aren't available via kwargs.
         # The extra values given here take precedence over values defined on the client or passed to this method.
         extra_headers: Headers | None = None,
         extra_query: Query | None = None,
         extra_body: Body | None = None,
-        timeout: float | httpx.Timeout | None | NotGiven = NOT_GIVEN,
+        timeout: float | httpx.Timeout | None | NotGiven = not_given,
     ) -> SyncTiersResponse:
         """
         Get sync tiers for memory synchronization.
@@ -511,7 +560,7 @@ class MemoryResource(SyncAPIResource):
         extra_headers: Headers | None = None,
         extra_query: Query | None = None,
         extra_body: Body | None = None,
-        timeout: float | httpx.Timeout | None | NotGiven = NOT_GIVEN,
+        timeout: float | httpx.Timeout | None | NotGiven = not_given,
     ) -> SearchResponse:
         """
         Retrieve a memory item by ID.
@@ -1800,9 +1849,9 @@ class MemoryResource(SyncAPIResource):
         self, 
         query: str, 
         n_results: int = 5,
-        metadata: Optional[MemoryMetadataParam] | NotGiven = NOT_GIVEN,
-        user_id: Optional[str] | NotGiven = NOT_GIVEN,
-        external_user_id: Optional[str] | NotGiven = NOT_GIVEN
+        metadata: Optional[MemoryMetadataParam] | NotGiven = not_given,
+        user_id: Optional[str] | NotGiven = not_given,
+        external_user_id: Optional[str] | NotGiven = not_given
     ) -> list[str] | None:
         """Search tier0 data using local vector search"""
         import time
@@ -1967,9 +2016,9 @@ class MemoryResource(SyncAPIResource):
                 # Pass search context to Parse Server logging for background user resolution
                 search_context = {
                     'query': query,
-                    'metadata': metadata if metadata != NOT_GIVEN else None,
-                    'user_id': user_id if user_id != NOT_GIVEN else None,
-                    'external_user_id': external_user_id if external_user_id != NOT_GIVEN else None
+                    'metadata': metadata if metadata != not_given else None,
+                    'user_id': user_id if user_id != not_given else None,
+                    'external_user_id': external_user_id if external_user_id != not_given else None
                 }
                 
                 retrieval_logging_service.log_to_parse_server_sync(
@@ -2968,20 +3017,25 @@ class MemoryResource(SyncAPIResource):
         self,
         *,
         query: str,
-        max_memories: int | NotGiven = NOT_GIVEN,
-        max_nodes: int | NotGiven = NOT_GIVEN,
-        enable_agentic_graph: bool | NotGiven = NOT_GIVEN,
-        external_user_id: Optional[str] | NotGiven = NOT_GIVEN,
-        metadata: Optional[MemoryMetadataParam] | NotGiven = NOT_GIVEN,
-        rank_results: bool | NotGiven = NOT_GIVEN,
-        user_id: Optional[str] | NotGiven = NOT_GIVEN,
-        accept_encoding: str | NotGiven = NOT_GIVEN,
+        max_memories: int | Omit = omit,
+        max_nodes: int | Omit = omit,
+        enable_agentic_graph: bool | Omit = omit,
+        external_user_id: Optional[str] | Omit = omit,
+        metadata: Optional[MemoryMetadataParam] | Omit = omit,
+        namespace_id: Optional[str] | Omit = omit,
+        organization_id: Optional[str] | Omit = omit,
+        rank_results: bool | Omit = omit,
+        schema_id: Optional[str] | Omit = omit,
+        search_override: Optional[memory_search_params.SearchOverride] | Omit = omit,
+        simple_schema_mode: bool | Omit = omit,
+        user_id: Optional[str] | Omit = omit,
+        accept_encoding: str | Omit = omit,
         # Use the following arguments if you need to pass additional parameters to the API that aren't available via kwargs.
         # The extra values given here take precedence over values defined on the client or passed to this method.
         extra_headers: Headers | None = None,
         extra_query: Query | None = None,
         extra_body: Body | None = None,
-        timeout: float | httpx.Timeout | None | NotGiven = NOT_GIVEN,
+        timeout: float | httpx.Timeout | None | NotGiven = not_given,
     ) -> SearchResponse:
         """
         Search through memories with authentication required.
@@ -2991,6 +3045,19 @@ class MemoryResource(SyncAPIResource):
             - Bearer token in `Authorization` header
             - API Key in `X-API-Key` header
             - Session token in `X-Session-Token` header
+
+            **Custom Schema Support**:
+            This endpoint supports both system-defined and custom user-defined node types:
+            - **System nodes**: Memory, Person, Company, Project, Task, Insight, Meeting, Opportunity, Code
+            - **Custom nodes**: Defined by developers via UserGraphSchema (e.g., Developer, Product, Customer, Function)
+
+            When custom schema nodes are returned:
+            - Each custom node includes a `schema_id` field referencing the UserGraphSchema
+            - The response includes a `schemas_used` array listing all schema IDs used
+            - Use `GET /v1/schemas/{schema_id}` to retrieve full schema definitions including:
+              - Node type definitions and properties
+              - Relationship type definitions and constraints
+              - Validation rules and requirements
 
             **Recommended Headers**:
             ```
@@ -3009,6 +3076,12 @@ class MemoryResource(SyncAPIResource):
             - "customer feedback" → identifies your customers first, then finds their specific feedback
             - "project issues" → identifies your projects first, then finds related issues
             - "team meeting notes" → identifies your team members first, then finds meeting notes
+            - "code functions" → identifies your functions first, then finds related code
+
+            **Role-Based Memory Filtering:**
+            Filter memories by role and category using metadata fields:
+            - `metadata.role`: Filter by "user" or "assistant"
+            - `metadata.category`: Filter by category (user: preference, task, goal, facts, context | assistant: skills, learning)
 
             **User Resolution Precedence:**
             - If both user_id and external_user_id are provided, user_id takes precedence.
@@ -3048,10 +3121,26 @@ class MemoryResource(SyncAPIResource):
 
           metadata: Metadata for memory request
 
+          namespace_id: Optional namespace ID for multi-tenant search scoping. When provided, search is
+              scoped to memories within this namespace.
+
+          organization_id: Optional organization ID for multi-tenant search scoping. When provided, search
+              is scoped to memories within this organization.
+
           rank_results: Whether to enable additional ranking of search results. Default is false because
               results are already ranked when using an LLM for search (recommended approach).
               Only enable this if you're not using an LLM in your search pipeline and need
               additional result ranking.
+
+          schema_id: Optional user-defined schema ID to use for this search. If provided, this schema
+              (plus system schema) will be used for query generation. If not provided, system
+              will automatically select relevant schema based on query content.
+
+          search_override: Complete search override specification provided by developer
+
+          simple_schema_mode: If true, uses simple schema mode: system schema + ONE most relevant user schema.
+              This ensures better consistency between add/search operations and reduces query
+              complexity. Recommended for production use.
 
           user_id: Optional internal user ID to filter search results by a specific user. If not
               provided, results are not filtered by user. If both user_id and external_user_id
@@ -3091,7 +3180,7 @@ class MemoryResource(SyncAPIResource):
 
             start_time = time.time()
             # Ensure max_memories is not NotGiven
-            n_results = max_memories if max_memories is not NOT_GIVEN else 5
+            n_results = max_memories if max_memories is not omit else 5
             # Type assertion to help Pyright understand this is always an int
             assert isinstance(n_results, int), "n_results must be an int"
             
@@ -3104,9 +3193,9 @@ class MemoryResource(SyncAPIResource):
                 tier0_context = self._search_tier0_locally(
                     query, 
                     n_results=n_results,
-                    metadata=metadata,
-                    user_id=user_id,
-                    external_user_id=external_user_id
+                    metadata=cast(Optional[MemoryMetadataParam] | NotGiven, metadata if metadata is not omit else not_given),
+                    user_id=cast(Optional[str] | NotGiven, user_id if user_id is not omit else not_given),
+                    external_user_id=cast(Optional[str] | NotGiven, external_user_id if external_user_id is not omit else not_given)
                 ) or []
             
             search_time = time.time() - start_time
@@ -3166,7 +3255,12 @@ class MemoryResource(SyncAPIResource):
                     "enable_agentic_graph": enable_agentic_graph,
                     "external_user_id": external_user_id,
                     "metadata": metadata,
+                    "namespace_id": namespace_id,
+                    "organization_id": organization_id,
                     "rank_results": rank_results,
+                    "schema_id": schema_id,
+                    "search_override": search_override,
+                    "simple_schema_mode": simple_schema_mode,
                     "user_id": user_id,
                 },
                 memory_search_params.MemorySearchParams,
@@ -3212,17 +3306,19 @@ class AsyncMemoryResource(AsyncAPIResource):
         self,
         memory_id: str,
         *,
-        content: Optional[str] | NotGiven = NOT_GIVEN,
-        context: Optional[Iterable[ContextItemParam]] | NotGiven = NOT_GIVEN,
-        metadata: Optional[MemoryMetadataParam] | NotGiven = NOT_GIVEN,
-        relationships_json: Optional[Iterable[RelationshipItemParam]] | NotGiven = NOT_GIVEN,
-        type: Optional[MemoryType] | NotGiven = NOT_GIVEN,
+        content: Optional[str] | Omit = omit,
+        context: Optional[Iterable[ContextItemParam]] | Omit = omit,
+        metadata: Optional[MemoryMetadataParam] | Omit = omit,
+        namespace_id: Optional[str] | Omit = omit,
+        organization_id: Optional[str] | Omit = omit,
+        relationships_json: Optional[Iterable[RelationshipItemParam]] | Omit = omit,
+        type: Optional[MemoryType] | Omit = omit,
         # Use the following arguments if you need to pass additional parameters to the API that aren't available via kwargs.
         # The extra values given here take precedence over values defined on the client or passed to this method.
         extra_headers: Headers | None = None,
         extra_query: Query | None = None,
         extra_body: Body | None = None,
-        timeout: float | httpx.Timeout | None | NotGiven = NOT_GIVEN,
+        timeout: float | httpx.Timeout | None | NotGiven = not_given,
     ) -> MemoryUpdateResponse:
         """
         Update an existing memory item by ID.
@@ -3246,6 +3342,12 @@ class AsyncMemoryResource(AsyncAPIResource):
 
           metadata: Metadata for memory request
 
+          namespace_id: Optional namespace ID for multi-tenant memory scoping. When provided, update is
+              scoped to memories within this namespace.
+
+          organization_id: Optional organization ID for multi-tenant memory scoping. When provided, update
+              is scoped to memories within this organization.
+
           relationships_json: Updated relationships for Graph DB (neo4J)
 
           type: Valid memory types
@@ -3267,6 +3369,8 @@ class AsyncMemoryResource(AsyncAPIResource):
                     "content": content,
                     "context": context,
                     "metadata": metadata,
+                    "namespace_id": namespace_id,
+                    "organization_id": organization_id,
                     "relationships_json": relationships_json,
                     "type": type,
                 },
@@ -3282,13 +3386,13 @@ class AsyncMemoryResource(AsyncAPIResource):
         self,
         memory_id: str,
         *,
-        skip_parse: bool | NotGiven = NOT_GIVEN,
+        skip_parse: bool | Omit = omit,
         # Use the following arguments if you need to pass additional parameters to the API that aren't available via kwargs.
         # The extra values given here take precedence over values defined on the client or passed to this method.
         extra_headers: Headers | None = None,
         extra_query: Query | None = None,
         extra_body: Body | None = None,
-        timeout: float | httpx.Timeout | None | NotGiven = NOT_GIVEN,
+        timeout: float | httpx.Timeout | None | NotGiven = not_given,
     ) -> MemoryDeleteResponse:
         """
         Delete a memory item by ID.
@@ -3331,17 +3435,20 @@ class AsyncMemoryResource(AsyncAPIResource):
         self,
         *,
         content: str,
-        type: MemoryType,
-        skip_background_processing: bool | NotGiven = NOT_GIVEN,
-        context: Optional[Iterable[ContextItemParam]] | NotGiven = NOT_GIVEN,
-        metadata: Optional[MemoryMetadataParam] | NotGiven = NOT_GIVEN,
-        relationships_json: Optional[Iterable[RelationshipItemParam]] | NotGiven = NOT_GIVEN,
+        skip_background_processing: bool | Omit = omit,
+        context: Optional[Iterable[ContextItemParam]] | Omit = omit,
+        graph_generation: Optional[GraphGenerationParam] | Omit = omit,
+        metadata: Optional[MemoryMetadataParam] | Omit = omit,
+        namespace_id: Optional[str] | Omit = omit,
+        organization_id: Optional[str] | Omit = omit,
+        relationships_json: Optional[Iterable[RelationshipItemParam]] | Omit = omit,
+        type: MemoryType | Omit = omit,
         # Use the following arguments if you need to pass additional parameters to the API that aren't available via kwargs.
         # The extra values given here take precedence over values defined on the client or passed to this method.
         extra_headers: Headers | None = None,
         extra_query: Query | None = None,
         extra_body: Body | None = None,
-        timeout: float | httpx.Timeout | None | NotGiven = NOT_GIVEN,
+        timeout: float | httpx.Timeout | None | NotGiven = not_given,
     ) -> AddMemoryResponse:
         """
         Add a new memory item to the system with size validation and background
@@ -3357,20 +3464,37 @@ class AsyncMemoryResource(AsyncAPIResource):
             - Content-Type: application/json
             - X-Client-Type: (e.g., 'papr_plugin', 'browser_extension')
 
+            **Role-Based Memory Categories**:
+            - **User memories**: preference, task, goal, facts, context
+            - **Assistant memories**: skills, learning
+
+            **New Metadata Fields**:
+            - `metadata.role`: Optional field to specify who generated the memory (user or assistant)
+            - `metadata.category`: Optional field for memory categorization based on role
+            - Both fields are stored within metadata at the same level as topics, location, etc.
+
             The API validates content size against MAX_CONTENT_LENGTH environment variable (defaults to 15000 bytes).
 
         Args:
           content: The content of the memory item you want to add to memory
 
-          type: Valid memory types
-
           skip_background_processing: If True, skips adding background tasks for processing
 
           context: Context can be conversation history or any relevant context for a memory item
 
+          graph_generation: Graph generation configuration
+
           metadata: Metadata for memory request
 
+          namespace_id: Optional namespace ID for multi-tenant memory scoping. When provided, memory is
+              associated with this namespace.
+
+          organization_id: Optional organization ID for multi-tenant memory scoping. When provided, memory
+              is associated with this organization.
+
           relationships_json: Array of relationships that we can use in Graph DB (neo4J)
+
+          type: Memory item type; defaults to 'text' if omitted
 
           extra_headers: Send extra headers
 
@@ -3385,10 +3509,13 @@ class AsyncMemoryResource(AsyncAPIResource):
             body=await async_maybe_transform(
                 {
                     "content": content,
-                    "type": type,
                     "context": context,
+                    "graph_generation": graph_generation,
                     "metadata": metadata,
+                    "namespace_id": namespace_id,
+                    "organization_id": organization_id,
                     "relationships_json": relationships_json,
+                    "type": type,
                 },
                 memory_add_params.MemoryAddParams,
             ),
@@ -3408,18 +3535,21 @@ class AsyncMemoryResource(AsyncAPIResource):
         self,
         *,
         memories: Iterable[AddMemoryParam],
-        skip_background_processing: bool | NotGiven = NOT_GIVEN,
-        batch_size: Optional[int] | NotGiven = NOT_GIVEN,
-        external_user_id: Optional[str] | NotGiven = NOT_GIVEN,
-        user_id: Optional[str] | NotGiven = NOT_GIVEN,
-        webhook_secret: Optional[str] | NotGiven = NOT_GIVEN,
-        webhook_url: Optional[str] | NotGiven = NOT_GIVEN,
+        skip_background_processing: bool | Omit = omit,
+        batch_size: Optional[int] | Omit = omit,
+        external_user_id: Optional[str] | Omit = omit,
+        graph_generation: Optional[GraphGenerationParam] | Omit = omit,
+        namespace_id: Optional[str] | Omit = omit,
+        organization_id: Optional[str] | Omit = omit,
+        user_id: Optional[str] | Omit = omit,
+        webhook_secret: Optional[str] | Omit = omit,
+        webhook_url: Optional[str] | Omit = omit,
         # Use the following arguments if you need to pass additional parameters to the API that aren't available via kwargs.
         # The extra values given here take precedence over values defined on the client or passed to this method.
         extra_headers: Headers | None = None,
         extra_query: Query | None = None,
         extra_body: Body | None = None,
-        timeout: float | httpx.Timeout | None | NotGiven = NOT_GIVEN,
+        timeout: float | httpx.Timeout | None | NotGiven = not_given,
     ) -> BatchMemoryResponse:
         """
         Add multiple memory items in a batch with size validation and background
@@ -3447,6 +3577,14 @@ class AsyncMemoryResource(AsyncAPIResource):
           external_user_id: External user ID for all memories in the batch. If provided and user_id is not,
               will be resolved to internal user ID.
 
+          graph_generation: Graph generation configuration
+
+          namespace_id: Optional namespace ID for multi-tenant batch memory scoping. When provided, all
+              memories in the batch are associated with this namespace.
+
+          organization_id: Optional organization ID for multi-tenant batch memory scoping. When provided,
+              all memories in the batch are associated with this organization.
+
           user_id: Internal user ID for all memories in the batch. If not provided, developer's
               user ID will be used.
 
@@ -3471,6 +3609,9 @@ class AsyncMemoryResource(AsyncAPIResource):
                     "memories": memories,
                     "batch_size": batch_size,
                     "external_user_id": external_user_id,
+                    "graph_generation": graph_generation,
+                    "namespace_id": namespace_id,
+                    "organization_id": organization_id,
                     "user_id": user_id,
                     "webhook_secret": webhook_secret,
                     "webhook_url": webhook_url,
@@ -3493,15 +3634,15 @@ class AsyncMemoryResource(AsyncAPIResource):
     async def delete_all(
         self,
         *,
-        external_user_id: Optional[str] | NotGiven = NOT_GIVEN,
-        skip_parse: bool | NotGiven = NOT_GIVEN,
-        user_id: Optional[str] | NotGiven = NOT_GIVEN,
+        external_user_id: Optional[str] | Omit = omit,
+        skip_parse: bool | Omit = omit,
+        user_id: Optional[str] | Omit = omit,
         # Use the following arguments if you need to pass additional parameters to the API that aren't available via kwargs.
         # The extra values given here take precedence over values defined on the client or passed to this method.
         extra_headers: Headers | None = None,
         extra_query: Query | None = None,
         extra_body: Body | None = None,
-        timeout: float | httpx.Timeout | None | NotGiven = NOT_GIVEN,
+        timeout: float | httpx.Timeout | None | NotGiven = not_given,
     ) -> BatchMemoryResponse:
         """
         Delete all memory items for a user.
@@ -3560,16 +3701,16 @@ class AsyncMemoryResource(AsyncAPIResource):
     async def sync_tiers(
         self,
         *,
-        include_embeddings: bool | NotGiven = NOT_GIVEN,
-        embed_limit: int | NotGiven = NOT_GIVEN,
-        max_tier0: int | NotGiven = NOT_GIVEN,
-        max_tier1: int | NotGiven = NOT_GIVEN,
+        include_embeddings: bool | NotGiven = not_given,
+        embed_limit: int | NotGiven = not_given,
+        max_tier0: int | NotGiven = not_given,
+        max_tier1: int | NotGiven = not_given,
         # Use the following arguments if you need to pass additional parameters to the API that aren't available via kwargs.
         # The extra values given here take precedence over values defined on the client or passed to this method.
         extra_headers: Headers | None = None,
         extra_query: Query | None = None,
         extra_body: Body | None = None,
-        timeout: float | httpx.Timeout | None | NotGiven = NOT_GIVEN,
+        timeout: float | httpx.Timeout | None | NotGiven = not_given,
     ) -> SyncTiersResponse:
         """
         Get sync tiers for memory synchronization.
@@ -3631,7 +3772,7 @@ class AsyncMemoryResource(AsyncAPIResource):
         extra_headers: Headers | None = None,
         extra_query: Query | None = None,
         extra_body: Body | None = None,
-        timeout: float | httpx.Timeout | None | NotGiven = NOT_GIVEN,
+        timeout: float | httpx.Timeout | None | NotGiven = not_given,
     ) -> SearchResponse:
         """
         Retrieve a memory item by ID.
@@ -3726,20 +3867,25 @@ class AsyncMemoryResource(AsyncAPIResource):
         self,
         *,
         query: str,
-        max_memories: int | NotGiven = NOT_GIVEN,
-        max_nodes: int | NotGiven = NOT_GIVEN,
-        enable_agentic_graph: bool | NotGiven = NOT_GIVEN,
-        external_user_id: Optional[str] | NotGiven = NOT_GIVEN,
-        metadata: Optional[MemoryMetadataParam] | NotGiven = NOT_GIVEN,
-        rank_results: bool | NotGiven = NOT_GIVEN,
-        user_id: Optional[str] | NotGiven = NOT_GIVEN,
-        accept_encoding: str | NotGiven = NOT_GIVEN,
+        max_memories: int | Omit = omit,
+        max_nodes: int | Omit = omit,
+        enable_agentic_graph: bool | Omit = omit,
+        external_user_id: Optional[str] | Omit = omit,
+        metadata: Optional[MemoryMetadataParam] | Omit = omit,
+        namespace_id: Optional[str] | Omit = omit,
+        organization_id: Optional[str] | Omit = omit,
+        rank_results: bool | Omit = omit,
+        schema_id: Optional[str] | Omit = omit,
+        search_override: Optional[memory_search_params.SearchOverride] | Omit = omit,
+        simple_schema_mode: bool | Omit = omit,
+        user_id: Optional[str] | Omit = omit,
+        accept_encoding: str | Omit = omit,
         # Use the following arguments if you need to pass additional parameters to the API that aren't available via kwargs.
         # The extra values given here take precedence over values defined on the client or passed to this method.
         extra_headers: Headers | None = None,
         extra_query: Query | None = None,
         extra_body: Body | None = None,
-        timeout: float | httpx.Timeout | None | NotGiven = NOT_GIVEN,
+        timeout: float | httpx.Timeout | None | NotGiven = not_given,
     ) -> SearchResponse:
         """
         Search through memories with authentication required.
@@ -3749,6 +3895,19 @@ class AsyncMemoryResource(AsyncAPIResource):
             - Bearer token in `Authorization` header
             - API Key in `X-API-Key` header
             - Session token in `X-Session-Token` header
+
+            **Custom Schema Support**:
+            This endpoint supports both system-defined and custom user-defined node types:
+            - **System nodes**: Memory, Person, Company, Project, Task, Insight, Meeting, Opportunity, Code
+            - **Custom nodes**: Defined by developers via UserGraphSchema (e.g., Developer, Product, Customer, Function)
+
+            When custom schema nodes are returned:
+            - Each custom node includes a `schema_id` field referencing the UserGraphSchema
+            - The response includes a `schemas_used` array listing all schema IDs used
+            - Use `GET /v1/schemas/{schema_id}` to retrieve full schema definitions including:
+              - Node type definitions and properties
+              - Relationship type definitions and constraints
+              - Validation rules and requirements
 
             **Recommended Headers**:
             ```
@@ -3767,6 +3926,12 @@ class AsyncMemoryResource(AsyncAPIResource):
             - "customer feedback" → identifies your customers first, then finds their specific feedback
             - "project issues" → identifies your projects first, then finds related issues
             - "team meeting notes" → identifies your team members first, then finds meeting notes
+            - "code functions" → identifies your functions first, then finds related code
+
+            **Role-Based Memory Filtering:**
+            Filter memories by role and category using metadata fields:
+            - `metadata.role`: Filter by "user" or "assistant"
+            - `metadata.category`: Filter by category (user: preference, task, goal, facts, context | assistant: skills, learning)
 
             **User Resolution Precedence:**
             - If both user_id and external_user_id are provided, user_id takes precedence.
@@ -3806,10 +3971,26 @@ class AsyncMemoryResource(AsyncAPIResource):
 
           metadata: Metadata for memory request
 
+          namespace_id: Optional namespace ID for multi-tenant search scoping. When provided, search is
+              scoped to memories within this namespace.
+
+          organization_id: Optional organization ID for multi-tenant search scoping. When provided, search
+              is scoped to memories within this organization.
+
           rank_results: Whether to enable additional ranking of search results. Default is false because
               results are already ranked when using an LLM for search (recommended approach).
               Only enable this if you're not using an LLM in your search pipeline and need
               additional result ranking.
+
+          schema_id: Optional user-defined schema ID to use for this search. If provided, this schema
+              (plus system schema) will be used for query generation. If not provided, system
+              will automatically select relevant schema based on query content.
+
+          search_override: Complete search override specification provided by developer
+
+          simple_schema_mode: If true, uses simple schema mode: system schema + ONE most relevant user schema.
+              This ensures better consistency between add/search operations and reduces query
+              complexity. Recommended for production use.
 
           user_id: Optional internal user ID to filter search results by a specific user. If not
               provided, results are not filtered by user. If both user_id and external_user_id
@@ -3836,7 +4017,12 @@ class AsyncMemoryResource(AsyncAPIResource):
                     "enable_agentic_graph": enable_agentic_graph,
                     "external_user_id": external_user_id,
                     "metadata": metadata,
+                    "namespace_id": namespace_id,
+                    "organization_id": organization_id,
                     "rank_results": rank_results,
+                    "schema_id": schema_id,
+                    "search_override": search_override,
+                    "simple_schema_mode": simple_schema_mode,
                     "user_id": user_id,
                 },
                 memory_search_params.MemorySearchParams,

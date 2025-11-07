@@ -7,7 +7,7 @@ from typing import Dict, Iterable, Optional
 import httpx
 
 from ..types import feedback_submit_params, feedback_submit_batch_params
-from .._types import NOT_GIVEN, Body, Query, Headers, NotGiven
+from .._types import Body, Omit, Query, Headers, NotGiven, omit, not_given
 from .._utils import maybe_transform, async_maybe_transform
 from .._compat import cached_property
 from .._resource import SyncAPIResource, AsyncAPIResource
@@ -54,7 +54,7 @@ class FeedbackResource(SyncAPIResource):
         extra_headers: Headers | None = None,
         extra_query: Query | None = None,
         extra_body: Body | None = None,
-        timeout: float | httpx.Timeout | None | NotGiven = NOT_GIVEN,
+        timeout: float | httpx.Timeout | None | NotGiven = not_given,
     ) -> FeedbackResponse:
         """
         Retrieve feedback by ID.
@@ -95,14 +95,16 @@ class FeedbackResource(SyncAPIResource):
         *,
         feedback_data: feedback_submit_params.FeedbackData,
         search_id: str,
-        external_user_id: Optional[str] | NotGiven = NOT_GIVEN,
-        user_id: Optional[str] | NotGiven = NOT_GIVEN,
+        external_user_id: Optional[str] | Omit = omit,
+        namespace_id: Optional[str] | Omit = omit,
+        organization_id: Optional[str] | Omit = omit,
+        user_id: Optional[str] | Omit = omit,
         # Use the following arguments if you need to pass additional parameters to the API that aren't available via kwargs.
         # The extra values given here take precedence over values defined on the client or passed to this method.
         extra_headers: Headers | None = None,
         extra_query: Query | None = None,
         extra_body: Body | None = None,
-        timeout: float | httpx.Timeout | None | NotGiven = NOT_GIVEN,
+        timeout: float | httpx.Timeout | None | NotGiven = not_given,
     ) -> FeedbackResponse:
         """
         Submit feedback on search results to help improve model performance.
@@ -136,6 +138,12 @@ class FeedbackResource(SyncAPIResource):
 
           external_user_id: External user ID for developer API keys acting on behalf of end users
 
+          namespace_id: Optional namespace ID for multi-tenant feedback scoping. When provided, feedback
+              is scoped to this namespace.
+
+          organization_id: Optional organization ID for multi-tenant feedback scoping. When provided,
+              feedback is scoped to this organization.
+
           user_id: Internal user ID (if not provided, will be resolved from authentication)
 
           extra_headers: Send extra headers
@@ -153,6 +161,8 @@ class FeedbackResource(SyncAPIResource):
                     "feedback_data": feedback_data,
                     "search_id": search_id,
                     "external_user_id": external_user_id,
+                    "namespace_id": namespace_id,
+                    "organization_id": organization_id,
                     "user_id": user_id,
                 },
                 feedback_submit_params.FeedbackSubmitParams,
@@ -167,13 +177,13 @@ class FeedbackResource(SyncAPIResource):
         self,
         *,
         feedback_items: Iterable[FeedbackRequestParam],
-        session_context: Optional[Dict[str, object]] | NotGiven = NOT_GIVEN,
+        session_context: Optional[Dict[str, object]] | Omit = omit,
         # Use the following arguments if you need to pass additional parameters to the API that aren't available via kwargs.
         # The extra values given here take precedence over values defined on the client or passed to this method.
         extra_headers: Headers | None = None,
         extra_query: Query | None = None,
         extra_body: Body | None = None,
-        timeout: float | httpx.Timeout | None | NotGiven = NOT_GIVEN,
+        timeout: float | httpx.Timeout | None | NotGiven = not_given,
     ) -> BatchResponse:
         """
         Submit multiple feedback items in a single request.
@@ -249,7 +259,7 @@ class AsyncFeedbackResource(AsyncAPIResource):
         extra_headers: Headers | None = None,
         extra_query: Query | None = None,
         extra_body: Body | None = None,
-        timeout: float | httpx.Timeout | None | NotGiven = NOT_GIVEN,
+        timeout: float | httpx.Timeout | None | NotGiven = not_given,
     ) -> FeedbackResponse:
         """
         Retrieve feedback by ID.
@@ -290,14 +300,16 @@ class AsyncFeedbackResource(AsyncAPIResource):
         *,
         feedback_data: feedback_submit_params.FeedbackData,
         search_id: str,
-        external_user_id: Optional[str] | NotGiven = NOT_GIVEN,
-        user_id: Optional[str] | NotGiven = NOT_GIVEN,
+        external_user_id: Optional[str] | Omit = omit,
+        namespace_id: Optional[str] | Omit = omit,
+        organization_id: Optional[str] | Omit = omit,
+        user_id: Optional[str] | Omit = omit,
         # Use the following arguments if you need to pass additional parameters to the API that aren't available via kwargs.
         # The extra values given here take precedence over values defined on the client or passed to this method.
         extra_headers: Headers | None = None,
         extra_query: Query | None = None,
         extra_body: Body | None = None,
-        timeout: float | httpx.Timeout | None | NotGiven = NOT_GIVEN,
+        timeout: float | httpx.Timeout | None | NotGiven = not_given,
     ) -> FeedbackResponse:
         """
         Submit feedback on search results to help improve model performance.
@@ -331,6 +343,12 @@ class AsyncFeedbackResource(AsyncAPIResource):
 
           external_user_id: External user ID for developer API keys acting on behalf of end users
 
+          namespace_id: Optional namespace ID for multi-tenant feedback scoping. When provided, feedback
+              is scoped to this namespace.
+
+          organization_id: Optional organization ID for multi-tenant feedback scoping. When provided,
+              feedback is scoped to this organization.
+
           user_id: Internal user ID (if not provided, will be resolved from authentication)
 
           extra_headers: Send extra headers
@@ -348,6 +366,8 @@ class AsyncFeedbackResource(AsyncAPIResource):
                     "feedback_data": feedback_data,
                     "search_id": search_id,
                     "external_user_id": external_user_id,
+                    "namespace_id": namespace_id,
+                    "organization_id": organization_id,
                     "user_id": user_id,
                 },
                 feedback_submit_params.FeedbackSubmitParams,
@@ -362,13 +382,13 @@ class AsyncFeedbackResource(AsyncAPIResource):
         self,
         *,
         feedback_items: Iterable[FeedbackRequestParam],
-        session_context: Optional[Dict[str, object]] | NotGiven = NOT_GIVEN,
+        session_context: Optional[Dict[str, object]] | Omit = omit,
         # Use the following arguments if you need to pass additional parameters to the API that aren't available via kwargs.
         # The extra values given here take precedence over values defined on the client or passed to this method.
         extra_headers: Headers | None = None,
         extra_query: Query | None = None,
         extra_body: Body | None = None,
-        timeout: float | httpx.Timeout | None | NotGiven = NOT_GIVEN,
+        timeout: float | httpx.Timeout | None | NotGiven = not_given,
     ) -> BatchResponse:
         """
         Submit multiple feedback items in a single request.
