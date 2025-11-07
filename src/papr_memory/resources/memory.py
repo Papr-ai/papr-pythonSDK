@@ -33,6 +33,7 @@ from ..types.context_item_param import ContextItemParam
 from ..types.add_memory_response import AddMemoryResponse
 from ..types.batch_memory_response import BatchMemoryResponse
 from ..types.memory_metadata_param import MemoryMetadataParam
+from ..types.graph_generation_param import GraphGenerationParam
 from ..types.memory_delete_response import MemoryDeleteResponse
 from ..types.memory_update_response import MemoryUpdateResponse
 from ..types.relationship_item_param import RelationshipItemParam
@@ -195,7 +196,7 @@ class MemoryResource(SyncAPIResource):
         content: str,
         skip_background_processing: bool | Omit = omit,
         context: Optional[Iterable[ContextItemParam]] | Omit = omit,
-        graph_generation: Optional[memory_add_params.GraphGeneration] | Omit = omit,
+        graph_generation: Optional[GraphGenerationParam] | Omit = omit,
         metadata: Optional[MemoryMetadataParam] | Omit = omit,
         namespace_id: Optional[str] | Omit = omit,
         organization_id: Optional[str] | Omit = omit,
@@ -296,7 +297,7 @@ class MemoryResource(SyncAPIResource):
         skip_background_processing: bool | Omit = omit,
         batch_size: Optional[int] | Omit = omit,
         external_user_id: Optional[str] | Omit = omit,
-        graph_generation: Optional[memory_add_batch_params.GraphGeneration] | Omit = omit,
+        graph_generation: Optional[GraphGenerationParam] | Omit = omit,
         namespace_id: Optional[str] | Omit = omit,
         organization_id: Optional[str] | Omit = omit,
         user_id: Optional[str] | Omit = omit,
@@ -836,7 +837,7 @@ class AsyncMemoryResource(AsyncAPIResource):
         content: str,
         skip_background_processing: bool | Omit = omit,
         context: Optional[Iterable[ContextItemParam]] | Omit = omit,
-        graph_generation: Optional[memory_add_params.GraphGeneration] | Omit = omit,
+        graph_generation: Optional[GraphGenerationParam] | Omit = omit,
         metadata: Optional[MemoryMetadataParam] | Omit = omit,
         namespace_id: Optional[str] | Omit = omit,
         organization_id: Optional[str] | Omit = omit,
@@ -937,7 +938,7 @@ class AsyncMemoryResource(AsyncAPIResource):
         skip_background_processing: bool | Omit = omit,
         batch_size: Optional[int] | Omit = omit,
         external_user_id: Optional[str] | Omit = omit,
-        graph_generation: Optional[memory_add_batch_params.GraphGeneration] | Omit = omit,
+        graph_generation: Optional[GraphGenerationParam] | Omit = omit,
         namespace_id: Optional[str] | Omit = omit,
         organization_id: Optional[str] | Omit = omit,
         user_id: Optional[str] | Omit = omit,

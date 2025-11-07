@@ -1,3 +1,9 @@
+# Shared Types
+
+```python
+from papr_memory.types import AddMemoryItem
+```
+
 # User
 
 Types:
@@ -29,9 +35,12 @@ Types:
 from papr_memory.types import (
     AddMemory,
     AddMemoryResponse,
+    AutoGraphGeneration,
     BatchMemoryResponse,
     ContextItem,
+    GraphGeneration,
     HTTPValidationError,
+    ManualGraphGeneration,
     MemoryMetadata,
     MemoryType,
     RelationshipItem,
@@ -70,3 +79,77 @@ Methods:
 - <code title="get /v1/feedback/{feedback_id}">client.feedback.<a href="./src/papr_memory/resources/feedback.py">get_by_id</a>(feedback_id) -> <a href="./src/papr_memory/types/feedback_response.py">FeedbackResponse</a></code>
 - <code title="post /v1/feedback">client.feedback.<a href="./src/papr_memory/resources/feedback.py">submit</a>(\*\*<a href="src/papr_memory/types/feedback_submit_params.py">params</a>) -> <a href="./src/papr_memory/types/feedback_response.py">FeedbackResponse</a></code>
 - <code title="post /v1/feedback/batch">client.feedback.<a href="./src/papr_memory/resources/feedback.py">submit_batch</a>(\*\*<a href="src/papr_memory/types/feedback_submit_batch_params.py">params</a>) -> <a href="./src/papr_memory/types/batch_response.py">BatchResponse</a></code>
+
+# Document
+
+Types:
+
+```python
+from papr_memory.types import (
+    DocumentCancelProcessingResponse,
+    DocumentGetStatusResponse,
+    DocumentUploadResponse,
+)
+```
+
+Methods:
+
+- <code title="delete /v1/document/{upload_id}">client.document.<a href="./src/papr_memory/resources/document.py">cancel_processing</a>(upload_id) -> <a href="./src/papr_memory/types/document_cancel_processing_response.py">DocumentCancelProcessingResponse</a></code>
+- <code title="get /v1/document/status/{upload_id}">client.document.<a href="./src/papr_memory/resources/document.py">get_status</a>(upload_id) -> <a href="./src/papr_memory/types/document_get_status_response.py">DocumentGetStatusResponse</a></code>
+- <code title="post /v1/document">client.document.<a href="./src/papr_memory/resources/document.py">upload</a>(\*\*<a href="src/papr_memory/types/document_upload_params.py">params</a>) -> <a href="./src/papr_memory/types/document_upload_response.py">DocumentUploadResponse</a></code>
+
+# Schemas
+
+Types:
+
+```python
+from papr_memory.types import (
+    UserGraphSchemaOutput,
+    SchemaCreateResponse,
+    SchemaRetrieveResponse,
+    SchemaUpdateResponse,
+    SchemaListResponse,
+)
+```
+
+Methods:
+
+- <code title="post /v1/schemas">client.schemas.<a href="./src/papr_memory/resources/schemas.py">create</a>(\*\*<a href="src/papr_memory/types/schema_create_params.py">params</a>) -> <a href="./src/papr_memory/types/schema_create_response.py">SchemaCreateResponse</a></code>
+- <code title="get /v1/schemas/{schema_id}">client.schemas.<a href="./src/papr_memory/resources/schemas.py">retrieve</a>(schema_id) -> <a href="./src/papr_memory/types/schema_retrieve_response.py">SchemaRetrieveResponse</a></code>
+- <code title="put /v1/schemas/{schema_id}">client.schemas.<a href="./src/papr_memory/resources/schemas.py">update</a>(schema_id, \*\*<a href="src/papr_memory/types/schema_update_params.py">params</a>) -> <a href="./src/papr_memory/types/schema_update_response.py">SchemaUpdateResponse</a></code>
+- <code title="get /v1/schemas">client.schemas.<a href="./src/papr_memory/resources/schemas.py">list</a>(\*\*<a href="src/papr_memory/types/schema_list_params.py">params</a>) -> <a href="./src/papr_memory/types/schema_list_response.py">SchemaListResponse</a></code>
+- <code title="delete /v1/schemas/{schema_id}">client.schemas.<a href="./src/papr_memory/resources/schemas.py">delete</a>(schema_id) -> object</code>
+- <code title="post /v1/schemas/{schema_id}/activate">client.schemas.<a href="./src/papr_memory/resources/schemas.py">activate</a>(schema_id, \*\*<a href="src/papr_memory/types/schema_activate_params.py">params</a>) -> object</code>
+
+# Messages
+
+Types:
+
+```python
+from papr_memory.types import MessageStoreResponse
+```
+
+Methods:
+
+- <code title="post /v1/messages">client.messages.<a href="./src/papr_memory/resources/messages/messages.py">store</a>(\*\*<a href="src/papr_memory/types/message_store_params.py">params</a>) -> <a href="./src/papr_memory/types/message_store_response.py">MessageStoreResponse</a></code>
+
+## Sessions
+
+Types:
+
+```python
+from papr_memory.types.messages import SessionRetrieveHistoryResponse
+```
+
+Methods:
+
+- <code title="post /v1/messages/sessions/{sessionId}/process">client.messages.sessions.<a href="./src/papr_memory/resources/messages/sessions.py">process_messages</a>(session_id) -> object</code>
+- <code title="get /v1/messages/sessions/{session_id}">client.messages.sessions.<a href="./src/papr_memory/resources/messages/sessions.py">retrieve_history</a>(session_id, \*\*<a href="src/papr_memory/types/messages/session_retrieve_history_params.py">params</a>) -> <a href="./src/papr_memory/types/messages/session_retrieve_history_response.py">SessionRetrieveHistoryResponse</a></code>
+- <code title="get /v1/messages/sessions/{session_id}/status">client.messages.sessions.<a href="./src/papr_memory/resources/messages/sessions.py">retrieve_status</a>(session_id) -> object</code>
+
+# Graphql
+
+Methods:
+
+- <code title="get /v1/graphql">client.graphql.<a href="./src/papr_memory/resources/graphql.py">playground</a>() -> object</code>
+- <code title="post /v1/graphql">client.graphql.<a href="./src/papr_memory/resources/graphql.py">query</a>() -> object</code>
