@@ -16,6 +16,7 @@ _os.environ.setdefault("TOKENIZERS_PARALLELISM", "false")
 
 from papr_memory.types import (
     MemoryType,
+    GraphGenerationParam,
     memory_add_params,
     memory_delete_params,
     memory_search_params,
@@ -488,16 +489,16 @@ class MemoryResource(SyncAPIResource):
     def sync_tiers(
         self,
         *,
-        include_embeddings: bool | NotGiven = NOT_GIVEN,
-        embed_limit: int | NotGiven = NOT_GIVEN,
-        max_tier0: int | NotGiven = NOT_GIVEN,
-        max_tier1: int | NotGiven = NOT_GIVEN,
+        include_embeddings: bool | NotGiven = not_given,
+        embed_limit: int | NotGiven = not_given,
+        max_tier0: int | NotGiven = not_given,
+        max_tier1: int | NotGiven = not_given,
         # Use the following arguments if you need to pass additional parameters to the API that aren't available via kwargs.
         # The extra values given here take precedence over values defined on the client or passed to this method.
         extra_headers: Headers | None = None,
         extra_query: Query | None = None,
         extra_body: Body | None = None,
-        timeout: float | httpx.Timeout | None | NotGiven = NOT_GIVEN,
+        timeout: float | httpx.Timeout | None | NotGiven = not_given,
     ) -> SyncTiersResponse:
         """
         Get sync tiers for memory synchronization.
@@ -1848,9 +1849,9 @@ class MemoryResource(SyncAPIResource):
         self, 
         query: str, 
         n_results: int = 5,
-        metadata: Optional[MemoryMetadataParam] | NotGiven = NOT_GIVEN,
-        user_id: Optional[str] | NotGiven = NOT_GIVEN,
-        external_user_id: Optional[str] | NotGiven = NOT_GIVEN
+        metadata: Optional[MemoryMetadataParam] | NotGiven = not_given,
+        user_id: Optional[str] | NotGiven = not_given,
+        external_user_id: Optional[str] | NotGiven = not_given
     ) -> list[str] | None:
         """Search tier0 data using local vector search"""
         import time
@@ -2015,9 +2016,9 @@ class MemoryResource(SyncAPIResource):
                 # Pass search context to Parse Server logging for background user resolution
                 search_context = {
                     'query': query,
-                    'metadata': metadata if metadata != NOT_GIVEN else None,
-                    'user_id': user_id if user_id != NOT_GIVEN else None,
-                    'external_user_id': external_user_id if external_user_id != NOT_GIVEN else None
+                    'metadata': metadata if metadata != not_given else None,
+                    'user_id': user_id if user_id != not_given else None,
+                    'external_user_id': external_user_id if external_user_id != not_given else None
                 }
                 
                 retrieval_logging_service.log_to_parse_server_sync(
@@ -3179,7 +3180,7 @@ class MemoryResource(SyncAPIResource):
 
             start_time = time.time()
             # Ensure max_memories is not NotGiven
-            n_results = max_memories if max_memories is not NOT_GIVEN else 5
+            n_results = max_memories if max_memories is not omit else 5
             # Type assertion to help Pyright understand this is always an int
             assert isinstance(n_results, int), "n_results must be an int"
             
@@ -3192,9 +3193,9 @@ class MemoryResource(SyncAPIResource):
                 tier0_context = self._search_tier0_locally(
                     query, 
                     n_results=n_results,
-                    metadata=metadata,
-                    user_id=user_id,
-                    external_user_id=external_user_id
+                    metadata=cast(Optional[MemoryMetadataParam] | NotGiven, metadata if metadata is not omit else not_given),
+                    user_id=cast(Optional[str] | NotGiven, user_id if user_id is not omit else not_given),
+                    external_user_id=cast(Optional[str] | NotGiven, external_user_id if external_user_id is not omit else not_given)
                 ) or []
             
             search_time = time.time() - start_time
@@ -3700,16 +3701,16 @@ class AsyncMemoryResource(AsyncAPIResource):
     async def sync_tiers(
         self,
         *,
-        include_embeddings: bool | NotGiven = NOT_GIVEN,
-        embed_limit: int | NotGiven = NOT_GIVEN,
-        max_tier0: int | NotGiven = NOT_GIVEN,
-        max_tier1: int | NotGiven = NOT_GIVEN,
+        include_embeddings: bool | NotGiven = not_given,
+        embed_limit: int | NotGiven = not_given,
+        max_tier0: int | NotGiven = not_given,
+        max_tier1: int | NotGiven = not_given,
         # Use the following arguments if you need to pass additional parameters to the API that aren't available via kwargs.
         # The extra values given here take precedence over values defined on the client or passed to this method.
         extra_headers: Headers | None = None,
         extra_query: Query | None = None,
         extra_body: Body | None = None,
-        timeout: float | httpx.Timeout | None | NotGiven = NOT_GIVEN,
+        timeout: float | httpx.Timeout | None | NotGiven = not_given,
     ) -> SyncTiersResponse:
         """
         Get sync tiers for memory synchronization.
