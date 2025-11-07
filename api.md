@@ -121,32 +121,6 @@ Methods:
 - <code title="delete /v1/schemas/{schema_id}">client.schemas.<a href="./src/papr_memory/resources/schemas.py">delete</a>(schema_id) -> object</code>
 - <code title="post /v1/schemas/{schema_id}/activate">client.schemas.<a href="./src/papr_memory/resources/schemas.py">activate</a>(schema_id, \*\*<a href="src/papr_memory/types/schema_activate_params.py">params</a>) -> object</code>
 
-# Messages
-
-Types:
-
-```python
-from papr_memory.types import MessageStoreResponse
-```
-
-Methods:
-
-- <code title="post /v1/messages">client.messages.<a href="./src/papr_memory/resources/messages/messages.py">store</a>(\*\*<a href="src/papr_memory/types/message_store_params.py">params</a>) -> <a href="./src/papr_memory/types/message_store_response.py">MessageStoreResponse</a></code>
-
-## Sessions
-
-Types:
-
-```python
-from papr_memory.types.messages import SessionRetrieveHistoryResponse
-```
-
-Methods:
-
-- <code title="post /v1/messages/sessions/{sessionId}/process">client.messages.sessions.<a href="./src/papr_memory/resources/messages/sessions.py">process_messages</a>(session_id) -> object</code>
-- <code title="get /v1/messages/sessions/{session_id}">client.messages.sessions.<a href="./src/papr_memory/resources/messages/sessions.py">retrieve_history</a>(session_id, \*\*<a href="src/papr_memory/types/messages/session_retrieve_history_params.py">params</a>) -> <a href="./src/papr_memory/types/messages/session_retrieve_history_response.py">SessionRetrieveHistoryResponse</a></code>
-- <code title="get /v1/messages/sessions/{session_id}/status">client.messages.sessions.<a href="./src/papr_memory/resources/messages/sessions.py">retrieve_status</a>(session_id) -> object</code>
-
 # Graphql
 
 Methods:

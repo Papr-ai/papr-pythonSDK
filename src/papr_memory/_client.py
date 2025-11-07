@@ -29,7 +29,6 @@ from ._base_client import (
     SyncAPIClient,
     AsyncAPIClient,
 )
-from .resources.messages import messages
 
 __all__ = ["Timeout", "Transport", "ProxiesTypes", "RequestOptions", "Papr", "AsyncPapr", "Client", "AsyncClient"]
 
@@ -40,7 +39,6 @@ class Papr(SyncAPIClient):
     feedback: feedback.FeedbackResource
     document: document.DocumentResource
     schemas: schemas.SchemasResource
-    messages: messages.MessagesResource
     graphql: graphql.GraphqlResource
     with_raw_response: PaprWithRawResponse
     with_streaming_response: PaprWithStreamedResponse
@@ -119,7 +117,6 @@ class Papr(SyncAPIClient):
         self.feedback = feedback.FeedbackResource(self)
         self.document = document.DocumentResource(self)
         self.schemas = schemas.SchemasResource(self)
-        self.messages = messages.MessagesResource(self)
         self.graphql = graphql.GraphqlResource(self)
         self.with_raw_response = PaprWithRawResponse(self)
         self.with_streaming_response = PaprWithStreamedResponse(self)
@@ -257,7 +254,6 @@ class AsyncPapr(AsyncAPIClient):
     feedback: feedback.AsyncFeedbackResource
     document: document.AsyncDocumentResource
     schemas: schemas.AsyncSchemasResource
-    messages: messages.AsyncMessagesResource
     graphql: graphql.AsyncGraphqlResource
     with_raw_response: AsyncPaprWithRawResponse
     with_streaming_response: AsyncPaprWithStreamedResponse
@@ -336,7 +332,6 @@ class AsyncPapr(AsyncAPIClient):
         self.feedback = feedback.AsyncFeedbackResource(self)
         self.document = document.AsyncDocumentResource(self)
         self.schemas = schemas.AsyncSchemasResource(self)
-        self.messages = messages.AsyncMessagesResource(self)
         self.graphql = graphql.AsyncGraphqlResource(self)
         self.with_raw_response = AsyncPaprWithRawResponse(self)
         self.with_streaming_response = AsyncPaprWithStreamedResponse(self)
@@ -475,7 +470,6 @@ class PaprWithRawResponse:
         self.feedback = feedback.FeedbackResourceWithRawResponse(client.feedback)
         self.document = document.DocumentResourceWithRawResponse(client.document)
         self.schemas = schemas.SchemasResourceWithRawResponse(client.schemas)
-        self.messages = messages.MessagesResourceWithRawResponse(client.messages)
         self.graphql = graphql.GraphqlResourceWithRawResponse(client.graphql)
 
 
@@ -486,7 +480,6 @@ class AsyncPaprWithRawResponse:
         self.feedback = feedback.AsyncFeedbackResourceWithRawResponse(client.feedback)
         self.document = document.AsyncDocumentResourceWithRawResponse(client.document)
         self.schemas = schemas.AsyncSchemasResourceWithRawResponse(client.schemas)
-        self.messages = messages.AsyncMessagesResourceWithRawResponse(client.messages)
         self.graphql = graphql.AsyncGraphqlResourceWithRawResponse(client.graphql)
 
 
@@ -497,7 +490,6 @@ class PaprWithStreamedResponse:
         self.feedback = feedback.FeedbackResourceWithStreamingResponse(client.feedback)
         self.document = document.DocumentResourceWithStreamingResponse(client.document)
         self.schemas = schemas.SchemasResourceWithStreamingResponse(client.schemas)
-        self.messages = messages.MessagesResourceWithStreamingResponse(client.messages)
         self.graphql = graphql.GraphqlResourceWithStreamingResponse(client.graphql)
 
 
@@ -508,7 +500,6 @@ class AsyncPaprWithStreamedResponse:
         self.feedback = feedback.AsyncFeedbackResourceWithStreamingResponse(client.feedback)
         self.document = document.AsyncDocumentResourceWithStreamingResponse(client.document)
         self.schemas = schemas.AsyncSchemasResourceWithStreamingResponse(client.schemas)
-        self.messages = messages.AsyncMessagesResourceWithStreamingResponse(client.messages)
         self.graphql = graphql.AsyncGraphqlResourceWithStreamingResponse(client.graphql)
 
 

@@ -48,14 +48,6 @@ from .feedback import (
     FeedbackResourceWithStreamingResponse,
     AsyncFeedbackResourceWithStreamingResponse,
 )
-from .messages import (
-    MessagesResource,
-    AsyncMessagesResource,
-    MessagesResourceWithRawResponse,
-    AsyncMessagesResourceWithRawResponse,
-    MessagesResourceWithStreamingResponse,
-    AsyncMessagesResourceWithStreamingResponse,
-)
 
 __all__ = [
     "UserResource",
@@ -88,12 +80,6 @@ __all__ = [
     "AsyncSchemasResourceWithRawResponse",
     "SchemasResourceWithStreamingResponse",
     "AsyncSchemasResourceWithStreamingResponse",
-    "MessagesResource",
-    "AsyncMessagesResource",
-    "MessagesResourceWithRawResponse",
-    "AsyncMessagesResourceWithRawResponse",
-    "MessagesResourceWithStreamingResponse",
-    "AsyncMessagesResourceWithStreamingResponse",
     "GraphqlResource",
     "AsyncGraphqlResource",
     "GraphqlResourceWithRawResponse",
