@@ -101,6 +101,7 @@ class MemoryMetadata(BaseModel):
 
     workspace_write_access: Optional[List[str]] = None
 
+    pydantic_extra__: Dict[str, object] = FieldInfo(init=False)  # pyright: ignore[reportIncompatibleVariableOverride]
     if TYPE_CHECKING:
         # Some versions of Pydantic <2.8.0 have a bug and don’t allow assigning a
         # value to this field, so for compatibility we avoid doing it at runtime.

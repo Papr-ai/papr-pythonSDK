@@ -14,6 +14,7 @@ from .add_memory_param import AddMemoryParam as AddMemoryParam
 from .user_list_params import UserListParams as UserListParams
 from .feedback_response import FeedbackResponse as FeedbackResponse
 from .memory_add_params import MemoryAddParams as MemoryAddParams
+from .sync_tiers_params import SyncTiersParams as SyncTiersParams
 from .context_item_param import ContextItemParam as ContextItemParam
 from .schema_list_params import SchemaListParams as SchemaListParams
 from .user_create_params import UserCreateParams as UserCreateParams
@@ -21,6 +22,7 @@ from .user_delete_params import UserDeleteParams as UserDeleteParams
 from .user_list_response import UserListResponse as UserListResponse
 from .add_memory_response import AddMemoryResponse as AddMemoryResponse
 from .parse_pointer_param import ParsePointerParam as ParsePointerParam
+from .sync_tiers_response import SyncTiersResponse as SyncTiersResponse
 from .memory_delete_params import MemoryDeleteParams as MemoryDeleteParams
 from .memory_search_params import MemorySearchParams as MemorySearchParams
 from .memory_update_params import MemoryUpdateParams as MemoryUpdateParams

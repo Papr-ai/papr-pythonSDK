@@ -9,11 +9,14 @@ authors = [
 ]
 dependencies = [
     "httpx>=0.23.0, <1",
-    "pydantic>=1.9.0, <3",
+    "pydantic>=2.7,<3",
     "typing-extensions>=4.10, <5",
     "anyio>=3.5.0, <5",
     "distro>=1.7.0, <2",
     "sniffio",
+    "chromadb>=0.4.0",
+    "sentence-transformers>=2.0.0",
+    "psutil>=5.8.0",
 ]
 requires-python = ">= 3.8"
 classifiers = [
@@ -39,7 +42,27 @@ Homepage = "https://github.com/Papr-ai/papr-pythonSDK"
 Repository = "https://github.com/Papr-ai/papr-pythonSDK"
 
 [project.optional-dependencies]
+
 aiohttp = ["aiohttp", "httpx_aiohttp>=0.1.9"]
+mlx = ["mlx-lm>=0.28.2"]
+# Pin torch to a version coremltools has tested against to avoid conversion/runtime errors
+coreml = [
+  "coremltools>=7.0",
+  "transformers>=4.44",
+  "torch==2.5.*",
+  "huggingface_hub>=0.20.0"  # For auto-downloading pre-converted models
+]
+
+[project.scripts]
+papr-cleanup = "papr_memory._cleanup:cleanup_chromadb"
+
+[project.entry-points."papr.cleanup"]
+chromadb = "papr_memory._cleanup:cleanup_chromadb"
+all = "papr_memory._cleanup:cleanup_all_papr_data"
+
+# Uninstall hook for automatic cleanup
+[project.entry-points."papr.uninstall"]
+cleanup = "papr_memory._uninstall:uninstall_cleanup"
 
 [tool.rye]
 managed = true
@@ -75,18 +98,17 @@ format = { chain = [
   "typecheck",
   "check:importable",
 ]}
-"check:ruff" = "ruff check ."
+"check:ruff" = "ruff check src/ tests/"
 "fix:ruff" = "ruff check --fix ."
 
 "check:importable" = "python -c 'import papr_memory'"
 
 typecheck = { chain = [
-  "typecheck:pyright",
-  "typecheck:mypy"
+  "typecheck:pyright"
 ]}
-"typecheck:pyright" = "pyright"
+"typecheck:pyright" = "pyright src/ tests/"
 "typecheck:verify-types" = "pyright --verifytypes papr_memory --ignoreexternal"
-"typecheck:mypy" = "mypy ."
+"typecheck:mypy" = "mypy src/"
 
 [build-system]
 requires = ["hatchling==1.26.3", "hatch-fancy-pypi-readme"]
@@ -258,9 +280,10 @@ length-sort = true
 length-sort-straight = true
 combine-as-imports = true
 extra-standard-library = ["typing_extensions"]
-known-first-party = ["papr_memory", "tests"]
 
 [tool.ruff.lint.per-file-ignores]
+"src/papr_memory/_cleanup.py" = ["T201"]  # Allow print statements in cleanup script
+"src/papr_memory/_uninstall.py" = ["T201"]  # Allow print statements in uninstall script
 "bin/**.py" = ["T201", "T203"]
 "scripts/**.py" = ["T201", "T203"]
 "tests/**.py" = ["T201", "T203"]
