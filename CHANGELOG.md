@@ -1,5 +1,14 @@
 # Changelog
 
+## 2.15.1 (2025-11-07)
+
+Full Changelog: [v2.15.0...v2.15.1](https://github.com/Papr-ai/papr-pythonSDK/compare/v2.15.0...v2.15.1)
+
+### Bug Fixes
+
+* resolve linting issue with import sorting ([085d1a0](https://github.com/Papr-ai/papr-pythonSDK/commit/085d1a0e8ed8055f1841ac86ee307beb8125ffcb))
+* resolve type checking errors - add GraphGenerationParam import, fix NOT_GIVEN references, and handle Omit to NotGiven conversion ([c366908](https://github.com/Papr-ai/papr-pythonSDK/commit/c366908c6cff173772c9fb5b257e07cdd0461815))
+
 ## 2.15.0 (2025-11-07)
 
 Full Changelog: [v2.14.0...v2.15.0](https://github.com/Papr-ai/papr-pythonSDK/compare/v2.14.0...v2.15.0)
