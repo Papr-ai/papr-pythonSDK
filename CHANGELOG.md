@@ -1,5 +1,13 @@
 # Changelog
 
+## 2.16.0 (2025-11-08)
+
+Full Changelog: [v2.15.1...v2.16.0](https://github.com/Papr-ai/papr-pythonSDK/compare/v2.15.1...v2.16.0)
+
+### Features
+
+* **api:** manual updates ([ed30ff4](https://github.com/Papr-ai/papr-pythonSDK/commit/ed30ff4d28b6f94c774bd624f0ea3681d3b912e2))
+
 ## 2.15.1 (2025-11-07)
 
 Full Changelog: [v2.15.0...v2.15.1](https://github.com/Papr-ai/papr-pythonSDK/compare/v2.15.0...v2.15.1)

@@ -38,7 +38,6 @@ from .feedback_submit_params import FeedbackSubmitParams as FeedbackSubmitParams
 from .graph_generation_param import GraphGenerationParam as GraphGenerationParam
 from .memory_delete_response import MemoryDeleteResponse as MemoryDeleteResponse
 from .memory_update_response import MemoryUpdateResponse as MemoryUpdateResponse
-from .schema_activate_params import SchemaActivateParams as SchemaActivateParams
 from .schema_create_response import SchemaCreateResponse as SchemaCreateResponse
 from .schema_update_response import SchemaUpdateResponse as SchemaUpdateResponse
 from .memory_add_batch_params import MemoryAddBatchParams as MemoryAddBatchParams

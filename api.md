@@ -117,7 +117,7 @@ Methods:
 - <code title="get /v1/schemas/{schema_id}">client.schemas.<a href="./src/papr_memory/resources/schemas.py">retrieve</a>(schema_id) -> <a href="./src/papr_memory/types/schema_retrieve_response.py">SchemaRetrieveResponse</a></code>
 - <code title="put /v1/schemas/{schema_id}">client.schemas.<a href="./src/papr_memory/resources/schemas.py">update</a>(schema_id, \*\*<a href="src/papr_memory/types/schema_update_params.py">params</a>) -> <a href="./src/papr_memory/types/schema_update_response.py">SchemaUpdateResponse</a></code>
 - <code title="get /v1/schemas">client.schemas.<a href="./src/papr_memory/resources/schemas.py">list</a>(\*\*<a href="src/papr_memory/types/schema_list_params.py">params</a>) -> <a href="./src/papr_memory/types/schema_list_response.py">SchemaListResponse</a></code>
-- <code title="post /v1/schemas/{schema_id}/activate">client.schemas.<a href="./src/papr_memory/resources/schemas.py">activate</a>(schema_id, \*\*<a href="src/papr_memory/types/schema_activate_params.py">params</a>) -> object</code>
+- <code title="delete /v1/schemas/{schema_id}">client.schemas.<a href="./src/papr_memory/resources/schemas.py">delete</a>(schema_id) -> object</code>
 
 # Graphql
 
