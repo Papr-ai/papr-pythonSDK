@@ -8,7 +8,7 @@ from typing_extensions import Literal
 
 import httpx
 
-from ..types import schema_list_params, schema_create_params, schema_update_params, schema_activate_params
+from ..types import schema_list_params, schema_create_params, schema_update_params
 from .._types import Body, Omit, Query, Headers, NotGiven, SequenceNotStr, omit, not_given
 from .._utils import maybe_transform, async_maybe_transform
 from .._compat import cached_property
@@ -317,11 +317,10 @@ class SchemasResource(SyncAPIResource):
             cast_to=SchemaListResponse,
         )
 
-    def activate(
+    def delete(
         self,
         schema_id: str,
         *,
-        body: bool | Omit = omit,
         # Use the following arguments if you need to pass additional parameters to the API that aren't available via kwargs.
         # The extra values given here take precedence over values defined on the client or passed to this method.
         extra_headers: Headers | None = None,
@@ -329,16 +328,15 @@ class SchemasResource(SyncAPIResource):
         extra_body: Body | None = None,
         timeout: float | httpx.Timeout | None | NotGiven = not_given,
     ) -> object:
-        """
-        Activate or deactivate a schema.
+        """Delete a schema.
 
-            Active schemas are used for memory extraction and graph generation.
-            Multiple schemas can be active simultaneously and will be merged during
-            the extraction process.
+            Soft deletes the schema by marking it as archived.
+
+        The schema data and
+            associated graph nodes/relationships are preserved for data integrity.
+            User must have write access to the schema.
 
         Args:
-          body: True to activate, False to deactivate
-
           extra_headers: Send extra headers
 
           extra_query: Add additional query parameters to the request
@@ -349,9 +347,8 @@ class SchemasResource(SyncAPIResource):
         """
         if not schema_id:
             raise ValueError(f"Expected a non-empty value for `schema_id` but received {schema_id!r}")
-        return self._post(
-            f"/v1/schemas/{schema_id}/activate",
-            body=maybe_transform(body, schema_activate_params.SchemaActivateParams),
+        return self._delete(
+            f"/v1/schemas/{schema_id}",
             options=make_request_options(
                 extra_headers=extra_headers, extra_query=extra_query, extra_body=extra_body, timeout=timeout
             ),
@@ -648,11 +645,10 @@ class AsyncSchemasResource(AsyncAPIResource):
             cast_to=SchemaListResponse,
         )
 
-    async def activate(
+    async def delete(
         self,
         schema_id: str,
         *,
-        body: bool | Omit = omit,
         # Use the following arguments if you need to pass additional parameters to the API that aren't available via kwargs.
         # The extra values given here take precedence over values defined on the client or passed to this method.
         extra_headers: Headers | None = None,
@@ -660,16 +656,15 @@ class AsyncSchemasResource(AsyncAPIResource):
         extra_body: Body | None = None,
         timeout: float | httpx.Timeout | None | NotGiven = not_given,
     ) -> object:
-        """
-        Activate or deactivate a schema.
+        """Delete a schema.
 
-            Active schemas are used for memory extraction and graph generation.
-            Multiple schemas can be active simultaneously and will be merged during
-            the extraction process.
+            Soft deletes the schema by marking it as archived.
+
+        The schema data and
+            associated graph nodes/relationships are preserved for data integrity.
+            User must have write access to the schema.
 
         Args:
-          body: True to activate, False to deactivate
-
           extra_headers: Send extra headers
 
           extra_query: Add additional query parameters to the request
@@ -680,9 +675,8 @@ class AsyncSchemasResource(AsyncAPIResource):
         """
         if not schema_id:
             raise ValueError(f"Expected a non-empty value for `schema_id` but received {schema_id!r}")
-        return await self._post(
-            f"/v1/schemas/{schema_id}/activate",
-            body=await async_maybe_transform(body, schema_activate_params.SchemaActivateParams),
+        return await self._delete(
+            f"/v1/schemas/{schema_id}",
             options=make_request_options(
                 extra_headers=extra_headers, extra_query=extra_query, extra_body=extra_body, timeout=timeout
             ),
@@ -706,8 +700,8 @@ class SchemasResourceWithRawResponse:
         self.list = to_raw_response_wrapper(
             schemas.list,
         )
-        self.activate = to_raw_response_wrapper(
-            schemas.activate,
+        self.delete = to_raw_response_wrapper(
+            schemas.delete,
         )
 
 
@@ -727,8 +721,8 @@ class AsyncSchemasResourceWithRawResponse:
         self.list = async_to_raw_response_wrapper(
             schemas.list,
         )
-        self.activate = async_to_raw_response_wrapper(
-            schemas.activate,
+        self.delete = async_to_raw_response_wrapper(
+            schemas.delete,
         )
 
 
@@ -748,8 +742,8 @@ class SchemasResourceWithStreamingResponse:
         self.list = to_streamed_response_wrapper(
             schemas.list,
         )
-        self.activate = to_streamed_response_wrapper(
-            schemas.activate,
+        self.delete = to_streamed_response_wrapper(
+            schemas.delete,
         )
 
 
@@ -769,6 +763,6 @@ class AsyncSchemasResourceWithStreamingResponse:
         self.list = async_to_streamed_response_wrapper(
             schemas.list,
         )
-        self.activate = async_to_streamed_response_wrapper(
-            schemas.activate,
+        self.delete = async_to_streamed_response_wrapper(
+            schemas.delete,
         )
