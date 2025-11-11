@@ -699,7 +699,8 @@ class MemoryResource(SyncAPIResource):
                     tok_id = os.environ.get("PAPR_EMBEDDING_MODEL", "Qwen/Qwen3-Embedding-4B")
 
                     logger.info(f"Loading Core ML model from {coreml_path}")
-                    mlmodel = ct.models.MLModel(coreml_path)
+                    # Use ALL compute units to enable Neural Engine (ANE) for fast inference
+                    mlmodel = ct.models.MLModel(coreml_path, compute_units=ct.ComputeUnit.ALL)
                     tokenizer = AutoTokenizer.from_pretrained(tok_id)
 
                     class CoreMLEmbeddingFunction:
@@ -1608,7 +1609,10 @@ class MemoryResource(SyncAPIResource):
 
             if results["documents"] and results["documents"][0]:
                 logger.info(f"Found {len(results['documents'][0])} relevant tier0 items locally")
-                return results["documents"][0]  # type: ignore
+                # Return tuples of (document, distance) for score calculation
+                documents = results["documents"][0]
+                distances = results.get("distances", [[]])[0] if results.get("distances") else [0.0] * len(documents)
+                return list(zip(documents, distances))  # type: ignore
             else:
                 logger.info("No relevant tier0 items found locally")
                 return []
@@ -2596,12 +2600,22 @@ class MemoryResource(SyncAPIResource):
             logger.info(f"Local tier0 search completed in {search_time:.2f}s")
             if tier0_context:
                 logger.info(f"Using {len(tier0_context)} tier0 items for search context enhancement")
-                # Convert tier0_context (list of documents) to DataMemory objects
+                # Convert tier0_context (list of (document, distance) tuples) to DataMemory objects
                 from ..types.search_response import Data, DataMemory
 
                 memories = []
-                for i, content in enumerate(tier0_context):
+                for i, item in enumerate(tier0_context):
                     try:
+                        # Unpack document and distance from tuple
+                        if isinstance(item, tuple):
+                            content, distance = item
+                            # Convert cosine distance to similarity score (1 - distance)
+                            similarity_score = 1.0 - float(distance)
+                        else:
+                            # Fallback for non-tuple items (shouldn't happen with our fix)
+                            content = item
+                            similarity_score = 0.0
+
                         # Try creating DataMemory with explicit pydantic_extra__
                         memory_data: dict[str, any] = {  # type: ignore
                             "id": f"tier0_{i}",
@@ -2609,7 +2623,7 @@ class MemoryResource(SyncAPIResource):
                             "content": content,
                             "type": "tier0",
                             "user_id": "local",
-                            "pydantic_extra__": {},
+                            "pydantic_extra__": {"similarity_score": similarity_score},
                         }
                         memories.append(DataMemory(**memory_data))  # type: ignore
                     except Exception as e:
