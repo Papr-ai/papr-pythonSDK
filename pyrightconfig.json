@@ -6,6 +6,7 @@
   },
   "exclude": [
     "**/.venv",
+    "**/.venv-ci",
     "**/.env",
     "**/node_modules",
     "**/tests/**",
@@ -15,6 +16,14 @@
     "**/fix_*.py",
     "**/example_*.py",
     "**/noxfile.py",
+    "**/setup.py"
+  ],
+  "ignore": [
+    "**/test_*.py",
+    "**/debug_*.py",
+    "**/simple_*.py",
+    "**/fix_*.py",
+    "**/example_*.py",
     "**/setup.py"
   ]
 }

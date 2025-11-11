@@ -109,7 +109,7 @@ httpx==0.28.1
     # via httpx-aiohttp
     # via papr-memory
     # via respx
-httpx-aiohttp==0.1.8
+httpx-aiohttp==0.1.9
     # via papr-memory
 huggingface-hub==0.35.3
     # via sentence-transformers
@@ -220,6 +220,7 @@ posthog==5.4.0
 propcache==0.3.1
     # via aiohttp
     # via yarl
+pydantic==2.11.9
 protobuf==6.32.1
     # via coremltools
     # via googleapis-common-protos
@@ -237,10 +238,8 @@ pyasn1-modules==0.4.2
     # via google-auth
 pybase64==1.4.2
     # via chromadb
-pydantic==2.10.3
-    # via chromadb
     # via papr-memory
-pydantic-core==2.27.1
+pydantic-core==2.33.2
     # via pydantic
 pygments==2.18.0
     # via rich
@@ -360,6 +359,9 @@ typing-extensions==4.12.2
     # via pydantic
     # via pydantic-core
     # via pyright
+    # via typing-inspection
+typing-inspection==0.4.1
+    # via pydantic
     # via referencing
     # via sentence-transformers
     # via torch

@@ -2,13 +2,14 @@
 
 from __future__ import annotations
 
-from typing import Optional
+from typing import Union, Iterable, Optional
 from typing_extensions import Required, Annotated, TypedDict
 
+from .._types import SequenceNotStr
 from .._utils import PropertyInfo
 from .memory_metadata_param import MemoryMetadataParam
 
-__all__ = ["MemorySearchParams"]
+__all__ = ["MemorySearchParams", "SearchOverride", "SearchOverridePattern", "SearchOverrideFilter"]
 
 
 class MemorySearchParams(TypedDict, total=False):
@@ -60,12 +61,42 @@ class MemorySearchParams(TypedDict, total=False):
     metadata: Optional[MemoryMetadataParam]
     """Metadata for memory request"""
 
+    namespace_id: Optional[str]
+    """Optional namespace ID for multi-tenant search scoping.
+
+    When provided, search is scoped to memories within this namespace.
+    """
+
+    organization_id: Optional[str]
+    """Optional organization ID for multi-tenant search scoping.
+
+    When provided, search is scoped to memories within this organization.
+    """
+
     rank_results: bool
     """Whether to enable additional ranking of search results.
 
     Default is false because results are already ranked when using an LLM for search
     (recommended approach). Only enable this if you're not using an LLM in your
     search pipeline and need additional result ranking.
+    """
+
+    schema_id: Optional[str]
+    """Optional user-defined schema ID to use for this search.
+
+    If provided, this schema (plus system schema) will be used for query generation.
+    If not provided, system will automatically select relevant schema based on query
+    content.
+    """
+
+    search_override: Optional[SearchOverride]
+    """Complete search override specification provided by developer"""
+
+    simple_schema_mode: bool
+    """If true, uses simple schema mode: system schema + ONE most relevant user schema.
+
+    This ensures better consistency between add/search operations and reduces query
+    complexity. Recommended for production use.
     """
 
     user_id: Optional[str]
@@ -76,3 +107,53 @@ class MemorySearchParams(TypedDict, total=False):
     """
 
     accept_encoding: Annotated[str, PropertyInfo(alias="Accept-Encoding")]
+
+
+class SearchOverridePattern(TypedDict, total=False):
+    relationship_type: Required[str]
+    """Relationship type (e.g., 'ASSOCIATED_WITH', 'WORKS_FOR').
+
+    Must match schema relationship types.
+    """
+
+    source_label: Required[str]
+    """Source node label (e.g., 'Memory', 'Person', 'Company').
+
+    Must match schema node types.
+    """
+
+    target_label: Required[str]
+    """Target node label (e.g., 'Person', 'Company', 'Project').
+
+    Must match schema node types.
+    """
+
+    direction: str
+    """
+    Relationship direction: '->' (outgoing), '<-' (incoming), or '-' (bidirectional)
+    """
+
+
+class SearchOverrideFilter(TypedDict, total=False):
+    node_type: Required[str]
+    """Node type to filter (e.g., 'Person', 'Memory', 'Company')"""
+
+    operator: Required[str]
+    """Filter operator: 'CONTAINS', 'EQUALS', 'STARTS_WITH', 'IN'"""
+
+    property_name: Required[str]
+    """Property name to filter on (e.g., 'name', 'content', 'role')"""
+
+    value: Required[Union[str, SequenceNotStr[str], float, bool]]
+    """Filter value(s). Use list for 'IN' operator."""
+
+
+class SearchOverride(TypedDict, total=False):
+    pattern: Required[SearchOverridePattern]
+    """Graph pattern to search for (source)-[relationship]->(target)"""
+
+    filters: Iterable[SearchOverrideFilter]
+    """Property filters to apply to the search pattern"""
+
+    return_properties: Optional[SequenceNotStr[str]]
+    """Specific properties to return. If not specified, returns all properties."""

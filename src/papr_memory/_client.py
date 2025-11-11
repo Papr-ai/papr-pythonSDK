@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 import os
-from typing import Any, Union, Mapping
+from typing import Any, Mapping
 from typing_extensions import Self, override
 
 import httpx
@@ -11,17 +11,17 @@ import httpx
 from . import _exceptions
 from ._qs import Querystring
 from ._types import (
-    NOT_GIVEN,
     Omit,
     Timeout,
     NotGiven,
     Transport,
     ProxiesTypes,
     RequestOptions,
+    not_given,
 )
 from ._utils import is_given, get_async_library
 from ._version import __version__
-from .resources import user, memory, feedback
+from .resources import user, memory, graphql, schemas, document, feedback
 from ._streaming import Stream as Stream, AsyncStream as AsyncStream
 from ._exceptions import PaprError, APIStatusError
 from ._base_client import (
@@ -37,6 +37,9 @@ class Papr(SyncAPIClient):
     user: user.UserResource
     memory: memory.MemoryResource
     feedback: feedback.FeedbackResource
+    document: document.DocumentResource
+    schemas: schemas.SchemasResource
+    graphql: graphql.GraphqlResource
     with_raw_response: PaprWithRawResponse
     with_streaming_response: PaprWithStreamedResponse
 
@@ -52,7 +55,7 @@ class Papr(SyncAPIClient):
         x_session_token: str | None = None,
         bearer_token: str | None = None,
         base_url: str | httpx.URL | None = None,
-        timeout: Union[float, Timeout, None, NotGiven] = NOT_GIVEN,
+        timeout: float | Timeout | None | NotGiven = not_given,
         max_retries: int = DEFAULT_MAX_RETRIES,
         default_headers: Mapping[str, str] | None = None,
         default_query: Mapping[str, object] | None = None,
@@ -112,6 +115,9 @@ class Papr(SyncAPIClient):
         self.user = user.UserResource(self)
         self.memory = memory.MemoryResource(self)
         self.feedback = feedback.FeedbackResource(self)
+        self.document = document.DocumentResource(self)
+        self.schemas = schemas.SchemasResource(self)
+        self.graphql = graphql.GraphqlResource(self)
         self.with_raw_response = PaprWithRawResponse(self)
         self.with_streaming_response = PaprWithStreamedResponse(self)
 
@@ -123,20 +129,13 @@ class Papr(SyncAPIClient):
 
         if ondevice_processing:
             try:
-                logger.info("Initializing sync_tiers and ChromaDB collection")
-                self.memory._process_sync_tiers_and_store()
+                # Start background initialization for truly non-blocking client creation
+                logger.info("Starting background initialization for optimal user experience")
+                self.memory._start_background_initialization()
 
-                # Preload the embedding model to avoid loading overhead during search
-                logger.info("Preloading embedding model for faster search performance")
-                self.memory._preload_embedding_model()
-
-                # Start background sync task for periodic updates
-                logger.info("Starting background sync task")
-                self.memory._start_background_sync()
-
-                logger.info("Client initialization completed successfully")
+                logger.info("Client initialization completed successfully (all setup in background)")
             except Exception as e:
-                logger.warning(f"Failed to initialize sync_tiers during client setup: {e}")
+                logger.warning(f"Failed to start background initialization: {e}")
                 logger.warning("Client will still work, but local search features may be limited")
 
         log_ondevice_status(logger, ondevice_processing)
@@ -186,9 +185,9 @@ class Papr(SyncAPIClient):
         x_session_token: str | None = None,
         bearer_token: str | None = None,
         base_url: str | httpx.URL | None = None,
-        timeout: float | Timeout | None | NotGiven = NOT_GIVEN,
+        timeout: float | Timeout | None | NotGiven = not_given,
         http_client: httpx.Client | None = None,
-        max_retries: int | NotGiven = NOT_GIVEN,
+        max_retries: int | NotGiven = not_given,
         default_headers: Mapping[str, str] | None = None,
         set_default_headers: Mapping[str, str] | None = None,
         default_query: Mapping[str, object] | None = None,
@@ -272,6 +271,9 @@ class AsyncPapr(AsyncAPIClient):
     user: user.AsyncUserResource
     memory: memory.AsyncMemoryResource
     feedback: feedback.AsyncFeedbackResource
+    document: document.AsyncDocumentResource
+    schemas: schemas.AsyncSchemasResource
+    graphql: graphql.AsyncGraphqlResource
     with_raw_response: AsyncPaprWithRawResponse
     with_streaming_response: AsyncPaprWithStreamedResponse
 
@@ -287,7 +289,7 @@ class AsyncPapr(AsyncAPIClient):
         x_session_token: str | None = None,
         bearer_token: str | None = None,
         base_url: str | httpx.URL | None = None,
-        timeout: Union[float, Timeout, None, NotGiven] = NOT_GIVEN,
+        timeout: float | Timeout | None | NotGiven = not_given,
         max_retries: int = DEFAULT_MAX_RETRIES,
         default_headers: Mapping[str, str] | None = None,
         default_query: Mapping[str, object] | None = None,
@@ -347,6 +349,9 @@ class AsyncPapr(AsyncAPIClient):
         self.user = user.AsyncUserResource(self)
         self.memory = memory.AsyncMemoryResource(self)
         self.feedback = feedback.AsyncFeedbackResource(self)
+        self.document = document.AsyncDocumentResource(self)
+        self.schemas = schemas.AsyncSchemasResource(self)
+        self.graphql = graphql.AsyncGraphqlResource(self)
         self.with_raw_response = AsyncPaprWithRawResponse(self)
         self.with_streaming_response = AsyncPaprWithStreamedResponse(self)
 
@@ -414,9 +419,9 @@ class AsyncPapr(AsyncAPIClient):
         x_session_token: str | None = None,
         bearer_token: str | None = None,
         base_url: str | httpx.URL | None = None,
-        timeout: float | Timeout | None | NotGiven = NOT_GIVEN,
+        timeout: float | Timeout | None | NotGiven = not_given,
         http_client: httpx.AsyncClient | None = None,
-        max_retries: int | NotGiven = NOT_GIVEN,
+        max_retries: int | NotGiven = not_given,
         default_headers: Mapping[str, str] | None = None,
         set_default_headers: Mapping[str, str] | None = None,
         default_query: Mapping[str, object] | None = None,
@@ -501,6 +506,9 @@ class PaprWithRawResponse:
         self.user = user.UserResourceWithRawResponse(client.user)
         self.memory = memory.MemoryResourceWithRawResponse(client.memory)
         self.feedback = feedback.FeedbackResourceWithRawResponse(client.feedback)
+        self.document = document.DocumentResourceWithRawResponse(client.document)
+        self.schemas = schemas.SchemasResourceWithRawResponse(client.schemas)
+        self.graphql = graphql.GraphqlResourceWithRawResponse(client.graphql)
 
 
 class AsyncPaprWithRawResponse:
@@ -508,6 +516,9 @@ class AsyncPaprWithRawResponse:
         self.user = user.AsyncUserResourceWithRawResponse(client.user)
         self.memory = memory.AsyncMemoryResourceWithRawResponse(client.memory)
         self.feedback = feedback.AsyncFeedbackResourceWithRawResponse(client.feedback)
+        self.document = document.AsyncDocumentResourceWithRawResponse(client.document)
+        self.schemas = schemas.AsyncSchemasResourceWithRawResponse(client.schemas)
+        self.graphql = graphql.AsyncGraphqlResourceWithRawResponse(client.graphql)
 
 
 class PaprWithStreamedResponse:
@@ -515,6 +526,9 @@ class PaprWithStreamedResponse:
         self.user = user.UserResourceWithStreamingResponse(client.user)
         self.memory = memory.MemoryResourceWithStreamingResponse(client.memory)
         self.feedback = feedback.FeedbackResourceWithStreamingResponse(client.feedback)
+        self.document = document.DocumentResourceWithStreamingResponse(client.document)
+        self.schemas = schemas.SchemasResourceWithStreamingResponse(client.schemas)
+        self.graphql = graphql.GraphqlResourceWithStreamingResponse(client.graphql)
 
 
 class AsyncPaprWithStreamedResponse:
@@ -522,6 +536,9 @@ class AsyncPaprWithStreamedResponse:
         self.user = user.AsyncUserResourceWithStreamingResponse(client.user)
         self.memory = memory.AsyncMemoryResourceWithStreamingResponse(client.memory)
         self.feedback = feedback.AsyncFeedbackResourceWithStreamingResponse(client.feedback)
+        self.document = document.AsyncDocumentResourceWithStreamingResponse(client.document)
+        self.schemas = schemas.AsyncSchemasResourceWithStreamingResponse(client.schemas)
+        self.graphql = graphql.AsyncGraphqlResourceWithStreamingResponse(client.graphql)
 
 
 Client = Papr

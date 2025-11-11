@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from typing import Dict, Union, Iterable, Optional
-from typing_extensions import Annotated, TypeAlias, TypedDict
+from typing_extensions import Literal, Annotated, TypeAlias, TypedDict
 
 from .._types import SequenceNotStr
 from .._utils import PropertyInfo
@@ -13,6 +13,13 @@ __all__ = ["MemoryMetadataParam"]
 
 class MemoryMetadataParamTyped(TypedDict, total=False):
     assistant_message: Annotated[Optional[str], PropertyInfo(alias="assistantMessage")]
+
+    category: Optional[Literal["preference", "task", "goal", "fact", "context", "skills", "learning"]]
+    """Memory category based on role.
+
+    For users: preference, task, goal, fact, context. For assistants: skills,
+    learning, task, goal, fact, context.
+    """
 
     conversation_id: Annotated[Optional[str], PropertyInfo(alias="conversationId")]
 
@@ -45,6 +52,10 @@ class MemoryMetadataParamTyped(TypedDict, total=False):
 
     location: Optional[str]
 
+    namespace_id: Optional[str]
+
+    organization_id: Optional[str]
+
     page_id: Annotated[Optional[str], PropertyInfo(alias="pageId")]
 
     post: Optional[str]
@@ -54,6 +65,9 @@ class MemoryMetadataParamTyped(TypedDict, total=False):
     related_steps: Annotated[Optional[SequenceNotStr[str]], PropertyInfo(alias="relatedSteps")]
 
     related_use_cases: Annotated[Optional[SequenceNotStr[str]], PropertyInfo(alias="relatedUseCases")]
+
+    role: Optional[Literal["user", "assistant"]]
+    """Role of the message sender"""
 
     role_read_access: Optional[SequenceNotStr[str]]
 
@@ -68,6 +82,9 @@ class MemoryMetadataParamTyped(TypedDict, total=False):
     step_classification_scores: Annotated[Optional[Iterable[float]], PropertyInfo(alias="stepClassificationScores")]
 
     topics: Optional[SequenceNotStr[str]]
+
+    upload_id: Optional[str]
+    """Upload ID for document processing workflows"""
 
     use_case_classification_scores: Annotated[
         Optional[Iterable[float]], PropertyInfo(alias="useCaseClassificationScores")

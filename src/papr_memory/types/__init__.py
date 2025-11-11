@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+from .shared import AddMemoryItem as AddMemoryItem
 from .user_type import UserType as UserType
 from .memory_type import MemoryType as MemoryType
 from .context_item import ContextItem as ContextItem
@@ -15,26 +16,40 @@ from .feedback_response import FeedbackResponse as FeedbackResponse
 from .memory_add_params import MemoryAddParams as MemoryAddParams
 from .sync_tiers_params import SyncTiersParams as SyncTiersParams
 from .context_item_param import ContextItemParam as ContextItemParam
+from .schema_list_params import SchemaListParams as SchemaListParams
 from .user_create_params import UserCreateParams as UserCreateParams
 from .user_delete_params import UserDeleteParams as UserDeleteParams
 from .user_list_response import UserListResponse as UserListResponse
-from .user_update_params import UserUpdateParams as UserUpdateParams
 from .add_memory_response import AddMemoryResponse as AddMemoryResponse
 from .parse_pointer_param import ParsePointerParam as ParsePointerParam
 from .sync_tiers_response import SyncTiersResponse as SyncTiersResponse
 from .memory_delete_params import MemoryDeleteParams as MemoryDeleteParams
 from .memory_search_params import MemorySearchParams as MemorySearchParams
 from .memory_update_params import MemoryUpdateParams as MemoryUpdateParams
+from .schema_create_params import SchemaCreateParams as SchemaCreateParams
+from .schema_list_response import SchemaListResponse as SchemaListResponse
+from .schema_update_params import SchemaUpdateParams as SchemaUpdateParams
 from .user_delete_response import UserDeleteResponse as UserDeleteResponse
 from .batch_memory_response import BatchMemoryResponse as BatchMemoryResponse
 from .memory_metadata_param import MemoryMetadataParam as MemoryMetadataParam
+from .document_upload_params import DocumentUploadParams as DocumentUploadParams
 from .feedback_request_param import FeedbackRequestParam as FeedbackRequestParam
 from .feedback_submit_params import FeedbackSubmitParams as FeedbackSubmitParams
+from .graph_generation_param import GraphGenerationParam as GraphGenerationParam
 from .memory_delete_response import MemoryDeleteResponse as MemoryDeleteResponse
 from .memory_update_response import MemoryUpdateResponse as MemoryUpdateResponse
+from .schema_create_response import SchemaCreateResponse as SchemaCreateResponse
+from .schema_update_response import SchemaUpdateResponse as SchemaUpdateResponse
 from .memory_add_batch_params import MemoryAddBatchParams as MemoryAddBatchParams
 from .relationship_item_param import RelationshipItemParam as RelationshipItemParam
+from .document_upload_response import DocumentUploadResponse as DocumentUploadResponse
 from .memory_delete_all_params import MemoryDeleteAllParams as MemoryDeleteAllParams
+from .schema_retrieve_response import SchemaRetrieveResponse as SchemaRetrieveResponse
 from .user_create_batch_params import UserCreateBatchParams as UserCreateBatchParams
+from .user_graph_schema_output import UserGraphSchemaOutput as UserGraphSchemaOutput
 from .user_create_batch_response import UserCreateBatchResponse as UserCreateBatchResponse
+from .auto_graph_generation_param import AutoGraphGenerationParam as AutoGraphGenerationParam
+from .document_get_status_response import DocumentGetStatusResponse as DocumentGetStatusResponse
 from .feedback_submit_batch_params import FeedbackSubmitBatchParams as FeedbackSubmitBatchParams
+from .manual_graph_generation_param import ManualGraphGenerationParam as ManualGraphGenerationParam
+from .document_cancel_processing_response import DocumentCancelProcessingResponse as DocumentCancelProcessingResponse

@@ -23,6 +23,18 @@ class MemoryUpdateParams(TypedDict, total=False):
     metadata: Optional[MemoryMetadataParam]
     """Metadata for memory request"""
 
+    namespace_id: Optional[str]
+    """Optional namespace ID for multi-tenant memory scoping.
+
+    When provided, update is scoped to memories within this namespace.
+    """
+
+    organization_id: Optional[str]
+    """Optional organization ID for multi-tenant memory scoping.
+
+    When provided, update is scoped to memories within this organization.
+    """
+
     relationships_json: Optional[Iterable[RelationshipItemParam]]
     """Updated relationships for Graph DB (neo4J)"""
 
