@@ -59,6 +59,8 @@ from typing import Optional
 # import chromadb  # Used for type hints only
 
 _global_qwen_model: Optional[object] = None
+_global_coreml_model: Optional[object] = None  # Cache CoreML model to avoid reloading
+_global_coreml_tokenizer: Optional[object] = None  # Cache tokenizer too
 _global_chroma_client: Optional[object] = None
 _global_chroma_collection: Optional[object] = None
 _global_sync_lock: Optional[threading.Lock] = None
@@ -617,7 +619,8 @@ class MemoryResource(SyncAPIResource):
                 max_tier0_value = 30  # fallback to default if invalid
             
             # Set a reasonable timeout for sync_tiers to prevent hanging
-            sync_timeout = timeout if timeout is not None else 60.0  # 60 seconds default
+            # Increased to 300s to handle large tier0 (1000 memories with embeddings)
+            sync_timeout = timeout if timeout is not None else 300.0  # 5 minutes default
             
             logger.info(f"Calling sync_tiers with timeout: {sync_timeout}s")
             sync_response = self.sync_tiers(
@@ -756,15 +759,28 @@ class MemoryResource(SyncAPIResource):
 
                     from papr_memory._model_cache import resolve_coreml_model_path
 
-                    # Auto-download from HuggingFace if not found locally
-                    coreml_path_env = os.environ.get("PAPR_COREML_MODEL")
-                    coreml_path = resolve_coreml_model_path(coreml_path_env)
-                    tok_id = os.environ.get("PAPR_EMBEDDING_MODEL", "Qwen/Qwen3-Embedding-4B")
+                    # Check if CoreML model is cached globally (from warmup)
+                    global _global_coreml_model, _global_coreml_tokenizer
 
-                    logger.info(f"Loading Core ML model from {coreml_path}")
-                    # Use ALL compute units to enable Neural Engine (ANE) for fast inference
-                    mlmodel = ct.models.MLModel(coreml_path, compute_units=ct.ComputeUnit.ALL)
-                    tokenizer = AutoTokenizer.from_pretrained(tok_id)
+                    if _global_coreml_model is not None and _global_coreml_tokenizer is not None:
+                        logger.info("Using cached CoreML model (preloaded during warmup)")
+                        mlmodel = _global_coreml_model
+                        tokenizer = _global_coreml_tokenizer
+                    else:
+                        # Auto-download from HuggingFace if not found locally
+                        coreml_path_env = os.environ.get("PAPR_COREML_MODEL")
+                        coreml_path = resolve_coreml_model_path(coreml_path_env)
+                        tok_id = os.environ.get("PAPR_EMBEDDING_MODEL", "Qwen/Qwen3-Embedding-4B")
+
+                        logger.info(f"Loading Core ML model from {coreml_path}")
+                        # Use ALL compute units to enable Neural Engine (ANE) for fast inference
+                        mlmodel = ct.models.MLModel(coreml_path, compute_units=ct.ComputeUnit.ALL)
+                        tokenizer = AutoTokenizer.from_pretrained(tok_id)
+
+                        # Cache for future use
+                        _global_coreml_model = mlmodel
+                        _global_coreml_tokenizer = tokenizer
+                        logger.info("Cached CoreML model globally for future searches")
 
                     class CoreMLEmbeddingFunction:
                         def __init__(self, model: object, tokenizer: object):
@@ -1486,9 +1502,14 @@ class MemoryResource(SyncAPIResource):
 
         logger = get_logger(__name__)
 
-        # Skip ST preload if Core ML or MLX is enabled (they're faster and more memory-efficient)
+        # Preload CoreML model if enabled (prevents slow first search)
         if os.environ.get("PAPR_ENABLE_COREML", "").lower() == "true":
-            logger.info("⏭️  Skipping ST preload: Core ML is enabled (faster, less memory)")
+            logger.info("🚀 Core ML is enabled - preloading model...")
+            try:
+                self._warmup_coreml_model()
+                logger.info("✅ Core ML model preloaded successfully")
+            except Exception as e:
+                logger.warning(f"⚠️  Core ML preload failed: {e}. Will load on first search.")
             return
         if os.environ.get("PAPR_ENABLE_MLX", "").lower() == "true":
             logger.info("⏭️  Skipping ST preload: MLX is enabled (faster, less memory)")
@@ -1598,9 +1619,14 @@ class MemoryResource(SyncAPIResource):
 
         logger = get_logger(__name__)
 
-        # Skip ST preload if Core ML or MLX is enabled (they're faster and more memory-efficient)
+        # Preload CoreML model if enabled (prevents slow first search)
         if os.environ.get("PAPR_ENABLE_COREML", "").lower() == "true":
-            logger.info("⏭️  Skipping ST preload: Core ML is enabled (faster, less memory)")
+            logger.info("🚀 Core ML is enabled - preloading model...")
+            try:
+                self._warmup_coreml_model()
+                logger.info("✅ Core ML model preloaded successfully")
+            except Exception as e:
+                logger.warning(f"⚠️  Core ML preload failed: {e}. Will load on first search.")
             return
         if os.environ.get("PAPR_ENABLE_MLX", "").lower() == "true":
             logger.info("⏭️  Skipping ST preload: MLX is enabled (faster, less memory)")
@@ -1641,6 +1667,68 @@ class MemoryResource(SyncAPIResource):
         except Exception as e:
             logger.warning(f"Failed to preload embedding model: {e}")
             logger.warning("Model will be loaded on-demand during search")
+
+    def _warmup_coreml_model(self) -> None:
+        """Preload and warm up CoreML model to avoid slow first search"""
+        global _global_coreml_model, _global_coreml_tokenizer
+        from papr_memory._logging import get_logger
+        import numpy as np
+
+        logger = get_logger(__name__)
+
+        # Check if already loaded
+        if _global_coreml_model is not None:
+            logger.info("CoreML model already cached globally, skipping warmup")
+            return
+
+        try:
+            import coremltools as ct
+            from transformers import AutoTokenizer
+            from papr_memory._model_cache import resolve_coreml_model_path
+
+            # Get CoreML model path
+            coreml_path_env = os.environ.get("PAPR_COREML_MODEL")
+            coreml_path = resolve_coreml_model_path(coreml_path_env)
+            tok_id = os.environ.get("PAPR_EMBEDDING_MODEL", "Qwen/Qwen3-Embedding-4B")
+
+            logger.info(f"Loading CoreML model from {coreml_path}...")
+
+            # Load model (macOS will cache compiled version)
+            mlmodel = ct.models.MLModel(coreml_path, compute_units=ct.ComputeUnit.ALL)
+            tokenizer = AutoTokenizer.from_pretrained(tok_id)
+
+            logger.info("Running warmup inference to compile model...")
+
+            # Run a warmup inference to trigger compilation
+            # This takes ~60s first time, but macOS caches the compiled model
+            warmup_text = "warmup query"
+            enc = tokenizer(
+                [warmup_text],
+                padding="max_length",
+                max_length=32,
+                truncation=True,
+                return_tensors="np",
+            )
+            feed = {
+                "input_ids": enc["input_ids"].astype(np.int32),
+                "attention_mask": enc["attention_mask"].astype(np.int32),
+            }
+
+            # First inference triggers compilation and caching
+            _ = mlmodel.predict(feed)
+
+            # Store in global cache for reuse
+            _global_coreml_model = mlmodel
+            _global_coreml_tokenizer = tokenizer
+
+            logger.info("✅ CoreML model preloaded and compiled successfully")
+            logger.info(f"   Model cached globally for reuse (no reload needed)")
+            logger.info(f"   macOS also cached at: ~/Library/Caches/com.apple.CoreML/")
+            logger.info(f"   Future app starts will be faster (~1-2s vs ~60s)")
+
+        except Exception as e:
+            logger.warning(f"CoreML warmup failed: {e}")
+            logger.warning("Model will be loaded on first search (may take 60+ seconds)")
 
     def _embed_query_with_qwen(self, query: str) -> list[float] | None:
         """Generate embedding for query using preloaded Qwen3-4B model"""
@@ -2009,7 +2097,23 @@ class MemoryResource(SyncAPIResource):
             retrieval_logging_service.end_chromadb_timing(metrics, num_results)
             
             # End query timing and log comprehensive metrics
-            device_type = "cuda" if hasattr(self, "_qwen_model") and self._qwen_model is not None else "cpu"
+            # Detect device type: CoreML (ANE), PyTorch (CUDA/MPS), or CPU
+            device_type = "cpu"  # default
+            if _global_coreml_model is not None:
+                device_type = "ane"  # Apple Neural Engine
+            elif hasattr(self, "_qwen_model") and self._qwen_model is not None:
+                # Check PyTorch model device
+                try:
+                    import torch
+                    model_device = next(self._qwen_model.parameters()).device
+                    if model_device.type == "cuda":
+                        device_type = "cuda"
+                    elif model_device.type == "mps":
+                        device_type = "mps"
+                    else:
+                        device_type = "cpu"
+                except Exception:
+                    device_type = "cpu"
             retrieval_logging_service.end_query_timing(metrics, device_type)
             
             # Log to Parse Server (non-blocking) - user resolution will happen in background
@@ -2032,9 +2136,36 @@ class MemoryResource(SyncAPIResource):
 
             if results["documents"] and results["documents"][0]:
                 logger.info(f"Found {len(results['documents'][0])} relevant tier0 items locally")
+
                 # Return tuples of (document, distance) for score calculation
-                documents = results["documents"][0]
-                distances = results.get("distances", [[]])[0] if results.get("distances") else [0.0] * len(documents)
+                documents_batch = results.get("documents") or []
+                documents = documents_batch[0] if documents_batch else []
+
+                distances_batch = results.get("distances") or []
+                if distances_batch:
+                    distances = distances_batch[0] or []
+                else:
+                    distances = []
+
+                if not distances:
+                    distances = [0.0] * len(documents)
+                elif len(distances) < len(documents):
+                    # pad distances to match documents length if chroma omits some entries
+                    distances = distances + [0.0] * (len(documents) - len(distances))
+
+                # Log retrieved memories with content preview
+                logger.info("=" * 80)
+                logger.info(f"📋 RETRIEVED MEMORIES (Top {min(len(documents), 10)} of {len(documents)})")
+                logger.info("=" * 80)
+                for idx, (doc, dist) in enumerate(list(zip(documents, distances))[:10]):  # Show first 10
+                    # Convert distance to similarity score (cosine: 1 - distance)
+                    similarity = 1.0 - dist
+                    # Truncate content for logging (first 200 chars)
+                    content_preview = doc[:200] + "..." if len(doc) > 200 else doc
+                    logger.info(f"\n[{idx + 1}] Similarity: {similarity:.4f} (distance: {dist:.4f})")
+                    logger.info(f"    Content: {content_preview}")
+                logger.info("=" * 80)
+
                 return list(zip(documents, distances))  # type: ignore
             else:
                 logger.info("No relevant tier0 items found locally")
@@ -2574,8 +2705,59 @@ class MemoryResource(SyncAPIResource):
                 
                 # Create collection with consistent embedding function
                 logger.info("Creating collection with consistent embedding function...")
-                embedding_function = self._get_qwen_embedding_function()
-                logger.info(f"Qwen embedding function result: {embedding_function is not None}")
+
+                # OPTIMIZATION: Skip sentence-transformers when CoreML is enabled
+                # Use server embeddings only to avoid loading 8GB model during collection creation
+                if os.environ.get("PAPR_ENABLE_COREML", "").lower() == "true":
+                    logger.info("⚡ CoreML enabled - using smart passthrough for ChromaDB")
+                    logger.info("   Passthrough will use already-loaded CoreML for queries")
+
+                    # Capture self reference for the passthrough function to use
+                    memory_instance = self
+
+                    # Smart passthrough that uses already-loaded CoreML model for queries
+                    class SmartPassthroughEmbeddingFunction:
+                        """Smart passthrough that uses pre-loaded CoreML for queries"""
+                        def embed_documents(self, texts: list[str]) -> list[list[float]]:
+                            # Only called during collection metadata/dimension detection
+                            return [[0.0] * 2560 for _ in texts]
+
+                        def embed_query(self, text: str = None, input: str = None) -> list[float]:
+                            # ChromaDB sometimes calls this instead of using query_embeddings parameter
+                            # Use the already-loaded CoreML model to generate real embeddings
+                            query_text = text or input or ""
+
+                            # Try to use already-loaded local embedder
+                            embedder = memory_instance._get_local_embedder()
+                            if embedder:
+                                try:
+                                    if hasattr(embedder, 'embed_query'):
+                                        return embedder.embed_query(query_text)
+                                    elif hasattr(embedder, 'encode'):
+                                        return embedder.encode([query_text])[0].tolist()
+                                except Exception as e:
+                                    logger.debug(f"Local embedder failed in passthrough: {e}")
+
+                            # Fallback to preloaded Qwen model
+                            try:
+                                qwen_embedding = memory_instance._embed_query_with_qwen(query_text)
+                                if qwen_embedding:
+                                    return qwen_embedding
+                            except Exception as e:
+                                logger.debug(f"Qwen embedder failed in passthrough: {e}")
+
+                            # Last resort: zeros (this maintains dimension compatibility)
+                            logger.warning("All embedders failed in passthrough, returning zeros")
+                            return [0.0] * 2560
+
+                        def __call__(self, input: list[str]) -> list[list[float]]:
+                            return self.embed_documents(input)
+
+                    embedding_function = SmartPassthroughEmbeddingFunction()
+                    logger.info("   Created smart passthrough embedding function (2560 dims)")
+                else:
+                    embedding_function = self._get_qwen_embedding_function()
+                    logger.info(f"Qwen embedding function result: {embedding_function is not None}")
                 if embedding_function:
                     try:
                         # Test the embedding function to ensure it works
@@ -2691,18 +2873,25 @@ class MemoryResource(SyncAPIResource):
             documents = []
             metadatas = []
             ids = []
-            
+            embeddings = []  # Build embeddings in sync with documents
+
             for i, item in enumerate(tier0_data):
                 # Extract content for embedding
                 content = str(item)
                 if isinstance(item, dict):
-                    content = str(item.get("content", item.get("description", str(item))))
-                
+                    # Get content, handling None values properly
+                    raw_content = item.get("content", item.get("description", None))
+                    if raw_content is None or (isinstance(raw_content, str) and raw_content.strip().lower() == "none"):
+                        # Skip items with no content - they won't be useful for search
+                        logger.debug(f"Skipping item {i} with no content")
+                        continue  # Skip this item entirely - don't add to documents OR embeddings
+                    content = str(raw_content)
+
                 # Create metadata - use item's metadata if exists, otherwise create default
                 if isinstance(item, dict):
                     # Start with item's metadata if it exists
                     metadata = dict(item.get("metadata", {}))
-                    
+
                     # Add/override with our standard fields
                     metadata.update(
                         {
@@ -2714,40 +2903,44 @@ class MemoryResource(SyncAPIResource):
                             "updatedAt": str(item.get("updatedAt", "")),
                         }
                     )
+
+                    # Preserve server-side similarity_score (relevance score from tier0_builder)
+                    # This is the composite score: 60% vector + 30% transition + 20% hotness
+                    if "similarity_score" in item:
+                        metadata["similarity_score"] = float(item["similarity_score"])
                 else:
                     # Fallback for non-dict items
                     metadata = {"source": "sync_tiers", "tier": 0, "type": "unknown", "topics": "unknown"}  # type: ignore
-                
+
                 documents.append(content)
                 metadatas.append(metadata)
                 item_id = f"tier0_{i}"
                 if isinstance(item, dict) and "id" in item:
                     item_id = f"tier0_{i}_{item['id']}"
                 ids.append(item_id)
-            
-            # Extract embeddings from server response
-            embeddings = []
-            if tier0_data and isinstance(tier0_data[0], dict) and "embedding" in tier0_data[0]:
-                logger.info("Using embeddings from server response...")
-                for i, item in enumerate(tier0_data):
-                    if isinstance(item, dict) and "embedding" in item:
-                        embedding = item["embedding"]
-                        # Validate embedding format
-                        if (
-                            isinstance(embedding, list)
-                            and len(embedding) > 0
-                                and isinstance(embedding[0], (int, float))  # type: ignore
-                        ):
-                            embeddings.append(embedding)
-                            logger.info(f"Valid server embedding for item {i} (dim: {len(embedding)})")
-                        else:
-                            logger.warning(f"Invalid server embedding format for item {i}, will use local generation")
-                            embeddings.append(None)
+
+                # Extract embedding for this item (in sync with documents list)
+                embedding = None
+                if isinstance(item, dict) and "embedding" in item:
+                    server_embedding = item["embedding"]
+                    # Validate embedding format
+                    if (
+                        isinstance(server_embedding, list)
+                        and len(server_embedding) > 0
+                            and isinstance(server_embedding[0], (int, float))  # type: ignore
+                    ):
+                        embedding = server_embedding
+                        logger.info(f"Valid server embedding for item {i} (dim: {len(embedding)})")
                     else:
-                        embeddings.append(None)
+                        logger.warning(f"Invalid server embedding format for item {i}, will use local generation")
+
+                embeddings.append(embedding)
+
+            # Log embedding extraction summary
+            if tier0_data and isinstance(tier0_data[0], dict) and "embedding" in tier0_data[0]:
+                logger.info(f"Extracted embeddings from server response for {len([e for e in embeddings if e is not None])}/{len(embeddings)} items")
             else:
-                logger.info("No server embeddings found, will generate locally")
-                embeddings = [None] * len(documents)
+                logger.info("No server embeddings found, will generate locally for all items")
             
             # Generate local embeddings for items without server embeddings
             if any(emb is None for emb in embeddings):
@@ -3221,6 +3414,11 @@ class MemoryResource(SyncAPIResource):
                             # Fallback for non-tuple items (shouldn't happen with our fix)
                             content = item
                             similarity_score = 0.0
+
+                        # Debug logging for content
+                        if i < 3:  # Log first 3 items
+                            content_preview = content[:100] if content else "None"
+                            logger.info(f"[DEBUG] Item {i}: content_type={type(content)}, content_preview='{content_preview}'")
 
                         # Try creating DataMemory with explicit pydantic_extra__
                         memory_data: dict[str, any] = {  # type: ignore

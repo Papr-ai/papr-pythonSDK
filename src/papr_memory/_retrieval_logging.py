@@ -296,7 +296,12 @@ class RetrievalLoggingService:
             # If search_context is provided, resolve user in background
             if search_context:
                 # Create background task for user resolution and Parse Server logging
-                loop = asyncio.get_event_loop()
+                try:
+                    loop = asyncio.get_running_loop()
+                except RuntimeError:
+                    # No event loop running, create a new one
+                    loop = asyncio.new_event_loop()
+                    asyncio.set_event_loop(loop)
                 if loop.is_running():
                     # If we're already in an event loop, create a task
                     task = asyncio.create_task(
@@ -340,7 +345,12 @@ class RetrievalLoggingService:
                     )
             else:
                 # Original behavior without search context
-                loop = asyncio.get_event_loop()
+                try:
+                    loop = asyncio.get_running_loop()
+                except RuntimeError:
+                    # No event loop running, create a new one
+                    loop = asyncio.new_event_loop()
+                    asyncio.set_event_loop(loop)
                 if loop.is_running():
                     # If we're already in an event loop, create a task
                     task = asyncio.create_task(
