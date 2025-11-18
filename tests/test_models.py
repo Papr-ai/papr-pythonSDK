@@ -9,7 +9,7 @@ from pydantic import Field
 
 from papr_memory._utils import PropertyInfo
 from papr_memory._compat import PYDANTIC_V1, parse_obj, model_dump, model_json
-from papr_memory._models import BaseModel, construct_type
+from papr_memory._models import DISCRIMINATOR_CACHE, BaseModel, construct_type
 
 
 class BasicModel(BaseModel):
@@ -856,7 +856,7 @@ def test_discriminated_unions_invalid_data_uses_cache() -> None:
 
     UnionType = cast(Any, Union[A, B])
 
-    assert not hasattr(UnionType, "__discriminator__")
+    assert not DISCRIMINATOR_CACHE.get(UnionType)
 
     m = construct_type(
         value={"type": "b", "data": "foo"}, type_=cast(Any, Annotated[UnionType, PropertyInfo(discriminator="type")])
@@ -865,7 +865,7 @@ def test_discriminated_unions_invalid_data_uses_cache() -> None:
     assert m.type == "b"
     assert m.data == "foo"  # type: ignore[comparison-overlap]
 
-    discriminator = UnionType.__discriminator__
+    discriminator = DISCRIMINATOR_CACHE.get(UnionType)
     assert discriminator is not None
 
     m = construct_type(
@@ -877,7 +877,7 @@ def test_discriminated_unions_invalid_data_uses_cache() -> None:
 
     # if the discriminator details object stays the same between invocations then
     # we hit the cache
-    assert UnionType.__discriminator__ is discriminator
+    assert DISCRIMINATOR_CACHE.get(UnionType) is discriminator
 
 
 @pytest.mark.skipif(PYDANTIC_V1, reason="TypeAliasType is not supported in Pydantic v1")

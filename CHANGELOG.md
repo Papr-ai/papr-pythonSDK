@@ -1,5 +1,25 @@
 # Changelog
 
+## 2.17.0 (2025-11-18)
+
+Full Changelog: [v2.16.0...v2.17.0](https://github.com/Papr-ai/papr-pythonSDK/compare/v2.16.0...v2.17.0)
+
+### Features
+
+* **api:** manual updates ([dfbfbc1](https://github.com/Papr-ai/papr-pythonSDK/commit/dfbfbc187b2a74bbd91ddc68508a3d6e204a0122))
+* **api:** manual updates ([8a22dd2](https://github.com/Papr-ai/papr-pythonSDK/commit/8a22dd2a05d434ccbfea3f121cc025e4ecbc6e45))
+
+
+### Bug Fixes
+
+* compat with Python 3.14 ([73e782c](https://github.com/Papr-ai/papr-pythonSDK/commit/73e782c4a69301f54a3fbe4842bd415d9776b6b6))
+* **compat:** update signatures of `model_dump` and `model_dump_json` for Pydantic v1 ([f679a4a](https://github.com/Papr-ai/papr-pythonSDK/commit/f679a4adbdc41a0164c3f91d5ce683f1a10c50f5))
+
+
+### Chores
+
+* **package:** drop Python 3.8 support ([b98b2b5](https://github.com/Papr-ai/papr-pythonSDK/commit/b98b2b5c893e3c49c8f47efd761d61655096dff3))
+
 ## 2.16.0 (2025-11-08)
 
 Full Changelog: [v2.15.1...v2.16.0](https://github.com/Papr-ai/papr-pythonSDK/compare/v2.15.1...v2.16.0)

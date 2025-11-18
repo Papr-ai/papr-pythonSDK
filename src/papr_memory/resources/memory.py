@@ -3025,9 +3025,6 @@ class MemoryResource(SyncAPIResource):
         namespace_id: Optional[str] | Omit = omit,
         organization_id: Optional[str] | Omit = omit,
         rank_results: bool | Omit = omit,
-        schema_id: Optional[str] | Omit = omit,
-        search_override: Optional[memory_search_params.SearchOverride] | Omit = omit,
-        simple_schema_mode: bool | Omit = omit,
         user_id: Optional[str] | Omit = omit,
         accept_encoding: str | Omit = omit,
         # Use the following arguments if you need to pass additional parameters to the API that aren't available via kwargs.
@@ -3131,16 +3128,6 @@ class MemoryResource(SyncAPIResource):
               results are already ranked when using an LLM for search (recommended approach).
               Only enable this if you're not using an LLM in your search pipeline and need
               additional result ranking.
-
-          schema_id: Optional user-defined schema ID to use for this search. If provided, this schema
-              (plus system schema) will be used for query generation. If not provided, system
-              will automatically select relevant schema based on query content.
-
-          search_override: Complete search override specification provided by developer
-
-          simple_schema_mode: If true, uses simple schema mode: system schema + ONE most relevant user schema.
-              This ensures better consistency between add/search operations and reduces query
-              complexity. Recommended for production use.
 
           user_id: Optional internal user ID to filter search results by a specific user. If not
               provided, results are not filtered by user. If both user_id and external_user_id
@@ -3258,9 +3245,6 @@ class MemoryResource(SyncAPIResource):
                     "namespace_id": namespace_id,
                     "organization_id": organization_id,
                     "rank_results": rank_results,
-                    "schema_id": schema_id,
-                    "search_override": search_override,
-                    "simple_schema_mode": simple_schema_mode,
                     "user_id": user_id,
                 },
                 memory_search_params.MemorySearchParams,
@@ -3875,9 +3859,6 @@ class AsyncMemoryResource(AsyncAPIResource):
         namespace_id: Optional[str] | Omit = omit,
         organization_id: Optional[str] | Omit = omit,
         rank_results: bool | Omit = omit,
-        schema_id: Optional[str] | Omit = omit,
-        search_override: Optional[memory_search_params.SearchOverride] | Omit = omit,
-        simple_schema_mode: bool | Omit = omit,
         user_id: Optional[str] | Omit = omit,
         accept_encoding: str | Omit = omit,
         # Use the following arguments if you need to pass additional parameters to the API that aren't available via kwargs.
@@ -3982,16 +3963,6 @@ class AsyncMemoryResource(AsyncAPIResource):
               Only enable this if you're not using an LLM in your search pipeline and need
               additional result ranking.
 
-          schema_id: Optional user-defined schema ID to use for this search. If provided, this schema
-              (plus system schema) will be used for query generation. If not provided, system
-              will automatically select relevant schema based on query content.
-
-          search_override: Complete search override specification provided by developer
-
-          simple_schema_mode: If true, uses simple schema mode: system schema + ONE most relevant user schema.
-              This ensures better consistency between add/search operations and reduces query
-              complexity. Recommended for production use.
-
           user_id: Optional internal user ID to filter search results by a specific user. If not
               provided, results are not filtered by user. If both user_id and external_user_id
               are provided, user_id takes precedence.
@@ -4020,9 +3991,6 @@ class AsyncMemoryResource(AsyncAPIResource):
                     "namespace_id": namespace_id,
                     "organization_id": organization_id,
                     "rank_results": rank_results,
-                    "schema_id": schema_id,
-                    "search_override": search_override,
-                    "simple_schema_mode": simple_schema_mode,
                     "user_id": user_id,
                 },
                 memory_search_params.MemorySearchParams,
