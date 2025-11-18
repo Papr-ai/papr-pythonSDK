@@ -25,6 +25,13 @@ class MemorySearchParams(TypedDict, total=False):
     communication patterns from recent meetings and discussions.'
     """
 
+    query_enable_agentic_graph: Annotated[Optional[bool], PropertyInfo(alias="enable_agentic_graph")]
+    """
+    HIGHLY RECOMMENDED: Enable agentic graph search for intelligent, context-aware
+    results. Can be set via URL parameter or JSON body. URL parameter takes
+    precedence if both are provided.
+    """
+
     max_memories: int
     """HIGHLY RECOMMENDED: Maximum number of memories to return.
 
@@ -39,7 +46,7 @@ class MemorySearchParams(TypedDict, total=False):
     important entity relationships. Default is 15 for optimal coverage.
     """
 
-    enable_agentic_graph: bool
+    body_enable_agentic_graph: Annotated[bool, PropertyInfo(alias="enable_agentic_graph")]
     """
     HIGHLY RECOMMENDED: Enable agentic graph search for intelligent, context-aware
     results. When enabled, the system can understand ambiguous references by first
