@@ -3017,14 +3017,18 @@ class MemoryResource(SyncAPIResource):
         self,
         *,
         query: str,
+        query_enable_agentic_graph: Optional[bool] | Omit = omit,
         max_memories: int | Omit = omit,
         max_nodes: int | Omit = omit,
-        enable_agentic_graph: bool | Omit = omit,
+        body_enable_agentic_graph: bool | Omit = omit,
         external_user_id: Optional[str] | Omit = omit,
         metadata: Optional[MemoryMetadataParam] | Omit = omit,
         namespace_id: Optional[str] | Omit = omit,
         organization_id: Optional[str] | Omit = omit,
         rank_results: bool | Omit = omit,
+        schema_id: Optional[str] | Omit = omit,
+        search_override: Optional[memory_search_params.SearchOverride] | Omit = omit,
+        simple_schema_mode: bool | Omit = omit,
         user_id: Optional[str] | Omit = omit,
         accept_encoding: str | Omit = omit,
         # Use the following arguments if you need to pass additional parameters to the API that aren't available via kwargs.
@@ -3095,6 +3099,10 @@ class MemoryResource(SyncAPIResource):
               impacts.' 'Find insights about team collaboration and communication patterns
               from recent meetings and discussions.'
 
+          query_enable_agentic_graph: HIGHLY RECOMMENDED: Enable agentic graph search for intelligent, context-aware
+              results. Can be set via URL parameter or JSON body. URL parameter takes
+              precedence if both are provided.
+
           max_memories: HIGHLY RECOMMENDED: Maximum number of memories to return. Use at least 15-20 for
               comprehensive results. Lower values (5-10) may miss relevant information.
               Default is 20 for optimal coverage.
@@ -3103,7 +3111,7 @@ class MemoryResource(SyncAPIResource):
               for comprehensive graph results. Lower values may miss important entity
               relationships. Default is 15 for optimal coverage.
 
-          enable_agentic_graph: HIGHLY RECOMMENDED: Enable agentic graph search for intelligent, context-aware
+          body_enable_agentic_graph: HIGHLY RECOMMENDED: Enable agentic graph search for intelligent, context-aware
               results. When enabled, the system can understand ambiguous references by first
               identifying specific entities from your memory graph, then performing targeted
               searches. Examples: 'customer feedback' → identifies your customers first, then
@@ -3128,6 +3136,16 @@ class MemoryResource(SyncAPIResource):
               results are already ranked when using an LLM for search (recommended approach).
               Only enable this if you're not using an LLM in your search pipeline and need
               additional result ranking.
+
+          schema_id: Optional user-defined schema ID to use for this search. If provided, this schema
+              (plus system schema) will be used for query generation. If not provided, system
+              will automatically select relevant schema based on query content.
+
+          search_override: Complete search override specification provided by developer
+
+          simple_schema_mode: If true, uses simple schema mode: system schema + ONE most relevant user schema.
+              This ensures better consistency between add/search operations and reduces query
+              complexity. Recommended for production use.
 
           user_id: Optional internal user ID to filter search results by a specific user. If not
               provided, results are not filtered by user. If both user_id and external_user_id
@@ -3239,12 +3257,15 @@ class MemoryResource(SyncAPIResource):
             body=maybe_transform(
                 {
                     "query": query,
-                    "enable_agentic_graph": enable_agentic_graph,
+                    "body_enable_agentic_graph": body_enable_agentic_graph,
                     "external_user_id": external_user_id,
                     "metadata": metadata,
                     "namespace_id": namespace_id,
                     "organization_id": organization_id,
                     "rank_results": rank_results,
+                    "schema_id": schema_id,
+                    "search_override": search_override,
+                    "simple_schema_mode": simple_schema_mode,
                     "user_id": user_id,
                 },
                 memory_search_params.MemorySearchParams,
@@ -3256,6 +3277,7 @@ class MemoryResource(SyncAPIResource):
                 timeout=timeout,
                 query=maybe_transform(
                     {
+                        "query_enable_agentic_graph": query_enable_agentic_graph,
                         "max_memories": max_memories,
                         "max_nodes": max_nodes,
                     },
@@ -3851,14 +3873,18 @@ class AsyncMemoryResource(AsyncAPIResource):
         self,
         *,
         query: str,
+        query_enable_agentic_graph: Optional[bool] | Omit = omit,
         max_memories: int | Omit = omit,
         max_nodes: int | Omit = omit,
-        enable_agentic_graph: bool | Omit = omit,
+        body_enable_agentic_graph: bool | Omit = omit,
         external_user_id: Optional[str] | Omit = omit,
         metadata: Optional[MemoryMetadataParam] | Omit = omit,
         namespace_id: Optional[str] | Omit = omit,
         organization_id: Optional[str] | Omit = omit,
         rank_results: bool | Omit = omit,
+        schema_id: Optional[str] | Omit = omit,
+        search_override: Optional[memory_search_params.SearchOverride] | Omit = omit,
+        simple_schema_mode: bool | Omit = omit,
         user_id: Optional[str] | Omit = omit,
         accept_encoding: str | Omit = omit,
         # Use the following arguments if you need to pass additional parameters to the API that aren't available via kwargs.
@@ -3929,6 +3955,10 @@ class AsyncMemoryResource(AsyncAPIResource):
               impacts.' 'Find insights about team collaboration and communication patterns
               from recent meetings and discussions.'
 
+          query_enable_agentic_graph: HIGHLY RECOMMENDED: Enable agentic graph search for intelligent, context-aware
+              results. Can be set via URL parameter or JSON body. URL parameter takes
+              precedence if both are provided.
+
           max_memories: HIGHLY RECOMMENDED: Maximum number of memories to return. Use at least 15-20 for
               comprehensive results. Lower values (5-10) may miss relevant information.
               Default is 20 for optimal coverage.
@@ -3937,7 +3967,7 @@ class AsyncMemoryResource(AsyncAPIResource):
               for comprehensive graph results. Lower values may miss important entity
               relationships. Default is 15 for optimal coverage.
 
-          enable_agentic_graph: HIGHLY RECOMMENDED: Enable agentic graph search for intelligent, context-aware
+          body_enable_agentic_graph: HIGHLY RECOMMENDED: Enable agentic graph search for intelligent, context-aware
               results. When enabled, the system can understand ambiguous references by first
               identifying specific entities from your memory graph, then performing targeted
               searches. Examples: 'customer feedback' → identifies your customers first, then
@@ -3963,6 +3993,16 @@ class AsyncMemoryResource(AsyncAPIResource):
               Only enable this if you're not using an LLM in your search pipeline and need
               additional result ranking.
 
+          schema_id: Optional user-defined schema ID to use for this search. If provided, this schema
+              (plus system schema) will be used for query generation. If not provided, system
+              will automatically select relevant schema based on query content.
+
+          search_override: Complete search override specification provided by developer
+
+          simple_schema_mode: If true, uses simple schema mode: system schema + ONE most relevant user schema.
+              This ensures better consistency between add/search operations and reduces query
+              complexity. Recommended for production use.
+
           user_id: Optional internal user ID to filter search results by a specific user. If not
               provided, results are not filtered by user. If both user_id and external_user_id
               are provided, user_id takes precedence.
@@ -3985,12 +4025,15 @@ class AsyncMemoryResource(AsyncAPIResource):
             body=await async_maybe_transform(
                 {
                     "query": query,
-                    "enable_agentic_graph": enable_agentic_graph,
+                    "body_enable_agentic_graph": body_enable_agentic_graph,
                     "external_user_id": external_user_id,
                     "metadata": metadata,
                     "namespace_id": namespace_id,
                     "organization_id": organization_id,
                     "rank_results": rank_results,
+                    "schema_id": schema_id,
+                    "search_override": search_override,
+                    "simple_schema_mode": simple_schema_mode,
                     "user_id": user_id,
                 },
                 memory_search_params.MemorySearchParams,
@@ -4002,6 +4045,7 @@ class AsyncMemoryResource(AsyncAPIResource):
                 timeout=timeout,
                 query=await async_maybe_transform(
                     {
+                        "query_enable_agentic_graph": query_enable_agentic_graph,
                         "max_memories": max_memories,
                         "max_nodes": max_nodes,
                     },
