@@ -56,11 +56,12 @@ class SchemasResource(SyncAPIResource):
         created_at: Union[str, datetime] | Omit = omit,
         description: Optional[str] | Omit = omit,
         last_used_at: Union[str, datetime, None] | Omit = omit,
+        namespace: Union[str, Dict[str, object], None] | Omit = omit,
         node_types: Dict[str, schema_create_params.NodeTypes] | Omit = omit,
-        organization_id: Optional[str] | Omit = omit,
+        organization: Union[str, Dict[str, object], None] | Omit = omit,
         read_access: SequenceNotStr[str] | Omit = omit,
         relationship_types: Dict[str, schema_create_params.RelationshipTypes] | Omit = omit,
-        scope: Literal["personal", "workspace", "organization"] | Omit = omit,
+        scope: Literal["personal", "workspace", "namespace", "organization"] | Omit = omit,
         status: Literal["draft", "active", "deprecated", "archived"] | Omit = omit,
         updated_at: Union[str, datetime, None] | Omit = omit,
         usage_count: int | Omit = omit,
@@ -86,8 +87,15 @@ class SchemasResource(SyncAPIResource):
             - Define custom relationship types with constraints
             - Automatic validation against system schemas
             - Support for different scopes (personal, workspace, organization)
+            - **Status control**: Set `status` to "active" to immediately activate the schema, or "draft" to save as draft (default)
             - **Enum support**: Use `enum_values` to restrict property values to a predefined list (max 10 values)
-            - **Auto-indexing**: Required properties are automatically indexed in Neo4j for optimal query performance
+            - **Auto-indexing**: Required properties are automatically indexed in Neo4j when schema becomes active
+
+            **Schema Limits (optimized for LLM performance):**
+            - **Maximum 10 node types** per schema
+            - **Maximum 20 relationship types** per schema
+            - **Maximum 10 properties** per node type
+            - **Maximum 10 enum values** per property
 
             **Property Types & Validation:**
             - `string`: Text values with optional `enum_values`, `min_length`, `max_length`, `pattern`
@@ -143,9 +151,11 @@ class SchemasResource(SyncAPIResource):
             - X-Client-Type: (e.g., 'papr_plugin', 'browser_extension')
 
         Args:
-          node_types: Custom node types (max 15 per schema)
+          node_types: Custom node types (max 10 per schema)
 
           relationship_types: Custom relationship types (max 20 per schema)
+
+          scope: Schema scopes available through the API
 
           extra_headers: Send extra headers
 
@@ -164,8 +174,9 @@ class SchemasResource(SyncAPIResource):
                     "created_at": created_at,
                     "description": description,
                     "last_used_at": last_used_at,
+                    "namespace": namespace,
                     "node_types": node_types,
-                    "organization_id": organization_id,
+                    "organization": organization,
                     "read_access": read_access,
                     "relationship_types": relationship_types,
                     "scope": scope,
@@ -236,9 +247,14 @@ class SchemasResource(SyncAPIResource):
         """
         Update an existing schema.
 
-            Allows modification of schema properties, node types, and relationship types.
+            Allows modification of schema properties, node types, relationship types, and status.
             User must have write access to the schema. Updates create a new version
             while preserving the existing data.
+
+            **Status Management:**
+            - Set `status` to "active" to activate the schema and trigger Neo4j index creation
+            - Set `status` to "draft" to deactivate the schema
+            - Set `status` to "archived" to soft-delete the schema
 
         Args:
           extra_headers: Send extra headers
@@ -384,11 +400,12 @@ class AsyncSchemasResource(AsyncAPIResource):
         created_at: Union[str, datetime] | Omit = omit,
         description: Optional[str] | Omit = omit,
         last_used_at: Union[str, datetime, None] | Omit = omit,
+        namespace: Union[str, Dict[str, object], None] | Omit = omit,
         node_types: Dict[str, schema_create_params.NodeTypes] | Omit = omit,
-        organization_id: Optional[str] | Omit = omit,
+        organization: Union[str, Dict[str, object], None] | Omit = omit,
         read_access: SequenceNotStr[str] | Omit = omit,
         relationship_types: Dict[str, schema_create_params.RelationshipTypes] | Omit = omit,
-        scope: Literal["personal", "workspace", "organization"] | Omit = omit,
+        scope: Literal["personal", "workspace", "namespace", "organization"] | Omit = omit,
         status: Literal["draft", "active", "deprecated", "archived"] | Omit = omit,
         updated_at: Union[str, datetime, None] | Omit = omit,
         usage_count: int | Omit = omit,
@@ -414,8 +431,15 @@ class AsyncSchemasResource(AsyncAPIResource):
             - Define custom relationship types with constraints
             - Automatic validation against system schemas
             - Support for different scopes (personal, workspace, organization)
+            - **Status control**: Set `status` to "active" to immediately activate the schema, or "draft" to save as draft (default)
             - **Enum support**: Use `enum_values` to restrict property values to a predefined list (max 10 values)
-            - **Auto-indexing**: Required properties are automatically indexed in Neo4j for optimal query performance
+            - **Auto-indexing**: Required properties are automatically indexed in Neo4j when schema becomes active
+
+            **Schema Limits (optimized for LLM performance):**
+            - **Maximum 10 node types** per schema
+            - **Maximum 20 relationship types** per schema
+            - **Maximum 10 properties** per node type
+            - **Maximum 10 enum values** per property
 
             **Property Types & Validation:**
             - `string`: Text values with optional `enum_values`, `min_length`, `max_length`, `pattern`
@@ -471,9 +495,11 @@ class AsyncSchemasResource(AsyncAPIResource):
             - X-Client-Type: (e.g., 'papr_plugin', 'browser_extension')
 
         Args:
-          node_types: Custom node types (max 15 per schema)
+          node_types: Custom node types (max 10 per schema)
 
           relationship_types: Custom relationship types (max 20 per schema)
+
+          scope: Schema scopes available through the API
 
           extra_headers: Send extra headers
 
@@ -492,8 +518,9 @@ class AsyncSchemasResource(AsyncAPIResource):
                     "created_at": created_at,
                     "description": description,
                     "last_used_at": last_used_at,
+                    "namespace": namespace,
                     "node_types": node_types,
-                    "organization_id": organization_id,
+                    "organization": organization,
                     "read_access": read_access,
                     "relationship_types": relationship_types,
                     "scope": scope,
@@ -564,9 +591,14 @@ class AsyncSchemasResource(AsyncAPIResource):
         """
         Update an existing schema.
 
-            Allows modification of schema properties, node types, and relationship types.
+            Allows modification of schema properties, node types, relationship types, and status.
             User must have write access to the schema. Updates create a new version
             while preserving the existing data.
+
+            **Status Management:**
+            - Set `status` to "active" to activate the schema and trigger Neo4j index creation
+            - Set `status` to "draft" to deactivate the schema
+            - Set `status` to "archived" to soft-delete the schema
 
         Args:
           extra_headers: Send extra headers

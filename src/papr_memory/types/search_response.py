@@ -54,8 +54,16 @@ class DataMemory(BaseModel):
     namespace_id: Optional[str] = None
     """Namespace ID this memory belongs to"""
 
+    namespace_read_access: Optional[List[str]] = None
+
+    namespace_write_access: Optional[List[str]] = None
+
     organization_id: Optional[str] = None
     """Organization ID that owns this memory"""
+
+    organization_read_access: Optional[List[str]] = None
+
+    organization_write_access: Optional[List[str]] = None
 
     page: Optional[str] = None
 

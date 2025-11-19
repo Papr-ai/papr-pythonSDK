@@ -54,7 +54,15 @@ class MemoryMetadataParamTyped(TypedDict, total=False):
 
     namespace_id: Optional[str]
 
+    namespace_read_access: Optional[SequenceNotStr[str]]
+
+    namespace_write_access: Optional[SequenceNotStr[str]]
+
     organization_id: Optional[str]
+
+    organization_read_access: Optional[SequenceNotStr[str]]
+
+    organization_write_access: Optional[SequenceNotStr[str]]
 
     page_id: Annotated[Optional[str], PropertyInfo(alias="pageId")]
 
