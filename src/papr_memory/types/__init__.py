@@ -15,7 +15,7 @@ from .user_list_params import UserListParams as UserListParams
 from .feedback_response import FeedbackResponse as FeedbackResponse
 from .memory_add_params import MemoryAddParams as MemoryAddParams
 from .sync_tiers_params import SyncTiersParams as SyncTiersParams
-from .sync_tiers_request import SyncTiersRequest as SyncTiersRequest
+from .sync_tiers_request import SyncTiersRequest as SyncTiersRequest, EmbeddingFormat as EmbeddingFormat
 from .context_item_param import ContextItemParam as ContextItemParam
 from .schema_list_params import SchemaListParams as SchemaListParams
 from .user_create_params import UserCreateParams as UserCreateParams

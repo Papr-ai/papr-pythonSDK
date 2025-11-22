@@ -127,7 +127,11 @@ class Papr(SyncAPIClient):
         )
 
         self.user = user.UserResource(self)
-        self.memory = memory.MemoryResource(self, user_id=user_id, external_user_id=external_user_id)
+        self.memory = memory.MemoryResource(self)
+        # Initialize user context attributes
+        self.memory._user_id = user_id
+        self.memory._external_user_id = external_user_id
+        self.memory._user_context_version = 0
         self.feedback = feedback.FeedbackResource(self)
         self.document = document.DocumentResource(self)
         self.schemas = schemas.SchemasResource(self)

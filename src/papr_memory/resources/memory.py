@@ -74,6 +74,11 @@ _sync_interval = int(os.environ.get("PAPR_SYNC_INTERVAL", "300"))  # 5 minutes d
 
 
 class MemoryResource(SyncAPIResource):
+    # Class-level type hints for user context attributes
+    _user_id: Optional[str]
+    _external_user_id: Optional[str]
+    _user_context_version: int
+    
     @cached_property
     def with_raw_response(self) -> MemoryResourceWithRawResponse:
         """
@@ -92,6 +97,122 @@ class MemoryResource(SyncAPIResource):
         For more information, see https://www.github.com/Papr-ai/papr-pythonSDK#with_streaming_response
         """
         return MemoryResourceWithStreamingResponse(self)
+
+    def set_user_context(
+        self,
+        user_id: Optional[str] = None,
+        external_user_id: Optional[str] = None,
+        resync: bool = True,
+        clear_cache: bool = True,
+    ) -> None:
+        """
+        Set or update user context and optionally re-fetch memories.
+        
+        This is useful when a user logs in and you want to fetch their specific memories,
+        or when switching between different user accounts.
+        
+        Args:
+            user_id: Internal user ID to filter memories
+            external_user_id: External user ID to filter memories
+            resync: If True, immediately re-fetch tiers with new user context
+            clear_cache: If True, clear ChromaDB cache before re-syncing
+        
+        Example:
+            ```python
+            # User logs in
+            client.memory.set_user_context(
+                user_id="user_123",
+                resync=True  # Fetch this user's memories
+            )
+            ```
+        """
+        from papr_memory._logging import get_logger
+
+        logger = get_logger(__name__)
+
+        old_user = self._user_id or self._external_user_id
+        new_user = user_id or external_user_id
+
+        # Check if context actually changed
+        if old_user == new_user:
+            logger.info(f"🔒 User context unchanged: {new_user}")
+            return
+
+        logger.info(f"🔄 Updating user context: {old_user} → {new_user}")
+
+        # Update context
+        self._user_id = user_id
+        self._external_user_id = external_user_id
+        self._user_context_version += 1
+
+        # Clear old user's data
+        if clear_cache:
+            logger.info("🧹 Clearing ChromaDB cache (old user's memories)")
+            self._clear_chromadb_collections()
+
+        # Re-fetch new user's memories
+        if resync:
+            logger.info(f"🔄 Re-syncing tiers for user: {new_user}")
+            try:
+                self._start_background_initialization()
+                logger.info("✅ Background re-sync started")
+            except Exception as e:
+                logger.warning(f"Failed to start background re-sync: {e}")
+
+    def clear_user_context(self, clear_cache: bool = True) -> None:
+        """
+        Clear user context (e.g., on logout).
+        
+        Args:
+            clear_cache: If True, clear ChromaDB cache
+        
+        Example:
+            ```python
+            # User logs out
+            client.memory.clear_user_context(clear_cache=True)
+            ```
+        """
+        from papr_memory._logging import get_logger
+
+        logger = get_logger(__name__)
+
+        logger.info(f"🔓 Clearing user context: {self._user_id or self._external_user_id}")
+
+        self._user_id = None
+        self._external_user_id = None
+        self._user_context_version += 1
+
+        if clear_cache:
+            logger.info("🧹 Clearing ChromaDB cache")
+            self._clear_chromadb_collections()
+
+    def _clear_chromadb_collections(self) -> None:
+        """Clear both tier0 and tier1 ChromaDB collections."""
+        from papr_memory._logging import get_logger
+
+        logger = get_logger(__name__)
+
+        try:
+            import chromadb
+
+            if hasattr(self, "_chroma_client") and self._chroma_client:
+                # Delete collections
+                for collection_name in ["tier0_goals_okrs", "tier1_memories"]:
+                    try:
+                        self._chroma_client.delete_collection(collection_name)
+                        logger.info(f"✅ Cleared collection: {collection_name}")
+                    except Exception as e:
+                        logger.debug(f"Collection {collection_name} not found or already deleted: {e}")
+
+                # Reset collection references
+                self._chroma_collection = None  # type: ignore
+                self._chroma_tier1_collection = None  # type: ignore
+                logger.info("✅ ChromaDB collections cleared successfully")
+
+        except ImportError:
+            logger.debug("ChromaDB not available - skipping collection cleanup")
+        except Exception as e:
+            logger.warning(f"Failed to clear ChromaDB collections: {e}")
 
     def update(
         self,
@@ -626,19 +747,56 @@ class MemoryResource(SyncAPIResource):
             except ValueError:
                 max_tier1_value = max_tier0_value  # fallback to tier0 value if invalid
             
+            # Get server embedding configuration
+            include_server_embeddings = os.environ.get("PAPR_INCLUDE_SERVER_EMBEDDINGS", "true").lower() in ("true", "1", "yes")
+            embed_limit_env = os.environ.get("PAPR_EMBED_LIMIT", "200")
+            try:
+                embed_limit_value = int(embed_limit_env)
+            except ValueError:
+                embed_limit_value = 200  # fallback to default
+            
+            embed_model_value = os.environ.get("PAPR_EMBED_MODEL", "Qwen4B")
+            
+            # Detect if CoreML is enabled - if so, request float32 embeddings for tier1
+            # CoreML/ANE fp16 models need full precision embeddings for best accuracy
+            coreml_enabled = os.environ.get("PAPR_ENABLE_COREML", "false").lower() in ("true", "1", "yes", "on")
+            embedding_format_value = os.environ.get("PAPR_EMBEDDING_FORMAT", "float32" if coreml_enabled else "int8")
+            
+            if coreml_enabled and embedding_format_value == "int8":
+                logger.warning("⚠️  CoreML enabled but embedding_format is int8. Switching to float32 for better accuracy with fp16 ANE models.")
+                embedding_format_value = "float32"
+            
             # Set a reasonable timeout for sync_tiers to prevent hanging
             # Increased to 300s to handle large tier0 (1000 memories with embeddings)
             sync_timeout = timeout if timeout is not None else 300.0  # 5 minutes default
             
-            logger.info(f"Calling sync_tiers with max_tier0={max_tier0_value}, max_tier1={max_tier1_value}, timeout={sync_timeout}s")
+            logger.info(f"🔒 Fetching tiers for user: {self._user_id or self._external_user_id or 'ALL'}")
+            logger.info(f"📊 Request: max_tier0={max_tier0_value}, max_tier1={max_tier1_value}, include_embeddings={include_server_embeddings}, embed_limit={embed_limit_value}, embed_model={embed_model_value}, embedding_format={embedding_format_value}")
+            
+            # Build extra_body with user context, embed_model, and embedding_format
+            sync_extra_body: dict[str, any] = {  # type: ignore
+                "embed_model": embed_model_value,
+                "embedding_format": embedding_format_value,
+            }
+            
+            # Add user context if available
+            if self._user_id:
+                sync_extra_body["user_id"] = self._user_id
+            if self._external_user_id:
+                sync_extra_body["external_user_id"] = self._external_user_id
+            
+            # Merge with any additional extra_body params
+            if extra_body:
+                sync_extra_body.update(extra_body)  # type: ignore
+            
             sync_response = self.sync_tiers(
-                include_embeddings=True,
-                embed_limit=max_tier0_value,
+                include_embeddings=include_server_embeddings,
+                embed_limit=embed_limit_value,
                 max_tier0=max_tier0_value,
                 max_tier1=max_tier1_value,
                 extra_headers=extra_headers,
                 extra_query=extra_query,
-                extra_body=extra_body,
+                extra_body=sync_extra_body,
                 timeout=sync_timeout,
             )
             
@@ -646,6 +804,19 @@ class MemoryResource(SyncAPIResource):
                 # Extract tier0 data using SyncTiersResponse model
                 tier0_data = sync_response.tier0
                 tier1_data = sync_response.tier1
+                
+                logger.info(f"✅ Received {len(tier0_data)} tier0, {len(tier1_data)} tier1 items")
+                
+                # Log server embeddings statistics
+                if include_server_embeddings:
+                    tier0_with_emb = sum(1 for item in tier0_data if hasattr(item, 'embedding') and item.embedding)
+                    tier1_with_emb = sum(1 for item in tier1_data if hasattr(item, 'embedding') and item.embedding)
+                    logger.info(f"📊 Server embeddings: tier0={tier0_with_emb}/{len(tier0_data)}, tier1={tier1_with_emb}/{len(tier1_data)}")
+                    
+                    if tier0_with_emb > 0:
+                        logger.info(f"✅ Using {tier0_with_emb} server-provided tier0 embeddings (faster initialization!)")
+                    if tier1_with_emb > 0:
+                        logger.info(f"✅ Using {tier1_with_emb} server-provided tier1 embeddings (faster initialization!)")
                 
                 if tier0_data:
                     logger.info(f"Found {len(tier0_data)} tier0 items in sync response")
@@ -3421,7 +3592,7 @@ class MemoryResource(SyncAPIResource):
                     # IMPORTANT: Use direct local embedder (CoreML), NOT collection's passthrough function
                     # The collection's embedding function is SmartPassthroughEmbeddingFunction which returns dummy vectors
                     # We need real CoreML embeddings here
-                    embedder = self._get_local_embedder()  # type: ignore
+                            embedder = self._get_local_embedder()  # type: ignore
                     logger.info("Using direct CoreML embedder for missing items (bypassing collection passthrough)")
                     
                     if embedder:
@@ -3986,6 +4157,24 @@ class MemoryResource(SyncAPIResource):
             logger.error(f"Error storing tier1 data in ChromaDB: {e}")
             self._chroma_tier1_collection = None  # type: ignore
 
+    def _get_max_similarity(self, results: list[tuple[str, float, str]]) -> float:
+        """
+        Get maximum similarity score from search results.
+        
+        Args:
+            results: List of (document, distance, tier) tuples
+        
+        Returns:
+            Maximum similarity score (0.0-1.0), where higher is better
+        """
+        if not results:
+            return 0.0
+        
+        # Convert distance to similarity (1 - distance)
+        # Lower distance = higher similarity
+        similarities = [1.0 - dist for _, dist, _ in results]
+        return max(similarities) if similarities else 0.0
+
     def search(
         self,
         *,
@@ -4135,35 +4324,195 @@ class MemoryResource(SyncAPIResource):
         logger = get_logger(__name__)
         
         ondevice_processing = os.environ.get("PAPR_ONDEVICE_PROCESSING", "false").lower() in ("true", "1", "yes", "on")
+        enable_parallel = os.environ.get("PAPR_ENABLE_PARALLEL_SEARCH", "true").lower() in ("true", "1", "yes", "on")
+        similarity_threshold = float(os.environ.get("PAPR_ONDEVICE_SIMILARITY_THRESHOLD", "0.80"))
+        
+        # Check if agentic graph is enabled
+        agentic_enabled = enable_agentic_graph if enable_agentic_graph is not omit else False
         
         # Check if ondevice processing was disabled due to CPU fallback
         if hasattr(self, "_ondevice_processing_disabled") and self._ondevice_processing_disabled:
             ondevice_processing = False
             logger.info("Ondevice processing disabled due to CPU fallback - using API processing")
         
-        # Search tier0 data locally for context enhancement if enabled
-        tier0_context: list[tuple[str, float]] = []
-        # Debug logging
-        logger.info(
-            f"DEBUG: ondevice_processing={ondevice_processing}, hasattr={hasattr(self, '_chroma_collection')}, collection_not_none={getattr(self, '_chroma_collection', None) is not None}"
-        )
+        # CASE 1: Agentic graph enabled → always use cloud only
+        if agentic_enabled:
+            logger.info("🌐 Agentic graph enabled - using cloud search only")
+            # Fall through to cloud API call at end of method
         
-        if ondevice_processing and hasattr(self, "_chroma_collection") and self._chroma_collection is not None:
+        # CASE 2: On-device enabled AND parallel search enabled → run both in parallel
+        elif ondevice_processing and enable_parallel and hasattr(self, "_chroma_collection") and self._chroma_collection is not None:
+            import time
+            import threading
+
+            # Check if model is loaded
+            global _model_loading_complete
+            if not _model_loading_complete:
+                logger.info("Model still loading in background, using server-side search for optimal UX")
+                # Fall through to cloud API call
+            else:
+                logger.info("⚡ Starting parallel search (on-device + cloud)")
+                
+                # Ensure max_memories is not NotGiven
+                n_results = max_memories if max_memories is not omit else 5
+                assert isinstance(n_results, int), "n_results must be an int"
+                
+                # Variables to store results from both threads
+                ondevice_result = None
+                cloud_result = None
+                ondevice_time = None
+                cloud_time = None
+                ondevice_error = None
+                cloud_error = None
+                
+                # Thread function for on-device search
+                def run_ondevice():
+                    nonlocal ondevice_result, ondevice_time, ondevice_error
+                    start = time.time()
+                    try:
+                        # Search both tier0 and tier1 collections in parallel
+                        combined_results = self._search_both_collections(
+                            query, 
+                            n_results=n_results,
+                            metadata=cast(Optional[MemoryMetadataParam] | NotGiven, metadata if metadata is not omit else not_given),
+                            user_id=cast(Optional[str] | NotGiven, user_id if user_id is not omit else not_given),
+                            external_user_id=cast(Optional[str] | NotGiven, external_user_id if external_user_id is not omit else not_given)
+                        ) or []
+                        
+                        # Convert to SearchResponse
+                        from papr_memory.types.search_response import Data, DataMemory
+                        
+                        memories = []
+                        for i, (content, distance, tier) in enumerate(combined_results):
+                            try:
+                                similarity_score = 1.0 - float(distance)
+                                memory_data: dict[str, any] = {  # type: ignore
+                                    "id": f"{tier}_{i}",
+                                    "acl": {},
+                                    "content": content,
+                                    "type": tier,
+                                    "user_id": "local",
+                                    "pydantic_extra__": {"similarity_score": similarity_score},
+                                }
+                                memories.append(DataMemory(**memory_data))  # type: ignore
+                            except Exception as e:
+                                logger.warning(f"Failed to create DataMemory: {e}")
+                                continue
+                        
+                        ondevice_result = SearchResponse(data=Data(memories=memories, nodes=[]), status="success")
+                        ondevice_time = (time.time() - start) * 1000
+                        logger.info(f"✅ On-device search completed in {ondevice_time:.1f}ms")
+                    except Exception as e:
+                        ondevice_error = e
+                        logger.warning(f"❌ On-device search failed: {e}")
+                
+                # Thread function for cloud search
+                def run_cloud():
+                    nonlocal cloud_result, cloud_time, cloud_error
+                    start = time.time()
+                    try:
+                        extra_headers_cloud = {**strip_not_given({"Accept-Encoding": accept_encoding}), **(extra_headers or {})}
+                        cloud_result = self._post(
+                            "/v1/memory/search",
+                            body=maybe_transform(
+                                {
+                                    "query": query,
+                                    "enable_agentic_graph": enable_agentic_graph,
+                                    "external_user_id": external_user_id,
+                                    "metadata": metadata,
+                                    "namespace_id": namespace_id,
+                                    "organization_id": organization_id,
+                                    "rank_results": rank_results,
+                                    "schema_id": schema_id,
+                                    "search_override": search_override,
+                                    "simple_schema_mode": simple_schema_mode,
+                                    "user_id": user_id,
+                                },
+                                memory_search_params.MemorySearchParams,
+                            ),
+                            options=make_request_options(
+                                extra_headers=extra_headers_cloud,
+                                extra_query=extra_query,
+                                extra_body=extra_body,
+                                timeout=timeout,
+                                query=maybe_transform(
+                                    {
+                                        "max_memories": max_memories,
+                                        "max_nodes": max_nodes,
+                                    },
+                                    memory_search_params.MemorySearchParams,
+                                ),
+                            ),
+                            cast_to=SearchResponse,
+                        )
+                        cloud_time = (time.time() - start) * 1000
+                        logger.info(f"✅ Cloud search completed in {cloud_time:.1f}ms")
+                    except Exception as e:
+                        cloud_error = e
+                        logger.warning(f"❌ Cloud search failed: {e}")
+                
+                # Launch both threads
+                ondevice_thread = threading.Thread(target=run_ondevice)
+                cloud_thread = threading.Thread(target=run_cloud)
+                
+                ondevice_thread.start()
+                cloud_thread.start()
+                
+                # Wait for both to complete
+                ondevice_thread.join()
+                cloud_thread.join()
+                
+                # Decision logic: Choose best results based on similarity threshold
+                if ondevice_result and not ondevice_error:
+                    # Extract combined_results from ondevice memories
+                    combined_results_for_check = [
+                        (mem.content, 1.0 - getattr(mem, 'pydantic_extra__', {}).get('similarity_score', 0.0), mem.type)
+                        for mem in ondevice_result.data.memories  # type: ignore
+                    ]
+                    max_similarity = self._get_max_similarity(combined_results_for_check)
+                    
+                    if max_similarity < similarity_threshold:
+                        logger.info(f"⚠️  On-device similarity too low ({max_similarity:.3f} < {similarity_threshold}) - using cloud results")
+                        if cloud_result and not cloud_error:
+                            logger.info(f"✅ Using cloud results (time={cloud_time:.1f}ms)")
+                            return cloud_result
+                        else:
+                            logger.warning("Cloud search also failed, returning low-quality on-device results")
+                            return ondevice_result
+                    else:
+                        logger.info(f"✅ Using on-device results (similarity={max_similarity:.3f}, time={ondevice_time:.1f}ms)")
+                        return ondevice_result
+                
+                # Fallback to cloud if on-device failed
+                if cloud_result and not cloud_error:
+                    logger.info(f"✅ Using cloud results (on-device failed, time={cloud_time:.1f}ms)")
+                    return cloud_result
+                
+                # Both failed - raise error
+                logger.error("❌ Both on-device and cloud search failed")
+                if cloud_error:
+                    raise cloud_error
+                if ondevice_error:
+                    raise ondevice_error
+        
+        # CASE 3: On-device enabled BUT parallel search disabled → on-device only (legacy behavior)
+        elif ondevice_processing and hasattr(self, "_chroma_collection") and self._chroma_collection is not None:
             import time
 
             start_time = time.time()
             # Ensure max_memories is not NotGiven
             n_results = max_memories if max_memories is not omit else 5
-            # Type assertion to help Pyright understand this is always an int
             assert isinstance(n_results, int), "n_results must be an int"
             
             # Check if model is loaded, fallback to server-side search if not
             global _model_loading_complete
             if not _model_loading_complete:
                 logger.info("Model still loading in background, using server-side search for optimal UX")
-                tier0_context = []
+                # Fall through to cloud API call
             else:
-                # 🚀 NEW: Search BOTH tier0 and tier1 collections in parallel
+                logger.info("🔍 On-device search only (parallel search disabled)")
+                
+                # Search both tier0 and tier1 collections in parallel
                 combined_results = self._search_both_collections(
                     query, 
                     n_results=n_results,
@@ -4172,72 +4521,48 @@ class MemoryResource(SyncAPIResource):
                     external_user_id=cast(Optional[str] | NotGiven, external_user_id if external_user_id is not omit else not_given)
                 ) or []
                 
-                # Extract documents from results (combined_results contains tuples: (doc, distance, tier))
+                # Extract documents from results
                 tier0_context = [(doc, dist) for doc, dist, _ in combined_results]
             
-            search_time = time.time() - start_time
-            logger.info(f"🔍 Local parallel search (tier0 + tier1) completed in {search_time:.2f}s")
-            if tier0_context:
-                logger.info(f"Using {len(tier0_context)} combined items for search context enhancement")
-                # Convert tier0_context (list of documents) to DataMemory objects
-                from papr_memory.types.search_response import Data, DataMemory
+                search_time = time.time() - start_time
+                logger.info(f"🔍 Local parallel search (tier0 + tier1) completed in {search_time:.2f}s")
+                if tier0_context:
+                    logger.info(f"Using {len(tier0_context)} combined items for search context enhancement")
+                    from papr_memory.types.search_response import Data, DataMemory
 
-                memories = []
-                for i, item in enumerate(tier0_context):
-                    try:
-                        # Unpack document and distance from tuple
-                        if isinstance(item, tuple):
-                            content, distance = item
-                            # Convert cosine distance to similarity score (1 - distance)
-                            similarity_score = 1.0 - float(distance)
-                        else:
-                            # Fallback for non-tuple items (shouldn't happen with our fix)
-                            content = item
-                            similarity_score = 0.0
-
-                        # Debug logging for content
-                        if i < 3:  # Log first 3 items
-                            content_preview = content[:100] if content else "None"
-                            logger.info(f"[DEBUG] Item {i}: content_type={type(content)}, content_preview='{content_preview}'")
-
-                        # Try creating DataMemory with explicit pydantic_extra__
-                        memory_data: dict[str, any] = {  # type: ignore
-                            "id": f"tier0_{i}",
-                            "acl": {},
-                            "content": content,
-                            "type": "tier0",
-                            "user_id": "local",
-                            "pydantic_extra__": {"similarity_score": similarity_score},
-                        }
-                        memories.append(DataMemory(**memory_data))  # type: ignore
-                    except Exception as e:
-                        logger.warning(f"Failed to create DataMemory for item {i}: {e}")
-                        # Fallback: create a minimal memory object
+                    memories = []
+                    for i, item in enumerate(tier0_context):
                         try:
-                            memories.append(
-                                DataMemory.model_validate(
-                                    {
+                            if isinstance(item, tuple):
+                                content, distance = item
+                                similarity_score = 1.0 - float(distance)
+                            else:
+                                content = item
+                                similarity_score = 0.0
+
+                            memory_data: dict[str, any] = {  # type: ignore
                                 "id": f"tier0_{i}",
                                 "acl": {},
                                 "content": content,
                                 "type": "tier0",
-                                        "user_id": "local",
-                                    }
-                                )
-                            )
-                        except Exception as e2:
-                            logger.error(f"Failed to create DataMemory with model_validate: {e2}")
-                            # Skip this item
+                                "user_id": "local",
+                                "pydantic_extra__": {"similarity_score": similarity_score},
+                            }
+                            memories.append(DataMemory(**memory_data))  # type: ignore
+                        except Exception as e:
+                            logger.warning(f"Failed to create DataMemory for item {i}: {e}")
                             continue
                 
                 # Return search results with proper SearchResponse structure
                 return SearchResponse(data=Data(memories=memories, nodes=[]), status="success")
+        
+        # CASE 4: On-device disabled → cloud only
         elif not ondevice_processing:
             logger.info("On-device processing disabled - using API-only search")
         else:
             logger.info("No ChromaDB collection available for local search")
         
-        # Perform the main search
+        # Perform the main cloud search (for cases that fall through)
         extra_headers = {**strip_not_given({"Accept-Encoding": accept_encoding}), **(extra_headers or {})}
         return self._post(
             "/v1/memory/search",

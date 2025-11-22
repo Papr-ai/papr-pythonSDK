@@ -48,6 +48,7 @@ TOKENIZERS_PARALLELISM=false
 | `PAPR_MAX_TIER1` | No | `1000` | Max tier1 memories to sync and store locally |
 | `PAPR_SYNC_INTERVAL` | No | `3600` | Background sync interval in seconds |
 | `PAPR_INCLUDE_SERVER_EMBEDDINGS` | No | `true` | Request pre-computed embeddings from server |
+| `PAPR_EMBEDDING_FORMAT` | No | `float32` (if CoreML), `int8` (otherwise) | Embedding format for tier1: `float32` (recommended for CoreML/ANE fp16), `int8` (4x smaller, default). Tier0 always uses float32. |
 | `PAPR_EMBED_LIMIT` | No | `200` | Max items to embed on server per tier (controls server latency) |
 | `PAPR_EMBED_MODEL` | No | `Qwen4B` | Embedding model hint for server: `sbert`, `bigbird`, `Qwen4B` |
 | `PAPR_ONDEVICE_SIMILARITY_THRESHOLD` | No | `0.80` | Min similarity score for on-device results (0.0-1.0) |

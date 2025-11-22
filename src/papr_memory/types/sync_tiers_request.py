@@ -1,12 +1,19 @@
 # File generated from our OpenAPI spec by Stainless. See CONTRIBUTING.md for details.
 
 from typing import Optional
+from enum import Enum
 
 from pydantic import Field
 
 from .._models import BaseModel
 
-__all__ = ["SyncTiersRequest"]
+__all__ = ["SyncTiersRequest", "EmbeddingFormat"]
+
+
+class EmbeddingFormat(str, Enum):
+    """Embedding format for sync_tiers response"""
+    INT8 = "int8"
+    FLOAT32 = "float32"
 
 
 class SyncTiersRequest(BaseModel):
@@ -53,7 +60,12 @@ class SyncTiersRequest(BaseModel):
 
     include_embeddings: bool = Field(
         default=False,
-        description="Include float32 embeddings for Tier 0 and INT8 for Tier 1",
+        description="Include embeddings in the response. Format controlled by embedding_format parameter.",
+    )
+
+    embedding_format: EmbeddingFormat = Field(
+        default=EmbeddingFormat.INT8,
+        description="Embedding format: 'int8' (quantized, 4x smaller, default for efficiency), 'float32' (full precision, recommended for CoreML/ANE fp16 models). Only applies to Tier1; Tier0 always uses float32 when embeddings are included.",
     )
 
     embed_model: str = Field(
