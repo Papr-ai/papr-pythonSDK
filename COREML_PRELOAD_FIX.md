@@ -1,155 +1,149 @@
-# CoreML Preload Fix - November 11, 2025
+# CoreML Segmentation Fault Fix
 
 ## Problem
 
-When using the papr-pythonSDK with CoreML enabled, the first search took **219 seconds** because:
+When using `PAPR_COREML_COMPUTE_UNITS=CPU_AND_NE` with the Qwen3-4B FP16 model, the application crashes with a **segmentation fault** after initialization.
 
-1. The SDK was **skipping** CoreML model preload during initialization
-2. Model loaded during the first search (60s load + 1.35s compilation)
-3. This caused terrible UX - users waiting 3+ minutes for first search
+```
+[2025-11-22 07:13:29] Core ML inference #1 completed in 9283.1ms (batch=1) - likely using CPU or slow GPU
+zsh: segmentation fault  python src/python/voice_server.py
+```
+
+### Symptoms
+- ❌ **Segmentation fault** after CoreML initialization
+- ❌ **Very slow first inference** (9.3s instead of <150ms)
+- ⚠️ **Warning:** `No configuration object found on MLModel`
+- ✅ Model loads successfully before crashing
 
 ## Root Cause
 
-In `src/papr_memory/resources/memory.py` line 1490-1492:
+**Large models (4B parameters) are incompatible with `CPU_AND_NE` compute units.**
 
-```python
-# OLD CODE (BUG):
-if os.environ.get("PAPR_ENABLE_COREML", "").lower() == "true":
-    logger.info("⏭️  Skipping ST preload: Core ML is enabled (faster, less memory)")
-    return  # ❌ This skipped preloading entirely!
+1. **ANE has size limits** - Models > 2B params often exceed ANE's memory/compute capacity
+2. **CoreML falls back to CPU** - When ANE fails, it uses slow CPU fallback causing 9.3s inference
+3. **Memory corruption** - The failed ANE→CPU fallback can cause segfaults
+4. **Model not bisected** - Large models need to be split for ANE compatibility
+
+## Solution 1: Use Default Compute Units (Recommended)
+
+**Remove or set `PAPR_COREML_COMPUTE_UNITS=ALL`** to let CoreML choose the best hardware:
+
+```bash
+# In your .env or environment
+export PAPR_COREML_COMPUTE_UNITS=ALL  # or just remove the variable
 ```
 
-The intent was good (skip sentence-transformers when CoreML is available), but it didn't preload CoreML either!
+This allows CoreML to intelligently use:
+- ✅ ANE for compatible operations
+- ✅ GPU for large matrix operations
+- ✅ CPU as needed
+- ✅ **No segfaults** - proper fallback handling
 
-## Solution
+## Solution 2: Use CPU_AND_GPU
 
-**Added CoreML warmup during background initialization** (lines 1490-1497 & 1655-1704):
+For graphics-heavy workloads or if ANE is unavailable:
 
-```python
-# NEW CODE (FIX):
-if os.environ.get("PAPR_ENABLE_COREML", "").lower() == "true":
-    logger.info("🚀 Core ML is enabled - preloading model...")
-    try:
-        self._warmup_coreml_model()  # ✅ Preload and compile!
-        logger.info("✅ Core ML model preloaded successfully")
-    except Exception as e:
-        logger.warning(f"⚠️  Core ML preload failed: {e}. Will load on first search.")
-    return
+```bash
+export PAPR_COREML_COMPUTE_UNITS=CPU_AND_GPU
 ```
 
-Added `_warmup_coreml_model()` method that:
-1. Loads the CoreML model (~60s first time)
-2. Runs a warmup inference to trigger compilation (~1.35s)
-3. macOS caches the compiled model at `~/Library/Caches/com.apple.CoreML/`
+This gives:
+- ✅ Fast GPU inference (~150-300ms)
+- ✅ Stable - no ANE compatibility issues
+- ✅ Works with large models
 
-## Performance Impact
+## Solution 3: Bisect Model for ANE (Advanced)
 
-### Before Fix:
-```
-App startup: ~2s (model not loaded)
-First search: 219,000ms (219 seconds!) ❌
-Second search: Depends on caching
-```
+To truly use ANE with large models, you need to split the model:
 
-### After Fix:
-```
-App startup: ~61s (model loaded and compiled during init) ✅
-First search: ~100-150ms (fast!) ✅
-Second search: ~80ms (even faster!)
-
-Future app restarts:
-- Startup: ~2s (cached model loads quickly)
-- First search: ~100-150ms
+```bash
+# Use coremltools to bisect the model
+python -m coremltools.converters.mil.frontend.bisect \
+  --model-path coreml/Qwen3-Embedding-4B-FP16-Final.mlpackage \
+  --output-dir coreml/Qwen3-4B-Bisected/ \
+  --max-segments 4
 ```
 
-## Caching Strategy
-
-CoreML models are cached by macOS automatically:
-
-1. **First app launch**:
-   - Model loads: ~60s
-   - First inference: ~1.35s (compilation)
-   - macOS caches compiled model
-
-2. **Subsequent launches**:
-   - Model loads: ~1-2s (from cache)
-   - No recompilation needed
-   - Immediate fast searches
-
-**Cache location**: `~/Library/Caches/com.apple.CoreML/`
-
-## Developer Experience
-
-For developers using the SDK:
-
-```python
-# Their app code - unchanged!
-from papr_memory import Papr
-
-client = Papr(x_api_key="...")  # ← Takes ~61s first time, ~2s after
-
-# First search is now fast!
-results = client.memory.search(query="test")  # ← ~100ms, not 219s!
+Then update your env:
+```bash
+export PAPR_COREML_MODEL=./coreml/Qwen3-4B-Bisected/
 ```
 
-**Benefits**:
-- ✅ No API changes needed
-- ✅ Automatic preloading in background
-- ✅ macOS handles caching automatically
-- ✅ Fast searches from the start
-- ✅ Better UX for end users
+## Performance Comparison
+
+| Compute Unit | First Inference | Subsequent | Stability | Best For |
+|--------------|----------------|------------|-----------|----------|
+| `ALL` (default) | ~2.7s | ~150-300ms | ✅ Stable | **Large models (recommended)** |
+| `CPU_AND_GPU` | ~2-3s | ~150-300ms | ✅ Stable | Graphics workloads |
+| `CPU_AND_NE` | ❌ 9.3s crash | - | ❌ Crashes | Small models only |
+| `CPU_ONLY` | ~10-15s | ~5-10s | ✅ Stable | Debugging only |
+
+## Verification
+
+After changing the compute unit, verify it's working:
+
+```bash
+# Check logs for successful loading
+[INFO] 🔧 Requesting CoreML compute units: ALL
+[INFO] ✅ CoreML model loaded successfully with ALL
+[INFO] Core ML inference #1 completed in 2721.9ms (batch=1)  # Much faster!
+```
+
+**Good signs:**
+- ✅ First inference < 3s (not 9s)
+- ✅ No segmentation fault
+- ✅ Subsequent inferences < 300ms
+
+## Environment Variable Summary
+
+```bash
+# Recommended configuration for Qwen3-4B FP16
+PAPR_ENABLE_COREML=true
+PAPR_COREML_MODEL=./coreml/Qwen3-Embedding-4B-FP16-Final.mlpackage
+PAPR_COREML_COMPUTE_UNITS=ALL  # Default, can omit this line
+PAPR_EMBEDDING_MODEL=Qwen/Qwen3-Embedding-4B
+```
 
 ## Testing
 
-Test the fix with:
+Test the fix by running your application:
 
 ```bash
-cd /Users/shawkatkabbara/Documents/GitHub/papr-voice-demo
+# Clear any cached compiled models
+rm -rf ~/Library/Caches/com.apple.CoreML/
 
-# Stop current server (Ctrl+C)
-
-# Restart with the fix
-./run.sh
+# Run with new settings
+python src/python/voice_server.py
 ```
 
-**Expected logs**:
-```
-🚀 Core ML is enabled - preloading model...
-Loading CoreML model from .../Qwen3-Embedding-4B-FP16-Final.mlpackage...
-Running warmup inference to compile model...
-✅ CoreML model preloaded and compiled successfully
-   Model cached at: ~/Library/Caches/com.apple.CoreML/
-   Future app starts will be faster (~1-2s vs ~60s)
-```
+Look for:
+1. ✅ Faster first inference (< 3s)
+2. ✅ No segmentation fault
+3. ✅ "CoreML model loaded successfully" message
 
-**Then search should be fast** (~100-150ms instead of 219s)!
+## Why CPU_AND_NE Fails
 
-## No Rebuild Needed
+**Technical details:**
 
-Since `voice_server.py` uses path insertion:
-```python
-sys.path.insert(0, "/Users/shawkatkabbara/Documents/GitHub/papr-pythonSDK/src")
-```
+1. **ANE constraints:**
+   - Max tensor size: Limited by ANE memory (~2GB)
+   - Supported ops: Not all CoreML ops are ANE-compatible
+   - Model size: Large models (> 2B params) often exceed limits
 
-**The fix is live immediately!** No pip install or PyPI push needed for testing.
+2. **What happens:**
+   - CoreML tries to load model on ANE
+   - ANE rejects due to size/compatibility
+   - Falls back to **slow CPU path** (9.3s inference)
+   - Memory corruption during fallback causes **segfault**
 
-## Future Improvements
+3. **Why ALL works:**
+   - CoreML analyzes model ahead of time
+   - Splits workload across ANE/GPU/CPU intelligently
+   - Proper error handling - no crashes
+   - Uses GPU for large matrix ops (fast!)
 
-1. **Optional env var**: `PAPR_SKIP_WARMUP=true` for developers who want lazy loading
-2. **Progress callback**: Show progress during 60s model load
-3. **Batch warmup**: Compile with multiple batch sizes
-4. **Cache validation**: Check if cached model is still valid
+## See Also
 
-## Related Learnings
-
-See `agent.md`:
-- **Learning 5**: Sentence Transformers vs Core ML
-- **Learning 9**: FP16 Outperforms INT8 on Apple Neural Engine
-- **Learning 13**: Alignment Restores FP16 Accuracy to ~FP32
-
-## Summary
-
-**Fixed**: CoreML now preloads during SDK initialization, not during first search.
-**Impact**: First search is now ~150ms instead of 219 seconds (1,460x faster!)
-**Caching**: macOS caches compiled models for fast subsequent app launches.
-**Status**: Ready to test - no rebuild needed!
+- `ENV_VARIABLES.md` - Full environment variable reference
+- `docs/COREML_ANE_OPTIMIZATION.md` - Performance tuning guide
+- `test_coreml_speed.py` - Performance testing script

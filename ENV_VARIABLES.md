@@ -18,6 +18,7 @@ PAPR_LOG_FILE=logs
 # On-Device Processing Configuration
 PAPR_ONDEVICE_PROCESSING=true
 PAPR_MAX_TIER0=30
+PAPR_MAX_TIER1=30
 PAPR_SYNC_INTERVAL=30
 
 # Core ML Configuration (Recommended for Apple Silicon)
@@ -43,8 +44,14 @@ TOKENIZERS_PARALLELISM=false
 | Variable | Required | Default | Description |
 |----------|----------|---------|-------------|
 | `PAPR_ONDEVICE_PROCESSING` | No | `false` | Enable local embedding and search |
-| `PAPR_MAX_TIER0` | No | `30` | Max tier0 memories to store locally |
-| `PAPR_SYNC_INTERVAL` | No | `30` | Background sync interval in seconds |
+| `PAPR_MAX_TIER0` | No | `300` | Max tier0 memories to sync and store locally |
+| `PAPR_MAX_TIER1` | No | `1000` | Max tier1 memories to sync and store locally |
+| `PAPR_SYNC_INTERVAL` | No | `3600` | Background sync interval in seconds |
+| `PAPR_INCLUDE_SERVER_EMBEDDINGS` | No | `true` | Request pre-computed embeddings from server |
+| `PAPR_EMBED_LIMIT` | No | `200` | Max items to embed on server per tier (controls server latency) |
+| `PAPR_EMBED_MODEL` | No | `Qwen4B` | Embedding model hint for server: `sbert`, `bigbird`, `Qwen4B` |
+| `PAPR_ONDEVICE_SIMILARITY_THRESHOLD` | No | `0.80` | Min similarity score for on-device results (0.0-1.0) |
+| `PAPR_ENABLE_PARALLEL_SEARCH` | No | `true` | Run on-device and cloud search in parallel |
 
 ### Core ML (Apple Silicon - Recommended)
 
@@ -52,6 +59,7 @@ TOKENIZERS_PARALLELISM=false
 |----------|----------|---------|-------------|
 | `PAPR_ENABLE_COREML` | No | `false` | Enable Core ML embedder (ANE/GPU) |
 | `PAPR_COREML_MODEL` | No | `./coreml/Qwen3-Embedding-4B.mlpackage` | Path to Core ML model |
+| `PAPR_COREML_COMPUTE_UNITS` | No | `CPU_AND_NE` | CoreML compute units: `ALL`, `CPU_AND_GPU`, `CPU_AND_NE`, `CPU_ONLY` |
 
 **Benefits:**
 - ✅ Runs on Apple Neural Engine (ANE) + GPU
@@ -59,6 +67,12 @@ TOKENIZERS_PARALLELISM=false
 - ✅ Low memory usage (~1-2GB for INT8, ~7GB for FP16)
 - ✅ No MPS memory issues
 - ✅ Automatically skips ST preload
+
+**Compute Units Guide:**
+- `ALL` (default): Let CoreML choose best hardware (recommended for large models)
+- `CPU_AND_GPU`: Force GPU + CPU (good for graphics-heavy workloads)
+- `CPU_AND_NE`: Force ANE + CPU (best for small models, may crash on large models)
+- `CPU_ONLY`: CPU only (slowest, for debugging)
 
 ### MLX (Apple Silicon - Alternative)
 

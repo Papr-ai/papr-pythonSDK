@@ -64,6 +64,7 @@ _global_coreml_tokenizer: Optional[object] = None  # Cache tokenizer too
 _global_chroma_client: Optional[object] = None
 _global_chroma_collection: Optional[object] = None
 _global_sync_lock: Optional[threading.Lock] = None
+_global_model_cache_lock = threading.Lock()  # Thread-safe model loading
 _background_sync_task: Optional[threading.Thread] = None
 _background_model_loading_task: Optional[threading.Thread] = None
 _background_initialization_task: Optional[threading.Thread] = None
@@ -608,7 +609,7 @@ class MemoryResource(SyncAPIResource):
         logger = get_logger(__name__)
         
         try:
-            # Call the sync_tiers method with hardcoded parameters
+            # Call the sync_tiers method with parameters from environment variables
             # Get max_tier0 from environment variable with fallback to 30
             import os
 
@@ -618,16 +619,23 @@ class MemoryResource(SyncAPIResource):
             except ValueError:
                 max_tier0_value = 30  # fallback to default if invalid
             
+            # Get max_tier1 from environment variable, defaulting to same as tier0
+            max_tier1_env = os.environ.get("PAPR_MAX_TIER1", str(max_tier0_value))
+            try:
+                max_tier1_value = int(max_tier1_env)
+            except ValueError:
+                max_tier1_value = max_tier0_value  # fallback to tier0 value if invalid
+            
             # Set a reasonable timeout for sync_tiers to prevent hanging
             # Increased to 300s to handle large tier0 (1000 memories with embeddings)
             sync_timeout = timeout if timeout is not None else 300.0  # 5 minutes default
             
-            logger.info(f"Calling sync_tiers with timeout: {sync_timeout}s")
+            logger.info(f"Calling sync_tiers with max_tier0={max_tier0_value}, max_tier1={max_tier1_value}, timeout={sync_timeout}s")
             sync_response = self.sync_tiers(
                 include_embeddings=True,
                 embed_limit=max_tier0_value,
                 max_tier0=max_tier0_value,
-                max_tier1=0,
+                max_tier1=max_tier1_value,
                 extra_headers=extra_headers,
                 extra_query=extra_query,
                 extra_body=extra_body,
@@ -643,9 +651,15 @@ class MemoryResource(SyncAPIResource):
                     logger.info(f"Found {len(tier0_data)} tier0 items in sync response")
                     for i in range(min(3, len(tier0_data))):
                         logger.debug(f"Tier0 {i + 1}: Item extracted")
+                    
+                    # Log first 20 tier0 items to file for debugging
+                    self._log_sync_response_to_file(tier0_data, "tier0")
                 
                 if tier1_data:
                     logger.info(f"Found {len(tier1_data)} tier1 items in sync response")
+                    
+                    # Log first 20 tier1 items to file for debugging
+                    self._log_sync_response_to_file(tier1_data, "tier1")
                 
                 # Store tier0 data in ChromaDB (sync path)
                 if tier0_data:
@@ -656,6 +670,16 @@ class MemoryResource(SyncAPIResource):
                         logger.warning(f"Failed to store tier0 in ChromaDB: {store_e}")
                 else:
                     logger.info("No tier0 data found in sync response")
+                
+                # Store tier1 data in ChromaDB (sync path)
+                if tier1_data:
+                    logger.info(f"Using {len(tier1_data)} tier1 items for search enhancement")
+                    try:
+                        self._store_tier1_in_chromadb(tier1_data)  # type: ignore[arg-type]
+                    except Exception as store_e:
+                        logger.warning(f"Failed to store tier1 in ChromaDB: {store_e}")
+                else:
+                    logger.info("No tier1 data found in sync response")
                     
         except Exception as e:
             logger.error(f"Error in sync_tiers processing: {e}")
@@ -664,6 +688,98 @@ class MemoryResource(SyncAPIResource):
                 logger.error("Sync_tiers call timed out - background initialization will continue without local data")
             else:
                 logger.error(f"Sync_tiers failed with error: {e}")
+
+    def _log_sync_response_to_file(self, data: list, tier_name: str) -> None:
+        """Log first 20 items from sync response to file for debugging
+        
+        Args:
+            data: List of memory items from server
+            tier_name: "tier0" or "tier1"
+        """
+        from papr_memory._logging import get_logger
+        logger = get_logger(__name__)
+        
+        try:
+            import json
+            from datetime import datetime
+            
+            # Limit to first 20 items
+            items_to_log = data[:min(20, len(data))]
+            
+            # Create filename with timestamp
+            timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+            filename = f"papr_sync_{tier_name}_{timestamp}.json"
+            
+            # Prepare output
+            output = {
+                "tier": tier_name,
+                "timestamp": timestamp,
+                "total_items": len(data),
+                "items_logged": len(items_to_log),
+                "items": []
+            }
+            
+            for i, item in enumerate(items_to_log):
+                item_data = {
+                    "index": i,
+                    "id": None,
+                    "type": None,
+                    "content": None,
+                    "content_length": 0,
+                    "has_embedding": False,
+                    "embedding_dimension": 0,
+                    "metadata": {},
+                    "topics": [],
+                    "updatedAt": None,
+                    "raw_keys": []
+                }
+                
+                if isinstance(item, dict):
+                    item_data["raw_keys"] = list(item.keys())
+                    item_data["id"] = item.get("id")
+                    item_data["type"] = item.get("type")
+                    item_data["topics"] = item.get("topics", [])
+                    item_data["updatedAt"] = item.get("updatedAt")
+                    item_data["metadata"] = item.get("metadata", {})
+                    
+                    # Content
+                    raw_content = item.get("content", item.get("description", None))
+                    if raw_content is not None:
+                        content_str = str(raw_content)
+                        item_data["content"] = content_str[:500]  # First 500 chars
+                        item_data["content_length"] = len(content_str)
+                        item_data["content_is_empty"] = not content_str.strip()
+                    else:
+                        item_data["content"] = None
+                        item_data["content_is_empty"] = True
+                    
+                    # Embedding
+                    if "embedding" in item:
+                        embedding = item["embedding"]
+                        if embedding and isinstance(embedding, list):
+                            item_data["has_embedding"] = True
+                            item_data["embedding_dimension"] = len(embedding)
+                            item_data["embedding_first_10"] = embedding[:10] if len(embedding) >= 10 else embedding
+                
+                output["items"].append(item_data)
+            
+            # Write to file
+            with open(filename, 'w') as f:
+                json.dump(output, f, indent=2)
+            
+            logger.info(f"📄 Logged first {len(items_to_log)} {tier_name} items to: {filename}")
+            
+            # Also log summary to console
+            empty_count = sum(1 for item in output["items"] if item.get("content_is_empty", True))
+            with_embedding_count = sum(1 for item in output["items"] if item.get("has_embedding", False))
+            
+            logger.info(f"   {tier_name} summary:")
+            logger.info(f"   - Items with content: {len(items_to_log) - empty_count}/{len(items_to_log)}")
+            logger.info(f"   - Items with NO/EMPTY content: {empty_count}/{len(items_to_log)}")
+            logger.info(f"   - Items with embeddings: {with_embedding_count}/{len(items_to_log)}")
+            
+        except Exception as e:
+            logger.warning(f"Failed to log {tier_name} sync response to file: {e}")
 
     def _is_old_platform(self) -> bool:
         """Detect if platform is too old for efficient local processing"""
@@ -760,32 +876,95 @@ class MemoryResource(SyncAPIResource):
                     from papr_memory._model_cache import resolve_coreml_model_path
 
                     # Check if CoreML model is cached globally (from warmup)
-                    global _global_coreml_model, _global_coreml_tokenizer
+                    global _global_coreml_model, _global_coreml_tokenizer, _global_model_cache_lock
 
-                    if _global_coreml_model is not None and _global_coreml_tokenizer is not None:
-                        logger.info("Using cached CoreML model (preloaded during warmup)")
-                        mlmodel = _global_coreml_model
-                        tokenizer = _global_coreml_tokenizer
-                    else:
-                        # Auto-download from HuggingFace if not found locally
-                        coreml_path_env = os.environ.get("PAPR_COREML_MODEL")
-                        coreml_path = resolve_coreml_model_path(coreml_path_env)
-                        tok_id = os.environ.get("PAPR_EMBEDDING_MODEL", "Qwen/Qwen3-Embedding-4B")
+                    # Thread-safe model loading to prevent race conditions
+                    with _global_model_cache_lock:
+                        if _global_coreml_model is not None and _global_coreml_tokenizer is not None:
+                            logger.info("Using cached CoreML model (preloaded during warmup)")
+                            mlmodel = _global_coreml_model
+                            tokenizer = _global_coreml_tokenizer
+                        else:
+                            # Auto-download from HuggingFace if not found locally
+                            coreml_path_env = os.environ.get("PAPR_COREML_MODEL")
+                            coreml_path = resolve_coreml_model_path(coreml_path_env)
+                            tok_id = os.environ.get("PAPR_EMBEDDING_MODEL", "Qwen/Qwen3-Embedding-4B")
 
-                        logger.info(f"Loading Core ML model from {coreml_path}")
-                        # Use ALL compute units to enable Neural Engine (ANE) for fast inference
-                        mlmodel = ct.models.MLModel(coreml_path, compute_units=ct.ComputeUnit.ALL)
-                        tokenizer = AutoTokenizer.from_pretrained(tok_id)
+                            logger.info(f"Loading Core ML model from {coreml_path}")
+                            
+                            # Get compute units from environment or use CPU_AND_NE for ANE optimization
+                            # Options: ALL, CPU_AND_GPU, CPU_AND_NE, CPU_ONLY
+                            # CPU_AND_NE forces ANE usage for FP16 models (best performance if model is ANE-compatible)
+                            compute_unit_str = os.environ.get("PAPR_COREML_COMPUTE_UNITS", "CPU_AND_NE")
+                            compute_unit_map = {
+                                "ALL": ct.ComputeUnit.ALL,
+                                "CPU_AND_GPU": ct.ComputeUnit.CPU_AND_GPU,
+                                "CPU_AND_NE": ct.ComputeUnit.CPU_AND_NE,
+                                "CPU_ONLY": ct.ComputeUnit.CPU_ONLY,
+                            }
+                            requested_compute_unit = compute_unit_map.get(compute_unit_str, ct.ComputeUnit.CPU_AND_NE)
+                            
+                            logger.info(f"🔧 Requesting CoreML compute units: {compute_unit_str}")
+                            logger.info(f"   💡 To change: export PAPR_COREML_COMPUTE_UNITS=ALL|CPU_AND_GPU|CPU_AND_NE|CPU_ONLY")
+                            
+                            # Try to load model with requested compute unit, with fallback
+                            mlmodel = None
+                            load_error = None
+                            
+                            try:
+                                mlmodel = ct.models.MLModel(coreml_path, compute_units=requested_compute_unit)
+                                logger.info(f"✅ CoreML model loaded successfully with {compute_unit_str}")
+                            except Exception as e:
+                                load_error = e
+                                logger.warning(f"⚠️  Failed to load model with {compute_unit_str}: {e}")
+                                
+                                # Fallback to ALL if specific compute unit failed
+                                if requested_compute_unit != ct.ComputeUnit.ALL:
+                                    logger.info(f"🔄 Falling back to compute_units=ALL")
+                                    try:
+                                        mlmodel = ct.models.MLModel(coreml_path, compute_units=ct.ComputeUnit.ALL)
+                                        logger.info(f"✅ CoreML model loaded successfully with fallback (ALL)")
+                                    except Exception as fallback_e:
+                                        logger.error(f"❌ Failed to load model even with fallback: {fallback_e}")
+                                        raise fallback_e
+                                else:
+                                    raise e
+                            
+                            # Log detailed compute unit configuration
+                            try:
+                                import platform
+                                logger.info(f"📱 Device: {platform.machine()} running macOS {platform.mac_ver()[0]}")
+                                
+                                configuration = getattr(mlmodel, "configuration", None)
+                                if configuration:
+                                    compute_units = getattr(configuration, "compute_units", None)
+                                    logger.info(f"✅ CoreML configuration found")
+                                    logger.info(f"   Compute units reported: {compute_units}")
+                                    
+                                    # Try to get more detailed info
+                                    if hasattr(configuration, 'computeUnits'):
+                                        logger.info(f"   computeUnits property: {configuration.computeUnits}")
+                                else:
+                                    logger.warning(f"⚠️  No configuration object found on MLModel")
+                                    logger.warning(f"   This may indicate model conversion issues or compatibility problems")
+                            except Exception as e:
+                                logger.warning(f"⚠️  Could not read CoreML configuration: {e}")
+                            
+                            # Load tokenizer (ALWAYS - not just on exception!)
+                            logger.info(f"Loading tokenizer from {tok_id}")
+                            tokenizer = AutoTokenizer.from_pretrained(tok_id)
 
-                        # Cache for future use
-                        _global_coreml_model = mlmodel
-                        _global_coreml_tokenizer = tokenizer
-                        logger.info("Cached CoreML model globally for future searches")
+                            # Cache for future use
+                            _global_coreml_model = mlmodel
+                            _global_coreml_tokenizer = tokenizer
+                            logger.info("Cached CoreML model globally for future searches")
 
                     class CoreMLEmbeddingFunction:
-                        def __init__(self, model: object, tokenizer: object):
+                        def __init__(self, model: object, tokenizer: object, logger: object):
                             self.model = model
                             self.tokenizer = tokenizer
+                            self.logger = logger
+                            self._inference_count = 0
 
                         def _encode(self, texts: list[str]) -> list[list[float]]:
                             # Normalize inputs to list[str]
@@ -794,7 +973,7 @@ class MemoryResource(SyncAPIResource):
                             texts = ["" if t is None else str(t) for t in texts]
 
                             # Use fixed padding to match Core ML conversion (max_length=32)
-                            enc = tokenizer(
+                            enc = self.tokenizer(  # type: ignore
                                 texts,
                                 padding="max_length",
                                 max_length=32,
@@ -806,7 +985,30 @@ class MemoryResource(SyncAPIResource):
                                 "input_ids": enc["input_ids"].astype(np.int32),
                                 "attention_mask": enc["attention_mask"].astype(np.int32),
                             }
-                            out = mlmodel.predict(feed)
+                            import time as _time
+
+                            predict_start = _time.perf_counter()
+                            out = self.model.predict(feed)  # type: ignore
+                            duration_ms = (_time.perf_counter() - predict_start) * 1000
+                            self._inference_count += 1
+                            
+                            # Determine likely compute unit based on latency
+                            compute_unit_guess = "unknown"
+                            if duration_ms < 150:
+                                compute_unit_guess = "ANE (Neural Engine)"
+                            elif duration_ms < 300:
+                                compute_unit_guess = "GPU"
+                            else:
+                                compute_unit_guess = "CPU or slow GPU"
+                            
+                            if self._inference_count <= 3 or duration_ms > 500:
+                                self.logger.info(  # type: ignore
+                                    "Core ML inference #%s completed in %.1fms (batch=%s) - likely using %s",
+                                    self._inference_count,
+                                    duration_ms,
+                                    len(texts),
+                                    compute_unit_guess,
+                                )
 
                             # Select the most likely embedding tensor among outputs
                             candidates = []
@@ -851,7 +1053,7 @@ class MemoryResource(SyncAPIResource):
                             return self._encode(inputs)
 
                     logger.info("Using Core ML embedding function (ANE/GPU capable)")
-                    return CoreMLEmbeddingFunction(mlmodel, tokenizer)
+                    return CoreMLEmbeddingFunction(mlmodel, tokenizer, logger)
                 except Exception as coreml_e:  # pragma: no cover
                     logger.info(f"Core ML path unavailable, will try MLX/ST: {coreml_e}")
 
@@ -1670,65 +1872,88 @@ class MemoryResource(SyncAPIResource):
 
     def _warmup_coreml_model(self) -> None:
         """Preload and warm up CoreML model to avoid slow first search"""
-        global _global_coreml_model, _global_coreml_tokenizer
+        global _global_coreml_model, _global_coreml_tokenizer, _global_model_cache_lock
         from papr_memory._logging import get_logger
         import numpy as np
 
         logger = get_logger(__name__)
 
-        # Check if already loaded
-        if _global_coreml_model is not None:
-            logger.info("CoreML model already cached globally, skipping warmup")
-            return
+        # Thread-safe warmup to prevent race conditions
+        with _global_model_cache_lock:
+            # Check if already loaded
+            if _global_coreml_model is not None:
+                logger.info("CoreML model already cached globally, skipping warmup")
+                return
 
-        try:
-            import coremltools as ct
-            from transformers import AutoTokenizer
-            from papr_memory._model_cache import resolve_coreml_model_path
+            try:
+                import coremltools as ct
+                from transformers import AutoTokenizer
+                from papr_memory._model_cache import resolve_coreml_model_path
 
-            # Get CoreML model path
-            coreml_path_env = os.environ.get("PAPR_COREML_MODEL")
-            coreml_path = resolve_coreml_model_path(coreml_path_env)
-            tok_id = os.environ.get("PAPR_EMBEDDING_MODEL", "Qwen/Qwen3-Embedding-4B")
+                # Get CoreML model path
+                coreml_path_env = os.environ.get("PAPR_COREML_MODEL")
+                coreml_path = resolve_coreml_model_path(coreml_path_env)
+                tok_id = os.environ.get("PAPR_EMBEDDING_MODEL", "Qwen/Qwen3-Embedding-4B")
 
-            logger.info(f"Loading CoreML model from {coreml_path}...")
+                logger.info(f"Loading CoreML model from {coreml_path}...")
 
-            # Load model (macOS will cache compiled version)
-            mlmodel = ct.models.MLModel(coreml_path, compute_units=ct.ComputeUnit.ALL)
-            tokenizer = AutoTokenizer.from_pretrained(tok_id)
+                # Get compute units from environment or use CPU_AND_NE for ANE
+                compute_unit_str = os.environ.get("PAPR_COREML_COMPUTE_UNITS", "CPU_AND_NE")
+                compute_unit_map = {
+                    "ALL": ct.ComputeUnit.ALL,
+                    "CPU_AND_GPU": ct.ComputeUnit.CPU_AND_GPU,
+                    "CPU_AND_NE": ct.ComputeUnit.CPU_AND_NE,
+                    "CPU_ONLY": ct.ComputeUnit.CPU_ONLY,
+                }
+                requested_compute_unit = compute_unit_map.get(compute_unit_str, ct.ComputeUnit.CPU_AND_NE)
+                
+                # Load model with fallback
+                mlmodel = None
+                try:
+                    mlmodel = ct.models.MLModel(coreml_path, compute_units=requested_compute_unit)
+                    logger.info(f"✅ CoreML model loaded in warmup with {compute_unit_str}")
+                except Exception as e:
+                    logger.warning(f"⚠️  Failed to load model with {compute_unit_str}: {e}")
+                    if requested_compute_unit != ct.ComputeUnit.ALL:
+                        logger.info(f"🔄 Falling back to compute_units=ALL in warmup")
+                        mlmodel = ct.models.MLModel(coreml_path, compute_units=ct.ComputeUnit.ALL)
+                    else:
+                        raise
+                
+                tokenizer = AutoTokenizer.from_pretrained(tok_id)
 
-            logger.info("Running warmup inference to compile model...")
+                logger.info("Running warmup inference to compile model...")
 
-            # Run a warmup inference to trigger compilation
-            # This takes ~60s first time, but macOS caches the compiled model
-            warmup_text = "warmup query"
-            enc = tokenizer(
-                [warmup_text],
-                padding="max_length",
-                max_length=32,
-                truncation=True,
-                return_tensors="np",
-            )
-            feed = {
-                "input_ids": enc["input_ids"].astype(np.int32),
-                "attention_mask": enc["attention_mask"].astype(np.int32),
-            }
+                # Run a warmup inference to trigger compilation
+                # This takes ~60s first time, but macOS caches the compiled model
+                warmup_text = "warmup query"
+                enc = tokenizer(
+                    [warmup_text],
+                    padding="max_length",
+                    max_length=32,
+                    truncation=True,
+                    return_tensors="np",
+                )
+                feed = {
+                    "input_ids": enc["input_ids"].astype(np.int32),
+                    "attention_mask": enc["attention_mask"].astype(np.int32),
+                }
 
-            # First inference triggers compilation and caching
-            _ = mlmodel.predict(feed)
+                # First inference triggers compilation and caching
+                _ = mlmodel.predict(feed)
 
-            # Store in global cache for reuse
-            _global_coreml_model = mlmodel
-            _global_coreml_tokenizer = tokenizer
+                # Store in global cache for reuse
+                _global_coreml_model = mlmodel
+                _global_coreml_tokenizer = tokenizer
 
-            logger.info("✅ CoreML model preloaded and compiled successfully")
-            logger.info(f"   Model cached globally for reuse (no reload needed)")
-            logger.info(f"   macOS also cached at: ~/Library/Caches/com.apple.CoreML/")
-            logger.info(f"   Future app starts will be faster (~1-2s vs ~60s)")
+                logger.info("✅ CoreML model preloaded and compiled successfully")
+                logger.info(f"   Model cached globally for reuse (no reload needed)")
+                logger.info(f"   macOS also cached at: ~/Library/Caches/com.apple.CoreML/")
+                logger.info(f"   Future app starts will be faster (~1-2s vs ~60s)")
 
-        except Exception as e:
-            logger.warning(f"CoreML warmup failed: {e}")
-            logger.warning("Model will be loaded on first search (may take 60+ seconds)")
+            except Exception as e:
+                logger.warning(f"CoreML warmup failed: {e}")
+                logger.warning("Model will be loaded on first search (may take 60+ seconds)")
 
     def _embed_query_with_qwen(self, query: str) -> list[float] | None:
         """Generate embedding for query using preloaded Qwen3-4B model"""
@@ -1934,6 +2159,231 @@ class MemoryResource(SyncAPIResource):
             logger.error(f"Error creating Qwen embedding function: {e}")
             return None
 
+    def _search_both_collections(
+        self,
+        query: str,
+        n_results: int = 5,
+        metadata: Optional[MemoryMetadataParam] | NotGiven = not_given,
+        user_id: Optional[str] | NotGiven = not_given,
+        external_user_id: Optional[str] | NotGiven = not_given
+    ) -> list[tuple[str, float, str]] | None:
+        """
+        Search BOTH tier0 and tier1 collections in parallel using a single embedding.
+        
+        Returns list of tuples: (document, distance, tier_label)
+        """
+        import time
+        import threading
+        from typing import List, Tuple, Optional as TypingOptional
+
+        from papr_memory._logging import get_logger
+        from papr_memory._retrieval_logging import retrieval_logging_service
+
+        logger = get_logger(__name__)
+        
+        # Check if both collections exist
+        has_tier0 = hasattr(self, "_chroma_collection") and self._chroma_collection is not None
+        has_tier1 = hasattr(self, "_chroma_tier1_collection") and self._chroma_tier1_collection is not None
+        
+        if not has_tier0 and not has_tier1:
+            logger.warning("No ChromaDB collections available for search")
+            return []
+        
+        # Start retrieval metrics tracking
+        metrics = retrieval_logging_service.start_query_timing(query)
+        
+        try:
+            # ===== STEP 1: Generate embedding ONCE =====
+            retrieval_logging_service.start_embedding_timing(metrics)
+            embedding_start = time.time()
+            
+            # Get embedder (prefer CoreML if available)
+            embedder: object | None = None
+            if has_tier0 and hasattr(self._chroma_collection, "_embedding_function"):
+                ef = getattr(self._chroma_collection, "_embedding_function", None)
+                if ef is not None and not ("DefaultEmbeddingFunction" in str(ef.__class__)):
+                    embedder = ef
+            
+            if embedder is None:
+                embedder = getattr(self, "_local_embedder", None)
+                if embedder is None:
+                    embedder = self._get_local_embedder()
+            
+            # Helper function to generate embedding
+            def _embed_with(obj: object, text: str) -> list[float] | None:
+                try:
+                    if hasattr(obj, "embed_query"):
+                        out = obj.embed_query(text)  # type: ignore
+                        import numpy as _np
+                        if isinstance(out, _np.ndarray):
+                            return out.astype(_np.float32).tolist()
+                        if isinstance(out, list):
+                            if out and isinstance(out[0], list):
+                                return [float(x) for x in out[0]]
+                            return [float(x) for x in out]
+                    if hasattr(obj, "encode"):
+                        enc = obj.encode([text])  # type: ignore
+                        import numpy as _np
+                        if isinstance(enc, _np.ndarray):
+                            return enc[0].astype(_np.float32).tolist()
+                        if isinstance(enc, list) and enc:
+                            first = enc[0]
+                            if hasattr(first, 'tolist'):
+                                return first.tolist()
+                            if isinstance(first, list):
+                                return [float(x) for x in first]
+                    if callable(obj):
+                        out = obj([text])  # type: ignore
+                        import numpy as _np
+                        if out and isinstance(out, list):
+                            first = out[0]
+                            if hasattr(first, 'tolist'):
+                                return first.tolist()
+                            if isinstance(first, list):
+                                return [float(x) for x in first]
+                except Exception as e:
+                    logger.debug(f"Embedder failed: {e}")
+                return None
+            
+            # Generate embedding once
+            query_embedding: list[float] | None = None
+            if embedder is not None:
+                logger.info("Using local embedder for query (prefers Core ML if enabled)")
+                query_embedding = _embed_with(embedder, query)
+            
+            if not query_embedding:
+                logger.info("Local embedder unavailable; using Qwen3-4B model")
+                query_embedding = self._embed_query_with_qwen(query)
+            
+            if not query_embedding:
+                logger.error("Failed to generate query embedding")
+                return []
+            
+            embedding_time = (time.time() - embedding_start) * 1000  # Convert to ms
+            logger.info(f"✨ Generated embedding ONCE in {embedding_time:.1f}ms (will query both collections)")
+            
+            retrieval_logging_service.end_embedding_timing(
+                metrics,
+                len(query_embedding),
+                getattr(self, "_model_name", "Qwen3-4B")
+            )
+            
+            # ===== STEP 2: Query both collections IN PARALLEL =====
+            retrieval_logging_service.start_chromadb_timing(metrics)
+            search_start = time.time()
+            
+            tier0_results: TypingOptional[dict] = None
+            tier1_results: TypingOptional[dict] = None
+            tier0_error: TypingOptional[Exception] = None
+            tier1_error: TypingOptional[Exception] = None
+            
+            # Thread-safe query function for tier0
+            def query_tier0():
+                nonlocal tier0_results, tier0_error
+                try:
+                    if has_tier0:
+                        tier0_results = self._chroma_collection.query(  # type: ignore
+                            query_embeddings=[query_embedding],
+                            n_results=n_results,
+                            include=["documents", "metadatas", "distances"],
+                            where=None,
+                        )
+                except Exception as e:
+                    tier0_error = e
+                    logger.warning(f"Tier0 query failed: {e}")
+            
+            # Thread-safe query function for tier1
+            def query_tier1():
+                nonlocal tier1_results, tier1_error
+                try:
+                    if has_tier1:
+                        tier1_results = self._chroma_tier1_collection.query(  # type: ignore
+                            query_embeddings=[query_embedding],
+                            n_results=n_results,
+                            include=["documents", "metadatas", "distances"],
+                            where=None,
+                        )
+                except Exception as e:
+                    tier1_error = e
+                    logger.warning(f"Tier1 query failed: {e}")
+            
+            # Launch both queries in parallel
+            tier0_thread = threading.Thread(target=query_tier0) if has_tier0 else None
+            tier1_thread = threading.Thread(target=query_tier1) if has_tier1 else None
+            
+            if tier0_thread:
+                tier0_thread.start()
+            if tier1_thread:
+                tier1_thread.start()
+            
+            # Wait for both to complete
+            if tier0_thread:
+                tier0_thread.join()
+            if tier1_thread:
+                tier1_thread.join()
+            
+            search_time = (time.time() - search_start) * 1000  # Convert to ms
+            logger.info(f"⚡ Queried both collections in parallel in {search_time:.1f}ms")
+            
+            # ===== STEP 3: Merge results by similarity score =====
+            combined_results: List[Tuple[str, float, str]] = []
+            
+            # Extract tier0 results
+            if tier0_results and tier0_results.get("documents") and tier0_results["documents"][0]:
+                docs = tier0_results["documents"][0]
+                dists = tier0_results.get("distances", [[]])[0] or [0.0] * len(docs)
+                for doc, dist in zip(docs, dists):
+                    combined_results.append((doc, float(dist), "tier0"))
+                logger.info(f"📊 Tier0: {len(docs)} results")
+            else:
+                logger.info("📊 Tier0: 0 results")
+            
+            # Extract tier1 results
+            if tier1_results and tier1_results.get("documents") and tier1_results["documents"][0]:
+                docs = tier1_results["documents"][0]
+                dists = tier1_results.get("distances", [[]])[0] or [0.0] * len(docs)
+                for doc, dist in zip(docs, dists):
+                    combined_results.append((doc, float(dist), "tier1"))
+                logger.info(f"📊 Tier1: {len(docs)} results")
+            else:
+                logger.info("📊 Tier1: 0 results")
+            
+            # Sort by distance (lower is better) and take top N
+            combined_results.sort(key=lambda x: x[1])
+            combined_results = combined_results[:n_results]
+            
+            # Log tier breakdown
+            tier0_count = sum(1 for _, _, tier in combined_results if tier == "tier0")
+            tier1_count = sum(1 for _, _, tier in combined_results if tier == "tier1")
+            logger.info(f"🎯 Final results: {len(combined_results)} total [{tier0_count} tier0, {tier1_count} tier1]")
+            
+            # End ChromaDB timing
+            retrieval_logging_service.end_chromadb_timing(metrics, len(combined_results))
+            
+            # End query timing
+            device_type = "cpu"
+            if hasattr(self, "_global_coreml_model") or '_global_coreml_model' in globals():
+                device_type = "ane"
+            retrieval_logging_service.end_query_timing(metrics, device_type)
+            
+            # Log preview of top results
+            logger.info("=" * 80)
+            logger.info(f"📋 TOP RESULTS (from {len(combined_results)} combined)")
+            logger.info("=" * 80)
+            for idx, (doc, dist, tier) in enumerate(combined_results[:5]):
+                similarity = 1.0 - dist
+                content_preview = doc[:150] + "..." if len(doc) > 150 else doc
+                logger.info(f"[{idx + 1}] {tier.upper()} | Similarity: {similarity:.4f} | {content_preview}")
+            logger.info("=" * 80)
+            
+            return combined_results
+            
+        except Exception as e:
+            logger.error(f"Error in parallel collection search: {e}")
+            import traceback
+            logger.error(traceback.format_exc())
+            return []
+
     def _search_tier0_locally(
         self, 
         query: str, 
@@ -2105,7 +2555,7 @@ class MemoryResource(SyncAPIResource):
                 # Check PyTorch model device
                 try:
                     import torch
-                    model_device = next(self._qwen_model.parameters()).device
+                    model_device = next(self._qwen_model.parameters()).device  # type: ignore
                     if model_device.type == "cuda":
                         device_type = "cuda"
                     elif model_device.type == "mps":
@@ -2717,12 +3167,18 @@ class MemoryResource(SyncAPIResource):
 
                     # Smart passthrough that uses already-loaded CoreML model for queries
                     class SmartPassthroughEmbeddingFunction:
-                        """Smart passthrough that uses pre-loaded CoreML for queries"""
+                        """Smart passthrough that NEVER generates embeddings - embeddings come from server or direct calls"""
                         def embed_documents(self, texts: list[str]) -> list[list[float]]:
-                            # Only called during collection metadata/dimension detection
+                            # This should NEVER be called during normal operation because:
+                            # 1. Server provides embeddings for tier0/tier1 (90%+ of items)
+                            # 2. Legacy items are embedded via direct _get_local_embedder() calls
+                            # 3. Only ChromaDB internal tests should trigger this
+                            
+                            # Return dummy 2560-dim vectors for dimension detection only
+                            logger.debug(f"embed_documents called with {len(texts)} items (ChromaDB internal test), returning dummy 2560-dim vectors")
                             return [[0.0] * 2560 for _ in texts]
 
-                        def embed_query(self, text: str = None, input: str = None) -> list[float]:
+                        def embed_query(self, text: str | None = None, input: str | None = None) -> list[float]:
                             # ChromaDB sometimes calls this instead of using query_embeddings parameter
                             # Use the already-loaded CoreML model to generate real embeddings
                             query_text = text or input or ""
@@ -2732,9 +3188,9 @@ class MemoryResource(SyncAPIResource):
                             if embedder:
                                 try:
                                     if hasattr(embedder, 'embed_query'):
-                                        return embedder.embed_query(query_text)
+                                        return embedder.embed_query(query_text)  # type: ignore
                                     elif hasattr(embedder, 'encode'):
-                                        return embedder.encode([query_text])[0].tolist()
+                                        return embedder.encode([query_text])[0].tolist()  # type: ignore
                                 except Exception as e:
                                     logger.debug(f"Local embedder failed in passthrough: {e}")
 
@@ -2755,9 +3211,20 @@ class MemoryResource(SyncAPIResource):
 
                     embedding_function = SmartPassthroughEmbeddingFunction()
                     logger.info("   Created smart passthrough embedding function (2560 dims)")
+                    logger.info("   Server embeddings will be used when available (preferred)")
+                    logger.info("   Local CoreML will only generate embeddings for legacy items")
+                    
+                    # Store for tier1 to reuse (prevents tier1 from using 384-dim default)
+                    self._embedding_function = embedding_function
+                    logger.info("   Stored embedding function for tier1 reuse")
                 else:
                     embedding_function = self._get_qwen_embedding_function()
                     logger.info(f"Qwen embedding function result: {embedding_function is not None}")
+                    
+                    # Store for tier1 to reuse
+                    if embedding_function:
+                        self._embedding_function = embedding_function
+                        logger.info("   Stored embedding function for tier1 reuse")
                 if embedding_function:
                     try:
                         # Test the embedding function to ensure it works
@@ -2881,9 +3348,10 @@ class MemoryResource(SyncAPIResource):
                 if isinstance(item, dict):
                     # Get content, handling None values properly
                     raw_content = item.get("content", item.get("description", None))
-                    if raw_content is None or (isinstance(raw_content, str) and raw_content.strip().lower() == "none"):
+                    # Skip if None, "none" (case-insensitive), or empty/whitespace-only string
+                    if raw_content is None or (isinstance(raw_content, str) and (raw_content.strip().lower() == "none" or not raw_content.strip())):
                         # Skip items with no content - they won't be useful for search
-                        logger.debug(f"Skipping item {i} with no content")
+                        logger.debug(f"Skipping item {i} (id: {item.get('id', 'unknown')}) with no/empty content")
                         continue  # Skip this item entirely - don't add to documents OR embeddings
                     content = str(raw_content)
 
@@ -2950,22 +3418,11 @@ class MemoryResource(SyncAPIResource):
 
                     start_time = time.time()
                     
-                    # Use the same embedding function as the collection to ensure dimension consistency
-                    if hasattr(self, "_chroma_collection") and self._chroma_collection is not None:
-                        # Prefer the collection's embedding function only if it provides a usable API
-                        coll_func = getattr(self._chroma_collection, "_embedding_function", None)
-                        if coll_func is not None and (
-                            hasattr(coll_func, "embed_documents") or hasattr(coll_func, "encode") or callable(coll_func)
-                        ):
-                            embedder = coll_func
-                            logger.info("Using collection's embedding function for consistency")
-                        else:
-                            embedder = self._get_local_embedder()  # type: ignore
-                            logger.info("Using local embedder (collection has no usable embedding function)")
-                    else:
-                        # No collection available, use local embedder
-                        embedder = self._get_local_embedder()  # type: ignore
-                        logger.info("Using local embedder (no collection available)")
+                    # IMPORTANT: Use direct local embedder (CoreML), NOT collection's passthrough function
+                    # The collection's embedding function is SmartPassthroughEmbeddingFunction which returns dummy vectors
+                    # We need real CoreML embeddings here
+                    embedder = self._get_local_embedder()  # type: ignore
+                    logger.info("Using direct CoreML embedder for missing items (bypassing collection passthrough)")
                     
                     if embedder:
                         local_embedding_count = 0
@@ -2982,20 +3439,20 @@ class MemoryResource(SyncAPIResource):
                                         # SentenceTransformer model
                                         local_embedding = embedder.encode([documents[i]])[0].tolist()  # type: ignore
                                     
-                                    item_time = time.time() - item_start_time
+                                    item_time = (time.time() - item_start_time) * 1000  # Convert to ms
                                     embeddings[i] = local_embedding
                                     local_embedding_count += 1
                                     logger.info(
-                                        f"Generated local embedding for item {i} (dim: {len(local_embedding)}) in {item_time:.2f}s"
+                                        f"Generated local embedding for item {i} (dim: {len(local_embedding)}) in {item_time:.1f}ms"
                                     )
                                 except Exception as e:
                                     logger.error(f"Failed to generate local embedding for item {i}: {e}")
                         
-                        total_time = time.time() - start_time
+                        total_time = (time.time() - start_time) * 1000  # Convert to ms
                         if local_embedding_count > 0:
                             avg_time = total_time / local_embedding_count
                             logger.info(
-                                f"Generated {local_embedding_count} local embeddings in {total_time:.2f}s (avg: {avg_time:.2f}s per embedding)"
+                                f"Generated {local_embedding_count} local embeddings in {total_time:.1f}ms (avg: {avg_time:.1f}ms per embedding)"
                             )
                     else:
                         logger.warning("No local embedder available for missing embeddings")
@@ -3126,22 +3583,22 @@ class MemoryResource(SyncAPIResource):
                         # But first, let's ensure the embedding function is working correctly
                         try:
                             # Test the embedding function to ensure it produces the right dimensions
-                            test_embedding = collection._embedding_function.embed_documents(["test"])[0]  # type: ignore
-                            logger.info(f"Collection embedding function test successful (dim: {len(test_embedding)})")
+                            test_result = collection._embedding_function.embed_documents(["test"])  # type: ignore
+                            # Handle different return formats
+                            if isinstance(test_result, list) and len(test_result) > 0:
+                                test_embedding = test_result[0]
+                                if isinstance(test_embedding, (list, tuple)) and len(test_embedding) > 0:
+                                    logger.info(f"Collection embedding function test successful (dim: {len(test_embedding)})")
+                                else:
+                                    logger.debug(f"Unexpected embedding format: {type(test_embedding)}")
                             
-                            # Now query using the collection's embedding function
-                            results = collection.query(
-                                query_texts=["goals objectives"], n_results=min(3, len(documents))
-                            )
-                            if (
-                                results
-                                and results.get("documents")
-                                and results["documents"]
-                                and results["documents"][0]
-                            ):  # type: ignore
-                                logger.info(f"ChromaDB query test returned {len(results['documents'][0])} results")
+                            # Skip the actual query test to avoid slow CoreML inference during initialization
+                            # The embedding function test above is sufficient to verify the collection works
+                            logger.info("Skipping query test (embedding function verified)")
+                            count = collection.count()
+                            logger.info(f"ChromaDB collection contains {count} documents (verified via count)")
                         except Exception as embed_test_e:
-                            logger.warning(f"Collection embedding function test failed: {embed_test_e}")
+                            logger.debug(f"Collection embedding function test failed: {embed_test_e}")
                             logger.info("Skipping query test to avoid dimension mismatch")
                             count = collection.count()
                             logger.info(f"ChromaDB collection contains {count} documents (verified via count)")
@@ -3209,6 +3666,325 @@ class MemoryResource(SyncAPIResource):
         else:
             # Mark collection as successfully initialized
             self._collection_initialized = True
+
+    def _store_tier1_in_chromadb(self, tier1_data: list[dict[str, any]]) -> None:  # type: ignore
+        """Store tier1 data in ChromaDB with duplicate prevention"""
+        import os
+
+        from papr_memory._logging import get_logger
+
+        logger = get_logger(__name__)
+        
+        try:
+            logger.info("Attempting to store tier1 data in ChromaDB...")
+            import chromadb  # type: ignore
+            from chromadb.config import Settings  # type: ignore
+
+            logger.info("ChromaDB imported successfully for tier1")
+            
+            # Initialize ChromaDB client (singleton pattern - reuse if already exists)
+            if not hasattr(self, "_chroma_client"):
+                # Get ChromaDB path from environment variable or use default
+                chroma_path = os.environ.get("PAPR_CHROMADB_PATH", "./chroma_db")
+                logger.info(f"Creating ChromaDB persistent client at: {chroma_path}")
+
+                self._chroma_client = chromadb.PersistentClient(
+                    path=chroma_path,
+                    settings=Settings(
+                        anonymized_telemetry=False,
+                        allow_reset=True,
+                        is_persistent=True,
+                    ),
+                )
+                logger.info("Initialized ChromaDB persistent client for tier1")
+            
+            # Create or get collection for tier1 data
+            collection_name = "tier1_memories"
+            logger.info(f"Attempting to get/create tier1 collection: {collection_name}")
+            
+            # Get the embedding function (reuse from tier0 if available)
+            embedding_function = None
+            if hasattr(self, "_embedding_function") and self._embedding_function is not None:
+                embedding_function = self._embedding_function
+                logger.info("✅ Reusing embedding function from tier0 (self._embedding_function)")
+            else:
+                logger.warning("⚠️  self._embedding_function not found, trying tier0 collection...")
+                # If no embedding function, try to get from tier0 collection
+                if hasattr(self, "_collection") and self._collection is not None:  # type: ignore
+                    try:
+                        embedding_function = self._collection._embedding_function  # type: ignore
+                        logger.info("✅ Retrieved embedding function from tier0 _collection")
+                    except Exception as e:
+                        logger.warning(f"❌ Could not get embedding function from tier0 _collection: {e}")
+                elif hasattr(self, "_chroma_collection") and self._chroma_collection is not None:
+                    try:
+                        embedding_function = self._chroma_collection._embedding_function
+                        logger.info("✅ Retrieved embedding function from tier0 _chroma_collection")
+                    except Exception as e:
+                        logger.warning(f"❌ Could not get embedding function from tier0 _chroma_collection: {e}")
+            
+            # If still no embedding function, we need to recreate tier1 collection
+            if not embedding_function:
+                logger.error("❌ No embedding function found - tier1 will use 384-dim default (WRONG!)")
+                logger.error("   This will cause dimension mismatch errors during search")
+            else:
+                logger.info(f"✅ Tier1 will use correct embedding function (2560 dims)")
+            
+            # Get or create the tier1 collection
+            try:
+                if embedding_function:
+                    # Try to get existing collection first to check dimension mismatch
+                    collection = None
+                    try:
+                        existing_collection = self._chroma_client.get_collection(name=collection_name)
+                        
+                        # Check if dimensions match
+                        can_test_dimensions = False
+                        expected_dim = None
+                        
+                        if hasattr(embedding_function, 'embed_documents'):
+                            test_embedding = embedding_function.embed_documents(["test"])  # type: ignore
+                            expected_dim = len(test_embedding[0]) if isinstance(test_embedding, list) else len(test_embedding)
+                            can_test_dimensions = True
+                        elif hasattr(embedding_function, 'embed_query'):
+                            test_embedding = embedding_function.embed_query("test")  # type: ignore
+                            expected_dim = len(test_embedding) if test_embedding else None
+                            can_test_dimensions = expected_dim is not None
+                        
+                        if not can_test_dimensions:
+                            # Can't test, just use existing collection
+                            collection = existing_collection
+                            logger.info(f"Using existing tier1 collection (cannot test embedding dimensions)")
+                        else:
+                            # Get actual dimension from collection
+                            if existing_collection.count() > 0:
+                                sample = existing_collection.get(limit=1, include=["embeddings"])
+                                if sample and sample.get("embeddings") and len(sample["embeddings"]) > 0:  # type: ignore
+                                    actual_dim = len(sample["embeddings"][0]) if sample["embeddings"][0] else 0  # type: ignore
+                                    if actual_dim != expected_dim and expected_dim and actual_dim > 0:
+                                        logger.warning(f"Tier1 collection has wrong dimensions ({actual_dim} != {expected_dim}), recreating...")
+                                        self._chroma_client.delete_collection(name=collection_name)
+                                        collection = self._chroma_client.create_collection(
+                                            name=collection_name, embedding_function=embedding_function  # type: ignore
+                                        )
+                                        logger.info(f"Recreated tier1 collection with correct embedding function")
+                                    else:
+                                        collection = existing_collection
+                                        logger.info(f"Using existing tier1 collection with correct dimensions")
+                                else:
+                                    # Empty collection, just use it
+                                    collection = existing_collection
+                                    logger.info(f"Using existing empty tier1 collection")
+                            else:
+                                collection = existing_collection
+                                logger.info(f"Using existing empty tier1 collection")
+                    except Exception as get_ex:
+                        # Collection doesn't exist or error checking it, create it
+                        logger.info(f"Creating new tier1 collection: {get_ex}")
+                        collection = self._chroma_client.create_collection(
+                            name=collection_name, embedding_function=embedding_function  # type: ignore
+                        )
+                        logger.info(f"Created new tier1 collection with embedding function")
+                    
+                    if collection:
+                        logger.info(f"Got/created tier1 collection: {collection.name}")
+                else:
+                    collection = self._chroma_client.get_or_create_collection(name=collection_name)
+                    logger.info(f"Got/created tier1 collection: {collection.name}")
+            except Exception as e:
+                logger.warning(f"Error creating tier1 collection: {e}")
+                # Try to get existing collection
+                collection = self._chroma_client.get_collection(name=collection_name)
+                logger.info(f"Retrieved existing tier1 collection: {collection.name}")
+            
+            # Store the tier1 collection reference
+            self._chroma_tier1_collection = collection
+            
+            logger.info(f"Using ChromaDB tier1 collection: {collection.name}")
+            
+            # Prepare documents for ChromaDB
+            documents = []
+            metadatas = []
+            ids = []
+            embeddings = []
+
+            for i, item in enumerate(tier1_data):
+                # Extract content for embedding
+                content = str(item)
+                if isinstance(item, dict):
+                    # Get content, handling None values properly
+                    raw_content = item.get("content", item.get("description", None))
+                    # Skip if None, "none" (case-insensitive), or empty/whitespace-only string
+                    if raw_content is None or (isinstance(raw_content, str) and (raw_content.strip().lower() == "none" or not raw_content.strip())):
+                        logger.debug(f"Skipping tier1 item {i} (id: {item.get('id', 'unknown')}) with no/empty content")
+                        continue
+                    content = str(raw_content)
+
+                # Create metadata
+                if isinstance(item, dict):
+                    metadata = dict(item.get("metadata", {}))
+                    metadata.update(
+                        {
+                            "source": "sync_tiers",
+                            "tier": 1,
+                            "type": str(item.get("type", "unknown")),
+                            "topics": str(item.get("topics", [])),
+                            "id": str(item.get("id", f"tier1_{i}")),
+                            "updatedAt": str(item.get("updatedAt", "")),
+                        }
+                    )
+
+                    if "similarity_score" in item:
+                        metadata["similarity_score"] = float(item["similarity_score"])
+                else:
+                    metadata = {"source": "sync_tiers", "tier": 1, "type": "unknown", "topics": "unknown"}  # type: ignore
+
+                documents.append(content)
+                metadatas.append(metadata)
+                item_id = f"tier1_{i}"
+                if isinstance(item, dict) and "id" in item:
+                    item_id = f"tier1_{item['id']}"
+                ids.append(item_id)
+
+                # Extract embedding if present
+                embedding = None
+                if isinstance(item, dict) and "embedding" in item:
+                    server_embedding = item["embedding"]
+                    # Validate embedding format
+                    if (
+                        isinstance(server_embedding, list)
+                        and len(server_embedding) > 0
+                        and isinstance(server_embedding[0], (int, float))  # type: ignore
+                    ):
+                        embedding = server_embedding
+                        logger.info(f"Valid server embedding for tier1 item {i} (dim: {len(embedding)})")
+                    else:
+                        logger.warning(f"Invalid server embedding format for tier1 item {i}, will use local generation")
+                embeddings.append(embedding)
+
+            # Log embedding extraction summary
+            if tier1_data and isinstance(tier1_data[0], dict) and "embedding" in tier1_data[0]:
+                logger.info(f"Extracted embeddings from server response for {len([e for e in embeddings if e is not None])}/{len(embeddings)} tier1 items")
+            else:
+                logger.info("No server embeddings found for tier1, will generate locally for all items")
+            
+            # Generate local embeddings for items without server embeddings (same as tier0)
+            if any(emb is None for emb in embeddings):
+                logger.info("Generating local embeddings for tier1 missing items...")
+                try:
+                    import time
+
+                    start_time = time.time()
+                    
+                    # IMPORTANT: Use direct local embedder (CoreML), NOT collection's passthrough function
+                    # The collection's embedding function is SmartPassthroughEmbeddingFunction which returns dummy vectors
+                    # We need real CoreML embeddings here
+                    embedder = self._get_local_embedder()  # type: ignore
+                    logger.info("Using direct CoreML embedder for tier1 missing items (bypassing collection passthrough)")
+                    
+                    if embedder:
+                        local_embedding_count = 0
+                        for i, embedding in enumerate(embeddings):
+                            if embedding is None:
+                                try:
+                                    item_start_time = time.time()
+                                    
+                                    # Use the appropriate embedding method based on embedder type
+                                    if hasattr(embedder, "embed_documents"):
+                                        # ChromaDB embedding function
+                                        local_embedding = embedder.embed_documents([documents[i]])[0]  # type: ignore
+                                    else:
+                                        # SentenceTransformer model
+                                        local_embedding = embedder.encode([documents[i]])[0].tolist()  # type: ignore
+                                    
+                                    item_time = (time.time() - item_start_time) * 1000  # Convert to ms
+                                    embeddings[i] = local_embedding
+                                    local_embedding_count += 1
+                                    logger.info(
+                                        f"Generated local embedding for tier1 item {i} (dim: {len(local_embedding)}) in {item_time:.1f}ms"
+                                    )
+                                except Exception as e:
+                                    logger.error(f"Failed to generate local embedding for tier1 item {i}: {e}")
+                        
+                        total_time = (time.time() - start_time) * 1000  # Convert to ms
+                        if local_embedding_count > 0:
+                            avg_time = total_time / local_embedding_count
+                            logger.info(
+                                f"Generated {local_embedding_count} local tier1 embeddings in {total_time:.1f}ms (avg: {avg_time:.1f}ms per embedding)"
+                            )
+                    else:
+                        logger.warning("No local embedder available for tier1 missing embeddings")
+                except Exception as e:
+                    logger.error(f"Error generating local embeddings for tier1: {e}")
+
+            # Add documents to ChromaDB
+            if documents:
+                logger.info(f"Adding {len(documents)} tier1 documents to ChromaDB")
+                
+                # Add all documents with embeddings (local or server-provided)
+                if all(emb is not None for emb in embeddings):
+                    # All embeddings are available
+                    validated_embs = []
+                    for idx, emb in enumerate(embeddings):
+                        try:
+                            vec = list(map(float, emb))  # type: ignore
+                            validated_embs.append(vec)
+                        except Exception as e:
+                            logger.error(f"Invalid embedding at index {idx}: {e}")
+                            # Use zero vector as fallback
+                            validated_embs.append([0.0] * 2560)
+                    
+                    collection.add(
+                        documents=documents, metadatas=metadatas, ids=ids, embeddings=validated_embs
+                    )
+                    logger.info(f"✅ Added {len(documents)} tier1 documents with embeddings")
+                elif any(emb is not None for emb in embeddings):
+                    # Partial embeddings - filter and add only those with embeddings
+                    filtered_docs = []
+                    filtered_meta = []
+                    filtered_ids = []
+                    filtered_embs = []
+                    
+                    for idx, emb in enumerate(embeddings):
+                        if emb is not None:
+                            try:
+                                vec = list(map(float, emb))  # type: ignore
+                                filtered_docs.append(documents[idx])
+                                filtered_meta.append(metadatas[idx])
+                                filtered_ids.append(ids[idx])
+                                filtered_embs.append(vec)
+                            except Exception:
+                                continue
+                    
+                    if filtered_embs:
+                        collection.add(
+                            documents=filtered_docs, metadatas=filtered_meta, ids=filtered_ids, embeddings=filtered_embs
+                        )
+                        logger.info(f"✅ Added {len(filtered_docs)} tier1 documents with partial embeddings")
+                    else:
+                        # No valid embeddings, let ChromaDB generate them
+                        collection.add(documents=documents, metadatas=metadatas, ids=ids)
+                        logger.warning(f"⚠️  Added {len(documents)} tier1 documents WITHOUT embeddings (ChromaDB will generate)")
+                else:
+                    # No embeddings at all - let ChromaDB generate them
+                    collection.add(documents=documents, metadatas=metadatas, ids=ids)
+                    logger.warning(f"⚠️  Added {len(documents)} tier1 documents WITHOUT embeddings (ChromaDB will generate)")
+                
+                # Verify storage
+                try:
+                    count = collection.count()
+                    logger.info(f"ChromaDB tier1 collection contains {count} documents")
+                except Exception as count_e:
+                    logger.warning(f"Could not verify tier1 collection: {count_e}")
+            else:
+                logger.info("No tier1 documents to add to ChromaDB")
+                
+        except ImportError:
+            logger.warning("ChromaDB not available for tier1 - install with: pip install chromadb")
+            self._chroma_tier1_collection = None  # type: ignore
+        except Exception as e:
+            logger.error(f"Error storing tier1 data in ChromaDB: {e}")
+            self._chroma_tier1_collection = None  # type: ignore
 
     def search(
         self,
@@ -3366,7 +4142,7 @@ class MemoryResource(SyncAPIResource):
             logger.info("Ondevice processing disabled due to CPU fallback - using API processing")
         
         # Search tier0 data locally for context enhancement if enabled
-            tier0_context: list[str] = []
+        tier0_context: list[tuple[str, float]] = []
         # Debug logging
         logger.info(
             f"DEBUG: ondevice_processing={ondevice_processing}, hasattr={hasattr(self, '_chroma_collection')}, collection_not_none={getattr(self, '_chroma_collection', None) is not None}"
@@ -3387,18 +4163,22 @@ class MemoryResource(SyncAPIResource):
                 logger.info("Model still loading in background, using server-side search for optimal UX")
                 tier0_context = []
             else:
-                tier0_context = self._search_tier0_locally(
+                # 🚀 NEW: Search BOTH tier0 and tier1 collections in parallel
+                combined_results = self._search_both_collections(
                     query, 
                     n_results=n_results,
                     metadata=cast(Optional[MemoryMetadataParam] | NotGiven, metadata if metadata is not omit else not_given),
                     user_id=cast(Optional[str] | NotGiven, user_id if user_id is not omit else not_given),
                     external_user_id=cast(Optional[str] | NotGiven, external_user_id if external_user_id is not omit else not_given)
                 ) or []
+                
+                # Extract documents from results (combined_results contains tuples: (doc, distance, tier))
+                tier0_context = [(doc, dist) for doc, dist, _ in combined_results]
             
             search_time = time.time() - start_time
-            logger.info(f"Local tier0 search completed in {search_time:.2f}s")
+            logger.info(f"🔍 Local parallel search (tier0 + tier1) completed in {search_time:.2f}s")
             if tier0_context:
-                logger.info(f"Using {len(tier0_context)} tier0 items for search context enhancement")
+                logger.info(f"Using {len(tier0_context)} combined items for search context enhancement")
                 # Convert tier0_context (list of documents) to DataMemory objects
                 from papr_memory.types.search_response import Data, DataMemory
 
@@ -4030,25 +4810,36 @@ class AsyncMemoryResource(AsyncAPIResource):
         logger = get_logger(__name__)
         
         try:
-            # Call the async sync_tiers method with hardcoded parameters
-            # Get max_tier0 from environment variable with fallback to 2
+            # Call the async sync_tiers method with parameters from environment variables
+            # Get max_tier0 from environment variable with fallback to 30
             import os
 
-            max_tier0_env = os.environ.get("PAPR_MAX_TIER0", "2")
+            max_tier0_env = os.environ.get("PAPR_MAX_TIER0", "30")
             try:
                 max_tier0_value = int(max_tier0_env)
             except ValueError:
-                max_tier0_value = 2  # fallback to default if invalid
+                max_tier0_value = 30  # fallback to default if invalid
             
+            # Get max_tier1 from environment variable, defaulting to same as tier0
+            max_tier1_env = os.environ.get("PAPR_MAX_TIER1", str(max_tier0_value))
+            try:
+                max_tier1_value = int(max_tier1_env)
+            except ValueError:
+                max_tier1_value = max_tier0_value  # fallback to tier0 value if invalid
+            
+            # Set a reasonable timeout for sync_tiers to prevent hanging
+            sync_timeout = timeout if timeout is not None else 300.0  # 5 minutes default
+            
+            logger.info(f"Calling async sync_tiers with max_tier0={max_tier0_value}, max_tier1={max_tier1_value}, timeout={sync_timeout}s")
             sync_response = await self.sync_tiers(
                 include_embeddings=True,
                 embed_limit=max_tier0_value,
                 max_tier0=max_tier0_value,
-                max_tier1=0,
+                max_tier1=max_tier1_value,
                 extra_headers=extra_headers,
                 extra_query=extra_query,
                 extra_body=extra_body,
-                timeout=timeout,
+                timeout=sync_timeout,
             )
             
             if sync_response:

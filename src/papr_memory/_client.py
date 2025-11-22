@@ -47,6 +47,8 @@ class Papr(SyncAPIClient):
     x_api_key: str
     x_session_token: str | None
     bearer_token: str | None
+    user_id: str | None
+    external_user_id: str | None
 
     def __init__(
         self,
@@ -54,6 +56,8 @@ class Papr(SyncAPIClient):
         x_api_key: str | None = None,
         x_session_token: str | None = None,
         bearer_token: str | None = None,
+        user_id: str | None = None,
+        external_user_id: str | None = None,
         base_url: str | httpx.URL | None = None,
         timeout: float | Timeout | None | NotGiven = not_given,
         max_retries: int = DEFAULT_MAX_RETRIES,
@@ -79,6 +83,8 @@ class Papr(SyncAPIClient):
         - `x_api_key` from `PAPR_MEMORY_API_KEY`
         - `x_session_token` from `PAPR_MEMORY_Session_Token`
         - `bearer_token` from `PAPR_MEMORY_BEARER_TOKEN`
+        - `user_id` from `PAPR_USER_ID`
+        - `external_user_id` from `PAPR_EXTERNAL_USER_ID`
         """
         if x_api_key is None:
             x_api_key = os.environ.get("PAPR_MEMORY_API_KEY")
@@ -95,6 +101,14 @@ class Papr(SyncAPIClient):
         if bearer_token is None:
             bearer_token = os.environ.get("PAPR_MEMORY_BEARER_TOKEN")
         self.bearer_token = bearer_token
+
+        if user_id is None:
+            user_id = os.environ.get("PAPR_USER_ID")
+        self.user_id = user_id
+
+        if external_user_id is None:
+            external_user_id = os.environ.get("PAPR_EXTERNAL_USER_ID")
+        self.external_user_id = external_user_id
 
         if base_url is None:
             base_url = os.environ.get("PAPR_BASE_URL")
@@ -113,7 +127,7 @@ class Papr(SyncAPIClient):
         )
 
         self.user = user.UserResource(self)
-        self.memory = memory.MemoryResource(self)
+        self.memory = memory.MemoryResource(self, user_id=user_id, external_user_id=external_user_id)
         self.feedback = feedback.FeedbackResource(self)
         self.document = document.DocumentResource(self)
         self.schemas = schemas.SchemasResource(self)
