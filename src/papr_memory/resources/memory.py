@@ -4163,11 +4163,12 @@ class MemoryResource(SyncAPIResource):
                     metadata = {"source": "sync_tiers", "tier": 1, "type": "unknown", "topics": "unknown"}  # type: ignore
 
                 documents.append(content)
-                documents.append(content)
                 metadatas.append(metadata)
                 item_id = f"tier1_{i}"
                 if isinstance(item, dict) and "id" in item:
                     item_id = f"tier1_{item['id']}"
+                elif hasattr(item, 'id'):
+                    item_id = f"tier1_{getattr(item, 'id', i)}"
                 ids.append(item_id)
 
                 # Extract embedding if present
