@@ -901,7 +901,22 @@ class MemoryResource(SyncAPIResource):
                     "embedding_dimension": 0,
                     "metadata": {},
                     "topics": [],
-                    "updatedAt": None,
+                    "tags": [],
+                    "title": None,
+                    "role": None,
+                    "category": None,
+                    "user_id": None,
+                    "external_user_id": None,
+                    "workspace_id": None,
+                    "organization_id": None,
+                    "namespace_id": None,
+                    "source_type": None,
+                    "source_url": None,
+                    "source_document_id": None,
+                    "source_message_id": None,
+                    "conversation_id": None,
+                    "created_at": None,
+                    "updated_at": None,
                     "raw_keys": []
                 }
                 
@@ -910,7 +925,22 @@ class MemoryResource(SyncAPIResource):
                     item_data["id"] = item.get("id")
                     item_data["type"] = item.get("type")
                     item_data["topics"] = item.get("topics", [])
-                    item_data["updatedAt"] = item.get("updatedAt")
+                    item_data["tags"] = item.get("tags", [])
+                    item_data["title"] = item.get("title")
+                    item_data["role"] = item.get("role")
+                    item_data["category"] = item.get("category")
+                    item_data["user_id"] = item.get("user_id")
+                    item_data["external_user_id"] = item.get("external_user_id")
+                    item_data["workspace_id"] = item.get("workspace_id")
+                    item_data["organization_id"] = item.get("organization_id")
+                    item_data["namespace_id"] = item.get("namespace_id")
+                    item_data["source_type"] = item.get("source_type")
+                    item_data["source_url"] = item.get("source_url")
+                    item_data["source_document_id"] = item.get("source_document_id")
+                    item_data["source_message_id"] = item.get("source_message_id")
+                    item_data["conversation_id"] = item.get("conversation_id")
+                    item_data["created_at"] = item.get("createdAt") or item.get("created_at")
+                    item_data["updated_at"] = item.get("updatedAt") or item.get("updated_at")
                     item_data["metadata"] = item.get("metadata", {})
                     
                     # Content
@@ -927,6 +957,61 @@ class MemoryResource(SyncAPIResource):
                     # Embedding
                     if "embedding" in item:
                         embedding = item["embedding"]
+                        if embedding and isinstance(embedding, list):
+                            item_data["has_embedding"] = True
+                            item_data["embedding_dimension"] = len(embedding)
+                            item_data["embedding_first_10"] = embedding[:10] if len(embedding) >= 10 else embedding
+                elif hasattr(item, 'id'):
+                    # Handle Pydantic Memory object
+                    item_data["raw_keys"] = list(item.__dict__.keys()) if hasattr(item, '__dict__') else []
+                    item_data["id"] = getattr(item, "id", None)
+                    item_data["type"] = getattr(item, "type", None)
+                    item_data["topics"] = getattr(item, "topics", []) or []
+                    item_data["tags"] = getattr(item, "tags", []) or []
+                    item_data["title"] = getattr(item, "title", None)
+                    item_data["role"] = getattr(item, "role", None)
+                    item_data["category"] = getattr(item, "category", None)
+                    item_data["user_id"] = getattr(item, "user_id", None)
+                    item_data["external_user_id"] = getattr(item, "external_user_id", None)
+                    item_data["workspace_id"] = getattr(item, "workspace_id", None)
+                    item_data["organization_id"] = getattr(item, "organization_id", None)
+                    item_data["namespace_id"] = getattr(item, "namespace_id", None)
+                    item_data["source_type"] = getattr(item, "source_type", None)
+                    item_data["source_url"] = getattr(item, "source_url", None)
+                    item_data["source_document_id"] = getattr(item, "source_document_id", None)
+                    item_data["source_message_id"] = getattr(item, "source_message_id", None)
+                    item_data["conversation_id"] = getattr(item, "conversation_id", None)
+                    
+                    # Handle datetime serialization for created_at
+                    created_at = getattr(item, "created_at", None)
+                    if created_at is not None:
+                        item_data["created_at"] = created_at.isoformat() if hasattr(created_at, 'isoformat') else str(created_at)
+                    else:
+                        item_data["created_at"] = None
+                    
+                    # Handle datetime serialization for updated_at
+                    updated_at = getattr(item, "updated_at", None)
+                    if updated_at is not None:
+                        item_data["updated_at"] = updated_at.isoformat() if hasattr(updated_at, 'isoformat') else str(updated_at)
+                    else:
+                        item_data["updated_at"] = None
+                    
+                    item_data["metadata"] = getattr(item, "metadata", {}) or {}
+                    
+                    # Content
+                    raw_content = getattr(item, "content", None) or getattr(item, "description", None)
+                    if raw_content is not None:
+                        content_str = str(raw_content)
+                        item_data["content"] = content_str[:500]  # First 500 chars
+                        item_data["content_length"] = len(content_str)
+                        item_data["content_is_empty"] = not content_str.strip()
+                    else:
+                        item_data["content"] = None
+                        item_data["content_is_empty"] = True
+                    
+                    # Embedding
+                    if hasattr(item, 'embedding'):
+                        embedding = item.embedding
                         if embedding and isinstance(embedding, list):
                             item_data["has_embedding"] = True
                             item_data["embedding_dimension"] = len(embedding)
@@ -2714,7 +2799,8 @@ class MemoryResource(SyncAPIResource):
             logger.info(f"ChromaDB vector search took: {search_time:.3f}s")
 
             # End ChromaDB timing and log final metrics
-            num_results = len(results["documents"][0]) if results["documents"] and results["documents"][0] else 0
+            documents_result = results.get("documents")
+            num_results = len(documents_result[0]) if documents_result and len(documents_result) > 0 and documents_result[0] else 0
             retrieval_logging_service.end_chromadb_timing(metrics, num_results)
             
             # End query timing and log comprehensive metrics
@@ -2755,8 +2841,9 @@ class MemoryResource(SyncAPIResource):
             except Exception as parse_e:
                 logger.warning(f"Parse Server logging failed: {parse_e}")
 
-            if results["documents"] and results["documents"][0]:
-                logger.info(f"Found {len(results['documents'][0])} relevant tier0 items locally")
+            documents_result = results.get("documents")
+            if documents_result and len(documents_result) > 0 and documents_result[0]:
+                logger.info(f"Found {len(documents_result[0])} relevant tier0 items locally")
 
                 # Return tuples of (document, distance) for score calculation
                 documents_batch = results.get("documents") or []
@@ -3515,16 +3602,25 @@ class MemoryResource(SyncAPIResource):
 
             for i, item in enumerate(tier0_data):
                 # Extract content for embedding
-                content = str(item)
+                raw_content = None
                 if isinstance(item, dict):
                     # Get content, handling None values properly
                     raw_content = item.get("content", item.get("description", None))
-                    # Skip if None, "none" (case-insensitive), or empty/whitespace-only string
-                    if raw_content is None or (isinstance(raw_content, str) and (raw_content.strip().lower() == "none" or not raw_content.strip())):
-                        # Skip items with no content - they won't be useful for search
-                        logger.debug(f"Skipping item {i} (id: {item.get('id', 'unknown')}) with no/empty content")
-                        continue  # Skip this item entirely - don't add to documents OR embeddings
-                    content = str(raw_content)
+                elif hasattr(item, 'content'):
+                    # Pydantic Memory object
+                    raw_content = getattr(item, 'content', None) or getattr(item, 'description', None)
+                else:
+                    # Fallback for unknown types
+                    raw_content = str(item)
+                
+                # Skip if None, "none" (case-insensitive), or empty/whitespace-only string
+                if raw_content is None or (isinstance(raw_content, str) and (raw_content.strip().lower() == "none" or not raw_content.strip())):
+                    # Skip items with no content - they won't be useful for search
+                    item_id = item.get('id', 'unknown') if isinstance(item, dict) else getattr(item, 'id', 'unknown')
+                    logger.debug(f"Skipping item {i} (id: {item_id}) with no/empty content")
+                    continue  # Skip this item entirely - don't add to documents OR embeddings
+                
+                content = str(raw_content)
 
                 # Create metadata - use item's metadata if exists, otherwise create default
                 if isinstance(item, dict):
@@ -3538,6 +3634,7 @@ class MemoryResource(SyncAPIResource):
                         "tier": 0,
                             "type": str(item.get("type", "unknown")),
                             "topics": str(item.get("topics", [])),
+                            "tags": str(item.get("tags", [])),
                             "id": str(item.get("id", f"tier0_{i}")),
                             "updatedAt": str(item.get("updatedAt", "")),
                         }
@@ -3547,6 +3644,26 @@ class MemoryResource(SyncAPIResource):
                     # This is the composite score: 60% vector + 30% transition + 20% hotness
                     if "similarity_score" in item:
                         metadata["similarity_score"] = float(item["similarity_score"])
+                elif hasattr(item, 'id'):
+                    # Pydantic Memory object
+                    base_metadata = getattr(item, 'metadata', {}) or {}
+                    metadata = dict(base_metadata)
+                    
+                    # Add standard fields
+                    metadata.update({
+                        "source": "sync_tiers",
+                        "tier": 0,
+                        "type": str(getattr(item, "type", "unknown")),
+                        "topics": str(getattr(item, "topics", [])),
+                        "tags": str(getattr(item, "tags", [])),
+                        "id": str(getattr(item, "id", f"tier0_{i}")),
+                        "updatedAt": str(getattr(item, "updated_at", "")),
+                    })
+                    
+                    # Preserve server-side similarity_score if available
+                    if hasattr(item, 'pydantic_extra__') and item.pydantic_extra__:  # type: ignore
+                        if "similarity_score" in item.pydantic_extra__:  # type: ignore
+                            metadata["similarity_score"] = float(item.pydantic_extra__["similarity_score"])  # type: ignore
                 else:
                     # Fallback for non-dict items
                     metadata = {"source": "sync_tiers", "tier": 0, "type": "unknown", "topics": "unknown"}  # type: ignore
@@ -3572,12 +3689,25 @@ class MemoryResource(SyncAPIResource):
                         logger.info(f"Valid server embedding for item {i} (dim: {len(embedding)})")
                     else:
                         logger.warning(f"Invalid server embedding format for item {i}, will use local generation")
+                elif hasattr(item, 'embedding') and item.embedding:  # type: ignore
+                    # Handle Pydantic Memory object with embedding attribute
+                    server_embedding = item.embedding  # type: ignore
+                    if (
+                        isinstance(server_embedding, list)
+                        and len(server_embedding) > 0
+                        and isinstance(server_embedding[0], (int, float))  # type: ignore
+                    ):
+                        embedding = server_embedding
+                        logger.info(f"Valid server embedding for item {i} (dim: {len(embedding)})")
+                    else:
+                        logger.warning(f"Invalid server embedding format for item {i}, will use local generation")
 
                 embeddings.append(embedding)
 
             # Log embedding extraction summary
-            if tier0_data and isinstance(tier0_data[0], dict) and "embedding" in tier0_data[0]:
-                logger.info(f"Extracted embeddings from server response for {len([e for e in embeddings if e is not None])}/{len(embeddings)} items")
+            server_embeddings_count = len([e for e in embeddings if e is not None])
+            if server_embeddings_count > 0:
+                logger.info(f"✅ Extracted {server_embeddings_count}/{len(embeddings)} server embeddings for tier0")
             else:
                 logger.info("No server embeddings found, will generate locally for all items")
             
@@ -3592,7 +3722,7 @@ class MemoryResource(SyncAPIResource):
                     # IMPORTANT: Use direct local embedder (CoreML), NOT collection's passthrough function
                     # The collection's embedding function is SmartPassthroughEmbeddingFunction which returns dummy vectors
                     # We need real CoreML embeddings here
-                            embedder = self._get_local_embedder()  # type: ignore
+                    embedder = self._get_local_embedder()  # type: ignore
                     logger.info("Using direct CoreML embedder for missing items (bypassing collection passthrough)")
                     
                     if embedder:
@@ -3981,15 +4111,24 @@ class MemoryResource(SyncAPIResource):
 
             for i, item in enumerate(tier1_data):
                 # Extract content for embedding
-                content = str(item)
+                raw_content = None
                 if isinstance(item, dict):
                     # Get content, handling None values properly
                     raw_content = item.get("content", item.get("description", None))
-                    # Skip if None, "none" (case-insensitive), or empty/whitespace-only string
-                    if raw_content is None or (isinstance(raw_content, str) and (raw_content.strip().lower() == "none" or not raw_content.strip())):
-                        logger.debug(f"Skipping tier1 item {i} (id: {item.get('id', 'unknown')}) with no/empty content")
-                        continue
-                    content = str(raw_content)
+                elif hasattr(item, 'content'):
+                    # Pydantic Memory object
+                    raw_content = getattr(item, 'content', None) or getattr(item, 'description', None)
+                else:
+                    # Fallback for unknown types
+                    raw_content = str(item)
+                
+                # Skip if None, "none" (case-insensitive), or empty/whitespace-only string
+                if raw_content is None or (isinstance(raw_content, str) and (raw_content.strip().lower() == "none" or not raw_content.strip())):
+                    item_id = item.get('id', 'unknown') if isinstance(item, dict) else getattr(item, 'id', 'unknown')
+                    logger.debug(f"Skipping tier1 item {i} (id: {item_id}) with no/empty content")
+                    continue
+                
+                content = str(raw_content)
 
                 # Create metadata
                 if isinstance(item, dict):
@@ -4000,16 +4139,30 @@ class MemoryResource(SyncAPIResource):
                             "tier": 1,
                             "type": str(item.get("type", "unknown")),
                             "topics": str(item.get("topics", [])),
+                            "tags": str(item.get("tags", [])),
                             "id": str(item.get("id", f"tier1_{i}")),
                             "updatedAt": str(item.get("updatedAt", "")),
                         }
                     )
-
-                    if "similarity_score" in item:
-                        metadata["similarity_score"] = float(item["similarity_score"])
+                elif hasattr(item, 'id'):
+                    # Pydantic Memory object
+                    base_metadata = getattr(item, 'metadata', {}) or {}
+                    metadata = dict(base_metadata)
+                    
+                    # Add standard fields
+                    metadata.update({
+                        "source": "sync_tiers",
+                        "tier": 1,
+                        "type": str(getattr(item, "type", "unknown")),
+                        "topics": str(getattr(item, "topics", [])),
+                        "tags": str(getattr(item, "tags", [])),
+                        "id": str(getattr(item, "id", f"tier1_{i}")),
+                        "updatedAt": str(getattr(item, "updated_at", "")),
+                    })
                 else:
                     metadata = {"source": "sync_tiers", "tier": 1, "type": "unknown", "topics": "unknown"}  # type: ignore
 
+                documents.append(content)
                 documents.append(content)
                 metadatas.append(metadata)
                 item_id = f"tier1_{i}"
@@ -4031,11 +4184,24 @@ class MemoryResource(SyncAPIResource):
                         logger.info(f"Valid server embedding for tier1 item {i} (dim: {len(embedding)})")
                     else:
                         logger.warning(f"Invalid server embedding format for tier1 item {i}, will use local generation")
+                elif hasattr(item, 'embedding') and item.embedding:  # type: ignore
+                    # Handle Pydantic Memory object with embedding attribute
+                    server_embedding = item.embedding  # type: ignore
+                    if (
+                        isinstance(server_embedding, list)
+                        and len(server_embedding) > 0
+                        and isinstance(server_embedding[0], (int, float))  # type: ignore
+                    ):
+                        embedding = server_embedding
+                        logger.info(f"Valid server embedding for tier1 item {i} (dim: {len(embedding)})")
+                    else:
+                        logger.warning(f"Invalid server embedding format for tier1 item {i}, will use local generation")
                 embeddings.append(embedding)
 
             # Log embedding extraction summary
-            if tier1_data and isinstance(tier1_data[0], dict) and "embedding" in tier1_data[0]:
-                logger.info(f"Extracted embeddings from server response for {len([e for e in embeddings if e is not None])}/{len(embeddings)} tier1 items")
+            server_embeddings_count = len([e for e in embeddings if e is not None])
+            if server_embeddings_count > 0:
+                logger.info(f"✅ Extracted {server_embeddings_count}/{len(embeddings)} server embeddings for tier1")
             else:
                 logger.info("No server embeddings found for tier1, will generate locally for all items")
             
@@ -4323,6 +4489,9 @@ class MemoryResource(SyncAPIResource):
 
         logger = get_logger(__name__)
         
+        # Declare global variables at the top of the method
+        global _model_loading_complete
+        
         ondevice_processing = os.environ.get("PAPR_ONDEVICE_PROCESSING", "false").lower() in ("true", "1", "yes", "on")
         enable_parallel = os.environ.get("PAPR_ENABLE_PARALLEL_SEARCH", "true").lower() in ("true", "1", "yes", "on")
         similarity_threshold = float(os.environ.get("PAPR_ONDEVICE_SIMILARITY_THRESHOLD", "0.80"))
@@ -4346,7 +4515,6 @@ class MemoryResource(SyncAPIResource):
             import threading
 
             # Check if model is loaded
-            global _model_loading_complete
             if not _model_loading_complete:
                 logger.info("Model still loading in background, using server-side search for optimal UX")
                 # Fall through to cloud API call
@@ -4505,7 +4673,6 @@ class MemoryResource(SyncAPIResource):
             assert isinstance(n_results, int), "n_results must be an int"
             
             # Check if model is loaded, fallback to server-side search if not
-            global _model_loading_complete
             if not _model_loading_complete:
                 logger.info("Model still loading in background, using server-side search for optimal UX")
                 # Fall through to cloud API call
