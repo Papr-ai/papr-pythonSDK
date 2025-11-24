@@ -917,6 +917,28 @@ class MemoryResource(SyncAPIResource):
                     "conversation_id": None,
                     "created_at": None,
                     "updated_at": None,
+                    # ACL fields
+                    "acl": {},
+                    "external_user_read_access": [],
+                    "external_user_write_access": [],
+                    "user_read_access": [],
+                    "user_write_access": [],
+                    "workspace_read_access": [],
+                    "workspace_write_access": [],
+                    "role_read_access": [],
+                    "role_write_access": [],
+                    "namespace_read_access": [],
+                    "namespace_write_access": [],
+                    "organization_read_access": [],
+                    "organization_write_access": [],
+                    # Document-specific fields
+                    "page_number": None,
+                    "total_pages": None,
+                    "file_url": None,
+                    "filename": None,
+                    "page": None,
+                    # Relevance score from server ranking
+                    "relevance_score": None,
                     "raw_keys": []
                 }
                 
@@ -942,6 +964,31 @@ class MemoryResource(SyncAPIResource):
                     item_data["created_at"] = item.get("createdAt") or item.get("created_at")
                     item_data["updated_at"] = item.get("updatedAt") or item.get("updated_at")
                     item_data["metadata"] = item.get("metadata", {})
+                    
+                    # ACL fields
+                    item_data["acl"] = item.get("acl", {})
+                    item_data["external_user_read_access"] = item.get("external_user_read_access", [])
+                    item_data["external_user_write_access"] = item.get("external_user_write_access", [])
+                    item_data["user_read_access"] = item.get("user_read_access", [])
+                    item_data["user_write_access"] = item.get("user_write_access", [])
+                    item_data["workspace_read_access"] = item.get("workspace_read_access", [])
+                    item_data["workspace_write_access"] = item.get("workspace_write_access", [])
+                    item_data["role_read_access"] = item.get("role_read_access", [])
+                    item_data["role_write_access"] = item.get("role_write_access", [])
+                    item_data["namespace_read_access"] = item.get("namespace_read_access", [])
+                    item_data["namespace_write_access"] = item.get("namespace_write_access", [])
+                    item_data["organization_read_access"] = item.get("organization_read_access", [])
+                    item_data["organization_write_access"] = item.get("organization_write_access", [])
+                    
+                    # Document-specific fields
+                    item_data["page_number"] = item.get("page_number")
+                    item_data["total_pages"] = item.get("total_pages")
+                    item_data["file_url"] = item.get("file_url")
+                    item_data["filename"] = item.get("filename")
+                    item_data["page"] = item.get("page")
+                    
+                    # Relevance score from server ranking
+                    item_data["relevance_score"] = item.get("relevance_score")
                     
                     # Content
                     raw_content = item.get("content", item.get("description", None))
@@ -997,6 +1044,31 @@ class MemoryResource(SyncAPIResource):
                         item_data["updated_at"] = None
                     
                     item_data["metadata"] = getattr(item, "metadata", {}) or {}
+                    
+                    # ACL fields
+                    item_data["acl"] = getattr(item, "acl", {}) or {}
+                    item_data["external_user_read_access"] = getattr(item, "external_user_read_access", []) or []
+                    item_data["external_user_write_access"] = getattr(item, "external_user_write_access", []) or []
+                    item_data["user_read_access"] = getattr(item, "user_read_access", []) or []
+                    item_data["user_write_access"] = getattr(item, "user_write_access", []) or []
+                    item_data["workspace_read_access"] = getattr(item, "workspace_read_access", []) or []
+                    item_data["workspace_write_access"] = getattr(item, "workspace_write_access", []) or []
+                    item_data["role_read_access"] = getattr(item, "role_read_access", []) or []
+                    item_data["role_write_access"] = getattr(item, "role_write_access", []) or []
+                    item_data["namespace_read_access"] = getattr(item, "namespace_read_access", []) or []
+                    item_data["namespace_write_access"] = getattr(item, "namespace_write_access", []) or []
+                    item_data["organization_read_access"] = getattr(item, "organization_read_access", []) or []
+                    item_data["organization_write_access"] = getattr(item, "organization_write_access", []) or []
+                    
+                    # Document-specific fields
+                    item_data["page_number"] = getattr(item, "page_number", None)
+                    item_data["total_pages"] = getattr(item, "total_pages", None)
+                    item_data["file_url"] = getattr(item, "file_url", None)
+                    item_data["filename"] = getattr(item, "filename", None)
+                    item_data["page"] = getattr(item, "page", None)
+                    
+                    # Relevance score from server ranking
+                    item_data["relevance_score"] = getattr(item, "relevance_score", None)
                     
                     # Content
                     raw_content = getattr(item, "content", None) or getattr(item, "description", None)
@@ -4103,13 +4175,35 @@ class MemoryResource(SyncAPIResource):
             
             logger.info(f"Using ChromaDB tier1 collection: {collection.name}")
             
+            # Deduplicate tier1_data by ID to avoid ChromaDB duplicate ID errors
+            seen_ids = set()
+            deduplicated_tier1 = []
+            duplicate_count = 0
+            for item in tier1_data:
+                item_id = None
+                if isinstance(item, dict):
+                    item_id = item.get("id")
+                elif hasattr(item, 'id'):
+                    item_id = getattr(item, 'id', None)
+                
+                if item_id and item_id in seen_ids:
+                    duplicate_count += 1
+                    continue
+                    
+                if item_id:
+                    seen_ids.add(item_id)
+                deduplicated_tier1.append(item)
+            
+            if duplicate_count > 0:
+                logger.info(f"Removed {duplicate_count} duplicate tier1 items (unique: {len(deduplicated_tier1)})")
+            
             # Prepare documents for ChromaDB
             documents = []
             metadatas = []
             ids = []
             embeddings = []
 
-            for i, item in enumerate(tier1_data):
+            for i, item in enumerate(deduplicated_tier1):
                 # Extract content for embedding
                 raw_content = None
                 if isinstance(item, dict):
@@ -4495,7 +4589,7 @@ class MemoryResource(SyncAPIResource):
         
         ondevice_processing = os.environ.get("PAPR_ONDEVICE_PROCESSING", "false").lower() in ("true", "1", "yes", "on")
         enable_parallel = os.environ.get("PAPR_ENABLE_PARALLEL_SEARCH", "true").lower() in ("true", "1", "yes", "on")
-        similarity_threshold = float(os.environ.get("PAPR_ONDEVICE_SIMILARITY_THRESHOLD", "0.80"))
+        similarity_threshold = float(os.environ.get("PAPR_ONDEVICE_SIMILARITY_THRESHOLD", "0.90"))
         
         # Check if agentic graph is enabled
         agentic_enabled = enable_agentic_graph if enable_agentic_graph is not omit else False
@@ -4627,11 +4721,11 @@ class MemoryResource(SyncAPIResource):
                 ondevice_thread.start()
                 cloud_thread.start()
                 
-                # Wait for both to complete
-                ondevice_thread.join()
-                cloud_thread.join()
+                # RACE WITH THRESHOLD: Wait for on-device first, return immediately if it meets threshold
+                # This gives us fast results when on-device is good enough
+                ondevice_thread.join()  # Wait for on-device to complete
                 
-                # Decision logic: Choose best results based on similarity threshold
+                # Check on-device results immediately
                 if ondevice_result and not ondevice_error:
                     # Extract combined_results from ondevice memories
                     combined_results_for_check = [
@@ -4640,29 +4734,35 @@ class MemoryResource(SyncAPIResource):
                     ]
                     max_similarity = self._get_max_similarity(combined_results_for_check)
                     
-                    if max_similarity < similarity_threshold:
-                        logger.info(f"⚠️  On-device similarity too low ({max_similarity:.3f} < {similarity_threshold}) - using cloud results")
+                    # If on-device meets threshold, return immediately WITHOUT waiting for cloud
+                    if max_similarity >= similarity_threshold:
+                        logger.info(f"✅ Using on-device results (similarity={max_similarity:.3f}, time={ondevice_time:.1f}ms) - cloud still running")
+                        # Don't wait for cloud thread - let it finish in background if needed
+                        return ondevice_result
+                    else:
+                        # On-device doesn't meet threshold - now wait for cloud
+                        logger.info(f"⚠️  On-device similarity too low ({max_similarity:.3f} < {similarity_threshold}) - waiting for cloud results")
+                        cloud_thread.join()  # Wait for cloud to complete
                         if cloud_result and not cloud_error:
                             logger.info(f"✅ Using cloud results (time={cloud_time:.1f}ms)")
                             return cloud_result
                         else:
                             logger.warning("Cloud search also failed, returning low-quality on-device results")
                             return ondevice_result
+                else:
+                    # On-device failed - wait for cloud
+                    logger.warning("On-device search failed, waiting for cloud results")
+                    cloud_thread.join()
+                    if cloud_result and not cloud_error:
+                        logger.info(f"✅ Using cloud results (on-device failed, time={cloud_time:.1f}ms)")
+                        return cloud_result
                     else:
-                        logger.info(f"✅ Using on-device results (similarity={max_similarity:.3f}, time={ondevice_time:.1f}ms)")
-                        return ondevice_result
-                
-                # Fallback to cloud if on-device failed
-                if cloud_result and not cloud_error:
-                    logger.info(f"✅ Using cloud results (on-device failed, time={cloud_time:.1f}ms)")
-                    return cloud_result
-                
-                # Both failed - raise error
-                logger.error("❌ Both on-device and cloud search failed")
-                if cloud_error:
-                    raise cloud_error
-                if ondevice_error:
-                    raise ondevice_error
+                        # Both failed - raise error
+                        logger.error("❌ Both on-device and cloud search failed")
+                        if cloud_error:
+                            raise cloud_error
+                        if ondevice_error:
+                            raise ondevice_error
         
         # CASE 3: On-device enabled BUT parallel search disabled → on-device only (legacy behavior)
         elif ondevice_processing and hasattr(self, "_chroma_collection") and self._chroma_collection is not None:

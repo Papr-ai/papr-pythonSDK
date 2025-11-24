@@ -84,6 +84,12 @@ class Memory(BaseModel):
         description="Quantized INT8 embedding vector (values -128 to 127). 4x smaller than float32. Default format for efficiency."
     )
     
+    # Relevance score from server ranking (optional)
+    relevance_score: Optional[float] = Field(
+        default=None,
+        description="Relevance score from server-side ranking/scoring. Higher is more relevant. Can be combined with cosine similarity for hybrid ranking."
+    )
+    
     model_config = ConfigDict(
         extra='allow',  # Allow additional fields from server
         populate_by_name=True,
