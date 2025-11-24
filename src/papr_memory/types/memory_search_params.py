@@ -2,14 +2,13 @@
 
 from __future__ import annotations
 
-from typing import Iterable, Optional
+from typing import Optional
 from typing_extensions import Required, Annotated, TypedDict
 
-from .._types import SequenceNotStr
 from .._utils import PropertyInfo
 from .memory_metadata_param import MemoryMetadataParam
 
-__all__ = ["MemorySearchParams", "SearchOverride"]
+__all__ = ["MemorySearchParams"]
 
 
 class MemorySearchParams(TypedDict, total=False):
@@ -89,9 +88,6 @@ class MemorySearchParams(TypedDict, total=False):
     content.
     """
 
-    search_override: Optional[SearchOverride]
-    """Complete search override specification provided by developer"""
-
     simple_schema_mode: bool
     """If true, uses simple schema mode: system schema + ONE most relevant user schema.
 
@@ -107,14 +103,3 @@ class MemorySearchParams(TypedDict, total=False):
     """
 
     accept_encoding: Annotated[str, PropertyInfo(alias="Accept-Encoding")]
-
-
-class SearchOverride(TypedDict, total=False):
-    pattern: Required[object]
-    """Graph pattern to search for (source)-[relationship]->(target)"""
-
-    filters: Iterable[object]
-    """Property filters to apply to the search pattern"""
-
-    return_properties: Optional[SequenceNotStr[str]]
-    """Specific properties to return. If not specified, returns all properties."""
