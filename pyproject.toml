@@ -7,17 +7,19 @@ license = "Apache-2.0"
 authors = [
 { name = "Papr", email = "support@papr.ai" },
 ]
+
 dependencies = [
-    "httpx>=0.23.0, <1",
+  "httpx>=0.23.0, <1",
     "pydantic>=2.7,<3",
-    "typing-extensions>=4.10, <5",
-    "anyio>=3.5.0, <5",
-    "distro>=1.7.0, <2",
-    "sniffio",
+  "typing-extensions>=4.10, <5",
+  "anyio>=3.5.0, <5",
+  "distro>=1.7.0, <2",
+  "sniffio",
     "chromadb>=0.4.0",
     "sentence-transformers>=2.0.0",
     "psutil>=5.8.0",
 ]
+
 requires-python = ">= 3.9"
 classifiers = [
   "Typing :: Typed",
