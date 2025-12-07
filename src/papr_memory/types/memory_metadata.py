@@ -53,7 +53,15 @@ class MemoryMetadata(BaseModel):
 
     namespace_id: Optional[str] = None
 
+    namespace_read_access: Optional[List[str]] = None
+
+    namespace_write_access: Optional[List[str]] = None
+
     organization_id: Optional[str] = None
+
+    organization_read_access: Optional[List[str]] = None
+
+    organization_write_access: Optional[List[str]] = None
 
     page_id: Optional[str] = FieldInfo(alias="pageId", default=None)
 

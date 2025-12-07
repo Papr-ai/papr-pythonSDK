@@ -1,5 +1,31 @@
 # Changelog
 
+## 2.18.0 (2025-12-07)
+
+Full Changelog: [v2.17.0...v2.18.0](https://github.com/Papr-ai/papr-pythonSDK/compare/v2.17.0...v2.18.0)
+
+### Features
+
+* **api:** manual updates ([ccf1f3c](https://github.com/Papr-ai/papr-pythonSDK/commit/ccf1f3c1ae3e1d46b00d553a334b232670c2994b))
+* **api:** manual updates ([a35d86e](https://github.com/Papr-ai/papr-pythonSDK/commit/a35d86e19ff0ee4c64c4538fa4e0787187969fb0))
+* **api:** manual updates ([58945f0](https://github.com/Papr-ai/papr-pythonSDK/commit/58945f05d1f49aed8f618d14c905a9a6965b79b3))
+* **api:** manual updates ([219753d](https://github.com/Papr-ai/papr-pythonSDK/commit/219753ddfc09d018f7b5b59982b3770b4af7632e))
+* **api:** manual updates ([1e11115](https://github.com/Papr-ai/papr-pythonSDK/commit/1e111155963bf440918e0e80348fb467df2d4a28))
+* **api:** manual updates ([0c51e72](https://github.com/Papr-ai/papr-pythonSDK/commit/0c51e72c22c01b90ca2713d56863dd84eb57bd0b))
+
+
+### Bug Fixes
+
+* ensure streams are always closed ([2737448](https://github.com/Papr-ai/papr-pythonSDK/commit/273744827c48c1ec7aa677ff79f83558301fe9d6))
+
+
+### Chores
+
+* add Python 3.14 classifier and testing ([3341faa](https://github.com/Papr-ai/papr-pythonSDK/commit/3341faac88c46c82dfeb3d99d4f4a998740fb194))
+* **deps:** mypy 1.18.1 has a regression, pin to 1.17 ([0643fd8](https://github.com/Papr-ai/papr-pythonSDK/commit/0643fd82309425e225ba4e2d1baf3722806f3332))
+* **docs:** use environment variables for authentication in code snippets ([b37c1bf](https://github.com/Papr-ai/papr-pythonSDK/commit/b37c1bffaf23108fc94ef06cdb4bd442589b3dd0))
+* update lockfile ([6e42245](https://github.com/Papr-ai/papr-pythonSDK/commit/6e4224563b19527191623a00be769a93d7e6e6d6))
+
 ## 2.17.0 (2025-11-18)
 
 Full Changelog: [v2.16.0...v2.17.0](https://github.com/Papr-ai/papr-pythonSDK/compare/v2.16.0...v2.17.0)

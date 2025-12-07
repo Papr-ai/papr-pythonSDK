@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from typing import Optional
-from typing_extensions import Required, Annotated, TypedDict
+from typing_extensions import Literal, Required, Annotated, TypedDict
 
 from .._utils import PropertyInfo
 from .memory_metadata_param import MemoryMetadataParam
@@ -36,6 +36,12 @@ class MemorySearchParams(TypedDict, total=False):
 
     Use at least 10-15 for comprehensive graph results. Lower values may miss
     important entity relationships. Default is 15 for optimal coverage.
+    """
+
+    response_format: Literal["json", "toon"]
+    """
+    Response format: 'json' (default) or 'toon' (Token-Oriented Object Notation for
+    30-60% token reduction in LLM contexts)
     """
 
     enable_agentic_graph: bool
@@ -78,6 +84,21 @@ class MemorySearchParams(TypedDict, total=False):
     Default is false because results are already ranked when using an LLM for search
     (recommended approach). Only enable this if you're not using an LLM in your
     search pipeline and need additional result ranking.
+    """
+
+    schema_id: Optional[str]
+    """Optional user-defined schema ID to use for this search.
+
+    If provided, this schema (plus system schema) will be used for query generation.
+    If not provided, system will automatically select relevant schema based on query
+    content.
+    """
+
+    simple_schema_mode: bool
+    """If true, uses simple schema mode: system schema + ONE most relevant user schema.
+
+    This ensures better consistency between add/search operations and reduces query
+    complexity. Recommended for production use.
     """
 
     user_id: Optional[str]

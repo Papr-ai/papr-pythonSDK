@@ -23,7 +23,7 @@ class NodeTypesProperties(BaseModel):
     description: Optional[str] = None
 
     enum_values: Optional[List[str]] = None
-    """List of allowed enum values (max 10)"""
+    """List of allowed enum values (max 15)"""
 
     max_length: Optional[int] = None
 
@@ -50,7 +50,7 @@ class NodeTypes(BaseModel):
     icon: Optional[str] = None
 
     properties: Optional[Dict[str, NodeTypesProperties]] = None
-    """Node properties (max 15 per node type)"""
+    """Node properties (max 10 per node type)"""
 
     required_properties: Optional[List[str]] = None
 
@@ -70,7 +70,7 @@ class RelationshipTypesProperties(BaseModel):
     description: Optional[str] = None
 
     enum_values: Optional[List[str]] = None
-    """List of allowed enum values (max 10)"""
+    """List of allowed enum values (max 15)"""
 
     max_length: Optional[int] = None
 
@@ -114,17 +114,20 @@ class UserGraphSchemaOutput(BaseModel):
 
     last_used_at: Optional[datetime] = None
 
-    node_types: Optional[Dict[str, NodeTypes]] = None
-    """Custom node types (max 15 per schema)"""
+    namespace: Union[str, Dict[str, object], None] = None
 
-    organization_id: Optional[str] = None
+    node_types: Optional[Dict[str, NodeTypes]] = None
+    """Custom node types (max 10 per schema)"""
+
+    organization: Union[str, Dict[str, object], None] = None
 
     read_access: Optional[List[str]] = None
 
     relationship_types: Optional[Dict[str, RelationshipTypes]] = None
     """Custom relationship types (max 20 per schema)"""
 
-    scope: Optional[Literal["personal", "workspace", "organization"]] = None
+    scope: Optional[Literal["personal", "workspace", "namespace", "organization"]] = None
+    """Schema scopes available through the API"""
 
     status: Optional[Literal["draft", "active", "deprecated", "archived"]] = None
 
