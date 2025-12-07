@@ -3028,7 +3028,6 @@ class MemoryResource(SyncAPIResource):
         organization_id: Optional[str] | Omit = omit,
         rank_results: bool | Omit = omit,
         schema_id: Optional[str] | Omit = omit,
-        search_override: Optional[memory_search_params.SearchOverride] | Omit = omit,
         simple_schema_mode: bool | Omit = omit,
         user_id: Optional[str] | Omit = omit,
         accept_encoding: str | Omit = omit,
@@ -3152,8 +3151,6 @@ class MemoryResource(SyncAPIResource):
               (plus system schema) will be used for query generation. If not provided, system
               will automatically select relevant schema based on query content.
 
-          search_override: Complete search override specification provided by developer
-
           simple_schema_mode: If true, uses simple schema mode: system schema + ONE most relevant user schema.
               This ensures better consistency between add/search operations and reduces query
               complexity. Recommended for production use.
@@ -3275,7 +3272,6 @@ class MemoryResource(SyncAPIResource):
                     "organization_id": organization_id,
                     "rank_results": rank_results,
                     "schema_id": schema_id,
-                    "search_override": search_override,
                     "simple_schema_mode": simple_schema_mode,
                     "user_id": user_id,
                 },
@@ -3894,7 +3890,6 @@ class AsyncMemoryResource(AsyncAPIResource):
         organization_id: Optional[str] | Omit = omit,
         rank_results: bool | Omit = omit,
         schema_id: Optional[str] | Omit = omit,
-        search_override: Optional[memory_search_params.SearchOverride] | Omit = omit,
         simple_schema_mode: bool | Omit = omit,
         user_id: Optional[str] | Omit = omit,
         accept_encoding: str | Omit = omit,
@@ -4018,8 +4013,6 @@ class AsyncMemoryResource(AsyncAPIResource):
               (plus system schema) will be used for query generation. If not provided, system
               will automatically select relevant schema based on query content.
 
-          search_override: Complete search override specification provided by developer
-
           simple_schema_mode: If true, uses simple schema mode: system schema + ONE most relevant user schema.
               This ensures better consistency between add/search operations and reduces query
               complexity. Recommended for production use.
@@ -4053,7 +4046,6 @@ class AsyncMemoryResource(AsyncAPIResource):
                     "organization_id": organization_id,
                     "rank_results": rank_results,
                     "schema_id": schema_id,
-                    "search_override": search_override,
                     "simple_schema_mode": simple_schema_mode,
                     "user_id": user_id,
                 },
