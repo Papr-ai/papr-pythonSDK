@@ -725,6 +725,7 @@ class TestMemory:
             query="Find recurring customer complaints about API performance from the last month. Focus on issues that multiple customers have mentioned and any specific feature requests or workflow improvements they've suggested.",
             max_memories=10,
             max_nodes=10,
+            response_format="json",
             enable_agentic_graph=False,
             external_user_id="external_user_123",
             metadata={
@@ -774,6 +775,29 @@ class TestMemory:
             organization_id="organization_id",
             rank_results=True,
             schema_id="schema_id",
+            search_override={
+                "pattern": {
+                    "relationship_type": "ASSOCIATED_WITH",
+                    "source_label": "Memory",
+                    "target_label": "Person",
+                    "direction": "->",
+                },
+                "filters": [
+                    {
+                        "node_type": "Person",
+                        "operator": "CONTAINS",
+                        "property_name": "name",
+                        "value": "John",
+                    },
+                    {
+                        "node_type": "Memory",
+                        "operator": "IN",
+                        "property_name": "topics",
+                        "value": ["project", "meeting"],
+                    },
+                ],
+                "return_properties": ["name", "content", "createdAt"],
+            },
             simple_schema_mode=True,
             user_id="user_id",
             accept_encoding="Accept-Encoding",
@@ -1514,6 +1538,7 @@ class TestAsyncMemory:
             query="Find recurring customer complaints about API performance from the last month. Focus on issues that multiple customers have mentioned and any specific feature requests or workflow improvements they've suggested.",
             max_memories=10,
             max_nodes=10,
+            response_format="json",
             enable_agentic_graph=False,
             external_user_id="external_user_123",
             metadata={
@@ -1563,6 +1588,29 @@ class TestAsyncMemory:
             organization_id="organization_id",
             rank_results=True,
             schema_id="schema_id",
+            search_override={
+                "pattern": {
+                    "relationship_type": "ASSOCIATED_WITH",
+                    "source_label": "Memory",
+                    "target_label": "Person",
+                    "direction": "->",
+                },
+                "filters": [
+                    {
+                        "node_type": "Person",
+                        "operator": "CONTAINS",
+                        "property_name": "name",
+                        "value": "John",
+                    },
+                    {
+                        "node_type": "Memory",
+                        "operator": "IN",
+                        "property_name": "topics",
+                        "value": ["project", "meeting"],
+                    },
+                ],
+                "return_properties": ["name", "content", "createdAt"],
+            },
             simple_schema_mode=True,
             user_id="user_id",
             accept_encoding="Accept-Encoding",

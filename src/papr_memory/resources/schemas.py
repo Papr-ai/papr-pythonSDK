@@ -86,16 +86,16 @@ class SchemasResource(SyncAPIResource):
             - Define custom node types with properties and validation rules
             - Define custom relationship types with constraints
             - Automatic validation against system schemas
-            - Support for different scopes (personal, workspace, organization)
+            - Support for different scopes (personal, workspace, namespace, organization)
             - **Status control**: Set `status` to "active" to immediately activate the schema, or "draft" to save as draft (default)
-            - **Enum support**: Use `enum_values` to restrict property values to a predefined list (max 10 values)
+            - **Enum support**: Use `enum_values` to restrict property values to a predefined list (max 15 values)
             - **Auto-indexing**: Required properties are automatically indexed in Neo4j when schema becomes active
 
             **Schema Limits (optimized for LLM performance):**
             - **Maximum 10 node types** per schema
             - **Maximum 20 relationship types** per schema
             - **Maximum 10 properties** per node type
-            - **Maximum 10 enum values** per property
+            - **Maximum 15 enum values** per property
 
             **Property Types & Validation:**
             - `string`: Text values with optional `enum_values`, `min_length`, `max_length`, `pattern`
@@ -108,18 +108,18 @@ class SchemasResource(SyncAPIResource):
 
             **Enum Values:**
             - Add `enum_values` to any string property to restrict values to a predefined list
-            - Maximum 10 enum values allowed per property
+            - Maximum 15 enum values allowed per property
             - Use with `default` to set a default enum value
             - Example: `"enum_values": ["small", "medium", "large"]`
 
             **When to Use Enums:**
-            - Limited, well-defined options (≤10 values): sizes, statuses, categories, priorities
+            - Limited, well-defined options (≤15 values): sizes, statuses, categories, priorities
             - Controlled vocabularies: "active/inactive", "high/medium/low", "bronze/silver/gold"
             - When you want exact matching and no variations
 
             **When to Avoid Enums:**
             - Open-ended text fields: names, titles, descriptions, addresses
-            - Large sets of options (>10): countries, cities, product models
+            - Large sets of options (>15): countries, cities, product models
             - When you want semantic similarity matching for entity resolution
             - Dynamic or frequently changing value sets
 
@@ -129,8 +129,8 @@ class SchemasResource(SyncAPIResource):
             - **Without enum_values**: Semantic similarity matching is used - entities with similar meanings are automatically merged
             - Example: A "name" unique_identifier without enums will merge "Apple Inc" and "Apple Inc." as the same entity
             - Example: A "sku" unique_identifier with enums will only merge entities with exactly matching SKU codes
-            - Use enums for unique_identifiers when you have a limited, predefined set of values (≤10 options)
-            - Avoid enums for unique_identifiers when you have broad, open-ended values or >10 possible options
+            - Use enums for unique_identifiers when you have a limited, predefined set of values (≤15 options)
+            - Avoid enums for unique_identifiers when you have broad, open-ended values or >15 possible options
             - **Best practices**: Use enums for controlled vocabularies (status codes, categories), avoid for open text (company names, product titles)
             - **In the example above**: "name" uses semantic similarity (open-ended), "sku" uses exact matching (controlled set)
 
@@ -293,7 +293,8 @@ class SchemasResource(SyncAPIResource):
 
             Returns schemas that the user owns or has read access to, including:
             - Personal schemas created by the user
-            - Workspace schemas shared within the user's workspace
+            - Workspace schemas shared within the user's workspace (legacy)
+            - Namespace schemas shared within the user's namespace
             - Organization schemas available to the user's organization
 
             **Authentication Required**:
@@ -430,16 +431,16 @@ class AsyncSchemasResource(AsyncAPIResource):
             - Define custom node types with properties and validation rules
             - Define custom relationship types with constraints
             - Automatic validation against system schemas
-            - Support for different scopes (personal, workspace, organization)
+            - Support for different scopes (personal, workspace, namespace, organization)
             - **Status control**: Set `status` to "active" to immediately activate the schema, or "draft" to save as draft (default)
-            - **Enum support**: Use `enum_values` to restrict property values to a predefined list (max 10 values)
+            - **Enum support**: Use `enum_values` to restrict property values to a predefined list (max 15 values)
             - **Auto-indexing**: Required properties are automatically indexed in Neo4j when schema becomes active
 
             **Schema Limits (optimized for LLM performance):**
             - **Maximum 10 node types** per schema
             - **Maximum 20 relationship types** per schema
             - **Maximum 10 properties** per node type
-            - **Maximum 10 enum values** per property
+            - **Maximum 15 enum values** per property
 
             **Property Types & Validation:**
             - `string`: Text values with optional `enum_values`, `min_length`, `max_length`, `pattern`
@@ -452,18 +453,18 @@ class AsyncSchemasResource(AsyncAPIResource):
 
             **Enum Values:**
             - Add `enum_values` to any string property to restrict values to a predefined list
-            - Maximum 10 enum values allowed per property
+            - Maximum 15 enum values allowed per property
             - Use with `default` to set a default enum value
             - Example: `"enum_values": ["small", "medium", "large"]`
 
             **When to Use Enums:**
-            - Limited, well-defined options (≤10 values): sizes, statuses, categories, priorities
+            - Limited, well-defined options (≤15 values): sizes, statuses, categories, priorities
             - Controlled vocabularies: "active/inactive", "high/medium/low", "bronze/silver/gold"
             - When you want exact matching and no variations
 
             **When to Avoid Enums:**
             - Open-ended text fields: names, titles, descriptions, addresses
-            - Large sets of options (>10): countries, cities, product models
+            - Large sets of options (>15): countries, cities, product models
             - When you want semantic similarity matching for entity resolution
             - Dynamic or frequently changing value sets
 
@@ -473,8 +474,8 @@ class AsyncSchemasResource(AsyncAPIResource):
             - **Without enum_values**: Semantic similarity matching is used - entities with similar meanings are automatically merged
             - Example: A "name" unique_identifier without enums will merge "Apple Inc" and "Apple Inc." as the same entity
             - Example: A "sku" unique_identifier with enums will only merge entities with exactly matching SKU codes
-            - Use enums for unique_identifiers when you have a limited, predefined set of values (≤10 options)
-            - Avoid enums for unique_identifiers when you have broad, open-ended values or >10 possible options
+            - Use enums for unique_identifiers when you have a limited, predefined set of values (≤15 options)
+            - Avoid enums for unique_identifiers when you have broad, open-ended values or >15 possible options
             - **Best practices**: Use enums for controlled vocabularies (status codes, categories), avoid for open text (company names, product titles)
             - **In the example above**: "name" uses semantic similarity (open-ended), "sku" uses exact matching (controlled set)
 
@@ -637,7 +638,8 @@ class AsyncSchemasResource(AsyncAPIResource):
 
             Returns schemas that the user owns or has read access to, including:
             - Personal schemas created by the user
-            - Workspace schemas shared within the user's workspace
+            - Workspace schemas shared within the user's workspace (legacy)
+            - Namespace schemas shared within the user's namespace
             - Organization schemas available to the user's organization
 
             **Authentication Required**:
