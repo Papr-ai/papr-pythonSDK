@@ -29,11 +29,23 @@ class DataMemory(BaseModel):
 
     conversation_id: Optional[str] = None
 
-    created_at: Optional[datetime] = None
+    created_at: Optional[datetime] = FieldInfo(alias="createdAt", default=None)
 
     current_step: Optional[str] = None
 
     custom_metadata: Optional[Dict[str, object]] = FieldInfo(alias="customMetadata", default=None)
+
+    embedding: Optional[List[float]] = None
+    """Full precision (float32) embedding vector from Qdrant.
+
+    Typically 2560 dimensions for Qwen4B. Used for CoreML/ANE fp16 models.
+    """
+
+    embedding_int8: Optional[List[int]] = None
+    """Quantized INT8 embedding vector (values -128 to 127).
+
+    4x smaller than float32. Default format for efficiency.
+    """
 
     external_user_id: Optional[str] = None
 
@@ -69,6 +81,13 @@ class DataMemory(BaseModel):
 
     page_number: Optional[int] = None
 
+    relevance_score: Optional[float] = None
+    """Relevance score from server-side ranking algorithm.
+
+    Higher scores indicate more relevant memories. Computed as: 60% vector
+    similarity + 30% transition probability + 20% access frequency.
+    """
+
     role: Optional[str] = None
     """Role that generated this memory (user or assistant)"""
 
@@ -94,7 +113,7 @@ class DataMemory(BaseModel):
 
     total_pages: Optional[int] = None
 
-    updated_at: Optional[datetime] = None
+    updated_at: Optional[datetime] = FieldInfo(alias="updatedAt", default=None)
 
     user_read_access: Optional[List[str]] = None
 

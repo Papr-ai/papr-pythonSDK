@@ -23,7 +23,7 @@ class NodeTypesProperties(BaseModel):
     description: Optional[str] = None
 
     enum_values: Optional[List[str]] = None
-    """List of allowed enum values (max 10)"""
+    """List of allowed enum values (max 15)"""
 
     max_length: Optional[int] = None
 
@@ -70,7 +70,7 @@ class RelationshipTypesProperties(BaseModel):
     description: Optional[str] = None
 
     enum_values: Optional[List[str]] = None
-    """List of allowed enum values (max 10)"""
+    """List of allowed enum values (max 15)"""
 
     max_length: Optional[int] = None
 

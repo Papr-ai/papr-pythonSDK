@@ -61,7 +61,7 @@ class NodeTypesProperties(TypedDict, total=False):
     description: Optional[str]
 
     enum_values: Optional[SequenceNotStr[str]]
-    """List of allowed enum values (max 10)"""
+    """List of allowed enum values (max 15)"""
 
     max_length: Optional[int]
 
@@ -108,7 +108,7 @@ class RelationshipTypesProperties(TypedDict, total=False):
     description: Optional[str]
 
     enum_values: Optional[SequenceNotStr[str]]
-    """List of allowed enum values (max 10)"""
+    """List of allowed enum values (max 15)"""
 
     max_length: Optional[int]
 
