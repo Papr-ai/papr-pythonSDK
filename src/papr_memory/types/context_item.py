@@ -8,6 +8,8 @@ __all__ = ["ContextItem"]
 
 
 class ContextItem(BaseModel):
+    """Context item for memory request"""
+
     content: str
 
     role: Literal["user", "assistant"]

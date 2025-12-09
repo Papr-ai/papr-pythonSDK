@@ -8,6 +8,8 @@ __all__ = ["ContextItemParam"]
 
 
 class ContextItemParam(TypedDict, total=False):
+    """Context item for memory request"""
+
     content: Required[str]
 
     role: Required[Literal["user", "assistant"]]

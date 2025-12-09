@@ -9,6 +9,8 @@ __all__ = ["AddMemoryResponse"]
 
 
 class AddMemoryResponse(BaseModel):
+    """Unified response model for add_memory API endpoint (success or error)."""
+
     code: Optional[int] = None
     """HTTP status code"""
 

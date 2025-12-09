@@ -12,6 +12,8 @@ __all__ = ["GraphGenerationParam"]
 
 
 class GraphGenerationParam(TypedDict, total=False):
+    """Graph generation configuration"""
+
     auto: Optional[AutoGraphGenerationParam]
     """AI-powered graph generation with optional guidance"""
 
