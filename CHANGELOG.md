@@ -1,5 +1,18 @@
 # Changelog
 
+## 2.18.1 (2025-12-09)
+
+Full Changelog: [v2.18.0...v2.18.1](https://github.com/Papr-ai/papr-pythonSDK/compare/v2.18.0...v2.18.1)
+
+### Bug Fixes
+
+* **types:** allow pyright to infer TypedDict types within SequenceNotStr ([6994111](https://github.com/Papr-ai/papr-pythonSDK/commit/6994111895bde7e49f3db4adec0252fb90b5d50c))
+
+
+### Chores
+
+* add missing docstrings ([029e262](https://github.com/Papr-ai/papr-pythonSDK/commit/029e262ee6935eb6ad9e88d93ef10d7c8388d00b))
+
 ## 2.18.0 (2025-12-07)
 
 Full Changelog: [v2.17.0...v2.18.0](https://github.com/Papr-ai/papr-pythonSDK/compare/v2.17.0...v2.18.0)

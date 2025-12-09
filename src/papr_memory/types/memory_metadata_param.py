@@ -12,6 +12,8 @@ __all__ = ["MemoryMetadataParam"]
 
 
 class MemoryMetadataParamTyped(TypedDict, total=False):
+    """Metadata for memory request"""
+
     assistant_message: Annotated[Optional[str], PropertyInfo(alias="assistantMessage")]
 
     category: Optional[Literal["preference", "task", "goal", "fact", "context", "skills", "learning"]]

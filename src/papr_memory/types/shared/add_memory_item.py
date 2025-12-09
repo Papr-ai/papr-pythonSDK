@@ -11,6 +11,8 @@ __all__ = ["AddMemoryItem"]
 
 
 class AddMemoryItem(BaseModel):
+    """Response model for a single memory item in add_memory response"""
+
     created_at: datetime = FieldInfo(alias="createdAt")
 
     memory_id: str = FieldInfo(alias="memoryId")

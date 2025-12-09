@@ -39,6 +39,8 @@ class FeedbackSubmitParams(TypedDict, total=False):
 
 
 class FeedbackData(TypedDict, total=False):
+    """The feedback data containing all feedback information"""
+
     feedback_source: Required[
         Annotated[
             Literal["inline", "post_query", "session_end", "memory_citation", "answer_panel"],

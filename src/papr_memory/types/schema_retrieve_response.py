@@ -9,6 +9,8 @@ __all__ = ["SchemaRetrieveResponse"]
 
 
 class SchemaRetrieveResponse(BaseModel):
+    """Response model for schema operations"""
+
     success: bool
 
     code: Optional[int] = None
