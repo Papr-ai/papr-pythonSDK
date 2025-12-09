@@ -54,6 +54,8 @@ class SchemaCreateParams(TypedDict, total=False):
 
 
 class NodeTypesProperties(TypedDict, total=False):
+    """Property definition for nodes/relationships"""
+
     type: Required[Literal["string", "integer", "float", "boolean", "array", "datetime", "object"]]
 
     default: object
@@ -77,6 +79,8 @@ class NodeTypesProperties(TypedDict, total=False):
 
 
 class NodeTypes(TypedDict, total=False):
+    """User-defined node type"""
+
     label: Required[str]
 
     name: Required[str]
@@ -101,6 +105,8 @@ class NodeTypes(TypedDict, total=False):
 
 
 class RelationshipTypesProperties(TypedDict, total=False):
+    """Property definition for nodes/relationships"""
+
     type: Required[Literal["string", "integer", "float", "boolean", "array", "datetime", "object"]]
 
     default: object
@@ -124,6 +130,8 @@ class RelationshipTypesProperties(TypedDict, total=False):
 
 
 class RelationshipTypes(TypedDict, total=False):
+    """User-defined relationship type"""
+
     allowed_source_types: Required[SequenceNotStr[str]]
 
     allowed_target_types: Required[SequenceNotStr[str]]

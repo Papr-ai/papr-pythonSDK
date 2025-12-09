@@ -13,6 +13,8 @@ __all__ = ["FeedbackRequestParam", "FeedbackData"]
 
 
 class FeedbackData(TypedDict, total=False):
+    """The feedback data containing all feedback information"""
+
     feedback_source: Required[
         Annotated[
             Literal["inline", "post_query", "session_end", "memory_citation", "answer_panel"],
@@ -62,6 +64,8 @@ class FeedbackData(TypedDict, total=False):
 
 
 class FeedbackRequestParam(TypedDict, total=False):
+    """Request model for submitting feedback on search results"""
+
     feedback_data: Required[Annotated[FeedbackData, PropertyInfo(alias="feedbackData")]]
     """The feedback data containing all feedback information"""
 

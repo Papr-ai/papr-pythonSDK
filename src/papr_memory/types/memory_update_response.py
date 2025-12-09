@@ -12,6 +12,8 @@ __all__ = ["MemoryUpdateResponse", "MemoryItem", "StatusObj"]
 
 
 class MemoryItem(BaseModel):
+    """Model for a single updated memory item"""
+
     memory_id: str = FieldInfo(alias="memoryId")
 
     object_id: str = FieldInfo(alias="objectId")
@@ -27,6 +29,8 @@ class MemoryItem(BaseModel):
 
 
 class StatusObj(BaseModel):
+    """Status of update operation for each system"""
+
     neo4j: Optional[bool] = None
 
     parse: Optional[bool] = None
@@ -35,6 +39,8 @@ class StatusObj(BaseModel):
 
 
 class MemoryUpdateResponse(BaseModel):
+    """Unified response model for update_memory API endpoint (success or error)."""
+
     code: Optional[int] = None
     """HTTP status code"""
 

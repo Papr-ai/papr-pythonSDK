@@ -15,6 +15,8 @@ class UserCreateBatchParams(TypedDict, total=False):
 
 
 class User(TypedDict, total=False):
+    """Request model for creating a user"""
+
     external_id: Required[str]
 
     email: Optional[str]

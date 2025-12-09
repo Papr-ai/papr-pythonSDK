@@ -9,6 +9,8 @@ __all__ = ["RelationshipItemParam"]
 
 
 class RelationshipItemParam(TypedDict, total=False):
+    """Relationship item for memory request"""
+
     relation_type: Required[str]
 
     metadata: Dict[str, object]

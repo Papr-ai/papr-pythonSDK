@@ -10,6 +10,8 @@ __all__ = ["DocumentUploadResponse", "DocumentStatus"]
 
 
 class DocumentStatus(BaseModel):
+    """Status and progress of the document upload"""
+
     progress: float
     """0.0 to 1.0 for percentage"""
 

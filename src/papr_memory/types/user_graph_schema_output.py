@@ -16,6 +16,8 @@ __all__ = [
 
 
 class NodeTypesProperties(BaseModel):
+    """Property definition for nodes/relationships"""
+
     type: Literal["string", "integer", "float", "boolean", "array", "datetime", "object"]
 
     default: Optional[object] = None
@@ -39,6 +41,8 @@ class NodeTypesProperties(BaseModel):
 
 
 class NodeTypes(BaseModel):
+    """User-defined node type"""
+
     label: str
 
     name: str
@@ -63,6 +67,8 @@ class NodeTypes(BaseModel):
 
 
 class RelationshipTypesProperties(BaseModel):
+    """Property definition for nodes/relationships"""
+
     type: Literal["string", "integer", "float", "boolean", "array", "datetime", "object"]
 
     default: Optional[object] = None
@@ -86,6 +92,8 @@ class RelationshipTypesProperties(BaseModel):
 
 
 class RelationshipTypes(BaseModel):
+    """User-defined relationship type"""
+
     allowed_source_types: List[str]
 
     allowed_target_types: List[str]
@@ -104,6 +112,8 @@ class RelationshipTypes(BaseModel):
 
 
 class UserGraphSchemaOutput(BaseModel):
+    """Complete user-defined graph schema"""
+
     name: str
 
     id: Optional[str] = None
