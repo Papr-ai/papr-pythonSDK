@@ -12,6 +12,8 @@ __all__ = ["SearchResponse", "Data", "DataMemory", "DataNode"]
 
 
 class DataMemory(BaseModel):
+    """A memory item in the knowledge base"""
+
     id: str
 
     acl: Dict[str, Dict[str, bool]]
@@ -127,6 +129,8 @@ class DataMemory(BaseModel):
 
 
 class DataNode(BaseModel):
+    """Public-facing node structure - supports both system and custom schema nodes"""
+
     label: str
     """
     Node type label - can be system type (Memory, Person, etc.) or custom type from
@@ -145,6 +149,8 @@ class DataNode(BaseModel):
 
 
 class Data(BaseModel):
+    """Return type for SearchResult"""
+
     memories: List[DataMemory]
 
     nodes: List[DataNode]

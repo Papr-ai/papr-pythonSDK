@@ -15,6 +15,8 @@ __all__ = ["AddMemoryParam"]
 
 
 class AddMemoryParam(TypedDict, total=False):
+    """Request model for adding a new memory"""
+
     content: Required[str]
     """The content of the memory item you want to add to memory"""
 
