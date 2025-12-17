@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 import os
-from typing import Any, Mapping
+from typing import TYPE_CHECKING, Any, Mapping
 from typing_extensions import Self, override
 
 import httpx
@@ -20,8 +20,8 @@ from ._types import (
     not_given,
 )
 from ._utils import is_given, get_async_library
+from ._compat import cached_property
 from ._version import __version__
-from .resources import user, memory, graphql, schemas, document, feedback
 from ._streaming import Stream as Stream, AsyncStream as AsyncStream
 from ._exceptions import PaprError, APIStatusError
 from ._base_client import (
@@ -30,19 +30,19 @@ from ._base_client import (
     AsyncAPIClient,
 )
 
+if TYPE_CHECKING:
+    from .resources import user, memory, graphql, schemas, document, feedback
+    from .resources.user import UserResource, AsyncUserResource
+    from .resources.memory import MemoryResource, AsyncMemoryResource
+    from .resources.graphql import GraphqlResource, AsyncGraphqlResource
+    from .resources.schemas import SchemasResource, AsyncSchemasResource
+    from .resources.document import DocumentResource, AsyncDocumentResource
+    from .resources.feedback import FeedbackResource, AsyncFeedbackResource
+
 __all__ = ["Timeout", "Transport", "ProxiesTypes", "RequestOptions", "Papr", "AsyncPapr", "Client", "AsyncClient"]
 
 
 class Papr(SyncAPIClient):
-    user: user.UserResource
-    memory: memory.MemoryResource
-    feedback: feedback.FeedbackResource
-    document: document.DocumentResource
-    schemas: schemas.SchemasResource
-    graphql: graphql.GraphqlResource
-    with_raw_response: PaprWithRawResponse
-    with_streaming_response: PaprWithStreamedResponse
-
     # client options
     x_api_key: str
     x_session_token: str | None
@@ -112,14 +112,49 @@ class Papr(SyncAPIClient):
             _strict_response_validation=_strict_response_validation,
         )
 
-        self.user = user.UserResource(self)
-        self.memory = memory.MemoryResource(self)
-        self.feedback = feedback.FeedbackResource(self)
-        self.document = document.DocumentResource(self)
-        self.schemas = schemas.SchemasResource(self)
-        self.graphql = graphql.GraphqlResource(self)
-        self.with_raw_response = PaprWithRawResponse(self)
-        self.with_streaming_response = PaprWithStreamedResponse(self)
+    @cached_property
+    def user(self) -> UserResource:
+        from .resources.user import UserResource
+
+        return UserResource(self)
+
+    @cached_property
+    def memory(self) -> MemoryResource:
+        from .resources.memory import MemoryResource
+
+        return MemoryResource(self)
+
+    @cached_property
+    def feedback(self) -> FeedbackResource:
+        from .resources.feedback import FeedbackResource
+
+        return FeedbackResource(self)
+
+    @cached_property
+    def document(self) -> DocumentResource:
+        from .resources.document import DocumentResource
+
+        return DocumentResource(self)
+
+    @cached_property
+    def schemas(self) -> SchemasResource:
+        from .resources.schemas import SchemasResource
+
+        return SchemasResource(self)
+
+    @cached_property
+    def graphql(self) -> GraphqlResource:
+        from .resources.graphql import GraphqlResource
+
+        return GraphqlResource(self)
+
+    @cached_property
+    def with_raw_response(self) -> PaprWithRawResponse:
+        return PaprWithRawResponse(self)
+
+    @cached_property
+    def with_streaming_response(self) -> PaprWithStreamedResponse:
+        return PaprWithStreamedResponse(self)
 
     @property
     @override
@@ -249,15 +284,6 @@ class Papr(SyncAPIClient):
 
 
 class AsyncPapr(AsyncAPIClient):
-    user: user.AsyncUserResource
-    memory: memory.AsyncMemoryResource
-    feedback: feedback.AsyncFeedbackResource
-    document: document.AsyncDocumentResource
-    schemas: schemas.AsyncSchemasResource
-    graphql: graphql.AsyncGraphqlResource
-    with_raw_response: AsyncPaprWithRawResponse
-    with_streaming_response: AsyncPaprWithStreamedResponse
-
     # client options
     x_api_key: str
     x_session_token: str | None
@@ -327,14 +353,49 @@ class AsyncPapr(AsyncAPIClient):
             _strict_response_validation=_strict_response_validation,
         )
 
-        self.user = user.AsyncUserResource(self)
-        self.memory = memory.AsyncMemoryResource(self)
-        self.feedback = feedback.AsyncFeedbackResource(self)
-        self.document = document.AsyncDocumentResource(self)
-        self.schemas = schemas.AsyncSchemasResource(self)
-        self.graphql = graphql.AsyncGraphqlResource(self)
-        self.with_raw_response = AsyncPaprWithRawResponse(self)
-        self.with_streaming_response = AsyncPaprWithStreamedResponse(self)
+    @cached_property
+    def user(self) -> AsyncUserResource:
+        from .resources.user import AsyncUserResource
+
+        return AsyncUserResource(self)
+
+    @cached_property
+    def memory(self) -> AsyncMemoryResource:
+        from .resources.memory import AsyncMemoryResource
+
+        return AsyncMemoryResource(self)
+
+    @cached_property
+    def feedback(self) -> AsyncFeedbackResource:
+        from .resources.feedback import AsyncFeedbackResource
+
+        return AsyncFeedbackResource(self)
+
+    @cached_property
+    def document(self) -> AsyncDocumentResource:
+        from .resources.document import AsyncDocumentResource
+
+        return AsyncDocumentResource(self)
+
+    @cached_property
+    def schemas(self) -> AsyncSchemasResource:
+        from .resources.schemas import AsyncSchemasResource
+
+        return AsyncSchemasResource(self)
+
+    @cached_property
+    def graphql(self) -> AsyncGraphqlResource:
+        from .resources.graphql import AsyncGraphqlResource
+
+        return AsyncGraphqlResource(self)
+
+    @cached_property
+    def with_raw_response(self) -> AsyncPaprWithRawResponse:
+        return AsyncPaprWithRawResponse(self)
+
+    @cached_property
+    def with_streaming_response(self) -> AsyncPaprWithStreamedResponse:
+        return AsyncPaprWithStreamedResponse(self)
 
     @property
     @override
@@ -464,43 +525,175 @@ class AsyncPapr(AsyncAPIClient):
 
 
 class PaprWithRawResponse:
+    _client: Papr
+
     def __init__(self, client: Papr) -> None:
-        self.user = user.UserResourceWithRawResponse(client.user)
-        self.memory = memory.MemoryResourceWithRawResponse(client.memory)
-        self.feedback = feedback.FeedbackResourceWithRawResponse(client.feedback)
-        self.document = document.DocumentResourceWithRawResponse(client.document)
-        self.schemas = schemas.SchemasResourceWithRawResponse(client.schemas)
-        self.graphql = graphql.GraphqlResourceWithRawResponse(client.graphql)
+        self._client = client
+
+    @cached_property
+    def user(self) -> user.UserResourceWithRawResponse:
+        from .resources.user import UserResourceWithRawResponse
+
+        return UserResourceWithRawResponse(self._client.user)
+
+    @cached_property
+    def memory(self) -> memory.MemoryResourceWithRawResponse:
+        from .resources.memory import MemoryResourceWithRawResponse
+
+        return MemoryResourceWithRawResponse(self._client.memory)
+
+    @cached_property
+    def feedback(self) -> feedback.FeedbackResourceWithRawResponse:
+        from .resources.feedback import FeedbackResourceWithRawResponse
+
+        return FeedbackResourceWithRawResponse(self._client.feedback)
+
+    @cached_property
+    def document(self) -> document.DocumentResourceWithRawResponse:
+        from .resources.document import DocumentResourceWithRawResponse
+
+        return DocumentResourceWithRawResponse(self._client.document)
+
+    @cached_property
+    def schemas(self) -> schemas.SchemasResourceWithRawResponse:
+        from .resources.schemas import SchemasResourceWithRawResponse
+
+        return SchemasResourceWithRawResponse(self._client.schemas)
+
+    @cached_property
+    def graphql(self) -> graphql.GraphqlResourceWithRawResponse:
+        from .resources.graphql import GraphqlResourceWithRawResponse
+
+        return GraphqlResourceWithRawResponse(self._client.graphql)
 
 
 class AsyncPaprWithRawResponse:
+    _client: AsyncPapr
+
     def __init__(self, client: AsyncPapr) -> None:
-        self.user = user.AsyncUserResourceWithRawResponse(client.user)
-        self.memory = memory.AsyncMemoryResourceWithRawResponse(client.memory)
-        self.feedback = feedback.AsyncFeedbackResourceWithRawResponse(client.feedback)
-        self.document = document.AsyncDocumentResourceWithRawResponse(client.document)
-        self.schemas = schemas.AsyncSchemasResourceWithRawResponse(client.schemas)
-        self.graphql = graphql.AsyncGraphqlResourceWithRawResponse(client.graphql)
+        self._client = client
+
+    @cached_property
+    def user(self) -> user.AsyncUserResourceWithRawResponse:
+        from .resources.user import AsyncUserResourceWithRawResponse
+
+        return AsyncUserResourceWithRawResponse(self._client.user)
+
+    @cached_property
+    def memory(self) -> memory.AsyncMemoryResourceWithRawResponse:
+        from .resources.memory import AsyncMemoryResourceWithRawResponse
+
+        return AsyncMemoryResourceWithRawResponse(self._client.memory)
+
+    @cached_property
+    def feedback(self) -> feedback.AsyncFeedbackResourceWithRawResponse:
+        from .resources.feedback import AsyncFeedbackResourceWithRawResponse
+
+        return AsyncFeedbackResourceWithRawResponse(self._client.feedback)
+
+    @cached_property
+    def document(self) -> document.AsyncDocumentResourceWithRawResponse:
+        from .resources.document import AsyncDocumentResourceWithRawResponse
+
+        return AsyncDocumentResourceWithRawResponse(self._client.document)
+
+    @cached_property
+    def schemas(self) -> schemas.AsyncSchemasResourceWithRawResponse:
+        from .resources.schemas import AsyncSchemasResourceWithRawResponse
+
+        return AsyncSchemasResourceWithRawResponse(self._client.schemas)
+
+    @cached_property
+    def graphql(self) -> graphql.AsyncGraphqlResourceWithRawResponse:
+        from .resources.graphql import AsyncGraphqlResourceWithRawResponse
+
+        return AsyncGraphqlResourceWithRawResponse(self._client.graphql)
 
 
 class PaprWithStreamedResponse:
+    _client: Papr
+
     def __init__(self, client: Papr) -> None:
-        self.user = user.UserResourceWithStreamingResponse(client.user)
-        self.memory = memory.MemoryResourceWithStreamingResponse(client.memory)
-        self.feedback = feedback.FeedbackResourceWithStreamingResponse(client.feedback)
-        self.document = document.DocumentResourceWithStreamingResponse(client.document)
-        self.schemas = schemas.SchemasResourceWithStreamingResponse(client.schemas)
-        self.graphql = graphql.GraphqlResourceWithStreamingResponse(client.graphql)
+        self._client = client
+
+    @cached_property
+    def user(self) -> user.UserResourceWithStreamingResponse:
+        from .resources.user import UserResourceWithStreamingResponse
+
+        return UserResourceWithStreamingResponse(self._client.user)
+
+    @cached_property
+    def memory(self) -> memory.MemoryResourceWithStreamingResponse:
+        from .resources.memory import MemoryResourceWithStreamingResponse
+
+        return MemoryResourceWithStreamingResponse(self._client.memory)
+
+    @cached_property
+    def feedback(self) -> feedback.FeedbackResourceWithStreamingResponse:
+        from .resources.feedback import FeedbackResourceWithStreamingResponse
+
+        return FeedbackResourceWithStreamingResponse(self._client.feedback)
+
+    @cached_property
+    def document(self) -> document.DocumentResourceWithStreamingResponse:
+        from .resources.document import DocumentResourceWithStreamingResponse
+
+        return DocumentResourceWithStreamingResponse(self._client.document)
+
+    @cached_property
+    def schemas(self) -> schemas.SchemasResourceWithStreamingResponse:
+        from .resources.schemas import SchemasResourceWithStreamingResponse
+
+        return SchemasResourceWithStreamingResponse(self._client.schemas)
+
+    @cached_property
+    def graphql(self) -> graphql.GraphqlResourceWithStreamingResponse:
+        from .resources.graphql import GraphqlResourceWithStreamingResponse
+
+        return GraphqlResourceWithStreamingResponse(self._client.graphql)
 
 
 class AsyncPaprWithStreamedResponse:
+    _client: AsyncPapr
+
     def __init__(self, client: AsyncPapr) -> None:
-        self.user = user.AsyncUserResourceWithStreamingResponse(client.user)
-        self.memory = memory.AsyncMemoryResourceWithStreamingResponse(client.memory)
-        self.feedback = feedback.AsyncFeedbackResourceWithStreamingResponse(client.feedback)
-        self.document = document.AsyncDocumentResourceWithStreamingResponse(client.document)
-        self.schemas = schemas.AsyncSchemasResourceWithStreamingResponse(client.schemas)
-        self.graphql = graphql.AsyncGraphqlResourceWithStreamingResponse(client.graphql)
+        self._client = client
+
+    @cached_property
+    def user(self) -> user.AsyncUserResourceWithStreamingResponse:
+        from .resources.user import AsyncUserResourceWithStreamingResponse
+
+        return AsyncUserResourceWithStreamingResponse(self._client.user)
+
+    @cached_property
+    def memory(self) -> memory.AsyncMemoryResourceWithStreamingResponse:
+        from .resources.memory import AsyncMemoryResourceWithStreamingResponse
+
+        return AsyncMemoryResourceWithStreamingResponse(self._client.memory)
+
+    @cached_property
+    def feedback(self) -> feedback.AsyncFeedbackResourceWithStreamingResponse:
+        from .resources.feedback import AsyncFeedbackResourceWithStreamingResponse
+
+        return AsyncFeedbackResourceWithStreamingResponse(self._client.feedback)
+
+    @cached_property
+    def document(self) -> document.AsyncDocumentResourceWithStreamingResponse:
+        from .resources.document import AsyncDocumentResourceWithStreamingResponse
+
+        return AsyncDocumentResourceWithStreamingResponse(self._client.document)
+
+    @cached_property
+    def schemas(self) -> schemas.AsyncSchemasResourceWithStreamingResponse:
+        from .resources.schemas import AsyncSchemasResourceWithStreamingResponse
+
+        return AsyncSchemasResourceWithStreamingResponse(self._client.schemas)
+
+    @cached_property
+    def graphql(self) -> graphql.AsyncGraphqlResourceWithStreamingResponse:
+        from .resources.graphql import AsyncGraphqlResourceWithStreamingResponse
+
+        return AsyncGraphqlResourceWithStreamingResponse(self._client.graphql)
 
 
 Client = Papr
