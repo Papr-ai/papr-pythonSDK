@@ -11,6 +11,8 @@ __all__ = ["MemoryMetadata"]
 
 
 class MemoryMetadata(BaseModel):
+    """Metadata for memory request"""
+
     assistant_message: Optional[str] = FieldInfo(alias="assistantMessage", default=None)
 
     category: Optional[Literal["preference", "task", "goal", "fact", "context", "skills", "learning"]] = None

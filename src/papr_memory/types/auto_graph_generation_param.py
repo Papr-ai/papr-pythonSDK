@@ -11,6 +11,8 @@ __all__ = ["AutoGraphGenerationParam", "PropertyOverride"]
 
 
 class PropertyOverride(TypedDict, total=False):
+    """Property override rule with optional match conditions"""
+
     node_label: Required[Annotated[str, PropertyInfo(alias="nodeLabel")]]
     """Node type to apply overrides to (e.g., 'User', 'SecurityBehavior')"""
 
@@ -25,6 +27,8 @@ class PropertyOverride(TypedDict, total=False):
 
 
 class AutoGraphGenerationParam(TypedDict, total=False):
+    """AI-powered graph generation with optional guidance"""
+
     property_overrides: Optional[Iterable[PropertyOverride]]
     """Override specific property values in AI-generated nodes with match conditions"""
 

@@ -1,5 +1,22 @@
 # Changelog
 
+## 2.18.1 (2025-12-19)
+
+Full Changelog: [v2.18.0...v2.18.1](https://github.com/Papr-ai/papr-pythonSDK/compare/v2.18.0...v2.18.1)
+
+### Bug Fixes
+
+* **types:** allow pyright to infer TypedDict types within SequenceNotStr ([6994111](https://github.com/Papr-ai/papr-pythonSDK/commit/6994111895bde7e49f3db4adec0252fb90b5d50c))
+* use async_to_httpx_files in patch method ([329ba08](https://github.com/Papr-ai/papr-pythonSDK/commit/329ba0889d6574e5536fe5934cc283d13e7fe61e))
+
+
+### Chores
+
+* add missing docstrings ([029e262](https://github.com/Papr-ai/papr-pythonSDK/commit/029e262ee6935eb6ad9e88d93ef10d7c8388d00b))
+* **internal:** add `--fix` argument to lint script ([e7bb258](https://github.com/Papr-ai/papr-pythonSDK/commit/e7bb25886df009f3fe3f8f656452144d8ce6ae66))
+* **internal:** add missing files argument to base client ([ee73bbc](https://github.com/Papr-ai/papr-pythonSDK/commit/ee73bbc0afe530fe9391c05cd51d8b63cb7d9581))
+* speedup initial import ([18d3670](https://github.com/Papr-ai/papr-pythonSDK/commit/18d367047d7a27d9c6e6134b738d9e33e05fa303))
+
 ## 2.18.0 (2025-12-07)
 
 Full Changelog: [v2.17.0...v2.18.0](https://github.com/Papr-ai/papr-pythonSDK/compare/v2.17.0...v2.18.0)

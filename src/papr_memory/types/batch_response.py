@@ -8,6 +8,8 @@ __all__ = ["BatchResponse"]
 
 
 class BatchResponse(BaseModel):
+    """Response model for batch feedback submission"""
+
     code: int
     """HTTP status code"""
 

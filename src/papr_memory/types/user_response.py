@@ -8,6 +8,8 @@ __all__ = ["UserResponse"]
 
 
 class UserResponse(BaseModel):
+    """Response model for user operations"""
+
     code: int
     """HTTP status code"""
 

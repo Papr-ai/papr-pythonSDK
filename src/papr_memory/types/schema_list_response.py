@@ -9,6 +9,8 @@ __all__ = ["SchemaListResponse"]
 
 
 class SchemaListResponse(BaseModel):
+    """Response model for listing schemas"""
+
     success: bool
 
     code: Optional[int] = None
