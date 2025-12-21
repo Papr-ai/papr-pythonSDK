@@ -3716,6 +3716,10 @@ class MemoryResource(SyncAPIResource):
                     # This is the composite score: 60% vector + 30% transition + 20% hotness
                     if "similarity_score" in item:
                         metadata["similarity_score"] = float(item["similarity_score"])
+                    
+                    # Preserve server-side relevance_score if available
+                    if "relevance_score" in item:
+                        metadata["relevance_score"] = float(item["relevance_score"])
                 elif hasattr(item, 'id'):
                     # Pydantic Memory object
                     base_metadata = getattr(item, 'metadata', {}) or {}
@@ -3736,6 +3740,12 @@ class MemoryResource(SyncAPIResource):
                     if hasattr(item, 'pydantic_extra__') and item.pydantic_extra__:  # type: ignore
                         if "similarity_score" in item.pydantic_extra__:  # type: ignore
                             metadata["similarity_score"] = float(item.pydantic_extra__["similarity_score"])  # type: ignore
+                        if "relevance_score" in item.pydantic_extra__:  # type: ignore
+                            metadata["relevance_score"] = float(item.pydantic_extra__["relevance_score"])  # type: ignore
+                    
+                    # Also check if relevance_score is a direct attribute on the Memory object
+                    if hasattr(item, 'relevance_score') and item.relevance_score is not None:  # type: ignore
+                        metadata["relevance_score"] = float(item.relevance_score)  # type: ignore
                 else:
                     # Fallback for non-dict items
                     metadata = {"source": "sync_tiers", "tier": 0, "type": "unknown", "topics": "unknown"}  # type: ignore
@@ -4238,6 +4248,14 @@ class MemoryResource(SyncAPIResource):
                             "updatedAt": str(item.get("updatedAt", "")),
                         }
                     )
+                    
+                    # Preserve server-side similarity_score if available
+                    if "similarity_score" in item:
+                        metadata["similarity_score"] = float(item["similarity_score"])
+                    
+                    # Preserve server-side relevance_score if available
+                    if "relevance_score" in item:
+                        metadata["relevance_score"] = float(item["relevance_score"])
                 elif hasattr(item, 'id'):
                     # Pydantic Memory object
                     base_metadata = getattr(item, 'metadata', {}) or {}
@@ -4253,6 +4271,21 @@ class MemoryResource(SyncAPIResource):
                         "id": str(getattr(item, "id", f"tier1_{i}")),
                         "updatedAt": str(getattr(item, "updated_at", "")),
                     })
+                    
+                    # Preserve server-side similarity_score if available
+                    if hasattr(item, 'pydantic_extra__') and item.pydantic_extra__:  # type: ignore
+                        if "similarity_score" in item.pydantic_extra__:  # type: ignore
+                            metadata["similarity_score"] = float(item.pydantic_extra__["similarity_score"])  # type: ignore
+                        if "relevance_score" in item.pydantic_extra__:  # type: ignore
+                            metadata["relevance_score"] = float(item.pydantic_extra__["relevance_score"])  # type: ignore
+                    
+                    # Also check if relevance_score is a direct attribute on the Memory object
+                    if hasattr(item, 'relevance_score') and item.relevance_score is not None:  # type: ignore
+                        metadata["relevance_score"] = float(item.relevance_score)  # type: ignore
+                    
+                    # Also check if similarity_score is a direct attribute on the Memory object
+                    if hasattr(item, 'similarity_score') and item.similarity_score is not None:  # type: ignore
+                        metadata["similarity_score"] = float(item.similarity_score)  # type: ignore
                 else:
                     metadata = {"source": "sync_tiers", "tier": 1, "type": "unknown", "topics": "unknown"}  # type: ignore
 
@@ -4589,7 +4622,7 @@ class MemoryResource(SyncAPIResource):
         
         ondevice_processing = os.environ.get("PAPR_ONDEVICE_PROCESSING", "false").lower() in ("true", "1", "yes", "on")
         enable_parallel = os.environ.get("PAPR_ENABLE_PARALLEL_SEARCH", "true").lower() in ("true", "1", "yes", "on")
-        similarity_threshold = float(os.environ.get("PAPR_ONDEVICE_SIMILARITY_THRESHOLD", "0.90"))
+        similarity_threshold = float(os.environ.get("PAPR_ONDEVICE_SIMILARITY_THRESHOLD", "0.70"))
         
         # Check if agentic graph is enabled
         agentic_enabled = enable_agentic_graph if enable_agentic_graph is not omit else False

@@ -51,8 +51,8 @@ TOKENIZERS_PARALLELISM=false
 | `PAPR_EMBEDDING_FORMAT` | No | `float32` (if CoreML), `int8` (otherwise) | Embedding format for tier1: `float32` (recommended for CoreML/ANE fp16), `int8` (4x smaller, default). Tier0 always uses float32. |
 | `PAPR_EMBED_LIMIT` | No | `200` | Max items to embed on server per tier (controls server latency) |
 | `PAPR_EMBED_MODEL` | No | `Qwen4B` | Embedding model hint for server: `sbert`, `bigbird`, `Qwen4B` |
-| `PAPR_ONDEVICE_SIMILARITY_THRESHOLD` | No | `0.80` | Min similarity score for on-device results (0.0-1.0) |
-| `PAPR_ENABLE_PARALLEL_SEARCH` | No | `true` | Run on-device and cloud search in parallel |
+| `PAPR_ONDEVICE_SIMILARITY_THRESHOLD` | No | `0.90` | Min similarity score for on-device results. If on-device search completes first with similarity >= threshold, returns immediately without waiting for cloud. Range: 0.0-1.0 |
+| `PAPR_ENABLE_PARALLEL_SEARCH` | No | `true` | Run on-device and cloud search in parallel. When enabled with on-device processing, returns fastest result that meets similarity threshold |
 
 ### Core ML (Apple Silicon - Recommended)
 
