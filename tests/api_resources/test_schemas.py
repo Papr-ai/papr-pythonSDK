@@ -40,6 +40,7 @@ class TestSchemas:
             created_at=parse_datetime("2019-12-27T18:11:19.117Z"),
             description="description",
             last_used_at=parse_datetime("2019-12-27T18:11:19.117Z"),
+            namespace="string",
             node_types={
                 "foo": {
                     "label": "label",
@@ -65,7 +66,7 @@ class TestSchemas:
                     "unique_identifiers": ["string"],
                 }
             },
-            organization_id="organization_id",
+            organization="string",
             read_access=["string"],
             relationship_types={
                 "foo": {
@@ -319,6 +320,7 @@ class TestAsyncSchemas:
             created_at=parse_datetime("2019-12-27T18:11:19.117Z"),
             description="description",
             last_used_at=parse_datetime("2019-12-27T18:11:19.117Z"),
+            namespace="string",
             node_types={
                 "foo": {
                     "label": "label",
@@ -344,7 +346,7 @@ class TestAsyncSchemas:
                     "unique_identifiers": ["string"],
                 }
             },
-            organization_id="organization_id",
+            organization="string",
             read_access=["string"],
             relationship_types={
                 "foo": {

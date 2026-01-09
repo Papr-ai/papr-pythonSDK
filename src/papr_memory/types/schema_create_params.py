@@ -23,17 +23,20 @@ class SchemaCreateParams(TypedDict, total=False):
 
     last_used_at: Annotated[Union[str, datetime, None], PropertyInfo(format="iso8601")]
 
-    node_types: Dict[str, NodeTypes]
-    """Custom node types (max 15 per schema)"""
+    namespace: Union[str, Dict[str, object], None]
 
-    organization_id: Optional[str]
+    node_types: Dict[str, NodeTypes]
+    """Custom node types (max 10 per schema)"""
+
+    organization: Union[str, Dict[str, object], None]
 
     read_access: SequenceNotStr[str]
 
     relationship_types: Dict[str, RelationshipTypes]
     """Custom relationship types (max 20 per schema)"""
 
-    scope: Literal["personal", "workspace", "organization"]
+    scope: Literal["personal", "workspace", "namespace", "organization"]
+    """Schema scopes available through the API"""
 
     status: Literal["draft", "active", "deprecated", "archived"]
 
@@ -58,7 +61,7 @@ class NodeTypesProperties(TypedDict, total=False):
     description: Optional[str]
 
     enum_values: Optional[SequenceNotStr[str]]
-    """List of allowed enum values (max 10)"""
+    """List of allowed enum values (max 15)"""
 
     max_length: Optional[int]
 
@@ -85,7 +88,7 @@ class NodeTypes(TypedDict, total=False):
     icon: Optional[str]
 
     properties: Dict[str, NodeTypesProperties]
-    """Node properties (max 15 per node type)"""
+    """Node properties (max 10 per node type)"""
 
     required_properties: SequenceNotStr[str]
 
@@ -105,7 +108,7 @@ class RelationshipTypesProperties(TypedDict, total=False):
     description: Optional[str]
 
     enum_values: Optional[SequenceNotStr[str]]
-    """List of allowed enum values (max 10)"""
+    """List of allowed enum values (max 15)"""
 
     max_length: Optional[int]
 
