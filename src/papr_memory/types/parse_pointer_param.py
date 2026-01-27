@@ -10,6 +10,8 @@ __all__ = ["ParsePointerParam"]
 
 
 class ParsePointerParam(TypedDict, total=False):
+    """A pointer to a Parse object"""
+
     class_name: Required[Annotated[str, PropertyInfo(alias="className")]]
 
     object_id: Required[Annotated[str, PropertyInfo(alias="objectId")]]

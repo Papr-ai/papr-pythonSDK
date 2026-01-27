@@ -9,6 +9,18 @@ __all__ = ["ManualGraphGenerationParam", "Node", "Relationship"]
 
 
 class Node(TypedDict, total=False):
+    """Developer-specified node for graph override.
+
+    IMPORTANT:
+    - 'id' is REQUIRED (relationships reference nodes by these IDs)
+    - 'label' must match a node type from your registered UserGraphSchema
+    - 'properties' must include ALL required fields from your schema definition
+
+    📋 Schema Management:
+    - Register schemas: POST /v1/schemas
+    - View your schemas: GET /v1/schemas
+    """
+
     id: Required[str]
     """**REQUIRED**: Unique identifier for this node.
 
@@ -34,6 +46,14 @@ class Node(TypedDict, total=False):
 
 
 class Relationship(TypedDict, total=False):
+    """Developer-specified relationship for graph override.
+
+    IMPORTANT:
+    - source_node_id MUST exactly match a node 'id' from the 'nodes' array
+    - target_node_id MUST exactly match a node 'id' from the 'nodes' array
+    - relationship_type MUST exist in your registered UserGraphSchema
+    """
+
     relationship_type: Required[str]
     """**REQUIRED**: Relationship type from your UserGraphSchema.
 
@@ -61,6 +81,8 @@ class Relationship(TypedDict, total=False):
 
 
 class ManualGraphGenerationParam(TypedDict, total=False):
+    """Complete manual control over graph structure"""
+
     nodes: Required[Iterable[Node]]
     """Exact nodes to create"""
 
