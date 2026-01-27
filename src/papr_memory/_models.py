@@ -233,7 +233,7 @@ class BaseModel(pydantic.BaseModel):
         else:
             # these properties are copied from Pydantic's `model_construct()` method
             object.__setattr__(m, "__pydantic_private__", None)
-            object.__setattr__(m, "pydantic_extra__", _extra)
+            object.__setattr__(m, "__pydantic_extra__", _extra)
             object.__setattr__(m, "__pydantic_fields_set__", _fields_set)
 
         return m
