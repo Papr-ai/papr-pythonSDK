@@ -1,5 +1,36 @@
 # Changelog
 
+## 2.19.0 (2026-01-27)
+
+Full Changelog: [v2.18.0...v2.19.0](https://github.com/Papr-ai/papr-pythonSDK/compare/v2.18.0...v2.19.0)
+
+### Features
+
+* **client:** add support for binary request streaming ([31f51ee](https://github.com/Papr-ai/papr-pythonSDK/commit/31f51ee2cd3cb606576a06d1bc99c8e930148246))
+
+
+### Bug Fixes
+
+* Pydantic v2 serialization - correct __pydantic_extra__ attribute name ([bedf038](https://github.com/Papr-ai/papr-pythonSDK/commit/bedf038635e9c1c5d28748472ca87caaf9a143f4))
+* **types:** allow pyright to infer TypedDict types within SequenceNotStr ([a0c28f3](https://github.com/Papr-ai/papr-pythonSDK/commit/a0c28f34be7a65f66c48be665f720915e7922076))
+* use async_to_httpx_files in patch method ([ca18096](https://github.com/Papr-ai/papr-pythonSDK/commit/ca1809602e6eb66e75b83ac24a782d5cda42e9de))
+
+
+### Chores
+
+* add missing docstrings ([7e29be8](https://github.com/Papr-ai/papr-pythonSDK/commit/7e29be8293e4fa86633ba5247641229c50f3b574))
+* **ci:** upgrade `actions/github-script` ([a776482](https://github.com/Papr-ai/papr-pythonSDK/commit/a776482c2a66cabc1b788cfc31e64f5d5bda7bb0))
+* **internal:** add `--fix` argument to lint script ([3a21ec9](https://github.com/Papr-ai/papr-pythonSDK/commit/3a21ec94d16b1dcb3ff6947dd8c759e21673191a))
+* **internal:** add missing files argument to base client ([2fefc2f](https://github.com/Papr-ai/papr-pythonSDK/commit/2fefc2f0d46d81c8d3a8fbbe5d287c3aa30c0872))
+* **internal:** codegen related update ([cfa5241](https://github.com/Papr-ai/papr-pythonSDK/commit/cfa52412df49e706fe33d1121d04542fbfc6fd35))
+* **internal:** update `actions/checkout` version ([1314169](https://github.com/Papr-ai/papr-pythonSDK/commit/13141695db355faf3a383458f55b20ed60178beb))
+* speedup initial import ([0e072e5](https://github.com/Papr-ai/papr-pythonSDK/commit/0e072e5aca0f8e9368cd19357734405b4ae89c08))
+
+
+### Documentation
+
+* prominently feature MCP server setup in root SDK readmes ([eb9b0ec](https://github.com/Papr-ai/papr-pythonSDK/commit/eb9b0ece8188a440b994acefe89b20498db2e39c))
+
 ## 2.18.0 (2025-12-07)
 
 Full Changelog: [v2.17.0...v2.18.0](https://github.com/Papr-ai/papr-pythonSDK/compare/v2.17.0...v2.18.0)
