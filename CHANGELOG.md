@@ -1,5 +1,13 @@
 # Changelog
 
+## 2.19.1 (2026-01-27)
+
+Full Changelog: [v2.19.0...v2.19.1](https://github.com/Papr-ai/papr-pythonSDK/compare/v2.19.0...v2.19.1)
+
+### Chores
+
+* remove unused TYPE_CHECKING import ([24c4539](https://github.com/Papr-ai/papr-pythonSDK/commit/24c4539b3953e0323ac8c36a0b73c4d87f8dd9ea))
+
 ## 2.19.0 (2026-01-27)
 
 Full Changelog: [v2.18.0...v2.19.0](https://github.com/Papr-ai/papr-pythonSDK/compare/v2.18.0...v2.19.0)
