@@ -10,14 +10,11 @@ authors = [
 
 dependencies = [
   "httpx>=0.23.0, <1",
-    "pydantic>=2.7,<3",
+  "pydantic>=1.9.0, <3",
   "typing-extensions>=4.10, <5",
   "anyio>=3.5.0, <5",
   "distro>=1.7.0, <2",
   "sniffio",
-    "chromadb>=0.4.0",
-    "sentence-transformers>=2.0.0",
-    "psutil>=5.8.0",
 ]
 
 requires-python = ">= 3.9"
@@ -44,7 +41,11 @@ Homepage = "https://github.com/Papr-ai/papr-pythonSDK"
 Repository = "https://github.com/Papr-ai/papr-pythonSDK"
 
 [project.optional-dependencies]
-
+ondevice = [
+  "chromadb>=0.4.0",
+  "sentence-transformers>=2.0.0",
+  "psutil>=5.8.0",
+]
 aiohttp = ["aiohttp", "httpx_aiohttp>=0.1.9"]
 mlx = ["mlx-lm>=0.28.2"]
 # Pin torch to a version coremltools has tested against to avoid conversion/runtime errors

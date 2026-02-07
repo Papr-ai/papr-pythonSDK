@@ -40,14 +40,63 @@ class TestSchemas:
             created_at=parse_datetime("2019-12-27T18:11:19.117Z"),
             description="description",
             last_used_at=parse_datetime("2019-12-27T18:11:19.117Z"),
+            memory_policy={"foo": "bar"},
             namespace="string",
+            namespace_id="namespace_id",
             node_types={
                 "foo": {
                     "label": "label",
                     "name": "name",
                     "color": "color",
+                    "constraint": {
+                        "create": "upsert",
+                        "link_only": True,
+                        "node_type": "x",
+                        "on_miss": "create",
+                        "search": {
+                            "mode": "semantic",
+                            "properties": [
+                                {
+                                    "name": "Exact ID match",
+                                    "mode": "semantic",
+                                    "threshold": 0,
+                                    "value": {
+                                        "mode": "exact",
+                                        "name": "id",
+                                    },
+                                }
+                            ],
+                            "threshold": 0,
+<<<<<<< HEAD
+                            "via_relationship": [{}],
+=======
+                            "via_relationship": [
+                                {
+                                    "name": "Find via ASSIGNED_TO",
+                                    "summary": "Find nodes assigned to a specific person",
+                                    "value": {
+                                        "edge_type": "ASSIGNED_TO",
+                                        "target_search": {
+                                            "properties": [
+                                                {
+                                                    "name": "email",
+                                                    "mode": "exact",
+                                                    "value": "alice@example.com",
+                                                }
+                                            ]
+                                        },
+                                        "target_type": "Person",
+                                    },
+                                }
+                            ],
+>>>>>>> origin/generated--merge-conflict
+                        },
+                        "set": {"foo": "string"},
+                        "when": {"foo": "bar"},
+                    },
                     "description": "description",
                     "icon": "icon",
+                    "link_only": True,
                     "properties": {
                         "foo": {
                             "type": "string",
@@ -63,10 +112,12 @@ class TestSchemas:
                         }
                     },
                     "required_properties": ["string"],
+                    "resolution_policy": "upsert",
                     "unique_identifiers": ["string"],
                 }
             },
             organization="string",
+            organization_id="organization_id",
             read_access=["string"],
             relationship_types={
                 "foo": {
@@ -76,7 +127,57 @@ class TestSchemas:
                     "name": "N96",
                     "cardinality": "one-to-one",
                     "color": "color",
+                    "constraint": {
+                        "create": "upsert",
+                        "direction": "outgoing",
+                        "edge_type": "x",
+                        "link_only": True,
+                        "on_miss": "create",
+                        "search": {
+                            "mode": "semantic",
+                            "properties": [
+                                {
+                                    "name": "Exact ID match",
+                                    "mode": "semantic",
+                                    "threshold": 0,
+                                    "value": {
+                                        "mode": "exact",
+                                        "name": "id",
+                                    },
+                                }
+                            ],
+                            "threshold": 0,
+<<<<<<< HEAD
+                            "via_relationship": [{}],
+=======
+                            "via_relationship": [
+                                {
+                                    "name": "Find via ASSIGNED_TO",
+                                    "summary": "Find nodes assigned to a specific person",
+                                    "value": {
+                                        "edge_type": "ASSIGNED_TO",
+                                        "target_search": {
+                                            "properties": [
+                                                {
+                                                    "name": "email",
+                                                    "mode": "exact",
+                                                    "value": "alice@example.com",
+                                                }
+                                            ]
+                                        },
+                                        "target_type": "Person",
+                                    },
+                                }
+                            ],
+>>>>>>> origin/generated--merge-conflict
+                        },
+                        "set": {"foo": "string"},
+                        "source_type": "source_type",
+                        "target_type": "target_type",
+                        "when": {"foo": "bar"},
+                    },
                     "description": "description",
+                    "link_only": True,
                     "properties": {
                         "foo": {
                             "type": "string",
@@ -91,6 +192,7 @@ class TestSchemas:
                             "required": True,
                         }
                     },
+                    "resolution_policy": "upsert",
                 }
             },
             scope="personal",
@@ -320,14 +422,63 @@ class TestAsyncSchemas:
             created_at=parse_datetime("2019-12-27T18:11:19.117Z"),
             description="description",
             last_used_at=parse_datetime("2019-12-27T18:11:19.117Z"),
+            memory_policy={"foo": "bar"},
             namespace="string",
+            namespace_id="namespace_id",
             node_types={
                 "foo": {
                     "label": "label",
                     "name": "name",
                     "color": "color",
+                    "constraint": {
+                        "create": "upsert",
+                        "link_only": True,
+                        "node_type": "x",
+                        "on_miss": "create",
+                        "search": {
+                            "mode": "semantic",
+                            "properties": [
+                                {
+                                    "name": "Exact ID match",
+                                    "mode": "semantic",
+                                    "threshold": 0,
+                                    "value": {
+                                        "mode": "exact",
+                                        "name": "id",
+                                    },
+                                }
+                            ],
+                            "threshold": 0,
+<<<<<<< HEAD
+                            "via_relationship": [{}],
+=======
+                            "via_relationship": [
+                                {
+                                    "name": "Find via ASSIGNED_TO",
+                                    "summary": "Find nodes assigned to a specific person",
+                                    "value": {
+                                        "edge_type": "ASSIGNED_TO",
+                                        "target_search": {
+                                            "properties": [
+                                                {
+                                                    "name": "email",
+                                                    "mode": "exact",
+                                                    "value": "alice@example.com",
+                                                }
+                                            ]
+                                        },
+                                        "target_type": "Person",
+                                    },
+                                }
+                            ],
+>>>>>>> origin/generated--merge-conflict
+                        },
+                        "set": {"foo": "string"},
+                        "when": {"foo": "bar"},
+                    },
                     "description": "description",
                     "icon": "icon",
+                    "link_only": True,
                     "properties": {
                         "foo": {
                             "type": "string",
@@ -343,10 +494,12 @@ class TestAsyncSchemas:
                         }
                     },
                     "required_properties": ["string"],
+                    "resolution_policy": "upsert",
                     "unique_identifiers": ["string"],
                 }
             },
             organization="string",
+            organization_id="organization_id",
             read_access=["string"],
             relationship_types={
                 "foo": {
@@ -356,7 +509,57 @@ class TestAsyncSchemas:
                     "name": "N96",
                     "cardinality": "one-to-one",
                     "color": "color",
+                    "constraint": {
+                        "create": "upsert",
+                        "direction": "outgoing",
+                        "edge_type": "x",
+                        "link_only": True,
+                        "on_miss": "create",
+                        "search": {
+                            "mode": "semantic",
+                            "properties": [
+                                {
+                                    "name": "Exact ID match",
+                                    "mode": "semantic",
+                                    "threshold": 0,
+                                    "value": {
+                                        "mode": "exact",
+                                        "name": "id",
+                                    },
+                                }
+                            ],
+                            "threshold": 0,
+<<<<<<< HEAD
+                            "via_relationship": [{}],
+=======
+                            "via_relationship": [
+                                {
+                                    "name": "Find via ASSIGNED_TO",
+                                    "summary": "Find nodes assigned to a specific person",
+                                    "value": {
+                                        "edge_type": "ASSIGNED_TO",
+                                        "target_search": {
+                                            "properties": [
+                                                {
+                                                    "name": "email",
+                                                    "mode": "exact",
+                                                    "value": "alice@example.com",
+                                                }
+                                            ]
+                                        },
+                                        "target_type": "Person",
+                                    },
+                                }
+                            ],
+>>>>>>> origin/generated--merge-conflict
+                        },
+                        "set": {"foo": "string"},
+                        "source_type": "source_type",
+                        "target_type": "target_type",
+                        "when": {"foo": "bar"},
+                    },
                     "description": "description",
+                    "link_only": True,
                     "properties": {
                         "foo": {
                             "type": "string",
@@ -371,6 +574,7 @@ class TestAsyncSchemas:
                             "required": True,
                         }
                     },
+                    "resolution_policy": "upsert",
                 }
             },
             scope="personal",

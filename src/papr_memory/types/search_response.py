@@ -6,6 +6,7 @@ from datetime import datetime
 from pydantic import Field as FieldInfo
 
 from .._models import BaseModel
+from .shared.memory import Memory
 from .context_item import ContextItem
 
 __all__ = ["SearchResponse", "Data", "DataMemory", "DataNode"]
@@ -65,6 +66,8 @@ class DataMemory(BaseModel):
 
     metadata: Union[str, Dict[str, object], None] = None
 
+    metrics: Optional[Dict[str, object]] = None
+
     namespace_id: Optional[str] = None
     """Namespace ID this memory belongs to"""
 
@@ -83,11 +86,38 @@ class DataMemory(BaseModel):
 
     page_number: Optional[int] = None
 
-    relevance_score: Optional[float] = None
-    """Relevance score from server-side ranking algorithm.
+    popularity_score: Optional[float] = None
+    """
+    Popularity signal (0-1): 0.5*cacheConfidenceWeighted30d +
+    0.5*citationConfidenceWeighted30d. Uses stored EMA fields.
+    """
 
-    Higher scores indicate more relevant memories. Computed as: 60% vector
-    similarity + 30% transition probability + 20% access frequency.
+    recency_score: Optional[float] = None
+    """Recency signal (0-1): exp(-0.05 \\** days_since_last_access). Half-life ~14 days."""
+
+    relevance_score: Optional[float] = None
+    """Final relevance (0-1).
+
+    rank_results=False: 0.6*sim + 0.25*pop + 0.15\\**recency. rank_results=True:
+    RRF-based fusion.
+    """
+
+    reranker_confidence: Optional[float] = None
+    """Reranker confidence (0-1).
+
+    Meaningful for LLM reranking; equals reranker_score for cross-encoders.
+    """
+
+    reranker_score: Optional[float] = None
+    """Reranker relevance (0-1).
+
+    From cross-encoder (Cohere/Qwen3/BGE) or LLM (GPT-5-nano).
+    """
+
+    reranker_type: Optional[str] = None
+    """
+    Reranker type: 'cross_encoder' (Cohere/Qwen3/BGE) or 'llm'
+    (GPT-5-nano/GPT-4o-mini).
     """
 
     role: Optional[str] = None
@@ -96,6 +126,12 @@ class DataMemory(BaseModel):
     role_read_access: Optional[List[str]] = None
 
     role_write_access: Optional[List[str]] = None
+
+    similarity_score: Optional[float] = None
+    """Cosine similarity from vector search (0-1).
+
+    Measures semantic relevance to query.
+    """
 
     source_document_id: Optional[str] = None
 
@@ -114,6 +150,8 @@ class DataMemory(BaseModel):
     topics: Optional[List[str]] = None
 
     total_pages: Optional[int] = None
+
+    total_processing_cost: Optional[float] = FieldInfo(alias="totalProcessingCost", default=None)
 
     updated_at: Optional[datetime] = FieldInfo(alias="updatedAt", default=None)
 
@@ -151,7 +189,7 @@ class DataNode(BaseModel):
 class Data(BaseModel):
     """Return type for SearchResult"""
 
-    memories: List[DataMemory]
+    memories: List[Memory]
 
     nodes: List[DataNode]
 
