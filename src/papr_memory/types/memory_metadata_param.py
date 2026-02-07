@@ -14,6 +14,12 @@ __all__ = ["MemoryMetadataParam"]
 class MemoryMetadataParamTyped(TypedDict, total=False):
     """Metadata for memory request"""
 
+    acl: Optional[Dict[str, SequenceNotStr[str]]]
+    """DEPRECATED: Use 'memory_policy.acl' at request level instead.
+
+    Format: {'read': [...], 'write': [...]}.
+    """
+
     assistant_message: Annotated[Optional[str], PropertyInfo(alias="assistantMessage")]
 
     category: Optional[Literal["preference", "task", "goal", "fact", "context", "skills", "learning"]]
@@ -21,6 +27,12 @@ class MemoryMetadataParamTyped(TypedDict, total=False):
 
     For users: preference, task, goal, fact, context. For assistants: skills,
     learning, task, goal, fact, context.
+    """
+
+    consent: Optional[str]
+    """DEPRECATED: Use 'memory_policy.consent' at request level instead.
+
+    Values: 'explicit', 'implicit' (default), 'terms', 'none'.
     """
 
     conversation_id: Annotated[Optional[str], PropertyInfo(alias="conversationId")]
@@ -42,29 +54,65 @@ class MemoryMetadataParamTyped(TypedDict, total=False):
     emotion_tags: Annotated[Optional[SequenceNotStr[str]], PropertyInfo(alias="emotion tags")]
 
     external_user_id: Optional[str]
+    """DEPRECATED: Use 'external_user_id' at request level instead.
+
+    This field will be removed in v2.
+    """
 
     external_user_read_access: Optional[SequenceNotStr[str]]
+    """INTERNAL: Auto-populated for vector store filtering.
+
+    Use memory_policy.acl instead.
+    """
 
     external_user_write_access: Optional[SequenceNotStr[str]]
+    """INTERNAL: Auto-populated for vector store filtering.
+
+    Use memory_policy.acl instead.
+    """
 
     goal_classification_scores: Annotated[Optional[Iterable[float]], PropertyInfo(alias="goalClassificationScores")]
 
-    hierarchical_structures: Optional[str]
+    hierarchical_structures: Union[str, Iterable[object], None]
     """Hierarchical structures to enable navigation from broad topics to specific ones"""
 
     location: Optional[str]
 
     namespace_id: Optional[str]
+    """DEPRECATED: Use 'namespace_id' at request level instead.
+
+    This field will be removed in v2.
+    """
 
     namespace_read_access: Optional[SequenceNotStr[str]]
+    """INTERNAL: Auto-populated for vector store filtering.
+
+    Use memory_policy.acl instead.
+    """
 
     namespace_write_access: Optional[SequenceNotStr[str]]
+    """INTERNAL: Auto-populated for vector store filtering.
+
+    Use memory_policy.acl instead.
+    """
 
     organization_id: Optional[str]
+    """DEPRECATED: Use 'organization_id' at request level instead.
+
+    This field will be removed in v2.
+    """
 
     organization_read_access: Optional[SequenceNotStr[str]]
+    """INTERNAL: Auto-populated for vector store filtering.
+
+    Use memory_policy.acl instead.
+    """
 
     organization_write_access: Optional[SequenceNotStr[str]]
+    """INTERNAL: Auto-populated for vector store filtering.
+
+    Use memory_policy.acl instead.
+    """
 
     page_id: Annotated[Optional[str], PropertyInfo(alias="pageId")]
 
@@ -76,12 +124,26 @@ class MemoryMetadataParamTyped(TypedDict, total=False):
 
     related_use_cases: Annotated[Optional[SequenceNotStr[str]], PropertyInfo(alias="relatedUseCases")]
 
+    risk: Optional[str]
+    """DEPRECATED: Use 'memory_policy.risk' at request level instead.
+
+    Values: 'none' (default), 'sensitive', 'flagged'.
+    """
+
     role: Optional[Literal["user", "assistant"]]
     """Role of the message sender"""
 
     role_read_access: Optional[SequenceNotStr[str]]
+    """INTERNAL: Auto-populated for vector store filtering.
+
+    Use memory_policy.acl instead.
+    """
 
     role_write_access: Optional[SequenceNotStr[str]]
+    """INTERNAL: Auto-populated for vector store filtering.
+
+    Use memory_policy.acl instead.
+    """
 
     session_id: Annotated[Optional[str], PropertyInfo(alias="sessionId")]
 
@@ -101,18 +163,38 @@ class MemoryMetadataParamTyped(TypedDict, total=False):
     ]
 
     user_id: Optional[str]
+    """DEPRECATED: Use 'external_user_id' at request level instead.
+
+    This field will be removed in v2.
+    """
 
     user_read_access: Optional[SequenceNotStr[str]]
+    """INTERNAL: Auto-populated for vector store filtering.
+
+    Use memory_policy.acl instead.
+    """
 
     user_write_access: Optional[SequenceNotStr[str]]
+    """INTERNAL: Auto-populated for vector store filtering.
+
+    Use memory_policy.acl instead.
+    """
 
     user_message: Annotated[Optional[str], PropertyInfo(alias="userMessage")]
 
     workspace_id: Optional[str]
 
     workspace_read_access: Optional[SequenceNotStr[str]]
+    """INTERNAL: Auto-populated for vector store filtering.
+
+    Use memory_policy.acl instead.
+    """
 
     workspace_write_access: Optional[SequenceNotStr[str]]
+    """INTERNAL: Auto-populated for vector store filtering.
+
+    Use memory_policy.acl instead.
+    """
 
 
 MemoryMetadataParam: TypeAlias = Union[MemoryMetadataParamTyped, Dict[str, object]]

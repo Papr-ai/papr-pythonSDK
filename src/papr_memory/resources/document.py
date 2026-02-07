@@ -116,15 +116,15 @@ class DocumentResource(SyncAPIResource):
         self,
         *,
         file: FileTypes,
-        end_user_id: Optional[str] | Omit = omit,
+        external_user_id: Optional[str] | Omit = omit,
         graph_override: Optional[str] | Omit = omit,
         hierarchical_enabled: bool | Omit = omit,
+        memory_policy: Optional[str] | Omit = omit,
         metadata: Optional[str] | Omit = omit,
-        namespace: Optional[str] | Omit = omit,
+        namespace_id: Optional[str] | Omit = omit,
         preferred_provider: Optional[Literal["gemini", "tensorlake", "reducto", "auto"]] | Omit = omit,
         property_overrides: Optional[str] | Omit = omit,
         schema_id: Optional[str] | Omit = omit,
-        simple_schema_mode: bool | Omit = omit,
         user_id: Optional[str] | Omit = omit,
         webhook_secret: Optional[str] | Omit = omit,
         webhook_url: Optional[str] | Omit = omit,
@@ -150,7 +150,17 @@ class DocumentResource(SyncAPIResource):
             - Automatic fallback between providers
 
         Args:
+          external_user_id: Your application's user identifier. This is the primary way to identify users.
+              Also accepts legacy 'end_user_id'.
+
+          memory_policy: JSON-encoded memory policy. Includes mode ('auto'/'manual'), schema_id,
+              node_constraints (applied in auto mode when present), and OMO fields (consent,
+              risk, acl). This is the recommended way to configure memory processing.
+
           preferred_provider: Preferred provider for document processing.
+
+          user_id: DEPRECATED: Internal Papr Parse user ID. Most developers should use
+              external_user_id.
 
           extra_headers: Send extra headers
 
@@ -163,15 +173,15 @@ class DocumentResource(SyncAPIResource):
         body = deepcopy_minimal(
             {
                 "file": file,
-                "end_user_id": end_user_id,
+                "external_user_id": external_user_id,
                 "graph_override": graph_override,
                 "hierarchical_enabled": hierarchical_enabled,
+                "memory_policy": memory_policy,
                 "metadata": metadata,
-                "namespace": namespace,
+                "namespace_id": namespace_id,
                 "preferred_provider": preferred_provider,
                 "property_overrides": property_overrides,
                 "schema_id": schema_id,
-                "simple_schema_mode": simple_schema_mode,
                 "user_id": user_id,
                 "webhook_secret": webhook_secret,
                 "webhook_url": webhook_url,
@@ -283,15 +293,15 @@ class AsyncDocumentResource(AsyncAPIResource):
         self,
         *,
         file: FileTypes,
-        end_user_id: Optional[str] | Omit = omit,
+        external_user_id: Optional[str] | Omit = omit,
         graph_override: Optional[str] | Omit = omit,
         hierarchical_enabled: bool | Omit = omit,
+        memory_policy: Optional[str] | Omit = omit,
         metadata: Optional[str] | Omit = omit,
-        namespace: Optional[str] | Omit = omit,
+        namespace_id: Optional[str] | Omit = omit,
         preferred_provider: Optional[Literal["gemini", "tensorlake", "reducto", "auto"]] | Omit = omit,
         property_overrides: Optional[str] | Omit = omit,
         schema_id: Optional[str] | Omit = omit,
-        simple_schema_mode: bool | Omit = omit,
         user_id: Optional[str] | Omit = omit,
         webhook_secret: Optional[str] | Omit = omit,
         webhook_url: Optional[str] | Omit = omit,
@@ -317,7 +327,17 @@ class AsyncDocumentResource(AsyncAPIResource):
             - Automatic fallback between providers
 
         Args:
+          external_user_id: Your application's user identifier. This is the primary way to identify users.
+              Also accepts legacy 'end_user_id'.
+
+          memory_policy: JSON-encoded memory policy. Includes mode ('auto'/'manual'), schema_id,
+              node_constraints (applied in auto mode when present), and OMO fields (consent,
+              risk, acl). This is the recommended way to configure memory processing.
+
           preferred_provider: Preferred provider for document processing.
+
+          user_id: DEPRECATED: Internal Papr Parse user ID. Most developers should use
+              external_user_id.
 
           extra_headers: Send extra headers
 
@@ -330,15 +350,15 @@ class AsyncDocumentResource(AsyncAPIResource):
         body = deepcopy_minimal(
             {
                 "file": file,
-                "end_user_id": end_user_id,
+                "external_user_id": external_user_id,
                 "graph_override": graph_override,
                 "hierarchical_enabled": hierarchical_enabled,
+                "memory_policy": memory_policy,
                 "metadata": metadata,
-                "namespace": namespace,
+                "namespace_id": namespace_id,
                 "preferred_provider": preferred_provider,
                 "property_overrides": property_overrides,
                 "schema_id": schema_id,
-                "simple_schema_mode": simple_schema_mode,
                 "user_id": user_id,
                 "webhook_secret": webhook_secret,
                 "webhook_url": webhook_url,

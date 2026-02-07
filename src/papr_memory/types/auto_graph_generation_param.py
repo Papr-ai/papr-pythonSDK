@@ -34,6 +34,3 @@ class AutoGraphGenerationParam(TypedDict, total=False):
 
     schema_id: Optional[str]
     """Force AI to use this specific schema instead of auto-selecting"""
-
-    simple_schema_mode: bool
-    """Limit AI to system + one user schema for consistency"""

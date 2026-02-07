@@ -14,6 +14,7 @@ from .add_memory_param import AddMemoryParam as AddMemoryParam
 from .user_list_params import UserListParams as UserListParams
 from .feedback_response import FeedbackResponse as FeedbackResponse
 from .memory_add_params import MemoryAddParams as MemoryAddParams
+from .memory_get_params import MemoryGetParams as MemoryGetParams
 from .context_item_param import ContextItemParam as ContextItemParam
 from .schema_list_params import SchemaListParams as SchemaListParams
 from .user_create_params import UserCreateParams as UserCreateParams
