@@ -1,11 +1,9 @@
 # File generated from our OpenAPI spec by Stainless. See CONTRIBUTING.md for details.
 
-from .memory import Memory as Memory
 from .node_spec import NodeSpec as NodeSpec
 from .acl_config import ACLConfig as ACLConfig
 from .memory_policy import MemoryPolicy as MemoryPolicy
 from .property_value import PropertyValue as PropertyValue
-from .add_memory_item import AddMemoryItem as AddMemoryItem
 from .relationship_spec import RelationshipSpec as RelationshipSpec
 from .search_config_input import SearchConfigInput as SearchConfigInput
 from .edge_constraint_input import EdgeConstraintInput as EdgeConstraintInput

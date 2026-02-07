@@ -108,7 +108,25 @@ class TestMemory:
                                 }
                             ],
                             "threshold": 0,
-                            "via_relationship": [{}],
+                            "via_relationship": [
+                                {
+                                    "name": "Find via ASSIGNED_TO",
+                                    "summary": "Find nodes assigned to a specific person",
+                                    "value": {
+                                        "edge_type": "ASSIGNED_TO",
+                                        "target_search": {
+                                            "properties": [
+                                                {
+                                                    "name": "email",
+                                                    "mode": "exact",
+                                                    "value": "alice@example.com",
+                                                }
+                                            ]
+                                        },
+                                        "target_type": "Person",
+                                    },
+                                }
+                            ],
                         },
                         "set": {"foo": "string"},
                         "source_type": "source_type",
@@ -137,7 +155,25 @@ class TestMemory:
                                 }
                             ],
                             "threshold": 0,
-                            "via_relationship": [{}],
+                            "via_relationship": [
+                                {
+                                    "name": "Find via ASSIGNED_TO",
+                                    "summary": "Find nodes assigned to a specific person",
+                                    "value": {
+                                        "edge_type": "ASSIGNED_TO",
+                                        "target_search": {
+                                            "properties": [
+                                                {
+                                                    "name": "email",
+                                                    "mode": "exact",
+                                                    "value": "alice@example.com",
+                                                }
+                                            ]
+                                        },
+                                        "target_type": "Person",
+                                    },
+                                }
+                            ],
                         },
                         "set": {"foo": "string"},
                         "when": {"foo": "bar"},
@@ -399,7 +435,25 @@ class TestMemory:
                                 }
                             ],
                             "threshold": 0,
-                            "via_relationship": [{}],
+                            "via_relationship": [
+                                {
+                                    "name": "Find via ASSIGNED_TO",
+                                    "summary": "Find nodes assigned to a specific person",
+                                    "value": {
+                                        "edge_type": "ASSIGNED_TO",
+                                        "target_search": {
+                                            "properties": [
+                                                {
+                                                    "name": "email",
+                                                    "mode": "exact",
+                                                    "value": "alice@example.com",
+                                                }
+                                            ]
+                                        },
+                                        "target_type": "Person",
+                                    },
+                                }
+                            ],
                         },
                         "set": {"foo": "string"},
                         "source_type": "source_type",
@@ -428,7 +482,25 @@ class TestMemory:
                                 }
                             ],
                             "threshold": 0,
-                            "via_relationship": [{}],
+                            "via_relationship": [
+                                {
+                                    "name": "Find via ASSIGNED_TO",
+                                    "summary": "Find nodes assigned to a specific person",
+                                    "value": {
+                                        "edge_type": "ASSIGNED_TO",
+                                        "target_search": {
+                                            "properties": [
+                                                {
+                                                    "name": "email",
+                                                    "mode": "exact",
+                                                    "value": "alice@example.com",
+                                                }
+                                            ]
+                                        },
+                                        "target_type": "Person",
+                                    },
+                                }
+                            ],
                         },
                         "set": {"foo": "string"},
                         "when": {"foo": "bar"},
@@ -634,7 +706,25 @@ class TestMemory:
                                         }
                                     ],
                                     "threshold": 0,
-                                    "via_relationship": [{}],
+                                    "via_relationship": [
+                                        {
+                                            "name": "Find via ASSIGNED_TO",
+                                            "summary": "Find nodes assigned to a specific person",
+                                            "value": {
+                                                "edge_type": "ASSIGNED_TO",
+                                                "target_search": {
+                                                    "properties": [
+                                                        {
+                                                            "name": "email",
+                                                            "mode": "exact",
+                                                            "value": "alice@example.com",
+                                                        }
+                                                    ]
+                                                },
+                                                "target_type": "Person",
+                                            },
+                                        }
+                                    ],
                                 },
                                 "set": {"foo": "string"},
                                 "source_type": "source_type",
@@ -663,7 +753,25 @@ class TestMemory:
                                         }
                                     ],
                                     "threshold": 0,
-                                    "via_relationship": [{}],
+                                    "via_relationship": [
+                                        {
+                                            "name": "Find via ASSIGNED_TO",
+                                            "summary": "Find nodes assigned to a specific person",
+                                            "value": {
+                                                "edge_type": "ASSIGNED_TO",
+                                                "target_search": {
+                                                    "properties": [
+                                                        {
+                                                            "name": "email",
+                                                            "mode": "exact",
+                                                            "value": "alice@example.com",
+                                                        }
+                                                    ]
+                                                },
+                                                "target_type": "Person",
+                                            },
+                                        }
+                                    ],
                                 },
                                 "set": {"foo": "string"},
                                 "when": {"foo": "bar"},
@@ -825,7 +933,25 @@ class TestMemory:
                                         }
                                     ],
                                     "threshold": 0,
-                                    "via_relationship": [{}],
+                                    "via_relationship": [
+                                        {
+                                            "name": "Find via ASSIGNED_TO",
+                                            "summary": "Find nodes assigned to a specific person",
+                                            "value": {
+                                                "edge_type": "ASSIGNED_TO",
+                                                "target_search": {
+                                                    "properties": [
+                                                        {
+                                                            "name": "email",
+                                                            "mode": "exact",
+                                                            "value": "alice@example.com",
+                                                        }
+                                                    ]
+                                                },
+                                                "target_type": "Person",
+                                            },
+                                        }
+                                    ],
                                 },
                                 "set": {"foo": "string"},
                                 "source_type": "source_type",
@@ -854,7 +980,25 @@ class TestMemory:
                                         }
                                     ],
                                     "threshold": 0,
-                                    "via_relationship": [{}],
+                                    "via_relationship": [
+                                        {
+                                            "name": "Find via ASSIGNED_TO",
+                                            "summary": "Find nodes assigned to a specific person",
+                                            "value": {
+                                                "edge_type": "ASSIGNED_TO",
+                                                "target_search": {
+                                                    "properties": [
+                                                        {
+                                                            "name": "email",
+                                                            "mode": "exact",
+                                                            "value": "alice@example.com",
+                                                        }
+                                                    ]
+                                                },
+                                                "target_type": "Person",
+                                            },
+                                        }
+                                    ],
                                 },
                                 "set": {"foo": "string"},
                                 "when": {"foo": "bar"},
@@ -1007,7 +1151,25 @@ class TestMemory:
                                 }
                             ],
                             "threshold": 0,
-                            "via_relationship": [{}],
+                            "via_relationship": [
+                                {
+                                    "name": "Find via ASSIGNED_TO",
+                                    "summary": "Find nodes assigned to a specific person",
+                                    "value": {
+                                        "edge_type": "ASSIGNED_TO",
+                                        "target_search": {
+                                            "properties": [
+                                                {
+                                                    "name": "email",
+                                                    "mode": "exact",
+                                                    "value": "alice@example.com",
+                                                }
+                                            ]
+                                        },
+                                        "target_type": "Person",
+                                    },
+                                }
+                            ],
                         },
                         "set": {"foo": "string"},
                         "source_type": "source_type",
@@ -1036,7 +1198,25 @@ class TestMemory:
                                 }
                             ],
                             "threshold": 0,
-                            "via_relationship": [{}],
+                            "via_relationship": [
+                                {
+                                    "name": "Find via ASSIGNED_TO",
+                                    "summary": "Find nodes assigned to a specific person",
+                                    "value": {
+                                        "edge_type": "ASSIGNED_TO",
+                                        "target_search": {
+                                            "properties": [
+                                                {
+                                                    "name": "email",
+                                                    "mode": "exact",
+                                                    "value": "alice@example.com",
+                                                }
+                                            ]
+                                        },
+                                        "target_type": "Person",
+                                    },
+                                }
+                            ],
                         },
                         "set": {"foo": "string"},
                         "when": {"foo": "bar"},
@@ -1428,7 +1608,25 @@ class TestAsyncMemory:
                                 }
                             ],
                             "threshold": 0,
-                            "via_relationship": [{}],
+                            "via_relationship": [
+                                {
+                                    "name": "Find via ASSIGNED_TO",
+                                    "summary": "Find nodes assigned to a specific person",
+                                    "value": {
+                                        "edge_type": "ASSIGNED_TO",
+                                        "target_search": {
+                                            "properties": [
+                                                {
+                                                    "name": "email",
+                                                    "mode": "exact",
+                                                    "value": "alice@example.com",
+                                                }
+                                            ]
+                                        },
+                                        "target_type": "Person",
+                                    },
+                                }
+                            ],
                         },
                         "set": {"foo": "string"},
                         "source_type": "source_type",
@@ -1457,7 +1655,25 @@ class TestAsyncMemory:
                                 }
                             ],
                             "threshold": 0,
-                            "via_relationship": [{}],
+                            "via_relationship": [
+                                {
+                                    "name": "Find via ASSIGNED_TO",
+                                    "summary": "Find nodes assigned to a specific person",
+                                    "value": {
+                                        "edge_type": "ASSIGNED_TO",
+                                        "target_search": {
+                                            "properties": [
+                                                {
+                                                    "name": "email",
+                                                    "mode": "exact",
+                                                    "value": "alice@example.com",
+                                                }
+                                            ]
+                                        },
+                                        "target_type": "Person",
+                                    },
+                                }
+                            ],
                         },
                         "set": {"foo": "string"},
                         "when": {"foo": "bar"},
@@ -1719,7 +1935,25 @@ class TestAsyncMemory:
                                 }
                             ],
                             "threshold": 0,
-                            "via_relationship": [{}],
+                            "via_relationship": [
+                                {
+                                    "name": "Find via ASSIGNED_TO",
+                                    "summary": "Find nodes assigned to a specific person",
+                                    "value": {
+                                        "edge_type": "ASSIGNED_TO",
+                                        "target_search": {
+                                            "properties": [
+                                                {
+                                                    "name": "email",
+                                                    "mode": "exact",
+                                                    "value": "alice@example.com",
+                                                }
+                                            ]
+                                        },
+                                        "target_type": "Person",
+                                    },
+                                }
+                            ],
                         },
                         "set": {"foo": "string"},
                         "source_type": "source_type",
@@ -1748,7 +1982,25 @@ class TestAsyncMemory:
                                 }
                             ],
                             "threshold": 0,
-                            "via_relationship": [{}],
+                            "via_relationship": [
+                                {
+                                    "name": "Find via ASSIGNED_TO",
+                                    "summary": "Find nodes assigned to a specific person",
+                                    "value": {
+                                        "edge_type": "ASSIGNED_TO",
+                                        "target_search": {
+                                            "properties": [
+                                                {
+                                                    "name": "email",
+                                                    "mode": "exact",
+                                                    "value": "alice@example.com",
+                                                }
+                                            ]
+                                        },
+                                        "target_type": "Person",
+                                    },
+                                }
+                            ],
                         },
                         "set": {"foo": "string"},
                         "when": {"foo": "bar"},
@@ -1954,7 +2206,25 @@ class TestAsyncMemory:
                                         }
                                     ],
                                     "threshold": 0,
-                                    "via_relationship": [{}],
+                                    "via_relationship": [
+                                        {
+                                            "name": "Find via ASSIGNED_TO",
+                                            "summary": "Find nodes assigned to a specific person",
+                                            "value": {
+                                                "edge_type": "ASSIGNED_TO",
+                                                "target_search": {
+                                                    "properties": [
+                                                        {
+                                                            "name": "email",
+                                                            "mode": "exact",
+                                                            "value": "alice@example.com",
+                                                        }
+                                                    ]
+                                                },
+                                                "target_type": "Person",
+                                            },
+                                        }
+                                    ],
                                 },
                                 "set": {"foo": "string"},
                                 "source_type": "source_type",
@@ -1983,7 +2253,25 @@ class TestAsyncMemory:
                                         }
                                     ],
                                     "threshold": 0,
-                                    "via_relationship": [{}],
+                                    "via_relationship": [
+                                        {
+                                            "name": "Find via ASSIGNED_TO",
+                                            "summary": "Find nodes assigned to a specific person",
+                                            "value": {
+                                                "edge_type": "ASSIGNED_TO",
+                                                "target_search": {
+                                                    "properties": [
+                                                        {
+                                                            "name": "email",
+                                                            "mode": "exact",
+                                                            "value": "alice@example.com",
+                                                        }
+                                                    ]
+                                                },
+                                                "target_type": "Person",
+                                            },
+                                        }
+                                    ],
                                 },
                                 "set": {"foo": "string"},
                                 "when": {"foo": "bar"},
@@ -2145,7 +2433,25 @@ class TestAsyncMemory:
                                         }
                                     ],
                                     "threshold": 0,
-                                    "via_relationship": [{}],
+                                    "via_relationship": [
+                                        {
+                                            "name": "Find via ASSIGNED_TO",
+                                            "summary": "Find nodes assigned to a specific person",
+                                            "value": {
+                                                "edge_type": "ASSIGNED_TO",
+                                                "target_search": {
+                                                    "properties": [
+                                                        {
+                                                            "name": "email",
+                                                            "mode": "exact",
+                                                            "value": "alice@example.com",
+                                                        }
+                                                    ]
+                                                },
+                                                "target_type": "Person",
+                                            },
+                                        }
+                                    ],
                                 },
                                 "set": {"foo": "string"},
                                 "source_type": "source_type",
@@ -2174,7 +2480,25 @@ class TestAsyncMemory:
                                         }
                                     ],
                                     "threshold": 0,
-                                    "via_relationship": [{}],
+                                    "via_relationship": [
+                                        {
+                                            "name": "Find via ASSIGNED_TO",
+                                            "summary": "Find nodes assigned to a specific person",
+                                            "value": {
+                                                "edge_type": "ASSIGNED_TO",
+                                                "target_search": {
+                                                    "properties": [
+                                                        {
+                                                            "name": "email",
+                                                            "mode": "exact",
+                                                            "value": "alice@example.com",
+                                                        }
+                                                    ]
+                                                },
+                                                "target_type": "Person",
+                                            },
+                                        }
+                                    ],
                                 },
                                 "set": {"foo": "string"},
                                 "when": {"foo": "bar"},
@@ -2327,7 +2651,25 @@ class TestAsyncMemory:
                                 }
                             ],
                             "threshold": 0,
-                            "via_relationship": [{}],
+                            "via_relationship": [
+                                {
+                                    "name": "Find via ASSIGNED_TO",
+                                    "summary": "Find nodes assigned to a specific person",
+                                    "value": {
+                                        "edge_type": "ASSIGNED_TO",
+                                        "target_search": {
+                                            "properties": [
+                                                {
+                                                    "name": "email",
+                                                    "mode": "exact",
+                                                    "value": "alice@example.com",
+                                                }
+                                            ]
+                                        },
+                                        "target_type": "Person",
+                                    },
+                                }
+                            ],
                         },
                         "set": {"foo": "string"},
                         "source_type": "source_type",
@@ -2356,7 +2698,25 @@ class TestAsyncMemory:
                                 }
                             ],
                             "threshold": 0,
-                            "via_relationship": [{}],
+                            "via_relationship": [
+                                {
+                                    "name": "Find via ASSIGNED_TO",
+                                    "summary": "Find nodes assigned to a specific person",
+                                    "value": {
+                                        "edge_type": "ASSIGNED_TO",
+                                        "target_search": {
+                                            "properties": [
+                                                {
+                                                    "name": "email",
+                                                    "mode": "exact",
+                                                    "value": "alice@example.com",
+                                                }
+                                            ]
+                                        },
+                                        "target_type": "Person",
+                                    },
+                                }
+                            ],
                         },
                         "set": {"foo": "string"},
                         "when": {"foo": "bar"},

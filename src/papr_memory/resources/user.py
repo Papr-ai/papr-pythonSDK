@@ -6,7 +6,14 @@ from typing import Dict, Iterable, Optional
 
 import httpx
 
-from ..types import UserType, user_list_params, user_create_params, user_delete_params, user_create_batch_params
+from ..types import (
+    UserType,
+    user_list_params,
+    user_create_params,
+    user_delete_params,
+    user_update_params,
+    user_create_batch_params,
+)
 from .._types import Body, Omit, Query, Headers, NotGiven, omit, not_given
 from .._utils import maybe_transform, async_maybe_transform
 from .._compat import cached_property
@@ -83,6 +90,52 @@ class UserResource(SyncAPIResource):
                     "type": type,
                 },
                 user_create_params.UserCreateParams,
+            ),
+            options=make_request_options(
+                extra_headers=extra_headers, extra_query=extra_query, extra_body=extra_body, timeout=timeout
+            ),
+            cast_to=UserResponse,
+        )
+
+    def update(
+        self,
+        user_id: str,
+        *,
+        email: Optional[str] | Omit = omit,
+        external_id: Optional[str] | Omit = omit,
+        metadata: Optional[Dict[str, object]] | Omit = omit,
+        type: Optional[UserType] | Omit = omit,
+        # Use the following arguments if you need to pass additional parameters to the API that aren't available via kwargs.
+        # The extra values given here take precedence over values defined on the client or passed to this method.
+        extra_headers: Headers | None = None,
+        extra_query: Query | None = None,
+        extra_body: Body | None = None,
+        timeout: float | httpx.Timeout | None | NotGiven = not_given,
+    ) -> UserResponse:
+        """
+        Update user details by user_id (\\__User.objectId) and developer association
+
+        Args:
+          extra_headers: Send extra headers
+
+          extra_query: Add additional query parameters to the request
+
+          extra_body: Add additional JSON properties to the request
+
+          timeout: Override the client-level default timeout for this request, in seconds
+        """
+        if not user_id:
+            raise ValueError(f"Expected a non-empty value for `user_id` but received {user_id!r}")
+        return self._put(
+            f"/v1/user/{user_id}",
+            body=maybe_transform(
+                {
+                    "email": email,
+                    "external_id": external_id,
+                    "metadata": metadata,
+                    "type": type,
+                },
+                user_update_params.UserUpdateParams,
             ),
             options=make_request_options(
                 extra_headers=extra_headers, extra_query=extra_query, extra_body=extra_body, timeout=timeout
@@ -307,6 +360,52 @@ class AsyncUserResource(AsyncAPIResource):
             cast_to=UserResponse,
         )
 
+    async def update(
+        self,
+        user_id: str,
+        *,
+        email: Optional[str] | Omit = omit,
+        external_id: Optional[str] | Omit = omit,
+        metadata: Optional[Dict[str, object]] | Omit = omit,
+        type: Optional[UserType] | Omit = omit,
+        # Use the following arguments if you need to pass additional parameters to the API that aren't available via kwargs.
+        # The extra values given here take precedence over values defined on the client or passed to this method.
+        extra_headers: Headers | None = None,
+        extra_query: Query | None = None,
+        extra_body: Body | None = None,
+        timeout: float | httpx.Timeout | None | NotGiven = not_given,
+    ) -> UserResponse:
+        """
+        Update user details by user_id (\\__User.objectId) and developer association
+
+        Args:
+          extra_headers: Send extra headers
+
+          extra_query: Add additional query parameters to the request
+
+          extra_body: Add additional JSON properties to the request
+
+          timeout: Override the client-level default timeout for this request, in seconds
+        """
+        if not user_id:
+            raise ValueError(f"Expected a non-empty value for `user_id` but received {user_id!r}")
+        return await self._put(
+            f"/v1/user/{user_id}",
+            body=await async_maybe_transform(
+                {
+                    "email": email,
+                    "external_id": external_id,
+                    "metadata": metadata,
+                    "type": type,
+                },
+                user_update_params.UserUpdateParams,
+            ),
+            options=make_request_options(
+                extra_headers=extra_headers, extra_query=extra_query, extra_body=extra_body, timeout=timeout
+            ),
+            cast_to=UserResponse,
+        )
+
     async def list(
         self,
         *,
@@ -468,6 +567,9 @@ class UserResourceWithRawResponse:
         self.create = to_raw_response_wrapper(
             user.create,
         )
+        self.update = to_raw_response_wrapper(
+            user.update,
+        )
         self.list = to_raw_response_wrapper(
             user.list,
         )
@@ -488,6 +590,9 @@ class AsyncUserResourceWithRawResponse:
 
         self.create = async_to_raw_response_wrapper(
             user.create,
+        )
+        self.update = async_to_raw_response_wrapper(
+            user.update,
         )
         self.list = async_to_raw_response_wrapper(
             user.list,
@@ -510,6 +615,9 @@ class UserResourceWithStreamingResponse:
         self.create = to_streamed_response_wrapper(
             user.create,
         )
+        self.update = to_streamed_response_wrapper(
+            user.update,
+        )
         self.list = to_streamed_response_wrapper(
             user.list,
         )
@@ -530,6 +638,9 @@ class AsyncUserResourceWithStreamingResponse:
 
         self.create = async_to_streamed_response_wrapper(
             user.create,
+        )
+        self.update = async_to_streamed_response_wrapper(
+            user.update,
         )
         self.list = async_to_streamed_response_wrapper(
             user.list,

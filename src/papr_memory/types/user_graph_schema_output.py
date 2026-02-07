@@ -5,149 +5,21 @@ from datetime import datetime
 from typing_extensions import Literal, TypeAlias
 
 from .._models import BaseModel
+from .property_definition import PropertyDefinition
+from .search_config_output import SearchConfigOutput
+from .shared.property_value import PropertyValue
 
 __all__ = [
     "UserGraphSchemaOutput",
     "NodeTypes",
     "NodeTypesConstraint",
-    "NodeTypesConstraintSearch",
-    "NodeTypesConstraintSearchProperty",
     "NodeTypesConstraintSet",
-    "NodeTypesConstraintSetPropertyValue",
-    "NodeTypesProperties",
     "RelationshipTypes",
     "RelationshipTypesConstraint",
-    "RelationshipTypesConstraintSearch",
-    "RelationshipTypesConstraintSearchProperty",
     "RelationshipTypesConstraintSet",
-    "RelationshipTypesConstraintSetPropertyValue",
-    "RelationshipTypesProperties",
 ]
 
-
-class NodeTypesConstraintSearchProperty(BaseModel):
-    """Property matching configuration.
-
-    Defines which property to match on and how.
-    When listed in search.properties, this property becomes a unique identifier.
-
-    **Shorthand Helpers** (recommended for common cases):
-        PropertyMatch.exact("id")                    # Exact match on id
-        PropertyMatch.exact("id", "TASK-123")        # Exact match with specific value
-        PropertyMatch.semantic("title")              # Semantic match with default threshold
-        PropertyMatch.semantic("title", 0.9)         # Semantic match with custom threshold
-        PropertyMatch.semantic("title", value="bug") # Semantic search for "bug"
-        PropertyMatch.fuzzy("name", 0.8)             # Fuzzy match
-
-    **Full Form** (when you need all options):
-        PropertyMatch(name="title", mode="semantic", threshold=0.9, value="auth bug")
-
-    **String Shorthand** (in SearchConfig.properties):
-        properties=["id", "email"]  # Equivalent to [PropertyMatch.exact("id"), PropertyMatch.exact("email")]
-    """
-
-    name: str
-    """Property name to match on (e.g., 'id', 'email', 'title')"""
-
-    mode: Optional[Literal["semantic", "exact", "fuzzy"]] = None
-    """
-    Matching mode: 'exact' (string match), 'semantic' (embedding similarity),
-    'fuzzy' (Levenshtein distance)
-    """
-
-    threshold: Optional[float] = None
-    """Similarity threshold for semantic/fuzzy modes (0.0-1.0).
-
-    Ignored for exact mode.
-    """
-
-    value: Optional[object] = None
-    """Runtime value override.
-
-    If set, use this value for matching instead of extracting from content. Useful
-    for memory-level overrides when you know the exact value to search for.
-    """
-
-
-class NodeTypesConstraintSearch(BaseModel):
-    """Configuration for finding/selecting existing nodes.
-
-    Defines which properties to match on and how, in priority order.
-    The first matching property wins.
-
-    **String Shorthand** (simple cases - converts to exact match):
-        SearchConfig(properties=["id", "email"])
-        # Equivalent to:
-        SearchConfig(properties=[PropertyMatch.exact("id"), PropertyMatch.exact("email")])
-
-    **Mixed Form** (combine strings and PropertyMatch):
-        SearchConfig(properties=[
-            "id",                                    # String -> exact match
-            PropertyMatch.semantic("title", 0.9)     # Full control
-        ])
-
-    **Full Form** (maximum control):
-        SearchConfig(properties=[
-            PropertyMatch(name="id", mode="exact"),
-            PropertyMatch(name="title", mode="semantic", threshold=0.85)
-        ])
-
-    **To select a specific node by ID**:
-        SearchConfig(properties=[PropertyMatch.exact("id", "TASK-123")])
-    """
-
-    mode: Optional[Literal["semantic", "exact", "fuzzy"]] = None
-    """Default search mode when property doesn't specify one.
-
-    'semantic' (vector similarity), 'exact' (property match), 'fuzzy' (partial
-    match).
-    """
-
-    properties: Optional[List[NodeTypesConstraintSearchProperty]] = None
-    """Properties to match on, in priority order (first match wins).
-
-    Accepts strings (converted to exact match) or PropertyMatch objects. Use
-    PropertyMatch with 'value' field for specific node selection.
-    """
-
-    threshold: Optional[float] = None
-    """Default similarity threshold for semantic/fuzzy matching (0.0-1.0).
-
-    Used when property doesn't specify its own threshold.
-    """
-
-    via_relationship: Optional[List[object]] = None
-    """Search for nodes via their relationships.
-
-    Example: Find tasks assigned to a specific person. Each RelationshipMatch
-    specifies edge_type, target_type, and target_search. Multiple relationship
-    matches are ANDed together.
-    """
-
-
-class NodeTypesConstraintSetPropertyValue(BaseModel):
-    """Configuration for a property value in NodeConstraint.set.
-
-    Supports two modes:
-    1. Exact value: Just pass the value directly (e.g., "done", 123, True)
-    2. Auto-extract: {"mode": "auto"} - LLM extracts from memory content
-
-    For text properties, use text_mode to control how updates are applied.
-    """
-
-    mode: Optional[Literal["auto"]] = None
-    """'auto': LLM extracts value from memory content."""
-
-    text_mode: Optional[Literal["replace", "append", "merge"]] = None
-    """
-    For text properties: 'replace' (overwrite), 'append' (add to), 'merge' (LLM
-    combines existing + new).
-    """
-
-
-NodeTypesConstraintSet: TypeAlias = Union[
-    str, float, bool, List[object], Dict[str, object], NodeTypesConstraintSetPropertyValue
-]
+NodeTypesConstraintSet: TypeAlias = Union[str, float, bool, List[object], Dict[str, object], PropertyValue]
 
 
 class NodeTypesConstraint(BaseModel):
@@ -209,7 +81,7 @@ class NodeTypesConstraint(BaseModel):
     'create' field.
     """
 
-    search: Optional[NodeTypesConstraintSearch] = None
+    search: Optional[SearchConfigOutput] = None
     """Configuration for finding/selecting existing nodes.
 
     Defines which properties to match on and how, in priority order. The first
@@ -251,31 +123,6 @@ class NodeTypesConstraint(BaseModel):
     {'status': 'completed'}} - negation. Complex: {'\\__and': [{'priority': 'high'},
     {'\\__or': [{'status': 'active'}, {'urgent': true}]}]}
     """
-
-
-class NodeTypesProperties(BaseModel):
-    """Property definition for nodes/relationships"""
-
-    type: Literal["string", "integer", "float", "boolean", "array", "datetime", "object"]
-
-    default: Optional[object] = None
-
-    description: Optional[str] = None
-
-    enum_values: Optional[List[str]] = None
-    """List of allowed enum values (max 15)"""
-
-    max_length: Optional[int] = None
-
-    max_value: Optional[float] = None
-
-    min_length: Optional[int] = None
-
-    min_value: Optional[float] = None
-
-    pattern: Optional[str] = None
-
-    required: Optional[bool] = None
 
 
 class NodeTypes(BaseModel):
@@ -366,7 +213,7 @@ class NodeTypes(BaseModel):
     also provided, link_only=True will override constraint.create to 'lookup'.
     """
 
-    properties: Optional[Dict[str, NodeTypesProperties]] = None
+    properties: Optional[Dict[str, PropertyDefinition]] = None
     """Node properties (max 10 per node type)"""
 
     required_properties: Optional[List[str]] = None
@@ -387,129 +234,7 @@ class NodeTypes(BaseModel):
     """
 
 
-class RelationshipTypesConstraintSearchProperty(BaseModel):
-    """Property matching configuration.
-
-    Defines which property to match on and how.
-    When listed in search.properties, this property becomes a unique identifier.
-
-    **Shorthand Helpers** (recommended for common cases):
-        PropertyMatch.exact("id")                    # Exact match on id
-        PropertyMatch.exact("id", "TASK-123")        # Exact match with specific value
-        PropertyMatch.semantic("title")              # Semantic match with default threshold
-        PropertyMatch.semantic("title", 0.9)         # Semantic match with custom threshold
-        PropertyMatch.semantic("title", value="bug") # Semantic search for "bug"
-        PropertyMatch.fuzzy("name", 0.8)             # Fuzzy match
-
-    **Full Form** (when you need all options):
-        PropertyMatch(name="title", mode="semantic", threshold=0.9, value="auth bug")
-
-    **String Shorthand** (in SearchConfig.properties):
-        properties=["id", "email"]  # Equivalent to [PropertyMatch.exact("id"), PropertyMatch.exact("email")]
-    """
-
-    name: str
-    """Property name to match on (e.g., 'id', 'email', 'title')"""
-
-    mode: Optional[Literal["semantic", "exact", "fuzzy"]] = None
-    """
-    Matching mode: 'exact' (string match), 'semantic' (embedding similarity),
-    'fuzzy' (Levenshtein distance)
-    """
-
-    threshold: Optional[float] = None
-    """Similarity threshold for semantic/fuzzy modes (0.0-1.0).
-
-    Ignored for exact mode.
-    """
-
-    value: Optional[object] = None
-    """Runtime value override.
-
-    If set, use this value for matching instead of extracting from content. Useful
-    for memory-level overrides when you know the exact value to search for.
-    """
-
-
-class RelationshipTypesConstraintSearch(BaseModel):
-    """Configuration for finding/selecting existing nodes.
-
-    Defines which properties to match on and how, in priority order.
-    The first matching property wins.
-
-    **String Shorthand** (simple cases - converts to exact match):
-        SearchConfig(properties=["id", "email"])
-        # Equivalent to:
-        SearchConfig(properties=[PropertyMatch.exact("id"), PropertyMatch.exact("email")])
-
-    **Mixed Form** (combine strings and PropertyMatch):
-        SearchConfig(properties=[
-            "id",                                    # String -> exact match
-            PropertyMatch.semantic("title", 0.9)     # Full control
-        ])
-
-    **Full Form** (maximum control):
-        SearchConfig(properties=[
-            PropertyMatch(name="id", mode="exact"),
-            PropertyMatch(name="title", mode="semantic", threshold=0.85)
-        ])
-
-    **To select a specific node by ID**:
-        SearchConfig(properties=[PropertyMatch.exact("id", "TASK-123")])
-    """
-
-    mode: Optional[Literal["semantic", "exact", "fuzzy"]] = None
-    """Default search mode when property doesn't specify one.
-
-    'semantic' (vector similarity), 'exact' (property match), 'fuzzy' (partial
-    match).
-    """
-
-    properties: Optional[List[RelationshipTypesConstraintSearchProperty]] = None
-    """Properties to match on, in priority order (first match wins).
-
-    Accepts strings (converted to exact match) or PropertyMatch objects. Use
-    PropertyMatch with 'value' field for specific node selection.
-    """
-
-    threshold: Optional[float] = None
-    """Default similarity threshold for semantic/fuzzy matching (0.0-1.0).
-
-    Used when property doesn't specify its own threshold.
-    """
-
-    via_relationship: Optional[List[object]] = None
-    """Search for nodes via their relationships.
-
-    Example: Find tasks assigned to a specific person. Each RelationshipMatch
-    specifies edge_type, target_type, and target_search. Multiple relationship
-    matches are ANDed together.
-    """
-
-
-class RelationshipTypesConstraintSetPropertyValue(BaseModel):
-    """Configuration for a property value in NodeConstraint.set.
-
-    Supports two modes:
-    1. Exact value: Just pass the value directly (e.g., "done", 123, True)
-    2. Auto-extract: {"mode": "auto"} - LLM extracts from memory content
-
-    For text properties, use text_mode to control how updates are applied.
-    """
-
-    mode: Optional[Literal["auto"]] = None
-    """'auto': LLM extracts value from memory content."""
-
-    text_mode: Optional[Literal["replace", "append", "merge"]] = None
-    """
-    For text properties: 'replace' (overwrite), 'append' (add to), 'merge' (LLM
-    combines existing + new).
-    """
-
-
-RelationshipTypesConstraintSet: TypeAlias = Union[
-    str, float, bool, List[object], Dict[str, object], RelationshipTypesConstraintSetPropertyValue
-]
+RelationshipTypesConstraintSet: TypeAlias = Union[str, float, bool, List[object], Dict[str, object], PropertyValue]
 
 
 class RelationshipTypesConstraint(BaseModel):
@@ -580,7 +305,7 @@ class RelationshipTypesConstraint(BaseModel):
     overrides 'create' field.
     """
 
-    search: Optional[RelationshipTypesConstraintSearch] = None
+    search: Optional[SearchConfigOutput] = None
     """Configuration for finding/selecting existing nodes.
 
     Defines which properties to match on and how, in priority order. The first
@@ -632,31 +357,6 @@ class RelationshipTypesConstraint(BaseModel):
     or context. Example: {'\\__and': [{'severity': 'high'}, {'_not': {'status':
     'deprecated'}}]}
     """
-
-
-class RelationshipTypesProperties(BaseModel):
-    """Property definition for nodes/relationships"""
-
-    type: Literal["string", "integer", "float", "boolean", "array", "datetime", "object"]
-
-    default: Optional[object] = None
-
-    description: Optional[str] = None
-
-    enum_values: Optional[List[str]] = None
-    """List of allowed enum values (max 15)"""
-
-    max_length: Optional[int] = None
-
-    max_value: Optional[float] = None
-
-    min_length: Optional[int] = None
-
-    min_value: Optional[float] = None
-
-    pattern: Optional[str] = None
-
-    required: Optional[bool] = None
 
 
 class RelationshipTypes(BaseModel):
@@ -746,7 +446,7 @@ class RelationshipTypes(BaseModel):
     'lookup'.
     """
 
-    properties: Optional[Dict[str, RelationshipTypesProperties]] = None
+    properties: Optional[Dict[str, PropertyDefinition]] = None
 
     resolution_policy: Optional[Literal["upsert", "lookup"]] = None
     """Shorthand for constraint.create.
