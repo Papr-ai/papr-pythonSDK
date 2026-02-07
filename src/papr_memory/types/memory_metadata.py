@@ -1,6 +1,6 @@
 # File generated from our OpenAPI spec by Stainless. See CONTRIBUTING.md for details.
 
-from typing import TYPE_CHECKING, Dict, List, Union, Optional
+from typing import Dict, List, Union, Optional
 from typing_extensions import Literal
 
 from pydantic import Field as FieldInfo
@@ -13,6 +13,12 @@ __all__ = ["MemoryMetadata"]
 class MemoryMetadata(BaseModel):
     """Metadata for memory request"""
 
+    acl: Optional[Dict[str, List[str]]] = None
+    """DEPRECATED: Use 'memory_policy.acl' at request level instead.
+
+    Format: {'read': [...], 'write': [...]}.
+    """
+
     assistant_message: Optional[str] = FieldInfo(alias="assistantMessage", default=None)
 
     category: Optional[Literal["preference", "task", "goal", "fact", "context", "skills", "learning"]] = None
@@ -20,6 +26,12 @@ class MemoryMetadata(BaseModel):
 
     For users: preference, task, goal, fact, context. For assistants: skills,
     learning, task, goal, fact, context.
+    """
+
+    consent: Optional[str] = None
+    """DEPRECATED: Use 'memory_policy.consent' at request level instead.
+
+    Values: 'explicit', 'implicit' (default), 'terms', 'none'.
     """
 
     conversation_id: Optional[str] = FieldInfo(alias="conversationId", default=None)
@@ -41,29 +53,65 @@ class MemoryMetadata(BaseModel):
     emotion_tags: Optional[List[str]] = FieldInfo(alias="emotion tags", default=None)
 
     external_user_id: Optional[str] = None
+    """DEPRECATED: Use 'external_user_id' at request level instead.
+
+    This field will be removed in v2.
+    """
 
     external_user_read_access: Optional[List[str]] = None
+    """INTERNAL: Auto-populated for vector store filtering.
+
+    Use memory_policy.acl instead.
+    """
 
     external_user_write_access: Optional[List[str]] = None
+    """INTERNAL: Auto-populated for vector store filtering.
+
+    Use memory_policy.acl instead.
+    """
 
     goal_classification_scores: Optional[List[float]] = FieldInfo(alias="goalClassificationScores", default=None)
 
-    hierarchical_structures: Optional[str] = None
+    hierarchical_structures: Union[str, List[object], None] = None
     """Hierarchical structures to enable navigation from broad topics to specific ones"""
 
     location: Optional[str] = None
 
     namespace_id: Optional[str] = None
+    """DEPRECATED: Use 'namespace_id' at request level instead.
+
+    This field will be removed in v2.
+    """
 
     namespace_read_access: Optional[List[str]] = None
+    """INTERNAL: Auto-populated for vector store filtering.
+
+    Use memory_policy.acl instead.
+    """
 
     namespace_write_access: Optional[List[str]] = None
+    """INTERNAL: Auto-populated for vector store filtering.
+
+    Use memory_policy.acl instead.
+    """
 
     organization_id: Optional[str] = None
+    """DEPRECATED: Use 'organization_id' at request level instead.
+
+    This field will be removed in v2.
+    """
 
     organization_read_access: Optional[List[str]] = None
+    """INTERNAL: Auto-populated for vector store filtering.
+
+    Use memory_policy.acl instead.
+    """
 
     organization_write_access: Optional[List[str]] = None
+    """INTERNAL: Auto-populated for vector store filtering.
+
+    Use memory_policy.acl instead.
+    """
 
     page_id: Optional[str] = FieldInfo(alias="pageId", default=None)
 
@@ -75,12 +123,26 @@ class MemoryMetadata(BaseModel):
 
     related_use_cases: Optional[List[str]] = FieldInfo(alias="relatedUseCases", default=None)
 
+    risk: Optional[str] = None
+    """DEPRECATED: Use 'memory_policy.risk' at request level instead.
+
+    Values: 'none' (default), 'sensitive', 'flagged'.
+    """
+
     role: Optional[Literal["user", "assistant"]] = None
     """Role of the message sender"""
 
     role_read_access: Optional[List[str]] = None
+    """INTERNAL: Auto-populated for vector store filtering.
+
+    Use memory_policy.acl instead.
+    """
 
     role_write_access: Optional[List[str]] = None
+    """INTERNAL: Auto-populated for vector store filtering.
+
+    Use memory_policy.acl instead.
+    """
 
     session_id: Optional[str] = FieldInfo(alias="sessionId", default=None)
 
@@ -98,27 +160,35 @@ class MemoryMetadata(BaseModel):
     use_case_classification_scores: Optional[List[float]] = FieldInfo(alias="useCaseClassificationScores", default=None)
 
     user_id: Optional[str] = None
+    """DEPRECATED: Use 'external_user_id' at request level instead.
+
+    This field will be removed in v2.
+    """
 
     user_read_access: Optional[List[str]] = None
+    """INTERNAL: Auto-populated for vector store filtering.
+
+    Use memory_policy.acl instead.
+    """
 
     user_write_access: Optional[List[str]] = None
+    """INTERNAL: Auto-populated for vector store filtering.
+
+    Use memory_policy.acl instead.
+    """
 
     user_message: Optional[str] = FieldInfo(alias="userMessage", default=None)
 
     workspace_id: Optional[str] = None
 
     workspace_read_access: Optional[List[str]] = None
+    """INTERNAL: Auto-populated for vector store filtering.
+
+    Use memory_policy.acl instead.
+    """
 
     workspace_write_access: Optional[List[str]] = None
+    """INTERNAL: Auto-populated for vector store filtering.
 
-    if TYPE_CHECKING:
-        # Some versions of Pydantic <2.8.0 have a bug and don’t allow assigning a
-        # value to this field, so for compatibility we avoid doing it at runtime.
-        __pydantic_extra__: Dict[str, object] = FieldInfo(init=False)  # pyright: ignore[reportIncompatibleVariableOverride]
-
-        # Stub to indicate that arbitrary properties are accepted.
-        # To access properties that are not valid identifiers you can use `getattr`, e.g.
-        # `getattr(obj, '$type')`
-        def __getattr__(self, attr: str) -> object: ...
-    else:
-        __pydantic_extra__: Dict[str, object]
+    Use memory_policy.acl instead.
+    """
