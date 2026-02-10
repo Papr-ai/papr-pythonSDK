@@ -56,9 +56,12 @@ class SchemasResource(SyncAPIResource):
         created_at: Union[str, datetime] | Omit = omit,
         description: Optional[str] | Omit = omit,
         last_used_at: Union[str, datetime, None] | Omit = omit,
+        memory_policy: Optional[Dict[str, object]] | Omit = omit,
         namespace: Union[str, Dict[str, object], None] | Omit = omit,
+        namespace_id: Optional[str] | Omit = omit,
         node_types: Dict[str, schema_create_params.NodeTypes] | Omit = omit,
         organization: Union[str, Dict[str, object], None] | Omit = omit,
+        organization_id: Optional[str] | Omit = omit,
         read_access: SequenceNotStr[str] | Omit = omit,
         relationship_types: Dict[str, schema_create_params.RelationshipTypes] | Omit = omit,
         scope: Literal["personal", "workspace", "namespace", "organization"] | Omit = omit,
@@ -151,7 +154,19 @@ class SchemasResource(SyncAPIResource):
             - X-Client-Type: (e.g., 'papr_plugin', 'browser_extension')
 
         Args:
+          memory_policy: Default memory policy for memories using this schema. Includes mode ('auto',
+              'manual'), node_constraints (applied in auto mode when present), and OMO safety
+              settings (consent, risk). Memory-level policies override schema-level.
+
+          namespace: DEPRECATED: Use 'namespace_id' instead. Accepts Parse pointer or objectId.
+
+          namespace_id: Namespace ID this schema belongs to. Accepts legacy 'namespace' alias.
+
           node_types: Custom node types (max 10 per schema)
+
+          organization: DEPRECATED: Use 'organization_id' instead. Accepts Parse pointer or objectId.
+
+          organization_id: Organization ID this schema belongs to. Accepts legacy 'organization' alias.
 
           relationship_types: Custom relationship types (max 20 per schema)
 
@@ -174,9 +189,12 @@ class SchemasResource(SyncAPIResource):
                     "created_at": created_at,
                     "description": description,
                     "last_used_at": last_used_at,
+                    "memory_policy": memory_policy,
                     "namespace": namespace,
+                    "namespace_id": namespace_id,
                     "node_types": node_types,
                     "organization": organization,
+                    "organization_id": organization_id,
                     "read_access": read_access,
                     "relationship_types": relationship_types,
                     "scope": scope,
@@ -401,9 +419,12 @@ class AsyncSchemasResource(AsyncAPIResource):
         created_at: Union[str, datetime] | Omit = omit,
         description: Optional[str] | Omit = omit,
         last_used_at: Union[str, datetime, None] | Omit = omit,
+        memory_policy: Optional[Dict[str, object]] | Omit = omit,
         namespace: Union[str, Dict[str, object], None] | Omit = omit,
+        namespace_id: Optional[str] | Omit = omit,
         node_types: Dict[str, schema_create_params.NodeTypes] | Omit = omit,
         organization: Union[str, Dict[str, object], None] | Omit = omit,
+        organization_id: Optional[str] | Omit = omit,
         read_access: SequenceNotStr[str] | Omit = omit,
         relationship_types: Dict[str, schema_create_params.RelationshipTypes] | Omit = omit,
         scope: Literal["personal", "workspace", "namespace", "organization"] | Omit = omit,
@@ -496,7 +517,19 @@ class AsyncSchemasResource(AsyncAPIResource):
             - X-Client-Type: (e.g., 'papr_plugin', 'browser_extension')
 
         Args:
+          memory_policy: Default memory policy for memories using this schema. Includes mode ('auto',
+              'manual'), node_constraints (applied in auto mode when present), and OMO safety
+              settings (consent, risk). Memory-level policies override schema-level.
+
+          namespace: DEPRECATED: Use 'namespace_id' instead. Accepts Parse pointer or objectId.
+
+          namespace_id: Namespace ID this schema belongs to. Accepts legacy 'namespace' alias.
+
           node_types: Custom node types (max 10 per schema)
+
+          organization: DEPRECATED: Use 'organization_id' instead. Accepts Parse pointer or objectId.
+
+          organization_id: Organization ID this schema belongs to. Accepts legacy 'organization' alias.
 
           relationship_types: Custom relationship types (max 20 per schema)
 
@@ -519,9 +552,12 @@ class AsyncSchemasResource(AsyncAPIResource):
                     "created_at": created_at,
                     "description": description,
                     "last_used_at": last_used_at,
+                    "memory_policy": memory_policy,
                     "namespace": namespace,
+                    "namespace_id": namespace_id,
                     "node_types": node_types,
                     "organization": organization,
+                    "organization_id": organization_id,
                     "read_access": read_access,
                     "relationship_types": relationship_types,
                     "scope": scope,

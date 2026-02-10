@@ -1,5 +1,40 @@
 # Changelog
 
+## 2.20.0 (2026-02-10)
+
+Full Changelog: [v2.19.1...v2.20.0](https://github.com/Papr-ai/papr-pythonSDK/compare/v2.19.1...v2.20.0)
+
+### Features
+
+* **api:** manual updates ([6a4fab4](https://github.com/Papr-ai/papr-pythonSDK/commit/6a4fab490a2872eec3cdf93a3b5f0f3f993c47ff))
+* **api:** manual updates ([c20a236](https://github.com/Papr-ai/papr-pythonSDK/commit/c20a236fa71341ea519824cda0f4731bf0e58d8a))
+* **api:** manual updates ([491cab3](https://github.com/Papr-ai/papr-pythonSDK/commit/491cab39ce4a212bdf9da51f52ec1e03253db50a))
+* **api:** manual updates ([0c351dd](https://github.com/Papr-ai/papr-pythonSDK/commit/0c351dd1638877a1c4fe27e8be265c6242be6317))
+* **api:** manual updates ([52ab44f](https://github.com/Papr-ai/papr-pythonSDK/commit/52ab44fb94e38c1a2d196dd76b785863f3f32453))
+* **api:** manual updates ([920f87e](https://github.com/Papr-ai/papr-pythonSDK/commit/920f87e9fc172d4f97950e4dc46537cef36cb0e4))
+* **client:** add custom JSON encoder for extended type support ([daf08f4](https://github.com/Papr-ai/papr-pythonSDK/commit/daf08f4a5ed93a062f4d53d923a1787a89d594b2))
+* **client:** add custom JSON encoder for extended type support ([3eb2c25](https://github.com/Papr-ai/papr-pythonSDK/commit/3eb2c2543c84ec016c411f1c6659d21098191c76))
+
+
+### Bug Fixes
+
+* **docs:** fix mcp installation instructions for remote servers ([546632c](https://github.com/Papr-ai/papr-pythonSDK/commit/546632c0978e6c664a55a5a124f8f85404faca3b))
+* **docs:** fix mcp installation instructions for remote servers ([4a0a1cf](https://github.com/Papr-ai/papr-pythonSDK/commit/4a0a1cf197ffe064a51d59acb5579754354d3a20))
+* resolve merge conflict issues in memory.py ([a3a59a8](https://github.com/Papr-ai/papr-pythonSDK/commit/a3a59a826ea90312f1566707a1cc7c491d72df19))
+* resolve merge conflict markers in test_memory.py ([49b5cf4](https://github.com/Papr-ai/papr-pythonSDK/commit/49b5cf4dab4cd5d115c8c5987b48288afb856d83))
+* resolve remaining merge conflict markers in test_schemas.py ([4ae93a1](https://github.com/Papr-ai/papr-pythonSDK/commit/4ae93a10a27adbab2509a803b1908897cbfdc5d3))
+
+
+### Chores
+
+* **internal:** version bump ([b938f88](https://github.com/Papr-ai/papr-pythonSDK/commit/b938f88561937c0bf5b53d991075e111403c4547))
+* merge generated code and configure on-device dependencies ([ca16f0a](https://github.com/Papr-ai/papr-pythonSDK/commit/ca16f0a2fdc75823f8f3125bc9c559f1b4976844))
+
+
+### Documentation
+
+* add on-device processing setup guide ([c1d1b25](https://github.com/Papr-ai/papr-pythonSDK/commit/c1d1b252a4f410caf1772a5d731722c346d3491b))
+
 ## 2.19.1 (2026-01-27)
 
 Full Changelog: [v2.19.0...v2.19.1](https://github.com/Papr-ai/papr-pythonSDK/compare/v2.19.0...v2.19.1)
