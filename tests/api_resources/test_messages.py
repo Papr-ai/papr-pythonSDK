@@ -238,6 +238,7 @@ class TestMessages:
             organization_id="organization_id",
             process_messages=True,
             relationships_json=[{"foo": "bar"}],
+            title="title",
         )
         assert_matches_type(MessageStoreResponse, message, path=["response"])
 
@@ -498,6 +499,7 @@ class TestAsyncMessages:
             organization_id="organization_id",
             process_messages=True,
             relationships_json=[{"foo": "bar"}],
+            title="title",
         )
         assert_matches_type(MessageStoreResponse, message, path=["response"])
 

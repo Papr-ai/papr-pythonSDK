@@ -73,6 +73,7 @@ class MessagesResource(SyncAPIResource):
         organization_id: Optional[str] | Omit = omit,
         process_messages: bool | Omit = omit,
         relationships_json: Optional[Iterable[Dict[str, object]]] | Omit = omit,
+        title: Optional[str] | Omit = omit,
         # Use the following arguments if you need to pass additional parameters to the API that aren't available via kwargs.
         # The extra values given here take precedence over values defined on the client or passed to this method.
         extra_headers: Headers | None = None,
@@ -102,6 +103,7 @@ class MessagesResource(SyncAPIResource):
             **Session Management**:
             - `sessionId` is required to group related messages
             - Use the same `sessionId` for an entire conversation
+            - **Optional `title`**: Set a human-readable title for the conversation (e.g., "Q4 Planning Session")
             - Retrieve conversation history using GET /messages/sessions/{sessionId}
 
         Args:
@@ -149,6 +151,9 @@ class MessagesResource(SyncAPIResource):
 
           relationships_json: Optional array of relationships for Graph DB (Neo4j)
 
+          title: Optional title for the conversation session. Sets the Chat.title in Parse Server
+              for easy identification.
+
           extra_headers: Send extra headers
 
           extra_query: Add additional query parameters to the request
@@ -172,6 +177,7 @@ class MessagesResource(SyncAPIResource):
                     "organization_id": organization_id,
                     "process_messages": process_messages,
                     "relationships_json": relationships_json,
+                    "title": title,
                 },
                 message_store_params.MessageStoreParams,
             ),
@@ -220,6 +226,7 @@ class AsyncMessagesResource(AsyncAPIResource):
         organization_id: Optional[str] | Omit = omit,
         process_messages: bool | Omit = omit,
         relationships_json: Optional[Iterable[Dict[str, object]]] | Omit = omit,
+        title: Optional[str] | Omit = omit,
         # Use the following arguments if you need to pass additional parameters to the API that aren't available via kwargs.
         # The extra values given here take precedence over values defined on the client or passed to this method.
         extra_headers: Headers | None = None,
@@ -249,6 +256,7 @@ class AsyncMessagesResource(AsyncAPIResource):
             **Session Management**:
             - `sessionId` is required to group related messages
             - Use the same `sessionId` for an entire conversation
+            - **Optional `title`**: Set a human-readable title for the conversation (e.g., "Q4 Planning Session")
             - Retrieve conversation history using GET /messages/sessions/{sessionId}
 
         Args:
@@ -296,6 +304,9 @@ class AsyncMessagesResource(AsyncAPIResource):
 
           relationships_json: Optional array of relationships for Graph DB (Neo4j)
 
+          title: Optional title for the conversation session. Sets the Chat.title in Parse Server
+              for easy identification.
+
           extra_headers: Send extra headers
 
           extra_query: Add additional query parameters to the request
@@ -319,6 +330,7 @@ class AsyncMessagesResource(AsyncAPIResource):
                     "organization_id": organization_id,
                     "process_messages": process_messages,
                     "relationships_json": relationships_json,
+                    "title": title,
                 },
                 message_store_params.MessageStoreParams,
             ),

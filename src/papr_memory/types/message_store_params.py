@@ -73,3 +73,9 @@ class MessageStoreParams(TypedDict, total=False):
 
     relationships_json: Optional[Iterable[Dict[str, object]]]
     """Optional array of relationships for Graph DB (Neo4j)"""
+
+    title: Optional[str]
+    """Optional title for the conversation session.
+
+    Sets the Chat.title in Parse Server for easy identification.
+    """
