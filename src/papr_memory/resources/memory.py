@@ -28,7 +28,6 @@ from .._response import (
     async_to_streamed_response_wrapper,
 )
 from .._base_client import make_request_options
-from ..types.memory_type import MemoryType
 from ..types.search_response import SearchResponse
 from ..types.add_memory_param import AddMemoryParam
 from ..types.context_item_param import ContextItemParam
@@ -253,7 +252,6 @@ class MemoryResource(SyncAPIResource):
         organization_id: Optional[str] | Omit = omit,
         relationships_json: Optional[Iterable[RelationshipItemParam]] | Omit = omit,
         type: MemoryType | Omit = omit,
-        user_id: Optional[str] | Omit = omit,
         user_id: Optional[str] | Omit = omit,
         # Use the following arguments if you need to pass additional parameters to the API that aren't available via kwargs.
         # The extra values given here take precedence over values defined on the client or passed to this method.
