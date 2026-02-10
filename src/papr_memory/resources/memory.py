@@ -1088,8 +1088,8 @@ class MemoryResource(SyncAPIResource):
                                 # Fallback: sentence-transformers on local device
                                 try:
                                     import torch  # type: ignore[import-not-found]
-                                    from sentence_transformers import (
-                                        SentenceTransformer,  # type: ignore[import-not-found]
+                                    from sentence_transformers import (  # type: ignore[import-not-found]
+                                        SentenceTransformer,
                                     )
 
                                     device = (
@@ -3465,7 +3465,7 @@ class MemoryResource(SyncAPIResource):
                             continue
                 
                 # Return search results with proper SearchResponse structure
-                return SearchResponse(data=Data(memories=memories, nodes=[]), status="success")
+                return SearchResponse(data=Data(memories=memories, nodes=[]), status="success")  # type: ignore[arg-type]
         elif not ondevice_processing:
             logger.info("On-device processing disabled - using API-only search")
         else:
