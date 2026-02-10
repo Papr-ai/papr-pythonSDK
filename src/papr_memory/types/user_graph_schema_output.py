@@ -3,7 +3,6 @@
 from typing import Dict, List, Union, Optional
 from datetime import datetime
 from typing_extensions import Literal, TypeAlias
-from typing_extensions import Literal, TypeAlias
 
 from .._models import BaseModel
 from .property_definition import PropertyDefinition

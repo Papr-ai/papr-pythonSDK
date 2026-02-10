@@ -6,7 +6,6 @@ from typing import Dict, Union, Iterable, Optional
 from typing_extensions import Required, TypedDict
 
 from .._types import SequenceNotStr
-from .._types import SequenceNotStr
 from .memory_type import MemoryType
 from .context_item_param import ContextItemParam
 from .memory_metadata_param import MemoryMetadataParam

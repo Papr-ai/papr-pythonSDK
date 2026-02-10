@@ -1088,7 +1088,9 @@ class MemoryResource(SyncAPIResource):
                                 # Fallback: sentence-transformers on local device
                                 try:
                                     import torch  # type: ignore[import-not-found]
-                                    from sentence_transformers import SentenceTransformer  # type: ignore[import-not-found]
+                                    from sentence_transformers import (
+                                        SentenceTransformer,  # type: ignore[import-not-found]
+                                    )
 
                                     device = (
                                         "mps"
@@ -3415,8 +3417,9 @@ class MemoryResource(SyncAPIResource):
             logger.info(f"Local tier0 search completed in {search_time:.2f}s")
             if tier0_context:
                 logger.info(f"Using {len(tier0_context)} tier0 items for search context enhancement")
-                # Convert tier0_context (list of documents) to DataMemory objects
-                from papr_memory.types.search_response import Data, DataMemory
+                # Convert tier0_context (list of documents) to Memory objects
+                from papr_memory.types.shared.memory import Memory
+                from papr_memory.types.search_response import Data
 
                 memories = []
                 for i, item in enumerate(tier0_context):
@@ -3431,7 +3434,7 @@ class MemoryResource(SyncAPIResource):
                             content = item
                             similarity_score = 0.0
 
-                        # Try creating DataMemory with explicit pydantic_extra__
+                        # Try creating Memory with explicit pydantic_extra__
                         memory_data: dict[str, any] = {  # type: ignore
                             "id": f"tier0_{i}",
                             "acl": {},
@@ -3440,13 +3443,13 @@ class MemoryResource(SyncAPIResource):
                             "user_id": "local",
                             "pydantic_extra__": {"similarity_score": similarity_score},
                         }
-                        memories.append(DataMemory(**memory_data))  # type: ignore
+                        memories.append(Memory(**memory_data))  # type: ignore
                     except Exception as e:
-                        logger.warning(f"Failed to create DataMemory for item {i}: {e}")
+                        logger.warning(f"Failed to create Memory for item {i}: {e}")
                         # Fallback: create a minimal memory object
                         try:
                             memories.append(
-                                DataMemory.model_validate(
+                                Memory.model_validate(
                                     {
                                 "id": f"tier0_{i}",
                                 "acl": {},
@@ -3457,7 +3460,7 @@ class MemoryResource(SyncAPIResource):
                                 )
                             )
                         except Exception as e2:
-                            logger.error(f"Failed to create DataMemory with model_validate: {e2}")
+                            logger.error(f"Failed to create Memory with model_validate: {e2}")
                             # Skip this item
                             continue
                 
