@@ -6,11 +6,13 @@ from typing import Dict, Union, Iterable, Optional
 from typing_extensions import Literal, Required, TypeAlias, TypedDict
 
 from .._types import SequenceNotStr
+from .._types import SequenceNotStr
 from .memory_type import MemoryType
 from .context_item_param import ContextItemParam
 from .memory_metadata_param import MemoryMetadataParam
 from .graph_generation_param import GraphGenerationParam
 from .relationship_item_param import RelationshipItemParam
+from .shared_params.memory_policy import MemoryPolicy
 
 __all__ = [
     "MemoryAddParams",
@@ -127,9 +129,17 @@ class MemoryAddParams(TypedDict, total=False):
     'mem_123', type: 'FOLLOWS'}] 2. Previous memory: link_to_previous_memory=True 3.
     Related memories: link_to_related_memories=3
     """
+    """DEPRECATED: Use 'memory_policy' instead.
+
+    Migration options: 1. Specific memory: relationships=[{source: '$this', target:
+    'mem_123', type: 'FOLLOWS'}] 2. Previous memory: link_to_previous_memory=True 3.
+    Related memories: link_to_related_memories=3
+    """
 
     type: MemoryType
     """Memory item type; defaults to 'text' if omitted"""
+
+
 
     user_id: Optional[str]
     """DEPRECATED: Use 'external_user_id' instead.

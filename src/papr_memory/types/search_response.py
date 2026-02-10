@@ -6,6 +6,7 @@ from datetime import datetime
 from pydantic import Field as FieldInfo
 
 from .._models import BaseModel
+from .shared.memory import Memory
 from .context_item import ContextItem
 
 __all__ = ["SearchResponse", "Data", "DataMemory", "DataNode"]
@@ -188,7 +189,7 @@ class DataNode(BaseModel):
 class Data(BaseModel):
     """Return type for SearchResult"""
 
-    memories: List[DataMemory]
+    memories: List[Memory]
 
     nodes: List[DataNode]
 

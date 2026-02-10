@@ -3,8 +3,12 @@
 from typing import Dict, List, Union, Optional
 from datetime import datetime
 from typing_extensions import Literal, TypeAlias
+from typing_extensions import Literal, TypeAlias
 
 from .._models import BaseModel
+from .property_definition import PropertyDefinition
+from .search_config_output import SearchConfigOutput
+from .shared.property_value import PropertyValue
 
 __all__ = [
     "UserGraphSchemaOutput",
@@ -23,6 +27,9 @@ __all__ = [
     "RelationshipTypesConstraintSetPropertyValue",
     "RelationshipTypesProperties",
 ]
+
+NodeTypesConstraintSet: TypeAlias = Union[str, float, bool, List[object], Dict[str, object], PropertyValue]
+
 
 
 class NodeTypesConstraintSearchProperty(BaseModel):
@@ -253,29 +260,107 @@ class NodeTypesConstraint(BaseModel):
     """
 
 
-class NodeTypesProperties(BaseModel):
-    """Property definition for nodes/relationships"""
+class NodeTypesConstraint(BaseModel):
+    """Policy for how nodes of a specific type should be handled.
 
-    type: Literal["string", "integer", "float", "boolean", "array", "datetime", "object"]
+    Used in two places:
+    1. **Schema level**: Inside `UserNodeType.constraint` - `node_type` is implicit from parent
+    2. **Memory level**: In `memory_policy.node_constraints[]` - `node_type` is required
 
-    default: Optional[object] = None
+    Node constraints allow developers to control:
+    - Which node types can be created vs. linked
+    - How to find/select existing nodes (via `search`)
+    - What property values to set (exact or auto-extracted)
+    - When to apply the constraint (conditional with logical operators)
 
-    description: Optional[str] = None
+    **The `search` field** handles node selection:
+    - Uses PropertyMatch list to define unique identifiers and matching strategy
+    - Example: `{"properties": [{"name": "id", "mode": "exact"}, {"name": "title", "mode": "semantic"}]}`
+    - For direct selection, use PropertyMatch with value: `{"name": "id", "mode": "exact", "value": "proj_123"}`
 
-    enum_values: Optional[List[str]] = None
-    """List of allowed enum values (max 15)"""
+    **The `set` field** controls property values:
+    - Exact value: `{"status": "done"}` - sets exact value
+    - Auto-extract: `{"status": {"mode": "auto"}}` - LLM extracts from content
 
-    max_length: Optional[int] = None
+    **The `when` field** supports logical operators:
+    - Simple: `{"priority": "high"}`
+    - AND: `{"_and": [{"priority": "high"}, {"status": "active"}]}`
+    - OR: `{"_or": [{"status": "active"}, {"status": "pending"}]}`
+    - NOT: `{"_not": {"status": "completed"}}`
+    - Complex: `{"_and": [{"priority": "high"}, {"_or": [{"status": "active"}, {"urgent": true}]}]}`
+    """
 
-    max_value: Optional[float] = None
+    create: Optional[Literal["upsert", "lookup", "auto", "never"]] = None
+    """'upsert': Create if not found via search (default).
 
-    min_length: Optional[int] = None
+    'lookup': Only link to existing nodes (controlled vocabulary). Deprecated
+    aliases: 'auto' -> 'upsert', 'never' -> 'lookup'.
+    """
 
-    min_value: Optional[float] = None
+    link_only: Optional[bool] = None
+    """DEPRECATED: Use create='lookup' instead.
 
-    pattern: Optional[str] = None
+    Shorthand for create='lookup'. When True, only links to existing nodes
+    (controlled vocabulary). Equivalent to @lookup decorator in schema definitions.
+    """
 
-    required: Optional[bool] = None
+    node_type: Optional[str] = None
+    """Node type this constraint applies to (e.g., 'Task', 'Project', 'Person').
+
+    Optional at schema level (implicit from parent UserNodeType), required at memory
+    level (in memory_policy.node_constraints).
+    """
+
+    on_miss: Optional[Literal["create", "ignore", "error"]] = None
+    """Explicit behavior when no match found via search.
+
+    'create': create new node (same as upsert). 'ignore': skip node creation (same
+    as lookup). 'error': raise error if node not found. If specified, overrides
+    'create' field.
+    """
+
+    search: Optional[SearchConfigOutput] = None
+    """Configuration for finding/selecting existing nodes.
+
+    Defines which properties to match on and how, in priority order. The first
+    matching property wins.
+
+    **String Shorthand** (simple cases - converts to exact match):
+    SearchConfig(properties=["id", "email"]) # Equivalent to:
+    SearchConfig(properties=[PropertyMatch.exact("id"),
+    PropertyMatch.exact("email")])
+
+    **Mixed Form** (combine strings and PropertyMatch): SearchConfig(properties=[
+    "id", # String -> exact match PropertyMatch.semantic("title", 0.9) # Full
+    control ])
+
+    **Full Form** (maximum control): SearchConfig(properties=[
+    PropertyMatch(name="id", mode="exact"), PropertyMatch(name="title",
+    mode="semantic", threshold=0.85) ])
+
+    **To select a specific node by ID**:
+    SearchConfig(properties=[PropertyMatch.exact("id", "TASK-123")])
+    """
+
+    set: Optional[Dict[str, NodeTypesConstraintSet]] = None
+    """Set property values on nodes.
+
+    Supports: 1. Exact value: {'status': 'done'} - sets exact value. 2.
+    Auto-extract: {'status': {'mode': 'auto'}} - LLM extracts from content. 3. Text
+    mode: {'summary': {'mode': 'auto', 'text_mode': 'merge'}} - controls text
+    updates. For text properties, text_mode can be 'replace', 'append', or 'merge'.
+    """
+
+    when: Optional[Dict[str, object]] = None
+    """Condition for when this constraint applies.
+
+    Supports logical operators: '\\__and', '\\__or', '\\__not'. Examples: Simple:
+    {'priority': 'high'} - matches when priority equals 'high'. AND: {'\\__and':
+    [{'priority': 'high'}, {'status': 'active'}]} - all must match. OR: {'\\__or':
+    [{'status': 'active'}, {'status': 'pending'}]} - any must match. NOT: {'\\__not':
+    {'status': 'completed'}} - negation. Complex: {'\\__and': [{'priority': 'high'},
+    {'\\__or': [{'status': 'active'}, {'urgent': true}]}]}
+    """
 
 
 class NodeTypes(BaseModel):
@@ -307,6 +392,7 @@ class NodeTypes(BaseModel):
             )
         )
     """
+
 
     label: str
 
@@ -354,9 +440,50 @@ class NodeTypes(BaseModel):
       `{"_and": [{"priority": "high"}, {"_or": [{"status": "active"}, {"urgent": true}]}]}`
     """
 
+    constraint: Optional[NodeTypesConstraint] = None
+    """Policy for how nodes of a specific type should be handled.
+
+    Used in two places:
+
+    1. **Schema level**: Inside `UserNodeType.constraint` - `node_type` is implicit
+       from parent
+    2. **Memory level**: In `memory_policy.node_constraints[]` - `node_type` is
+       required
+
+    Node constraints allow developers to control:
+
+    - Which node types can be created vs. linked
+    - How to find/select existing nodes (via `search`)
+    - What property values to set (exact or auto-extracted)
+    - When to apply the constraint (conditional with logical operators)
+
+    **The `search` field** handles node selection:
+
+    - Uses PropertyMatch list to define unique identifiers and matching strategy
+    - Example:
+      `{"properties": [{"name": "id", "mode": "exact"}, {"name": "title", "mode": "semantic"}]}`
+    - For direct selection, use PropertyMatch with value:
+      `{"name": "id", "mode": "exact", "value": "proj_123"}`
+
+    **The `set` field** controls property values:
+
+    - Exact value: `{"status": "done"}` - sets exact value
+    - Auto-extract: `{"status": {"mode": "auto"}}` - LLM extracts from content
+
+    **The `when` field** supports logical operators:
+
+    - Simple: `{"priority": "high"}`
+    - AND: `{"_and": [{"priority": "high"}, {"status": "active"}]}`
+    - OR: `{"_or": [{"status": "active"}, {"status": "pending"}]}`
+    - NOT: `{"_not": {"status": "completed"}}`
+    - Complex:
+      `{"_and": [{"priority": "high"}, {"_or": [{"status": "active"}, {"urgent": true}]}]}`
+    """
+
     description: Optional[str] = None
 
     icon: Optional[str] = None
+
 
     link_only: Optional[bool] = None
     """DEPRECATED: Use resolution_policy='lookup' instead.
@@ -366,7 +493,7 @@ class NodeTypes(BaseModel):
     also provided, link_only=True will override constraint.create to 'lookup'.
     """
 
-    properties: Optional[Dict[str, NodeTypesProperties]] = None
+    properties: Optional[Dict[str, PropertyDefinition]] = None
     """Node properties (max 10 per node type)"""
 
     required_properties: Optional[List[str]] = None
@@ -384,6 +511,254 @@ class NodeTypes(BaseModel):
 
     Properties that uniquely identify this node type. Example: ['name', 'email'] for
     Customer nodes.
+    """
+
+
+class RelationshipTypesConstraintSearchProperty(BaseModel):
+    """Property matching configuration.
+
+    Defines which property to match on and how.
+    When listed in search.properties, this property becomes a unique identifier.
+
+    **Shorthand Helpers** (recommended for common cases):
+        PropertyMatch.exact("id")                    # Exact match on id
+        PropertyMatch.exact("id", "TASK-123")        # Exact match with specific value
+        PropertyMatch.semantic("title")              # Semantic match with default threshold
+        PropertyMatch.semantic("title", 0.9)         # Semantic match with custom threshold
+        PropertyMatch.semantic("title", value="bug") # Semantic search for "bug"
+        PropertyMatch.fuzzy("name", 0.8)             # Fuzzy match
+
+    **Full Form** (when you need all options):
+        PropertyMatch(name="title", mode="semantic", threshold=0.9, value="auth bug")
+
+    **String Shorthand** (in SearchConfig.properties):
+        properties=["id", "email"]  # Equivalent to [PropertyMatch.exact("id"), PropertyMatch.exact("email")]
+    """
+
+    name: str
+    """Property name to match on (e.g., 'id', 'email', 'title')"""
+
+    mode: Optional[Literal["semantic", "exact", "fuzzy"]] = None
+    """
+    Matching mode: 'exact' (string match), 'semantic' (embedding similarity),
+    'fuzzy' (Levenshtein distance)
+    """
+
+    threshold: Optional[float] = None
+    """Similarity threshold for semantic/fuzzy modes (0.0-1.0).
+
+    Ignored for exact mode.
+    """
+
+    value: Optional[object] = None
+    """Runtime value override.
+
+    If set, use this value for matching instead of extracting from content. Useful
+    for memory-level overrides when you know the exact value to search for.
+    """
+
+
+
+class RelationshipTypesConstraintSearch(BaseModel):
+    """Configuration for finding/selecting existing nodes.
+
+    Defines which properties to match on and how, in priority order.
+    The first matching property wins.
+
+    **String Shorthand** (simple cases - converts to exact match):
+        SearchConfig(properties=["id", "email"])
+        # Equivalent to:
+        SearchConfig(properties=[PropertyMatch.exact("id"), PropertyMatch.exact("email")])
+
+    **Mixed Form** (combine strings and PropertyMatch):
+        SearchConfig(properties=[
+            "id",                                    # String -> exact match
+            PropertyMatch.semantic("title", 0.9)     # Full control
+        ])
+
+    **Full Form** (maximum control):
+        SearchConfig(properties=[
+            PropertyMatch(name="id", mode="exact"),
+            PropertyMatch(name="title", mode="semantic", threshold=0.85)
+        ])
+
+    **To select a specific node by ID**:
+        SearchConfig(properties=[PropertyMatch.exact("id", "TASK-123")])
+    """
+
+    mode: Optional[Literal["semantic", "exact", "fuzzy"]] = None
+    """Default search mode when property doesn't specify one.
+
+    'semantic' (vector similarity), 'exact' (property match), 'fuzzy' (partial
+    match).
+    """
+
+    properties: Optional[List[RelationshipTypesConstraintSearchProperty]] = None
+    """Properties to match on, in priority order (first match wins).
+
+    Accepts strings (converted to exact match) or PropertyMatch objects. Use
+    PropertyMatch with 'value' field for specific node selection.
+    """
+
+    threshold: Optional[float] = None
+    """Default similarity threshold for semantic/fuzzy matching (0.0-1.0).
+
+    Used when property doesn't specify its own threshold.
+    """
+
+    via_relationship: Optional[List[object]] = None
+    """Search for nodes via their relationships.
+
+    Example: Find tasks assigned to a specific person. Each RelationshipMatch
+    specifies edge_type, target_type, and target_search. Multiple relationship
+    matches are ANDed together.
+    """
+
+
+class RelationshipTypesConstraintSetPropertyValue(BaseModel):
+    """Configuration for a property value in NodeConstraint.set.
+
+    Supports two modes:
+    1. Exact value: Just pass the value directly (e.g., "done", 123, True)
+    2. Auto-extract: {"mode": "auto"} - LLM extracts from memory content
+
+    For text properties, use text_mode to control how updates are applied.
+    """
+
+    mode: Optional[Literal["auto"]] = None
+    """'auto': LLM extracts value from memory content."""
+
+    text_mode: Optional[Literal["replace", "append", "merge"]] = None
+    """
+    For text properties: 'replace' (overwrite), 'append' (add to), 'merge' (LLM
+    combines existing + new).
+    """
+
+
+RelationshipTypesConstraintSet: TypeAlias = Union[
+    str, float, bool, List[object], Dict[str, object], RelationshipTypesConstraintSetPropertyValue
+]
+
+
+class RelationshipTypesConstraint(BaseModel):
+    """Policy for how edges/relationships of a specific type should be handled.
+
+    Used in two places:
+    1. **Schema level**: Inside `UserRelationshipType.constraint` - `edge_type` is implicit from parent
+    2. **Memory level**: In `memory_policy.edge_constraints[]` - `edge_type` is required
+
+    Edge constraints allow developers to control:
+    - Which edge types can be created vs. linked to existing targets
+    - How to find/select target nodes (via `search`)
+    - What edge property values to set (exact or auto-extracted)
+    - When to apply the constraint (conditional with logical operators)
+    - Filter by source/target node types
+
+    **The `search` field** handles target node selection:
+    - Uses SearchConfig to define how to find existing target nodes
+    - Example: `{"properties": [{"name": "name", "mode": "semantic"}]}`
+    - For controlled vocabulary: find existing target, don't create new
+
+    **The `set` field** controls edge property values:
+    - Exact value: `{"weight": 1.0}` - sets exact value
+    - Auto-extract: `{"reason": {"mode": "auto"}}` - LLM extracts from content
+
+    **The `when` field** supports logical operators (same as NodeConstraint):
+    - Simple: `{"severity": "high"}`
+    - AND: `{"_and": [{"severity": "high"}, {"confirmed": true}]}`
+    - OR: `{"_or": [{"type": "MITIGATES"}, {"type": "PREVENTS"}]}`
+    - NOT: `{"_not": {"status": "deprecated"}}`
+    """
+
+    create: Optional[Literal["upsert", "lookup", "auto", "never"]] = None
+    """'upsert': Create target node if not found via search (default).
+
+    'lookup': Only link to existing target nodes (controlled vocabulary). When
+    'lookup', edges to non-existing targets are skipped. Deprecated aliases: 'auto'
+    -> 'upsert', 'never' -> 'lookup'.
+    """
+
+    direction: Optional[Literal["outgoing", "incoming", "both"]] = None
+    """Direction of edges this constraint applies to.
+
+    'outgoing': edges where current node is source (default). 'incoming': edges
+    where current node is target. 'both': applies in either direction.
+    """
+
+    edge_type: Optional[str] = None
+    """
+    Edge/relationship type this constraint applies to (e.g., 'MITIGATES',
+    'ASSIGNED_TO'). Optional at schema level (implicit from parent
+    UserRelationshipType), required at memory level (in
+    memory_policy.edge_constraints).
+    """
+
+    link_only: Optional[bool] = None
+    """DEPRECATED: Use create='lookup' instead.
+
+    Shorthand for create='lookup'. When True, only links to existing target nodes.
+    Equivalent to @lookup decorator in schema definitions.
+    """
+
+    on_miss: Optional[Literal["create", "ignore", "error"]] = None
+    """Explicit behavior when no target match found via search.
+
+    'create': create new target node (same as upsert). 'ignore': skip edge creation
+    (same as lookup). 'error': raise error if target not found. If specified,
+    overrides 'create' field.
+    """
+
+    search: Optional[RelationshipTypesConstraintSearch] = None
+    """Configuration for finding/selecting existing nodes.
+
+    Defines which properties to match on and how, in priority order. The first
+    matching property wins.
+
+    **String Shorthand** (simple cases - converts to exact match):
+    SearchConfig(properties=["id", "email"]) # Equivalent to:
+    SearchConfig(properties=[PropertyMatch.exact("id"),
+    PropertyMatch.exact("email")])
+
+    **Mixed Form** (combine strings and PropertyMatch): SearchConfig(properties=[
+    "id", # String -> exact match PropertyMatch.semantic("title", 0.9) # Full
+    control ])
+
+    **Full Form** (maximum control): SearchConfig(properties=[
+    PropertyMatch(name="id", mode="exact"), PropertyMatch(name="title",
+    mode="semantic", threshold=0.85) ])
+
+    **To select a specific node by ID**:
+    SearchConfig(properties=[PropertyMatch.exact("id", "TASK-123")])
+    """
+
+    set: Optional[Dict[str, RelationshipTypesConstraintSet]] = None
+    """Set property values on edges.
+
+    Supports: 1. Exact value: {'weight': 1.0} - sets exact value. 2. Auto-extract:
+    {'reason': {'mode': 'auto'}} - LLM extracts from content. Edge properties are
+    useful for relationship metadata (weight, timestamp, reason, etc.).
+    """
+
+    source_type: Optional[str] = None
+    """Filter: only apply when source node is of this type.
+
+    Example: source_type='SecurityBehavior' - only applies to edges from
+    SecurityBehavior nodes.
+    """
+
+    target_type: Optional[str] = None
+    """Filter: only apply when target node is of this type.
+
+    Example: target_type='TacticDef' - only applies to edges targeting TacticDef
+    nodes.
+    """
+
+    when: Optional[Dict[str, object]] = None
+    """Condition for when this constraint applies.
+
+    Supports logical operators: '\\__and', '\\__or', '\\__not'. Applied to edge properties
+    or context. Example: {'\\__and': [{'severity': 'high'}, {'_not': {'status':
+    'deprecated'}}]}
     """
 
 
@@ -634,29 +1009,129 @@ class RelationshipTypesConstraint(BaseModel):
     """
 
 
-class RelationshipTypesProperties(BaseModel):
-    """Property definition for nodes/relationships"""
+RelationshipTypesConstraintSet: TypeAlias = Union[str, float, bool, List[object], Dict[str, object], PropertyValue]
 
-    type: Literal["string", "integer", "float", "boolean", "array", "datetime", "object"]
 
-    default: Optional[object] = None
+class RelationshipTypesConstraint(BaseModel):
+    """Policy for how edges/relationships of a specific type should be handled.
 
-    description: Optional[str] = None
+    Used in two places:
+    1. **Schema level**: Inside `UserRelationshipType.constraint` - `edge_type` is implicit from parent
+    2. **Memory level**: In `memory_policy.edge_constraints[]` - `edge_type` is required
 
-    enum_values: Optional[List[str]] = None
-    """List of allowed enum values (max 15)"""
+    Edge constraints allow developers to control:
+    - Which edge types can be created vs. linked to existing targets
+    - How to find/select target nodes (via `search`)
+    - What edge property values to set (exact or auto-extracted)
+    - When to apply the constraint (conditional with logical operators)
+    - Filter by source/target node types
 
-    max_length: Optional[int] = None
+    **The `search` field** handles target node selection:
+    - Uses SearchConfig to define how to find existing target nodes
+    - Example: `{"properties": [{"name": "name", "mode": "semantic"}]}`
+    - For controlled vocabulary: find existing target, don't create new
 
-    max_value: Optional[float] = None
+    **The `set` field** controls edge property values:
+    - Exact value: `{"weight": 1.0}` - sets exact value
+    - Auto-extract: `{"reason": {"mode": "auto"}}` - LLM extracts from content
 
-    min_length: Optional[int] = None
+    **The `when` field** supports logical operators (same as NodeConstraint):
+    - Simple: `{"severity": "high"}`
+    - AND: `{"_and": [{"severity": "high"}, {"confirmed": true}]}`
+    - OR: `{"_or": [{"type": "MITIGATES"}, {"type": "PREVENTS"}]}`
+    - NOT: `{"_not": {"status": "deprecated"}}`
+    """
 
-    min_value: Optional[float] = None
+    create: Optional[Literal["upsert", "lookup", "auto", "never"]] = None
+    """'upsert': Create target node if not found via search (default).
 
-    pattern: Optional[str] = None
+    'lookup': Only link to existing target nodes (controlled vocabulary). When
+    'lookup', edges to non-existing targets are skipped. Deprecated aliases: 'auto'
+    -> 'upsert', 'never' -> 'lookup'.
+    """
 
-    required: Optional[bool] = None
+    direction: Optional[Literal["outgoing", "incoming", "both"]] = None
+    """Direction of edges this constraint applies to.
+
+    'outgoing': edges where current node is source (default). 'incoming': edges
+    where current node is target. 'both': applies in either direction.
+    """
+
+    edge_type: Optional[str] = None
+    """
+    Edge/relationship type this constraint applies to (e.g., 'MITIGATES',
+    'ASSIGNED_TO'). Optional at schema level (implicit from parent
+    UserRelationshipType), required at memory level (in
+    memory_policy.edge_constraints).
+    """
+
+    link_only: Optional[bool] = None
+    """DEPRECATED: Use create='lookup' instead.
+
+    Shorthand for create='lookup'. When True, only links to existing target nodes.
+    Equivalent to @lookup decorator in schema definitions.
+    """
+
+    on_miss: Optional[Literal["create", "ignore", "error"]] = None
+    """Explicit behavior when no target match found via search.
+
+    'create': create new target node (same as upsert). 'ignore': skip edge creation
+    (same as lookup). 'error': raise error if target not found. If specified,
+    overrides 'create' field.
+    """
+
+    search: Optional[SearchConfigOutput] = None
+    """Configuration for finding/selecting existing nodes.
+
+    Defines which properties to match on and how, in priority order. The first
+    matching property wins.
+
+    **String Shorthand** (simple cases - converts to exact match):
+    SearchConfig(properties=["id", "email"]) # Equivalent to:
+    SearchConfig(properties=[PropertyMatch.exact("id"),
+    PropertyMatch.exact("email")])
+
+    **Mixed Form** (combine strings and PropertyMatch): SearchConfig(properties=[
+    "id", # String -> exact match PropertyMatch.semantic("title", 0.9) # Full
+    control ])
+
+    **Full Form** (maximum control): SearchConfig(properties=[
+    PropertyMatch(name="id", mode="exact"), PropertyMatch(name="title",
+    mode="semantic", threshold=0.85) ])
+
+    **To select a specific node by ID**:
+    SearchConfig(properties=[PropertyMatch.exact("id", "TASK-123")])
+    """
+
+    set: Optional[Dict[str, RelationshipTypesConstraintSet]] = None
+    """Set property values on edges.
+
+    Supports: 1. Exact value: {'weight': 1.0} - sets exact value. 2. Auto-extract:
+    {'reason': {'mode': 'auto'}} - LLM extracts from content. Edge properties are
+    useful for relationship metadata (weight, timestamp, reason, etc.).
+    """
+
+    source_type: Optional[str] = None
+    """Filter: only apply when source node is of this type.
+
+    Example: source_type='SecurityBehavior' - only applies to edges from
+    SecurityBehavior nodes.
+    """
+
+    target_type: Optional[str] = None
+    """Filter: only apply when target node is of this type.
+
+    Example: target_type='TacticDef' - only applies to edges targeting TacticDef
+    nodes.
+    """
+
+    when: Optional[Dict[str, object]] = None
+    """Condition for when this constraint applies.
+
+    Supports logical operators: '\\__and', '\\__or', '\\__not'. Applied to edge properties
+    or context. Example: {'\\__and': [{'severity': 'high'}, {'_not': {'status':
+    'deprecated'}}]}
+    """
 
 
 class RelationshipTypes(BaseModel):
@@ -735,7 +1210,48 @@ class RelationshipTypes(BaseModel):
     - NOT: `{"_not": {"status": "deprecated"}}`
     """
 
+    constraint: Optional[RelationshipTypesConstraint] = None
+    """Policy for how edges/relationships of a specific type should be handled.
+
+    Used in two places:
+
+    1. **Schema level**: Inside `UserRelationshipType.constraint` - `edge_type` is
+       implicit from parent
+    2. **Memory level**: In `memory_policy.edge_constraints[]` - `edge_type` is
+       required
+
+    Edge constraints allow developers to control:
+
+    - Which edge types can be created vs. linked to existing targets
+    - How to find/select target nodes (via `search`)
+    - What edge property values to set (exact or auto-extracted)
+    - When to apply the constraint (conditional with logical operators)
+    - Filter by source/target node types
+
+    **The `search` field** handles target node selection:
+
+    - Uses SearchConfig to define how to find existing target nodes
+    - Example: `{"properties": [{"name": "name", "mode": "semantic"}]}`
+    - For controlled vocabulary: find existing target, don't create new
+
+    **The `set` field** controls edge property values:
+
+    - Exact value: `{"weight": 1.0}` - sets exact value
+    - Auto-extract: `{"reason": {"mode": "auto"}}` - LLM extracts from content
+
+    **The `when` field** supports logical operators (same as NodeConstraint):
+
+    - Simple: `{"severity": "high"}`
+    - AND: `{"_and": [{"severity": "high"}, {"confirmed": true}]}`
+    - OR: `{"_or": [{"type": "MITIGATES"}, {"type": "PREVENTS"}]}`
+    - NOT: `{"_not": {"status": "deprecated"}}`
+    """
+
+
     description: Optional[str] = None
+
+
+
 
     link_only: Optional[bool] = None
     """DEPRECATED: Use resolution_policy='lookup' instead.
@@ -746,7 +1262,25 @@ class RelationshipTypes(BaseModel):
     'lookup'.
     """
 
-    properties: Optional[Dict[str, RelationshipTypesProperties]] = None
+    properties: Optional[Dict[str, PropertyDefinition]] = None
+
+    resolution_policy: Optional[Literal["upsert", "lookup"]] = None
+    """Shorthand for constraint.create.
+
+    'upsert': Create target if not found (default). 'lookup': Only link to existing
+    targets (controlled vocabulary). Equivalent to @upsert/@lookup decorators. If
+    constraint is also provided, resolution_policy will set constraint.create
+    accordingly.
+    """
+
+    resolution_policy: Optional[Literal["upsert", "lookup"]] = None
+    """Shorthand for constraint.create.
+
+    'upsert': Create target if not found (default). 'lookup': Only link to existing
+    targets (controlled vocabulary). Equivalent to @upsert/@lookup decorators. If
+    constraint is also provided, resolution_policy will set constraint.create
+    accordingly.
+    """
 
     resolution_policy: Optional[Literal["upsert", "lookup"]] = None
     """Shorthand for constraint.create.

@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import os as _os
 import warnings
-from typing import Iterable, Optional, cast
+from typing import Dict, Union, Iterable, Optional, cast
 from typing_extensions import Literal
 
 import httpx
@@ -19,6 +19,7 @@ from papr_memory.types import (
     MemoryType,
     GraphGenerationParam,
     memory_add_params,
+    memory_get_params,
     memory_delete_params,
     memory_search_params,
     memory_update_params,
@@ -38,7 +39,7 @@ from papr_memory.types.memory_delete_response import MemoryDeleteResponse
 from papr_memory.types.memory_update_response import MemoryUpdateResponse
 from papr_memory.types.relationship_item_param import RelationshipItemParam
 
-from .._types import Body, Omit, Query, Headers, NotGiven, omit, not_given
+from .._types import Body, Omit, Query, Headers, NotGiven, SequenceNotStr, omit, not_given
 from .._utils import maybe_transform, strip_not_given, async_maybe_transform
 from .._compat import cached_property
 from .._resource import SyncAPIResource, AsyncAPIResource
@@ -48,6 +49,18 @@ from .._response import (
     async_to_raw_response_wrapper,
     async_to_streamed_response_wrapper,
 )
+from .._base_client import make_request_options
+from ..types.search_response import SearchResponse
+from ..types.add_memory_param import AddMemoryParam
+from ..types.context_item_param import ContextItemParam
+from ..types.add_memory_response import AddMemoryResponse
+from ..types.batch_memory_response import BatchMemoryResponse
+from ..types.memory_metadata_param import MemoryMetadataParam
+from ..types.graph_generation_param import GraphGenerationParam
+from ..types.memory_delete_response import MemoryDeleteResponse
+from ..types.memory_update_response import MemoryUpdateResponse
+from ..types.relationship_item_param import RelationshipItemParam
+from ..types.shared_params.memory_policy import MemoryPolicy
 
 __all__ = ["MemoryResource", "AsyncMemoryResource"]
 
@@ -97,6 +110,9 @@ class MemoryResource(SyncAPIResource):
         *,
         content: Optional[str] | Omit = omit,
         context: Optional[Iterable[ContextItemParam]] | Omit = omit,
+        graph_generation: Optional[GraphGenerationParam] | Omit = omit,
+        link_to: Union[str, SequenceNotStr[str], Dict[str, object], None] | Omit = omit,
+        memory_policy: Optional[MemoryPolicy] | Omit = omit,
         metadata: Optional[MemoryMetadataParam] | Omit = omit,
         namespace_id: Optional[str] | Omit = omit,
         organization_id: Optional[str] | Omit = omit,
@@ -129,6 +145,40 @@ class MemoryResource(SyncAPIResource):
 
           context: Updated context for the memory item
 
+          graph_generation: Graph generation configuration
+
+          link_to: Shorthand DSL for node/edge constraints. Expands to
+              memory_policy.node_constraints and edge_constraints. Formats: - String:
+              'Task:title' (semantic match on Task.title) - List: ['Task:title',
+              'Person:email'] (multiple constraints) - Dict: {'Task:title': {'set': {...}}}
+              (with options) Syntax: - Node: 'Type:property', 'Type:prop=value' (exact),
+              'Type:prop~value' (semantic) - Edge: 'Source->EDGE->Target:property' (arrow
+              syntax) - Via: 'Type.via(EDGE->Target:prop)' (relationship traversal) - Special:
+              '$this', '$previous', '$context:N' Example:
+              'SecurityBehavior->MITIGATES->TacticDef:name' with {'create': 'never'}
+
+          memory_policy: Unified memory processing policy.
+
+              This is the SINGLE source of truth for how a memory should be processed,
+              combining graph generation control AND OMO (Open Memory Object) safety
+              standards.
+
+              **Graph Generation Modes:**
+
+              - auto: LLM extracts entities freely (default)
+              - manual: Developer provides exact nodes (no LLM extraction)
+
+              **OMO Safety Standards:**
+
+              - consent: How data owner allowed storage (explicit, implicit, terms, none)
+              - risk: Safety assessment (none, sensitive, flagged)
+              - acl: Access control list for read/write permissions
+
+              **Schema Integration:**
+
+              - schema_id: Reference a schema that may have its own default memory_policy
+              - Schema-level policies are merged with request-level (request takes precedence)
+
           metadata: Metadata for memory request
 
           namespace_id: Optional namespace ID for multi-tenant memory scoping. When provided, update is
@@ -157,6 +207,12 @@ class MemoryResource(SyncAPIResource):
                 {
                     "content": content,
                     "context": context,
+                    "graph_generation": graph_generation,
+                    "link_to": link_to,
+                    "memory_policy": memory_policy,
+                    "graph_generation": graph_generation,
+                    "link_to": link_to,
+                    "memory_policy": memory_policy,
                     "metadata": metadata,
                     "namespace_id": namespace_id,
                     "organization_id": organization_id,
@@ -224,14 +280,20 @@ class MemoryResource(SyncAPIResource):
         self,
         *,
         content: str,
+        enable_holographic: bool | Omit = omit,
+        format: Optional[str] | Omit = omit,
         skip_background_processing: bool | Omit = omit,
         context: Optional[Iterable[ContextItemParam]] | Omit = omit,
+        external_user_id: Optional[str] | Omit = omit,
         graph_generation: Optional[GraphGenerationParam] | Omit = omit,
+        link_to: Union[str, SequenceNotStr[str], Dict[str, object], None] | Omit = omit,
+        memory_policy: Optional[MemoryPolicy] | Omit = omit,
         metadata: Optional[MemoryMetadataParam] | Omit = omit,
         namespace_id: Optional[str] | Omit = omit,
         organization_id: Optional[str] | Omit = omit,
         relationships_json: Optional[Iterable[RelationshipItemParam]] | Omit = omit,
         type: MemoryType | Omit = omit,
+        user_id: Optional[str] | Omit = omit,
         # Use the following arguments if you need to pass additional parameters to the API that aren't available via kwargs.
         # The extra values given here take precedence over values defined on the client or passed to this method.
         extra_headers: Headers | None = None,
@@ -267,11 +329,54 @@ class MemoryResource(SyncAPIResource):
         Args:
           content: The content of the memory item you want to add to memory
 
+          enable_holographic: If True, applies holographic neural transforms and stores in holographic
+              collection
+
+          format: Response format. Use 'omo' for Open Memory Object standard format (portable
+              across platforms).
+
           skip_background_processing: If True, skips adding background tasks for processing
 
-          context: Context can be conversation history or any relevant context for a memory item
+          context: Conversation history context for this memory. Use for providing message history
+              when adding a memory. Format: [{role: 'user'|'assistant', content: '...'}]
+
+          external_user_id: Your application's user identifier. This is the primary way to identify users.
+              Use this for your app's user IDs (e.g., 'user_alice_123', UUID, email). Papr
+              will automatically resolve or create internal users as needed.
 
           graph_generation: Graph generation configuration
+
+          link_to: Shorthand DSL for node/edge constraints. Expands to
+              memory_policy.node_constraints and edge_constraints. Formats: - String:
+              'Task:title' (semantic match on Task.title) - List: ['Task:title',
+              'Person:email'] (multiple constraints) - Dict: {'Task:title': {'set': {...}}}
+              (with options) Syntax: - Node: 'Type:property', 'Type:prop=value' (exact),
+              'Type:prop~value' (semantic) - Edge: 'Source->EDGE->Target:property' (arrow
+              syntax) - Via: 'Type.via(EDGE->Target:prop)' (relationship traversal) - Special:
+              '$this', '$previous', '$context:N' Example:
+              'SecurityBehavior->MITIGATES->TacticDef:name' with {'create': 'never'}
+
+          memory_policy: Unified memory processing policy.
+
+              This is the SINGLE source of truth for how a memory should be processed,
+              combining graph generation control AND OMO (Open Memory Object) safety
+              standards.
+
+              **Graph Generation Modes:**
+
+              - auto: LLM extracts entities freely (default)
+              - manual: Developer provides exact nodes (no LLM extraction)
+
+              **OMO Safety Standards:**
+
+              - consent: How data owner allowed storage (explicit, implicit, terms, none)
+              - risk: Safety assessment (none, sensitive, flagged)
+              - acl: Access control list for read/write permissions
+
+              **Schema Integration:**
+
+              - schema_id: Reference a schema that may have its own default memory_policy
+              - Schema-level policies are merged with request-level (request takes precedence)
 
           metadata: Metadata for memory request
 
@@ -281,9 +386,16 @@ class MemoryResource(SyncAPIResource):
           organization_id: Optional organization ID for multi-tenant memory scoping. When provided, memory
               is associated with this organization.
 
-          relationships_json: Array of relationships that we can use in Graph DB (neo4J)
+          relationships_json:
+              DEPRECATED: Use 'memory_policy' instead. Migration options: 1. Specific memory:
+              relationships=[{source: '$this', target: 'mem_123', type: 'FOLLOWS'}] 2.
+              Previous memory: link_to_previous_memory=True 3. Related memories:
+              link_to_related_memories=3
 
           type: Memory item type; defaults to 'text' if omitted
+
+          user_id: DEPRECATED: Use 'external_user_id' instead. Internal Papr Parse user ID. Most
+              developers should not use this field directly.
 
           extra_headers: Send extra headers
 
@@ -299,12 +411,16 @@ class MemoryResource(SyncAPIResource):
                 {
                     "content": content,
                     "context": context,
+                    "external_user_id": external_user_id,
                     "graph_generation": graph_generation,
+                    "link_to": link_to,
+                    "memory_policy": memory_policy,
                     "metadata": metadata,
                     "namespace_id": namespace_id,
                     "organization_id": organization_id,
                     "relationships_json": relationships_json,
                     "type": type,
+                    "user_id": user_id,
                 },
                 memory_add_params.MemoryAddParams,
             ),
@@ -314,7 +430,12 @@ class MemoryResource(SyncAPIResource):
                 extra_body=extra_body,
                 timeout=timeout,
                 query=maybe_transform(
-                    {"skip_background_processing": skip_background_processing}, memory_add_params.MemoryAddParams
+                    {
+                        "enable_holographic": enable_holographic,
+                        "format": format,
+                        "skip_background_processing": skip_background_processing,
+                    },
+                    memory_add_params.MemoryAddParams,
                 ),
             ),
             cast_to=AddMemoryResponse,
@@ -328,6 +449,8 @@ class MemoryResource(SyncAPIResource):
         batch_size: Optional[int] | Omit = omit,
         external_user_id: Optional[str] | Omit = omit,
         graph_generation: Optional[GraphGenerationParam] | Omit = omit,
+        link_to: Union[str, SequenceNotStr[str], Dict[str, object], None] | Omit = omit,
+        memory_policy: Optional[MemoryPolicy] | Omit = omit,
         namespace_id: Optional[str] | Omit = omit,
         organization_id: Optional[str] | Omit = omit,
         user_id: Optional[str] | Omit = omit,
@@ -363,10 +486,43 @@ class MemoryResource(SyncAPIResource):
 
           batch_size: Number of items to process in parallel
 
-          external_user_id: External user ID for all memories in the batch. If provided and user_id is not,
-              will be resolved to internal user ID.
+          external_user_id: Your application's user identifier for all memories in the batch. This is the
+              primary way to identify users. Papr will automatically resolve or create
+              internal users as needed.
 
           graph_generation: Graph generation configuration
+
+          link_to: Shorthand DSL for node/edge constraints. Expands to
+              memory_policy.node_constraints and edge_constraints. Formats: - String:
+              'Task:title' (semantic match on Task.title) - List: ['Task:title',
+              'Person:email'] (multiple constraints) - Dict: {'Task:title': {'set': {...}}}
+              (with options) Syntax: - Node: 'Type:property', 'Type:prop=value' (exact),
+              'Type:prop~value' (semantic) - Edge: 'Source->EDGE->Target:property' (arrow
+              syntax) - Via: 'Type.via(EDGE->Target:prop)' (relationship traversal) - Special:
+              '$this', '$previous', '$context:N' Example:
+              'SecurityBehavior->MITIGATES->TacticDef:name' with {'create': 'never'}
+
+          memory_policy: Unified memory processing policy.
+
+              This is the SINGLE source of truth for how a memory should be processed,
+              combining graph generation control AND OMO (Open Memory Object) safety
+              standards.
+
+              **Graph Generation Modes:**
+
+              - auto: LLM extracts entities freely (default)
+              - manual: Developer provides exact nodes (no LLM extraction)
+
+              **OMO Safety Standards:**
+
+              - consent: How data owner allowed storage (explicit, implicit, terms, none)
+              - risk: Safety assessment (none, sensitive, flagged)
+              - acl: Access control list for read/write permissions
+
+              **Schema Integration:**
+
+              - schema_id: Reference a schema that may have its own default memory_policy
+              - Schema-level policies are merged with request-level (request takes precedence)
 
           namespace_id: Optional namespace ID for multi-tenant batch memory scoping. When provided, all
               memories in the batch are associated with this namespace.
@@ -374,8 +530,7 @@ class MemoryResource(SyncAPIResource):
           organization_id: Optional organization ID for multi-tenant batch memory scoping. When provided,
               all memories in the batch are associated with this organization.
 
-          user_id: Internal user ID for all memories in the batch. If not provided, developer's
-              user ID will be used.
+          user_id: DEPRECATED: Use 'external_user_id' instead. Internal Papr Parse user ID.
 
           webhook_secret: Optional secret key for webhook authentication. If provided, will be included in
               the webhook request headers as 'X-Webhook-Secret'.
@@ -399,6 +554,8 @@ class MemoryResource(SyncAPIResource):
                     "batch_size": batch_size,
                     "external_user_id": external_user_id,
                     "graph_generation": graph_generation,
+                    "link_to": link_to,
+                    "memory_policy": memory_policy,
                     "namespace_id": namespace_id,
                     "organization_id": organization_id,
                     "user_id": user_id,
@@ -556,6 +713,9 @@ class MemoryResource(SyncAPIResource):
         self,
         memory_id: str,
         *,
+        exclude_flagged: bool | Omit = omit,
+        max_risk: Optional[str] | Omit = omit,
+        require_consent: bool | Omit = omit,
         # Use the following arguments if you need to pass additional parameters to the API that aren't available via kwargs.
         # The extra values given here take precedence over values defined on the client or passed to this method.
         extra_headers: Headers | None = None,
@@ -576,6 +736,15 @@ class MemoryResource(SyncAPIResource):
             - X-Client-Type: (e.g., 'papr_plugin', 'browser_extension')
 
         Args:
+          exclude_flagged: If true, return 404 if the memory has risk='flagged'. Filters out flagged
+              content.
+
+          max_risk: Maximum risk level allowed. Values: 'none', 'sensitive', 'flagged'. If memory
+              exceeds this, return 404.
+
+          require_consent: If true, return 404 if the memory has consent='none'. Ensures only consented
+              memories are returned.
+
           extra_headers: Send extra headers
 
           extra_query: Add additional query parameters to the request
@@ -589,7 +758,18 @@ class MemoryResource(SyncAPIResource):
         return self._get(
             f"/v1/memory/{memory_id}",
             options=make_request_options(
-                extra_headers=extra_headers, extra_query=extra_query, extra_body=extra_body, timeout=timeout
+                extra_headers=extra_headers,
+                extra_query=extra_query,
+                extra_body=extra_body,
+                timeout=timeout,
+                query=maybe_transform(
+                    {
+                        "exclude_flagged": exclude_flagged,
+                        "max_risk": max_risk,
+                        "require_consent": require_consent,
+                    },
+                    memory_get_params.MemoryGetParams,
+                ),
             ),
             cast_to=SearchResponse,
         )
@@ -907,8 +1087,8 @@ class MemoryResource(SyncAPIResource):
                                 logger.warning(f"MLX embedding failed, falling back to ST: {e}")
                                 # Fallback: sentence-transformers on local device
                                 try:
-                                    import torch
-                                    from sentence_transformers import SentenceTransformer
+                                    import torch  # type: ignore[import-not-found]
+                                    from sentence_transformers import SentenceTransformer  # type: ignore[import-not-found]
 
                                     device = (
                                         "mps"
@@ -937,7 +1117,7 @@ class MemoryResource(SyncAPIResource):
                 except Exception as mlx_e:  # pragma: no cover
                     logger.info(f"MLX path unavailable, will try sentence-transformers: {mlx_e}")
 
-            from sentence_transformers import SentenceTransformer
+            from sentence_transformers import SentenceTransformer  # type: ignore[import-not-found]
             
             # Platform-specific model selection (using sentence-transformers compatible models)
             if "Apple" in device_name or device == "mps":
@@ -1518,7 +1698,7 @@ class MemoryResource(SyncAPIResource):
                         import threading
 
                         import torch
-                from sentence_transformers import SentenceTransformer
+                from sentence_transformers import SentenceTransformer  # type: ignore[import-not-found]
 
                 # Detect platform
                 device = None
@@ -1614,7 +1794,7 @@ class MemoryResource(SyncAPIResource):
             if not hasattr(self, "_qwen_model") or self._qwen_model is None:
                 logger.info("Preloading Qwen3-4B embedding model (async)...")
                 import torch
-                from sentence_transformers import SentenceTransformer
+                from sentence_transformers import SentenceTransformer  # type: ignore[import-not-found]
                 
                 # Detect platform
                 device = None
@@ -1661,7 +1841,7 @@ class MemoryResource(SyncAPIResource):
             else:
                 logger.warning("No preloaded model available, loading on-demand...")
                 import torch
-                from sentence_transformers import SentenceTransformer
+                from sentence_transformers import SentenceTransformer  # type: ignore[import-not-found]
 
                 # Detect platform
                 device = None
@@ -1756,7 +1936,7 @@ class MemoryResource(SyncAPIResource):
             def load_model_with_timeout():
                 nonlocal model, model_loading_success
                 try:
-                    from sentence_transformers import SentenceTransformer
+                    from sentence_transformers import SentenceTransformer  # type: ignore[import-not-found]
                     
                     # Try to load with CUDA first
                     if device == "cuda":
@@ -3027,12 +3207,15 @@ class MemoryResource(SyncAPIResource):
         response_format: Literal["json", "toon"] | Omit = omit,
         enable_agentic_graph: bool | Omit = omit,
         external_user_id: Optional[str] | Omit = omit,
+        holographic_config: Optional[memory_search_params.HolographicConfig] | Omit = omit,
         metadata: Optional[MemoryMetadataParam] | Omit = omit,
         namespace_id: Optional[str] | Omit = omit,
+        omo_filter: Optional[memory_search_params.OmoFilter] | Omit = omit,
         organization_id: Optional[str] | Omit = omit,
         rank_results: bool | Omit = omit,
+        reranking_config: Optional[memory_search_params.RerankingConfig] | Omit = omit,
         schema_id: Optional[str] | Omit = omit,
-        simple_schema_mode: bool | Omit = omit,
+        search_override: Optional[memory_search_params.SearchOverride] | Omit = omit,
         user_id: Optional[str] | Omit = omit,
         accept_encoding: str | Omit = omit,
         # Use the following arguments if you need to pass additional parameters to the API that aren't available via kwargs.
@@ -3135,33 +3318,46 @@ class MemoryResource(SyncAPIResource):
               comprehensive results. Set to false only if you need faster, simpler
               keyword-based search.
 
-          external_user_id: Optional external user ID to filter search results by a specific external user.
-              If both user_id and external_user_id are provided, user_id takes precedence.
+          external_user_id: Your application's user identifier to filter search results. This is the primary
+              way to identify users. Use this for your app's user IDs (e.g., 'user_alice_123',
+              UUID, email).
+
+          holographic_config: Configuration for holographic neural embedding transforms and H-COND scoring.
+
+              Neural holographic embeddings use 13 brain-inspired frequency bands to encode
+              hierarchical semantic metadata alongside the base embedding. H-COND (Holographic
+              CONDitional) scoring uses phase alignment for improved relevance ranking.
 
           metadata: Metadata for memory request
 
           namespace_id: Optional namespace ID for multi-tenant search scoping. When provided, search is
               scoped to memories within this namespace.
 
+          omo_filter: Filter for Open Memory Object (OMO) safety standards in search/retrieval.
+
+              Use this to filter search results by consent level and/or risk level.
+
           organization_id: Optional organization ID for multi-tenant search scoping. When provided, search
               is scoped to memories within this organization.
 
-          rank_results: Whether to enable additional ranking of search results. Default is false because
-              results are already ranked when using an LLM for search (recommended approach).
-              Only enable this if you're not using an LLM in your search pipeline and need
-              additional result ranking.
+          rank_results: DEPRECATED: Use 'reranking_config' instead. Whether to enable additional ranking
+              of search results. Default is false because results are already ranked when
+              using an LLM for search (recommended approach). Only enable this if you're not
+              using an LLM in your search pipeline and need additional result ranking.
+              Migration: Replace 'rank_results: true' with 'reranking_config:
+              {reranking_enabled: true, reranking_provider: "cohere", reranking_model:
+              "rerank-v3.5"}'
+
+          reranking_config: Configuration for reranking memory search results
 
           schema_id: Optional user-defined schema ID to use for this search. If provided, this schema
               (plus system schema) will be used for query generation. If not provided, system
               will automatically select relevant schema based on query content.
 
-          simple_schema_mode: If true, uses simple schema mode: system schema + ONE most relevant user schema.
-              This ensures better consistency between add/search operations and reduces query
-              complexity. Recommended for production use.
+          search_override: Complete search override specification provided by developer
 
-          user_id: Optional internal user ID to filter search results by a specific user. If not
-              provided, results are not filtered by user. If both user_id and external_user_id
-              are provided, user_id takes precedence.
+          user_id: DEPRECATED: Use 'external_user_id' instead. Internal Papr Parse user ID. Most
+              developers should not use this field directly.
 
           extra_headers: Send extra headers
 
@@ -3281,12 +3477,15 @@ class MemoryResource(SyncAPIResource):
                     "query": query,
                     "enable_agentic_graph": enable_agentic_graph,
                     "external_user_id": external_user_id,
+                    "holographic_config": holographic_config,
                     "metadata": metadata,
                     "namespace_id": namespace_id,
+                    "omo_filter": omo_filter,
                     "organization_id": organization_id,
                     "rank_results": rank_results,
+                    "reranking_config": reranking_config,
                     "schema_id": schema_id,
-                    "simple_schema_mode": simple_schema_mode,
+                    "search_override": search_override,
                     "user_id": user_id,
                 },
                 memory_search_params.MemorySearchParams,
@@ -3335,6 +3534,9 @@ class AsyncMemoryResource(AsyncAPIResource):
         *,
         content: Optional[str] | Omit = omit,
         context: Optional[Iterable[ContextItemParam]] | Omit = omit,
+        graph_generation: Optional[GraphGenerationParam] | Omit = omit,
+        link_to: Union[str, SequenceNotStr[str], Dict[str, object], None] | Omit = omit,
+        memory_policy: Optional[MemoryPolicy] | Omit = omit,
         metadata: Optional[MemoryMetadataParam] | Omit = omit,
         namespace_id: Optional[str] | Omit = omit,
         organization_id: Optional[str] | Omit = omit,
@@ -3367,6 +3569,40 @@ class AsyncMemoryResource(AsyncAPIResource):
 
           context: Updated context for the memory item
 
+          graph_generation: Graph generation configuration
+
+          link_to: Shorthand DSL for node/edge constraints. Expands to
+              memory_policy.node_constraints and edge_constraints. Formats: - String:
+              'Task:title' (semantic match on Task.title) - List: ['Task:title',
+              'Person:email'] (multiple constraints) - Dict: {'Task:title': {'set': {...}}}
+              (with options) Syntax: - Node: 'Type:property', 'Type:prop=value' (exact),
+              'Type:prop~value' (semantic) - Edge: 'Source->EDGE->Target:property' (arrow
+              syntax) - Via: 'Type.via(EDGE->Target:prop)' (relationship traversal) - Special:
+              '$this', '$previous', '$context:N' Example:
+              'SecurityBehavior->MITIGATES->TacticDef:name' with {'create': 'never'}
+
+          memory_policy: Unified memory processing policy.
+
+              This is the SINGLE source of truth for how a memory should be processed,
+              combining graph generation control AND OMO (Open Memory Object) safety
+              standards.
+
+              **Graph Generation Modes:**
+
+              - auto: LLM extracts entities freely (default)
+              - manual: Developer provides exact nodes (no LLM extraction)
+
+              **OMO Safety Standards:**
+
+              - consent: How data owner allowed storage (explicit, implicit, terms, none)
+              - risk: Safety assessment (none, sensitive, flagged)
+              - acl: Access control list for read/write permissions
+
+              **Schema Integration:**
+
+              - schema_id: Reference a schema that may have its own default memory_policy
+              - Schema-level policies are merged with request-level (request takes precedence)
+
           metadata: Metadata for memory request
 
           namespace_id: Optional namespace ID for multi-tenant memory scoping. When provided, update is
@@ -3395,6 +3631,9 @@ class AsyncMemoryResource(AsyncAPIResource):
                 {
                     "content": content,
                     "context": context,
+                    "graph_generation": graph_generation,
+                    "link_to": link_to,
+                    "memory_policy": memory_policy,
                     "metadata": metadata,
                     "namespace_id": namespace_id,
                     "organization_id": organization_id,
@@ -3462,14 +3701,20 @@ class AsyncMemoryResource(AsyncAPIResource):
         self,
         *,
         content: str,
+        enable_holographic: bool | Omit = omit,
+        format: Optional[str] | Omit = omit,
         skip_background_processing: bool | Omit = omit,
         context: Optional[Iterable[ContextItemParam]] | Omit = omit,
+        external_user_id: Optional[str] | Omit = omit,
         graph_generation: Optional[GraphGenerationParam] | Omit = omit,
+        link_to: Union[str, SequenceNotStr[str], Dict[str, object], None] | Omit = omit,
+        memory_policy: Optional[MemoryPolicy] | Omit = omit,
         metadata: Optional[MemoryMetadataParam] | Omit = omit,
         namespace_id: Optional[str] | Omit = omit,
         organization_id: Optional[str] | Omit = omit,
         relationships_json: Optional[Iterable[RelationshipItemParam]] | Omit = omit,
         type: MemoryType | Omit = omit,
+        user_id: Optional[str] | Omit = omit,
         # Use the following arguments if you need to pass additional parameters to the API that aren't available via kwargs.
         # The extra values given here take precedence over values defined on the client or passed to this method.
         extra_headers: Headers | None = None,
@@ -3505,11 +3750,54 @@ class AsyncMemoryResource(AsyncAPIResource):
         Args:
           content: The content of the memory item you want to add to memory
 
+          enable_holographic: If True, applies holographic neural transforms and stores in holographic
+              collection
+
+          format: Response format. Use 'omo' for Open Memory Object standard format (portable
+              across platforms).
+
           skip_background_processing: If True, skips adding background tasks for processing
 
-          context: Context can be conversation history or any relevant context for a memory item
+          context: Conversation history context for this memory. Use for providing message history
+              when adding a memory. Format: [{role: 'user'|'assistant', content: '...'}]
+
+          external_user_id: Your application's user identifier. This is the primary way to identify users.
+              Use this for your app's user IDs (e.g., 'user_alice_123', UUID, email). Papr
+              will automatically resolve or create internal users as needed.
 
           graph_generation: Graph generation configuration
+
+          link_to: Shorthand DSL for node/edge constraints. Expands to
+              memory_policy.node_constraints and edge_constraints. Formats: - String:
+              'Task:title' (semantic match on Task.title) - List: ['Task:title',
+              'Person:email'] (multiple constraints) - Dict: {'Task:title': {'set': {...}}}
+              (with options) Syntax: - Node: 'Type:property', 'Type:prop=value' (exact),
+              'Type:prop~value' (semantic) - Edge: 'Source->EDGE->Target:property' (arrow
+              syntax) - Via: 'Type.via(EDGE->Target:prop)' (relationship traversal) - Special:
+              '$this', '$previous', '$context:N' Example:
+              'SecurityBehavior->MITIGATES->TacticDef:name' with {'create': 'never'}
+
+          memory_policy: Unified memory processing policy.
+
+              This is the SINGLE source of truth for how a memory should be processed,
+              combining graph generation control AND OMO (Open Memory Object) safety
+              standards.
+
+              **Graph Generation Modes:**
+
+              - auto: LLM extracts entities freely (default)
+              - manual: Developer provides exact nodes (no LLM extraction)
+
+              **OMO Safety Standards:**
+
+              - consent: How data owner allowed storage (explicit, implicit, terms, none)
+              - risk: Safety assessment (none, sensitive, flagged)
+              - acl: Access control list for read/write permissions
+
+              **Schema Integration:**
+
+              - schema_id: Reference a schema that may have its own default memory_policy
+              - Schema-level policies are merged with request-level (request takes precedence)
 
           metadata: Metadata for memory request
 
@@ -3519,9 +3807,16 @@ class AsyncMemoryResource(AsyncAPIResource):
           organization_id: Optional organization ID for multi-tenant memory scoping. When provided, memory
               is associated with this organization.
 
-          relationships_json: Array of relationships that we can use in Graph DB (neo4J)
+          relationships_json:
+              DEPRECATED: Use 'memory_policy' instead. Migration options: 1. Specific memory:
+              relationships=[{source: '$this', target: 'mem_123', type: 'FOLLOWS'}] 2.
+              Previous memory: link_to_previous_memory=True 3. Related memories:
+              link_to_related_memories=3
 
           type: Memory item type; defaults to 'text' if omitted
+
+          user_id: DEPRECATED: Use 'external_user_id' instead. Internal Papr Parse user ID. Most
+              developers should not use this field directly.
 
           extra_headers: Send extra headers
 
@@ -3537,12 +3832,16 @@ class AsyncMemoryResource(AsyncAPIResource):
                 {
                     "content": content,
                     "context": context,
+                    "external_user_id": external_user_id,
                     "graph_generation": graph_generation,
+                    "link_to": link_to,
+                    "memory_policy": memory_policy,
                     "metadata": metadata,
                     "namespace_id": namespace_id,
                     "organization_id": organization_id,
                     "relationships_json": relationships_json,
                     "type": type,
+                    "user_id": user_id,
                 },
                 memory_add_params.MemoryAddParams,
             ),
@@ -3552,7 +3851,12 @@ class AsyncMemoryResource(AsyncAPIResource):
                 extra_body=extra_body,
                 timeout=timeout,
                 query=await async_maybe_transform(
-                    {"skip_background_processing": skip_background_processing}, memory_add_params.MemoryAddParams
+                    {
+                        "enable_holographic": enable_holographic,
+                        "format": format,
+                        "skip_background_processing": skip_background_processing,
+                    },
+                    memory_add_params.MemoryAddParams,
                 ),
             ),
             cast_to=AddMemoryResponse,
@@ -3566,6 +3870,8 @@ class AsyncMemoryResource(AsyncAPIResource):
         batch_size: Optional[int] | Omit = omit,
         external_user_id: Optional[str] | Omit = omit,
         graph_generation: Optional[GraphGenerationParam] | Omit = omit,
+        link_to: Union[str, SequenceNotStr[str], Dict[str, object], None] | Omit = omit,
+        memory_policy: Optional[MemoryPolicy] | Omit = omit,
         namespace_id: Optional[str] | Omit = omit,
         organization_id: Optional[str] | Omit = omit,
         user_id: Optional[str] | Omit = omit,
@@ -3601,10 +3907,43 @@ class AsyncMemoryResource(AsyncAPIResource):
 
           batch_size: Number of items to process in parallel
 
-          external_user_id: External user ID for all memories in the batch. If provided and user_id is not,
-              will be resolved to internal user ID.
+          external_user_id: Your application's user identifier for all memories in the batch. This is the
+              primary way to identify users. Papr will automatically resolve or create
+              internal users as needed.
 
           graph_generation: Graph generation configuration
+
+          link_to: Shorthand DSL for node/edge constraints. Expands to
+              memory_policy.node_constraints and edge_constraints. Formats: - String:
+              'Task:title' (semantic match on Task.title) - List: ['Task:title',
+              'Person:email'] (multiple constraints) - Dict: {'Task:title': {'set': {...}}}
+              (with options) Syntax: - Node: 'Type:property', 'Type:prop=value' (exact),
+              'Type:prop~value' (semantic) - Edge: 'Source->EDGE->Target:property' (arrow
+              syntax) - Via: 'Type.via(EDGE->Target:prop)' (relationship traversal) - Special:
+              '$this', '$previous', '$context:N' Example:
+              'SecurityBehavior->MITIGATES->TacticDef:name' with {'create': 'never'}
+
+          memory_policy: Unified memory processing policy.
+
+              This is the SINGLE source of truth for how a memory should be processed,
+              combining graph generation control AND OMO (Open Memory Object) safety
+              standards.
+
+              **Graph Generation Modes:**
+
+              - auto: LLM extracts entities freely (default)
+              - manual: Developer provides exact nodes (no LLM extraction)
+
+              **OMO Safety Standards:**
+
+              - consent: How data owner allowed storage (explicit, implicit, terms, none)
+              - risk: Safety assessment (none, sensitive, flagged)
+              - acl: Access control list for read/write permissions
+
+              **Schema Integration:**
+
+              - schema_id: Reference a schema that may have its own default memory_policy
+              - Schema-level policies are merged with request-level (request takes precedence)
 
           namespace_id: Optional namespace ID for multi-tenant batch memory scoping. When provided, all
               memories in the batch are associated with this namespace.
@@ -3612,8 +3951,7 @@ class AsyncMemoryResource(AsyncAPIResource):
           organization_id: Optional organization ID for multi-tenant batch memory scoping. When provided,
               all memories in the batch are associated with this organization.
 
-          user_id: Internal user ID for all memories in the batch. If not provided, developer's
-              user ID will be used.
+          user_id: DEPRECATED: Use 'external_user_id' instead. Internal Papr Parse user ID.
 
           webhook_secret: Optional secret key for webhook authentication. If provided, will be included in
               the webhook request headers as 'X-Webhook-Secret'.
@@ -3637,6 +3975,8 @@ class AsyncMemoryResource(AsyncAPIResource):
                     "batch_size": batch_size,
                     "external_user_id": external_user_id,
                     "graph_generation": graph_generation,
+                    "link_to": link_to,
+                    "memory_policy": memory_policy,
                     "namespace_id": namespace_id,
                     "organization_id": organization_id,
                     "user_id": user_id,
@@ -3794,6 +4134,9 @@ class AsyncMemoryResource(AsyncAPIResource):
         self,
         memory_id: str,
         *,
+        exclude_flagged: bool | Omit = omit,
+        max_risk: Optional[str] | Omit = omit,
+        require_consent: bool | Omit = omit,
         # Use the following arguments if you need to pass additional parameters to the API that aren't available via kwargs.
         # The extra values given here take precedence over values defined on the client or passed to this method.
         extra_headers: Headers | None = None,
@@ -3814,6 +4157,15 @@ class AsyncMemoryResource(AsyncAPIResource):
             - X-Client-Type: (e.g., 'papr_plugin', 'browser_extension')
 
         Args:
+          exclude_flagged: If true, return 404 if the memory has risk='flagged'. Filters out flagged
+              content.
+
+          max_risk: Maximum risk level allowed. Values: 'none', 'sensitive', 'flagged'. If memory
+              exceeds this, return 404.
+
+          require_consent: If true, return 404 if the memory has consent='none'. Ensures only consented
+              memories are returned.
+
           extra_headers: Send extra headers
 
           extra_query: Add additional query parameters to the request
@@ -3827,7 +4179,18 @@ class AsyncMemoryResource(AsyncAPIResource):
         return await self._get(
             f"/v1/memory/{memory_id}",
             options=make_request_options(
-                extra_headers=extra_headers, extra_query=extra_query, extra_body=extra_body, timeout=timeout
+                extra_headers=extra_headers,
+                extra_query=extra_query,
+                extra_body=extra_body,
+                timeout=timeout,
+                query=await async_maybe_transform(
+                    {
+                        "exclude_flagged": exclude_flagged,
+                        "max_risk": max_risk,
+                        "require_consent": require_consent,
+                    },
+                    memory_get_params.MemoryGetParams,
+                ),
             ),
             cast_to=SearchResponse,
         )
@@ -3899,12 +4262,15 @@ class AsyncMemoryResource(AsyncAPIResource):
         response_format: Literal["json", "toon"] | Omit = omit,
         enable_agentic_graph: bool | Omit = omit,
         external_user_id: Optional[str] | Omit = omit,
+        holographic_config: Optional[memory_search_params.HolographicConfig] | Omit = omit,
         metadata: Optional[MemoryMetadataParam] | Omit = omit,
         namespace_id: Optional[str] | Omit = omit,
+        omo_filter: Optional[memory_search_params.OmoFilter] | Omit = omit,
         organization_id: Optional[str] | Omit = omit,
         rank_results: bool | Omit = omit,
+        reranking_config: Optional[memory_search_params.RerankingConfig] | Omit = omit,
         schema_id: Optional[str] | Omit = omit,
-        simple_schema_mode: bool | Omit = omit,
+        search_override: Optional[memory_search_params.SearchOverride] | Omit = omit,
         user_id: Optional[str] | Omit = omit,
         accept_encoding: str | Omit = omit,
         # Use the following arguments if you need to pass additional parameters to the API that aren't available via kwargs.
@@ -4007,33 +4373,46 @@ class AsyncMemoryResource(AsyncAPIResource):
               comprehensive results. Set to false only if you need faster, simpler
               keyword-based search.
 
-          external_user_id: Optional external user ID to filter search results by a specific external user.
-              If both user_id and external_user_id are provided, user_id takes precedence.
+          external_user_id: Your application's user identifier to filter search results. This is the primary
+              way to identify users. Use this for your app's user IDs (e.g., 'user_alice_123',
+              UUID, email).
+
+          holographic_config: Configuration for holographic neural embedding transforms and H-COND scoring.
+
+              Neural holographic embeddings use 13 brain-inspired frequency bands to encode
+              hierarchical semantic metadata alongside the base embedding. H-COND (Holographic
+              CONDitional) scoring uses phase alignment for improved relevance ranking.
 
           metadata: Metadata for memory request
 
           namespace_id: Optional namespace ID for multi-tenant search scoping. When provided, search is
               scoped to memories within this namespace.
 
+          omo_filter: Filter for Open Memory Object (OMO) safety standards in search/retrieval.
+
+              Use this to filter search results by consent level and/or risk level.
+
           organization_id: Optional organization ID for multi-tenant search scoping. When provided, search
               is scoped to memories within this organization.
 
-          rank_results: Whether to enable additional ranking of search results. Default is false because
-              results are already ranked when using an LLM for search (recommended approach).
-              Only enable this if you're not using an LLM in your search pipeline and need
-              additional result ranking.
+          rank_results: DEPRECATED: Use 'reranking_config' instead. Whether to enable additional ranking
+              of search results. Default is false because results are already ranked when
+              using an LLM for search (recommended approach). Only enable this if you're not
+              using an LLM in your search pipeline and need additional result ranking.
+              Migration: Replace 'rank_results: true' with 'reranking_config:
+              {reranking_enabled: true, reranking_provider: "cohere", reranking_model:
+              "rerank-v3.5"}'
+
+          reranking_config: Configuration for reranking memory search results
 
           schema_id: Optional user-defined schema ID to use for this search. If provided, this schema
               (plus system schema) will be used for query generation. If not provided, system
               will automatically select relevant schema based on query content.
 
-          simple_schema_mode: If true, uses simple schema mode: system schema + ONE most relevant user schema.
-              This ensures better consistency between add/search operations and reduces query
-              complexity. Recommended for production use.
+          search_override: Complete search override specification provided by developer
 
-          user_id: Optional internal user ID to filter search results by a specific user. If not
-              provided, results are not filtered by user. If both user_id and external_user_id
-              are provided, user_id takes precedence.
+          user_id: DEPRECATED: Use 'external_user_id' instead. Internal Papr Parse user ID. Most
+              developers should not use this field directly.
 
           extra_headers: Send extra headers
 
@@ -4055,12 +4434,15 @@ class AsyncMemoryResource(AsyncAPIResource):
                     "query": query,
                     "enable_agentic_graph": enable_agentic_graph,
                     "external_user_id": external_user_id,
+                    "holographic_config": holographic_config,
                     "metadata": metadata,
                     "namespace_id": namespace_id,
+                    "omo_filter": omo_filter,
                     "organization_id": organization_id,
                     "rank_results": rank_results,
+                    "reranking_config": reranking_config,
                     "schema_id": schema_id,
-                    "simple_schema_mode": simple_schema_mode,
+                    "search_override": search_override,
                     "user_id": user_id,
                 },
                 memory_search_params.MemorySearchParams,

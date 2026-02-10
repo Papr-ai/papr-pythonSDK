@@ -8,6 +8,9 @@ from typing_extensions import Literal, Required, Annotated, TypeAlias, TypedDict
 
 from .._types import SequenceNotStr
 from .._utils import PropertyInfo
+from .property_definition_param import PropertyDefinitionParam
+from .shared_params.edge_constraint_input import EdgeConstraintInput
+from .shared_params.node_constraint_input import NodeConstraintInput
 
 __all__ = [
     "SchemaCreateParams",
@@ -426,7 +429,17 @@ class NodeTypes(TypedDict, total=False):
     also provided, link_only=True will override constraint.create to 'lookup'.
     """
 
-    properties: Dict[str, NodeTypesProperties]
+
+
+    link_only: bool
+    """DEPRECATED: Use resolution_policy='lookup' instead.
+
+    Shorthand for constraint with create='lookup'. When True, only links to existing
+    nodes (controlled vocabulary). Equivalent to @lookup decorator. If constraint is
+    also provided, link_only=True will override constraint.create to 'lookup'.
+    """
+
+    properties: Dict[str, PropertyDefinitionParam]
     """Node properties (max 10 per node type)"""
 
     required_properties: SequenceNotStr[str]

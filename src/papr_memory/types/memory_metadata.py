@@ -19,6 +19,12 @@ class MemoryMetadata(BaseModel):
     Format: {'read': [...], 'write': [...]}.
     """
 
+    acl: Optional[Dict[str, List[str]]] = None
+    """DEPRECATED: Use 'memory_policy.acl' at request level instead.
+
+    Format: {'read': [...], 'write': [...]}.
+    """
+
     assistant_message: Optional[str] = FieldInfo(alias="assistantMessage", default=None)
 
     category: Optional[Literal["preference", "task", "goal", "fact", "context", "skills", "learning"]] = None
@@ -26,6 +32,12 @@ class MemoryMetadata(BaseModel):
 
     For users: preference, task, goal, fact, context. For assistants: skills,
     learning, task, goal, fact, context.
+    """
+
+    consent: Optional[str] = None
+    """DEPRECATED: Use 'memory_policy.consent' at request level instead.
+
+    Values: 'explicit', 'implicit' (default), 'terms', 'none'.
     """
 
     consent: Optional[str] = None
@@ -57,8 +69,16 @@ class MemoryMetadata(BaseModel):
 
     This field will be removed in v2.
     """
+    """DEPRECATED: Use 'external_user_id' at request level instead.
+
+    This field will be removed in v2.
+    """
 
     external_user_read_access: Optional[List[str]] = None
+    """INTERNAL: Auto-populated for vector store filtering.
+
+    Use memory_policy.acl instead.
+    """
     """INTERNAL: Auto-populated for vector store filtering.
 
     Use memory_policy.acl instead.
@@ -69,9 +89,14 @@ class MemoryMetadata(BaseModel):
 
     Use memory_policy.acl instead.
     """
+    """INTERNAL: Auto-populated for vector store filtering.
+
+    Use memory_policy.acl instead.
+    """
 
     goal_classification_scores: Optional[List[float]] = FieldInfo(alias="goalClassificationScores", default=None)
 
+    hierarchical_structures: Union[str, List[object], None] = None
     hierarchical_structures: Union[str, List[object], None] = None
     """Hierarchical structures to enable navigation from broad topics to specific ones"""
 
@@ -82,8 +107,16 @@ class MemoryMetadata(BaseModel):
 
     This field will be removed in v2.
     """
+    """DEPRECATED: Use 'namespace_id' at request level instead.
+
+    This field will be removed in v2.
+    """
 
     namespace_read_access: Optional[List[str]] = None
+    """INTERNAL: Auto-populated for vector store filtering.
+
+    Use memory_policy.acl instead.
+    """
     """INTERNAL: Auto-populated for vector store filtering.
 
     Use memory_policy.acl instead.
@@ -94,8 +127,16 @@ class MemoryMetadata(BaseModel):
 
     Use memory_policy.acl instead.
     """
+    """INTERNAL: Auto-populated for vector store filtering.
+
+    Use memory_policy.acl instead.
+    """
 
     organization_id: Optional[str] = None
+    """DEPRECATED: Use 'organization_id' at request level instead.
+
+    This field will be removed in v2.
+    """
     """DEPRECATED: Use 'organization_id' at request level instead.
 
     This field will be removed in v2.
@@ -106,8 +147,16 @@ class MemoryMetadata(BaseModel):
 
     Use memory_policy.acl instead.
     """
+    """INTERNAL: Auto-populated for vector store filtering.
+
+    Use memory_policy.acl instead.
+    """
 
     organization_write_access: Optional[List[str]] = None
+    """INTERNAL: Auto-populated for vector store filtering.
+
+    Use memory_policy.acl instead.
+    """
     """INTERNAL: Auto-populated for vector store filtering.
 
     Use memory_policy.acl instead.
@@ -129,6 +178,12 @@ class MemoryMetadata(BaseModel):
     Values: 'none' (default), 'sensitive', 'flagged'.
     """
 
+    risk: Optional[str] = None
+    """DEPRECATED: Use 'memory_policy.risk' at request level instead.
+
+    Values: 'none' (default), 'sensitive', 'flagged'.
+    """
+
     role: Optional[Literal["user", "assistant"]] = None
     """Role of the message sender"""
 
@@ -137,8 +192,16 @@ class MemoryMetadata(BaseModel):
 
     Use memory_policy.acl instead.
     """
+    """INTERNAL: Auto-populated for vector store filtering.
+
+    Use memory_policy.acl instead.
+    """
 
     role_write_access: Optional[List[str]] = None
+    """INTERNAL: Auto-populated for vector store filtering.
+
+    Use memory_policy.acl instead.
+    """
     """INTERNAL: Auto-populated for vector store filtering.
 
     Use memory_policy.acl instead.
@@ -164,8 +227,16 @@ class MemoryMetadata(BaseModel):
 
     This field will be removed in v2.
     """
+    """DEPRECATED: Use 'external_user_id' at request level instead.
+
+    This field will be removed in v2.
+    """
 
     user_read_access: Optional[List[str]] = None
+    """INTERNAL: Auto-populated for vector store filtering.
+
+    Use memory_policy.acl instead.
+    """
     """INTERNAL: Auto-populated for vector store filtering.
 
     Use memory_policy.acl instead.
@@ -176,12 +247,20 @@ class MemoryMetadata(BaseModel):
 
     Use memory_policy.acl instead.
     """
+    """INTERNAL: Auto-populated for vector store filtering.
+
+    Use memory_policy.acl instead.
+    """
 
     user_message: Optional[str] = FieldInfo(alias="userMessage", default=None)
 
     workspace_id: Optional[str] = None
 
     workspace_read_access: Optional[List[str]] = None
+    """INTERNAL: Auto-populated for vector store filtering.
+
+    Use memory_policy.acl instead.
+    """
     """INTERNAL: Auto-populated for vector store filtering.
 
     Use memory_policy.acl instead.
