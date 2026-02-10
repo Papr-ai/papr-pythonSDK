@@ -39,6 +39,7 @@ from ..types.graph_generation_param import GraphGenerationParam
 from ..types.memory_delete_response import MemoryDeleteResponse
 from ..types.memory_update_response import MemoryUpdateResponse
 from ..types.relationship_item_param import RelationshipItemParam
+from ..types.shared_params.memory_policy import MemoryPolicy
 
 __all__ = ["MemoryResource", "AsyncMemoryResource"]
 
@@ -71,7 +72,7 @@ class MemoryResource(SyncAPIResource):
         context: Optional[Iterable[ContextItemParam]] | Omit = omit,
         graph_generation: Optional[GraphGenerationParam] | Omit = omit,
         link_to: Union[str, SequenceNotStr[str], Dict[str, object], None] | Omit = omit,
-        memory_policy: Optional[memory_update_params.MemoryPolicy] | Omit = omit,
+        memory_policy: Optional[MemoryPolicy] | Omit = omit,
         metadata: Optional[MemoryMetadataParam] | Omit = omit,
         namespace_id: Optional[str] | Omit = omit,
         organization_id: Optional[str] | Omit = omit,
@@ -169,6 +170,9 @@ class MemoryResource(SyncAPIResource):
                     "graph_generation": graph_generation,
                     "link_to": link_to,
                     "memory_policy": memory_policy,
+                    "graph_generation": graph_generation,
+                    "link_to": link_to,
+                    "memory_policy": memory_policy,
                     "metadata": metadata,
                     "namespace_id": namespace_id,
                     "organization_id": organization_id,
@@ -243,12 +247,13 @@ class MemoryResource(SyncAPIResource):
         external_user_id: Optional[str] | Omit = omit,
         graph_generation: Optional[GraphGenerationParam] | Omit = omit,
         link_to: Union[str, SequenceNotStr[str], Dict[str, object], None] | Omit = omit,
-        memory_policy: Optional[memory_add_params.MemoryPolicy] | Omit = omit,
+        memory_policy: Optional[MemoryPolicy] | Omit = omit,
         metadata: Optional[MemoryMetadataParam] | Omit = omit,
         namespace_id: Optional[str] | Omit = omit,
         organization_id: Optional[str] | Omit = omit,
         relationships_json: Optional[Iterable[RelationshipItemParam]] | Omit = omit,
         type: MemoryType | Omit = omit,
+        user_id: Optional[str] | Omit = omit,
         user_id: Optional[str] | Omit = omit,
         # Use the following arguments if you need to pass additional parameters to the API that aren't available via kwargs.
         # The extra values given here take precedence over values defined on the client or passed to this method.
@@ -406,7 +411,7 @@ class MemoryResource(SyncAPIResource):
         external_user_id: Optional[str] | Omit = omit,
         graph_generation: Optional[GraphGenerationParam] | Omit = omit,
         link_to: Union[str, SequenceNotStr[str], Dict[str, object], None] | Omit = omit,
-        memory_policy: Optional[memory_add_batch_params.MemoryPolicy] | Omit = omit,
+        memory_policy: Optional[MemoryPolicy] | Omit = omit,
         namespace_id: Optional[str] | Omit = omit,
         organization_id: Optional[str] | Omit = omit,
         user_id: Optional[str] | Omit = omit,
@@ -901,7 +906,7 @@ class AsyncMemoryResource(AsyncAPIResource):
         context: Optional[Iterable[ContextItemParam]] | Omit = omit,
         graph_generation: Optional[GraphGenerationParam] | Omit = omit,
         link_to: Union[str, SequenceNotStr[str], Dict[str, object], None] | Omit = omit,
-        memory_policy: Optional[memory_update_params.MemoryPolicy] | Omit = omit,
+        memory_policy: Optional[MemoryPolicy] | Omit = omit,
         metadata: Optional[MemoryMetadataParam] | Omit = omit,
         namespace_id: Optional[str] | Omit = omit,
         organization_id: Optional[str] | Omit = omit,
@@ -1073,7 +1078,7 @@ class AsyncMemoryResource(AsyncAPIResource):
         external_user_id: Optional[str] | Omit = omit,
         graph_generation: Optional[GraphGenerationParam] | Omit = omit,
         link_to: Union[str, SequenceNotStr[str], Dict[str, object], None] | Omit = omit,
-        memory_policy: Optional[memory_add_params.MemoryPolicy] | Omit = omit,
+        memory_policy: Optional[MemoryPolicy] | Omit = omit,
         metadata: Optional[MemoryMetadataParam] | Omit = omit,
         namespace_id: Optional[str] | Omit = omit,
         organization_id: Optional[str] | Omit = omit,
@@ -1236,7 +1241,7 @@ class AsyncMemoryResource(AsyncAPIResource):
         external_user_id: Optional[str] | Omit = omit,
         graph_generation: Optional[GraphGenerationParam] | Omit = omit,
         link_to: Union[str, SequenceNotStr[str], Dict[str, object], None] | Omit = omit,
-        memory_policy: Optional[memory_add_batch_params.MemoryPolicy] | Omit = omit,
+        memory_policy: Optional[MemoryPolicy] | Omit = omit,
         namespace_id: Optional[str] | Omit = omit,
         organization_id: Optional[str] | Omit = omit,
         user_id: Optional[str] | Omit = omit,

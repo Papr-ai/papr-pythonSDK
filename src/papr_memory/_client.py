@@ -31,13 +31,16 @@ from ._base_client import (
 )
 
 if TYPE_CHECKING:
-    from .resources import user, memory, graphql, schemas, document, feedback
+    from .resources import omo, sync, user, memory, graphql, schemas, document, feedback, messages
+    from .resources.omo import OmoResource, AsyncOmoResource
+    from .resources.sync import SyncResource, AsyncSyncResource
     from .resources.user import UserResource, AsyncUserResource
     from .resources.memory import MemoryResource, AsyncMemoryResource
     from .resources.graphql import GraphqlResource, AsyncGraphqlResource
     from .resources.schemas import SchemasResource, AsyncSchemasResource
     from .resources.document import DocumentResource, AsyncDocumentResource
     from .resources.feedback import FeedbackResource, AsyncFeedbackResource
+    from .resources.messages.messages import MessagesResource, AsyncMessagesResource
 
 __all__ = ["Timeout", "Transport", "ProxiesTypes", "RequestOptions", "Papr", "AsyncPapr", "Client", "AsyncClient"]
 
@@ -147,6 +150,24 @@ class Papr(SyncAPIClient):
         from .resources.graphql import GraphqlResource
 
         return GraphqlResource(self)
+
+    @cached_property
+    def messages(self) -> MessagesResource:
+        from .resources.messages import MessagesResource
+
+        return MessagesResource(self)
+
+    @cached_property
+    def omo(self) -> OmoResource:
+        from .resources.omo import OmoResource
+
+        return OmoResource(self)
+
+    @cached_property
+    def sync(self) -> SyncResource:
+        from .resources.sync import SyncResource
+
+        return SyncResource(self)
 
     @cached_property
     def with_raw_response(self) -> PaprWithRawResponse:
@@ -390,6 +411,24 @@ class AsyncPapr(AsyncAPIClient):
         return AsyncGraphqlResource(self)
 
     @cached_property
+    def messages(self) -> AsyncMessagesResource:
+        from .resources.messages import AsyncMessagesResource
+
+        return AsyncMessagesResource(self)
+
+    @cached_property
+    def omo(self) -> AsyncOmoResource:
+        from .resources.omo import AsyncOmoResource
+
+        return AsyncOmoResource(self)
+
+    @cached_property
+    def sync(self) -> AsyncSyncResource:
+        from .resources.sync import AsyncSyncResource
+
+        return AsyncSyncResource(self)
+
+    @cached_property
     def with_raw_response(self) -> AsyncPaprWithRawResponse:
         return AsyncPaprWithRawResponse(self)
 
@@ -566,6 +605,24 @@ class PaprWithRawResponse:
 
         return GraphqlResourceWithRawResponse(self._client.graphql)
 
+    @cached_property
+    def messages(self) -> messages.MessagesResourceWithRawResponse:
+        from .resources.messages import MessagesResourceWithRawResponse
+
+        return MessagesResourceWithRawResponse(self._client.messages)
+
+    @cached_property
+    def omo(self) -> omo.OmoResourceWithRawResponse:
+        from .resources.omo import OmoResourceWithRawResponse
+
+        return OmoResourceWithRawResponse(self._client.omo)
+
+    @cached_property
+    def sync(self) -> sync.SyncResourceWithRawResponse:
+        from .resources.sync import SyncResourceWithRawResponse
+
+        return SyncResourceWithRawResponse(self._client.sync)
+
 
 class AsyncPaprWithRawResponse:
     _client: AsyncPapr
@@ -608,6 +665,24 @@ class AsyncPaprWithRawResponse:
         from .resources.graphql import AsyncGraphqlResourceWithRawResponse
 
         return AsyncGraphqlResourceWithRawResponse(self._client.graphql)
+
+    @cached_property
+    def messages(self) -> messages.AsyncMessagesResourceWithRawResponse:
+        from .resources.messages import AsyncMessagesResourceWithRawResponse
+
+        return AsyncMessagesResourceWithRawResponse(self._client.messages)
+
+    @cached_property
+    def omo(self) -> omo.AsyncOmoResourceWithRawResponse:
+        from .resources.omo import AsyncOmoResourceWithRawResponse
+
+        return AsyncOmoResourceWithRawResponse(self._client.omo)
+
+    @cached_property
+    def sync(self) -> sync.AsyncSyncResourceWithRawResponse:
+        from .resources.sync import AsyncSyncResourceWithRawResponse
+
+        return AsyncSyncResourceWithRawResponse(self._client.sync)
 
 
 class PaprWithStreamedResponse:
@@ -652,6 +727,24 @@ class PaprWithStreamedResponse:
 
         return GraphqlResourceWithStreamingResponse(self._client.graphql)
 
+    @cached_property
+    def messages(self) -> messages.MessagesResourceWithStreamingResponse:
+        from .resources.messages import MessagesResourceWithStreamingResponse
+
+        return MessagesResourceWithStreamingResponse(self._client.messages)
+
+    @cached_property
+    def omo(self) -> omo.OmoResourceWithStreamingResponse:
+        from .resources.omo import OmoResourceWithStreamingResponse
+
+        return OmoResourceWithStreamingResponse(self._client.omo)
+
+    @cached_property
+    def sync(self) -> sync.SyncResourceWithStreamingResponse:
+        from .resources.sync import SyncResourceWithStreamingResponse
+
+        return SyncResourceWithStreamingResponse(self._client.sync)
+
 
 class AsyncPaprWithStreamedResponse:
     _client: AsyncPapr
@@ -694,6 +787,24 @@ class AsyncPaprWithStreamedResponse:
         from .resources.graphql import AsyncGraphqlResourceWithStreamingResponse
 
         return AsyncGraphqlResourceWithStreamingResponse(self._client.graphql)
+
+    @cached_property
+    def messages(self) -> messages.AsyncMessagesResourceWithStreamingResponse:
+        from .resources.messages import AsyncMessagesResourceWithStreamingResponse
+
+        return AsyncMessagesResourceWithStreamingResponse(self._client.messages)
+
+    @cached_property
+    def omo(self) -> omo.AsyncOmoResourceWithStreamingResponse:
+        from .resources.omo import AsyncOmoResourceWithStreamingResponse
+
+        return AsyncOmoResourceWithStreamingResponse(self._client.omo)
+
+    @cached_property
+    def sync(self) -> sync.AsyncSyncResourceWithStreamingResponse:
+        from .resources.sync import AsyncSyncResourceWithStreamingResponse
+
+        return AsyncSyncResourceWithStreamingResponse(self._client.sync)
 
 
 Client = Papr

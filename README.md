@@ -135,13 +135,9 @@ client = Papr()
 
 memory = client.memory.update(
     memory_id="memory_id",
-    metadata={
-        "emoji_tags": ["string"],
-        "emotion_tags": ["string"],
-        "topics": ["string"],
-    },
+    graph_generation={},
 )
-print(memory.metadata)
+print(memory.graph_generation)
 ```
 
 ## File uploads
