@@ -1,5 +1,13 @@
 # Changelog
 
+## 2.20.1 (2026-02-10)
+
+Full Changelog: [v2.20.0...v2.20.1](https://github.com/Papr-ai/papr-pythonSDK/compare/v2.20.0...v2.20.1)
+
+### Bug Fixes
+
+* correct base URL to memory.papr.ai in .env.example ([d23681f](https://github.com/Papr-ai/papr-pythonSDK/commit/d23681f67468568407d7152458c62d6cdb79816a))
+
 ## 2.20.0 (2026-02-10)
 
 Full Changelog: [v2.19.1...v2.20.0](https://github.com/Papr-ai/papr-pythonSDK/compare/v2.19.1...v2.20.0)
