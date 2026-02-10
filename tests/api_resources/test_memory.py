@@ -108,9 +108,6 @@ class TestMemory:
                                 }
                             ],
                             "threshold": 0,
-<<<<<<< HEAD
-                            "via_relationship": [{}],
-=======
                             "via_relationship": [
                                 {
                                     "name": "Find via ASSIGNED_TO",
@@ -130,7 +127,6 @@ class TestMemory:
                                     },
                                 }
                             ],
->>>>>>> origin/generated--merge-conflict
                         },
                         "set": {"foo": "string"},
                         "source_type": "source_type",
@@ -159,9 +155,6 @@ class TestMemory:
                                 }
                             ],
                             "threshold": 0,
-<<<<<<< HEAD
-                            "via_relationship": [{}],
-=======
                             "via_relationship": [
                                 {
                                     "name": "Find via ASSIGNED_TO",
@@ -181,7 +174,6 @@ class TestMemory:
                                     },
                                 }
                             ],
->>>>>>> origin/generated--merge-conflict
                         },
                         "set": {"foo": "string"},
                         "when": {"foo": "bar"},
@@ -443,9 +435,6 @@ class TestMemory:
                                 }
                             ],
                             "threshold": 0,
-<<<<<<< HEAD
-                            "via_relationship": [{}],
-=======
                             "via_relationship": [
                                 {
                                     "name": "Find via ASSIGNED_TO",
@@ -465,7 +454,6 @@ class TestMemory:
                                     },
                                 }
                             ],
->>>>>>> origin/generated--merge-conflict
                         },
                         "set": {"foo": "string"},
                         "source_type": "source_type",
@@ -494,9 +482,6 @@ class TestMemory:
                                 }
                             ],
                             "threshold": 0,
-<<<<<<< HEAD
-                            "via_relationship": [{}],
-=======
                             "via_relationship": [
                                 {
                                     "name": "Find via ASSIGNED_TO",
@@ -516,7 +501,6 @@ class TestMemory:
                                     },
                                 }
                             ],
->>>>>>> origin/generated--merge-conflict
                         },
                         "set": {"foo": "string"},
                         "when": {"foo": "bar"},
@@ -722,9 +706,6 @@ class TestMemory:
                                         }
                                     ],
                                     "threshold": 0,
-<<<<<<< HEAD
-                                    "via_relationship": [{}],
-=======
                                     "via_relationship": [
                                         {
                                             "name": "Find via ASSIGNED_TO",
@@ -744,7 +725,6 @@ class TestMemory:
                                             },
                                         }
                                     ],
->>>>>>> origin/generated--merge-conflict
                                 },
                                 "set": {"foo": "string"},
                                 "source_type": "source_type",
@@ -773,9 +753,6 @@ class TestMemory:
                                         }
                                     ],
                                     "threshold": 0,
-<<<<<<< HEAD
-                                    "via_relationship": [{}],
-=======
                                     "via_relationship": [
                                         {
                                             "name": "Find via ASSIGNED_TO",
@@ -795,7 +772,6 @@ class TestMemory:
                                             },
                                         }
                                     ],
->>>>>>> origin/generated--merge-conflict
                                 },
                                 "set": {"foo": "string"},
                                 "when": {"foo": "bar"},
@@ -957,9 +933,6 @@ class TestMemory:
                                         }
                                     ],
                                     "threshold": 0,
-<<<<<<< HEAD
-                                    "via_relationship": [{}],
-=======
                                     "via_relationship": [
                                         {
                                             "name": "Find via ASSIGNED_TO",
@@ -979,7 +952,6 @@ class TestMemory:
                                             },
                                         }
                                     ],
->>>>>>> origin/generated--merge-conflict
                                 },
                                 "set": {"foo": "string"},
                                 "source_type": "source_type",
@@ -1008,9 +980,6 @@ class TestMemory:
                                         }
                                     ],
                                     "threshold": 0,
-<<<<<<< HEAD
-                                    "via_relationship": [{}],
-=======
                                     "via_relationship": [
                                         {
                                             "name": "Find via ASSIGNED_TO",
@@ -1030,7 +999,6 @@ class TestMemory:
                                             },
                                         }
                                     ],
->>>>>>> origin/generated--merge-conflict
                                 },
                                 "set": {"foo": "string"},
                                 "when": {"foo": "bar"},
@@ -1183,9 +1151,6 @@ class TestMemory:
                                 }
                             ],
                             "threshold": 0,
-<<<<<<< HEAD
-                            "via_relationship": [{}],
-=======
                             "via_relationship": [
                                 {
                                     "name": "Find via ASSIGNED_TO",
@@ -1205,7 +1170,6 @@ class TestMemory:
                                     },
                                 }
                             ],
->>>>>>> origin/generated--merge-conflict
                         },
                         "set": {"foo": "string"},
                         "source_type": "source_type",
@@ -1234,9 +1198,6 @@ class TestMemory:
                                 }
                             ],
                             "threshold": 0,
-<<<<<<< HEAD
-                            "via_relationship": [{}],
-=======
                             "via_relationship": [
                                 {
                                     "name": "Find via ASSIGNED_TO",
@@ -1256,7 +1217,6 @@ class TestMemory:
                                     },
                                 }
                             ],
->>>>>>> origin/generated--merge-conflict
                         },
                         "set": {"foo": "string"},
                         "when": {"foo": "bar"},
@@ -1648,9 +1608,6 @@ class TestAsyncMemory:
                                 }
                             ],
                             "threshold": 0,
-<<<<<<< HEAD
-                            "via_relationship": [{}],
-=======
                             "via_relationship": [
                                 {
                                     "name": "Find via ASSIGNED_TO",
@@ -1670,7 +1627,6 @@ class TestAsyncMemory:
                                     },
                                 }
                             ],
->>>>>>> origin/generated--merge-conflict
                         },
                         "set": {"foo": "string"},
                         "source_type": "source_type",
@@ -1699,9 +1655,6 @@ class TestAsyncMemory:
                                 }
                             ],
                             "threshold": 0,
-<<<<<<< HEAD
-                            "via_relationship": [{}],
-=======
                             "via_relationship": [
                                 {
                                     "name": "Find via ASSIGNED_TO",
@@ -1721,7 +1674,6 @@ class TestAsyncMemory:
                                     },
                                 }
                             ],
->>>>>>> origin/generated--merge-conflict
                         },
                         "set": {"foo": "string"},
                         "when": {"foo": "bar"},
@@ -1983,9 +1935,6 @@ class TestAsyncMemory:
                                 }
                             ],
                             "threshold": 0,
-<<<<<<< HEAD
-                            "via_relationship": [{}],
-=======
                             "via_relationship": [
                                 {
                                     "name": "Find via ASSIGNED_TO",
@@ -2005,7 +1954,6 @@ class TestAsyncMemory:
                                     },
                                 }
                             ],
->>>>>>> origin/generated--merge-conflict
                         },
                         "set": {"foo": "string"},
                         "source_type": "source_type",
@@ -2034,9 +1982,6 @@ class TestAsyncMemory:
                                 }
                             ],
                             "threshold": 0,
-<<<<<<< HEAD
-                            "via_relationship": [{}],
-=======
                             "via_relationship": [
                                 {
                                     "name": "Find via ASSIGNED_TO",
@@ -2056,7 +2001,6 @@ class TestAsyncMemory:
                                     },
                                 }
                             ],
->>>>>>> origin/generated--merge-conflict
                         },
                         "set": {"foo": "string"},
                         "when": {"foo": "bar"},
@@ -2262,9 +2206,6 @@ class TestAsyncMemory:
                                         }
                                     ],
                                     "threshold": 0,
-<<<<<<< HEAD
-                                    "via_relationship": [{}],
-=======
                                     "via_relationship": [
                                         {
                                             "name": "Find via ASSIGNED_TO",
@@ -2284,7 +2225,6 @@ class TestAsyncMemory:
                                             },
                                         }
                                     ],
->>>>>>> origin/generated--merge-conflict
                                 },
                                 "set": {"foo": "string"},
                                 "source_type": "source_type",
@@ -2313,9 +2253,6 @@ class TestAsyncMemory:
                                         }
                                     ],
                                     "threshold": 0,
-<<<<<<< HEAD
-                                    "via_relationship": [{}],
-=======
                                     "via_relationship": [
                                         {
                                             "name": "Find via ASSIGNED_TO",
@@ -2335,7 +2272,6 @@ class TestAsyncMemory:
                                             },
                                         }
                                     ],
->>>>>>> origin/generated--merge-conflict
                                 },
                                 "set": {"foo": "string"},
                                 "when": {"foo": "bar"},
@@ -2497,9 +2433,6 @@ class TestAsyncMemory:
                                         }
                                     ],
                                     "threshold": 0,
-<<<<<<< HEAD
-                                    "via_relationship": [{}],
-=======
                                     "via_relationship": [
                                         {
                                             "name": "Find via ASSIGNED_TO",
@@ -2519,7 +2452,6 @@ class TestAsyncMemory:
                                             },
                                         }
                                     ],
->>>>>>> origin/generated--merge-conflict
                                 },
                                 "set": {"foo": "string"},
                                 "source_type": "source_type",
@@ -2548,9 +2480,6 @@ class TestAsyncMemory:
                                         }
                                     ],
                                     "threshold": 0,
-<<<<<<< HEAD
-                                    "via_relationship": [{}],
-=======
                                     "via_relationship": [
                                         {
                                             "name": "Find via ASSIGNED_TO",
@@ -2570,7 +2499,6 @@ class TestAsyncMemory:
                                             },
                                         }
                                     ],
->>>>>>> origin/generated--merge-conflict
                                 },
                                 "set": {"foo": "string"},
                                 "when": {"foo": "bar"},
@@ -2723,9 +2651,6 @@ class TestAsyncMemory:
                                 }
                             ],
                             "threshold": 0,
-<<<<<<< HEAD
-                            "via_relationship": [{}],
-=======
                             "via_relationship": [
                                 {
                                     "name": "Find via ASSIGNED_TO",
@@ -2745,7 +2670,6 @@ class TestAsyncMemory:
                                     },
                                 }
                             ],
->>>>>>> origin/generated--merge-conflict
                         },
                         "set": {"foo": "string"},
                         "source_type": "source_type",
@@ -2774,9 +2698,6 @@ class TestAsyncMemory:
                                 }
                             ],
                             "threshold": 0,
-<<<<<<< HEAD
-                            "via_relationship": [{}],
-=======
                             "via_relationship": [
                                 {
                                     "name": "Find via ASSIGNED_TO",
@@ -2796,7 +2717,6 @@ class TestAsyncMemory:
                                     },
                                 }
                             ],
->>>>>>> origin/generated--merge-conflict
                         },
                         "set": {"foo": "string"},
                         "when": {"foo": "bar"},
