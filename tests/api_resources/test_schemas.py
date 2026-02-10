@@ -67,9 +67,6 @@ class TestSchemas:
                                 }
                             ],
                             "threshold": 0,
-<<<<<<< HEAD
-                            "via_relationship": [{}],
-=======
                             "via_relationship": [
                                 {
                                     "name": "Find via ASSIGNED_TO",
@@ -89,7 +86,6 @@ class TestSchemas:
                                     },
                                 }
                             ],
->>>>>>> origin/generated--merge-conflict
                         },
                         "set": {"foo": "string"},
                         "when": {"foo": "bar"},
@@ -147,9 +143,6 @@ class TestSchemas:
                                 }
                             ],
                             "threshold": 0,
-<<<<<<< HEAD
-                            "via_relationship": [{}],
-=======
                             "via_relationship": [
                                 {
                                     "name": "Find via ASSIGNED_TO",
@@ -169,7 +162,6 @@ class TestSchemas:
                                     },
                                 }
                             ],
->>>>>>> origin/generated--merge-conflict
                         },
                         "set": {"foo": "string"},
                         "source_type": "source_type",
@@ -449,9 +441,6 @@ class TestAsyncSchemas:
                                 }
                             ],
                             "threshold": 0,
-<<<<<<< HEAD
-                            "via_relationship": [{}],
-=======
                             "via_relationship": [
                                 {
                                     "name": "Find via ASSIGNED_TO",
@@ -471,7 +460,6 @@ class TestAsyncSchemas:
                                     },
                                 }
                             ],
->>>>>>> origin/generated--merge-conflict
                         },
                         "set": {"foo": "string"},
                         "when": {"foo": "bar"},
@@ -529,9 +517,6 @@ class TestAsyncSchemas:
                                 }
                             ],
                             "threshold": 0,
-<<<<<<< HEAD
-                            "via_relationship": [{}],
-=======
                             "via_relationship": [
                                 {
                                     "name": "Find via ASSIGNED_TO",
@@ -551,7 +536,6 @@ class TestAsyncSchemas:
                                     },
                                 }
                             ],
->>>>>>> origin/generated--merge-conflict
                         },
                         "set": {"foo": "string"},
                         "source_type": "source_type",
