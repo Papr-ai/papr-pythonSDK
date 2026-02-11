@@ -162,6 +162,7 @@ from papr_memory.types.messages import SessionCompressResponse, SessionRetrieveH
 
 Methods:
 
+- <code title="patch /v1/messages/sessions/{session_id}">client.messages.sessions.<a href="./src/papr_memory/resources/messages/sessions.py">update</a>(session_id, \*\*<a href="src/papr_memory/types/messages/session_update_params.py">params</a>) -> object</code>
 - <code title="get /v1/messages/sessions/{session_id}/compress">client.messages.sessions.<a href="./src/papr_memory/resources/messages/sessions.py">compress</a>(session_id) -> <a href="./src/papr_memory/types/messages/session_compress_response.py">SessionCompressResponse</a></code>
 - <code title="post /v1/messages/sessions/{session_id}/process">client.messages.sessions.<a href="./src/papr_memory/resources/messages/sessions.py">process</a>(session_id) -> object</code>
 - <code title="get /v1/messages/sessions/{session_id}">client.messages.sessions.<a href="./src/papr_memory/resources/messages/sessions.py">retrieve_history</a>(session_id, \*\*<a href="src/papr_memory/types/messages/session_retrieve_history_params.py">params</a>) -> <a href="./src/papr_memory/types/messages/session_retrieve_history_response.py">SessionRetrieveHistoryResponse</a></code>
