@@ -22,6 +22,58 @@ class TestSessions:
 
     @pytest.mark.skip(reason="Prism tests are disabled")
     @parametrize
+    def test_method_update(self, client: Papr) -> None:
+        session = client.messages.sessions.update(
+            session_id="session_id",
+        )
+        assert_matches_type(object, session, path=["response"])
+
+    @pytest.mark.skip(reason="Prism tests are disabled")
+    @parametrize
+    def test_method_update_with_all_params(self, client: Papr) -> None:
+        session = client.messages.sessions.update(
+            session_id="session_id",
+            metadata={"foo": "bar"},
+            title="title",
+        )
+        assert_matches_type(object, session, path=["response"])
+
+    @pytest.mark.skip(reason="Prism tests are disabled")
+    @parametrize
+    def test_raw_response_update(self, client: Papr) -> None:
+        response = client.messages.sessions.with_raw_response.update(
+            session_id="session_id",
+        )
+
+        assert response.is_closed is True
+        assert response.http_request.headers.get("X-Stainless-Lang") == "python"
+        session = response.parse()
+        assert_matches_type(object, session, path=["response"])
+
+    @pytest.mark.skip(reason="Prism tests are disabled")
+    @parametrize
+    def test_streaming_response_update(self, client: Papr) -> None:
+        with client.messages.sessions.with_streaming_response.update(
+            session_id="session_id",
+        ) as response:
+            assert not response.is_closed
+            assert response.http_request.headers.get("X-Stainless-Lang") == "python"
+
+            session = response.parse()
+            assert_matches_type(object, session, path=["response"])
+
+        assert cast(Any, response.is_closed) is True
+
+    @pytest.mark.skip(reason="Prism tests are disabled")
+    @parametrize
+    def test_path_params_update(self, client: Papr) -> None:
+        with pytest.raises(ValueError, match=r"Expected a non-empty value for `session_id` but received ''"):
+            client.messages.sessions.with_raw_response.update(
+                session_id="",
+            )
+
+    @pytest.mark.skip(reason="Prism tests are disabled")
+    @parametrize
     def test_method_compress(self, client: Papr) -> None:
         session = client.messages.sessions.compress(
             "session_id",
@@ -203,6 +255,58 @@ class TestAsyncSessions:
     parametrize = pytest.mark.parametrize(
         "async_client", [False, True, {"http_client": "aiohttp"}], indirect=True, ids=["loose", "strict", "aiohttp"]
     )
+
+    @pytest.mark.skip(reason="Prism tests are disabled")
+    @parametrize
+    async def test_method_update(self, async_client: AsyncPapr) -> None:
+        session = await async_client.messages.sessions.update(
+            session_id="session_id",
+        )
+        assert_matches_type(object, session, path=["response"])
+
+    @pytest.mark.skip(reason="Prism tests are disabled")
+    @parametrize
+    async def test_method_update_with_all_params(self, async_client: AsyncPapr) -> None:
+        session = await async_client.messages.sessions.update(
+            session_id="session_id",
+            metadata={"foo": "bar"},
+            title="title",
+        )
+        assert_matches_type(object, session, path=["response"])
+
+    @pytest.mark.skip(reason="Prism tests are disabled")
+    @parametrize
+    async def test_raw_response_update(self, async_client: AsyncPapr) -> None:
+        response = await async_client.messages.sessions.with_raw_response.update(
+            session_id="session_id",
+        )
+
+        assert response.is_closed is True
+        assert response.http_request.headers.get("X-Stainless-Lang") == "python"
+        session = await response.parse()
+        assert_matches_type(object, session, path=["response"])
+
+    @pytest.mark.skip(reason="Prism tests are disabled")
+    @parametrize
+    async def test_streaming_response_update(self, async_client: AsyncPapr) -> None:
+        async with async_client.messages.sessions.with_streaming_response.update(
+            session_id="session_id",
+        ) as response:
+            assert not response.is_closed
+            assert response.http_request.headers.get("X-Stainless-Lang") == "python"
+
+            session = await response.parse()
+            assert_matches_type(object, session, path=["response"])
+
+        assert cast(Any, response.is_closed) is True
+
+    @pytest.mark.skip(reason="Prism tests are disabled")
+    @parametrize
+    async def test_path_params_update(self, async_client: AsyncPapr) -> None:
+        with pytest.raises(ValueError, match=r"Expected a non-empty value for `session_id` but received ''"):
+            await async_client.messages.sessions.with_raw_response.update(
+                session_id="",
+            )
 
     @pytest.mark.skip(reason="Prism tests are disabled")
     @parametrize

@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+from typing import Dict, Optional
+
 import httpx
 
 from ..._types import Body, Omit, Query, Headers, NotGiven, omit, not_given
@@ -15,7 +17,7 @@ from ..._response import (
     async_to_streamed_response_wrapper,
 )
 from ..._base_client import make_request_options
-from ...types.messages import session_retrieve_history_params
+from ...types.messages import session_update_params, session_retrieve_history_params
 from ...types.messages.session_compress_response import SessionCompressResponse
 from ...types.messages.session_retrieve_history_response import SessionRetrieveHistoryResponse
 
@@ -41,6 +43,66 @@ class SessionsResource(SyncAPIResource):
         For more information, see https://www.github.com/Papr-ai/papr-pythonSDK#with_streaming_response
         """
         return SessionsResourceWithStreamingResponse(self)
+
+    def update(
+        self,
+        session_id: str,
+        *,
+        metadata: Optional[Dict[str, object]] | Omit = omit,
+        title: Optional[str] | Omit = omit,
+        # Use the following arguments if you need to pass additional parameters to the API that aren't available via kwargs.
+        # The extra values given here take precedence over values defined on the client or passed to this method.
+        extra_headers: Headers | None = None,
+        extra_query: Query | None = None,
+        extra_body: Body | None = None,
+        timeout: float | httpx.Timeout | None | NotGiven = not_given,
+    ) -> object:
+        """
+        Update session properties (e.g., title, metadata).
+
+            **Authentication Required**: Bearer token, API key, or session token
+
+            **Updatable Fields**:
+            - `title`: Update the conversation title
+            - `metadata`: Update session metadata (merged with existing)
+
+            **Example Request**:
+            ```json
+            {
+                "title": "Updated Session Title",
+                "metadata": {"custom_field": "value"}
+            }
+            ```
+
+        Args:
+          metadata: Metadata to merge with existing session metadata
+
+          title: New title for the session
+
+          extra_headers: Send extra headers
+
+          extra_query: Add additional query parameters to the request
+
+          extra_body: Add additional JSON properties to the request
+
+          timeout: Override the client-level default timeout for this request, in seconds
+        """
+        if not session_id:
+            raise ValueError(f"Expected a non-empty value for `session_id` but received {session_id!r}")
+        return self._patch(
+            f"/v1/messages/sessions/{session_id}",
+            body=maybe_transform(
+                {
+                    "metadata": metadata,
+                    "title": title,
+                },
+                session_update_params.SessionUpdateParams,
+            ),
+            options=make_request_options(
+                extra_headers=extra_headers, extra_query=extra_query, extra_body=extra_body, timeout=timeout
+            ),
+            cast_to=object,
+        )
 
     def compress(
         self,
@@ -269,6 +331,66 @@ class AsyncSessionsResource(AsyncAPIResource):
         """
         return AsyncSessionsResourceWithStreamingResponse(self)
 
+    async def update(
+        self,
+        session_id: str,
+        *,
+        metadata: Optional[Dict[str, object]] | Omit = omit,
+        title: Optional[str] | Omit = omit,
+        # Use the following arguments if you need to pass additional parameters to the API that aren't available via kwargs.
+        # The extra values given here take precedence over values defined on the client or passed to this method.
+        extra_headers: Headers | None = None,
+        extra_query: Query | None = None,
+        extra_body: Body | None = None,
+        timeout: float | httpx.Timeout | None | NotGiven = not_given,
+    ) -> object:
+        """
+        Update session properties (e.g., title, metadata).
+
+            **Authentication Required**: Bearer token, API key, or session token
+
+            **Updatable Fields**:
+            - `title`: Update the conversation title
+            - `metadata`: Update session metadata (merged with existing)
+
+            **Example Request**:
+            ```json
+            {
+                "title": "Updated Session Title",
+                "metadata": {"custom_field": "value"}
+            }
+            ```
+
+        Args:
+          metadata: Metadata to merge with existing session metadata
+
+          title: New title for the session
+
+          extra_headers: Send extra headers
+
+          extra_query: Add additional query parameters to the request
+
+          extra_body: Add additional JSON properties to the request
+
+          timeout: Override the client-level default timeout for this request, in seconds
+        """
+        if not session_id:
+            raise ValueError(f"Expected a non-empty value for `session_id` but received {session_id!r}")
+        return await self._patch(
+            f"/v1/messages/sessions/{session_id}",
+            body=await async_maybe_transform(
+                {
+                    "metadata": metadata,
+                    "title": title,
+                },
+                session_update_params.SessionUpdateParams,
+            ),
+            options=make_request_options(
+                extra_headers=extra_headers, extra_query=extra_query, extra_body=extra_body, timeout=timeout
+            ),
+            cast_to=object,
+        )
+
     async def compress(
         self,
         session_id: str,
@@ -480,6 +602,9 @@ class SessionsResourceWithRawResponse:
     def __init__(self, sessions: SessionsResource) -> None:
         self._sessions = sessions
 
+        self.update = to_raw_response_wrapper(
+            sessions.update,
+        )
         self.compress = to_raw_response_wrapper(
             sessions.compress,
         )
@@ -498,6 +623,9 @@ class AsyncSessionsResourceWithRawResponse:
     def __init__(self, sessions: AsyncSessionsResource) -> None:
         self._sessions = sessions
 
+        self.update = async_to_raw_response_wrapper(
+            sessions.update,
+        )
         self.compress = async_to_raw_response_wrapper(
             sessions.compress,
         )
@@ -516,6 +644,9 @@ class SessionsResourceWithStreamingResponse:
     def __init__(self, sessions: SessionsResource) -> None:
         self._sessions = sessions
 
+        self.update = to_streamed_response_wrapper(
+            sessions.update,
+        )
         self.compress = to_streamed_response_wrapper(
             sessions.compress,
         )
@@ -534,6 +665,9 @@ class AsyncSessionsResourceWithStreamingResponse:
     def __init__(self, sessions: AsyncSessionsResource) -> None:
         self._sessions = sessions
 
+        self.update = async_to_streamed_response_wrapper(
+            sessions.update,
+        )
         self.compress = async_to_streamed_response_wrapper(
             sessions.compress,
         )
