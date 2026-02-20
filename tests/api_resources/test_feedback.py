@@ -17,7 +17,7 @@ base_url = os.environ.get("TEST_API_BASE_URL", "http://127.0.0.1:4010")
 class TestFeedback:
     parametrize = pytest.mark.parametrize("client", [False, True], indirect=True, ids=["loose", "strict"])
 
-    @pytest.mark.skip(reason="Prism tests are disabled")
+    @pytest.mark.skip(reason="Mock server tests are disabled")
     @parametrize
     def test_method_get_by_id(self, client: Papr) -> None:
         feedback = client.feedback.get_by_id(
@@ -25,7 +25,7 @@ class TestFeedback:
         )
         assert_matches_type(FeedbackResponse, feedback, path=["response"])
 
-    @pytest.mark.skip(reason="Prism tests are disabled")
+    @pytest.mark.skip(reason="Mock server tests are disabled")
     @parametrize
     def test_raw_response_get_by_id(self, client: Papr) -> None:
         response = client.feedback.with_raw_response.get_by_id(
@@ -37,7 +37,7 @@ class TestFeedback:
         feedback = response.parse()
         assert_matches_type(FeedbackResponse, feedback, path=["response"])
 
-    @pytest.mark.skip(reason="Prism tests are disabled")
+    @pytest.mark.skip(reason="Mock server tests are disabled")
     @parametrize
     def test_streaming_response_get_by_id(self, client: Papr) -> None:
         with client.feedback.with_streaming_response.get_by_id(
@@ -51,7 +51,7 @@ class TestFeedback:
 
         assert cast(Any, response.is_closed) is True
 
-    @pytest.mark.skip(reason="Prism tests are disabled")
+    @pytest.mark.skip(reason="Mock server tests are disabled")
     @parametrize
     def test_path_params_get_by_id(self, client: Papr) -> None:
         with pytest.raises(ValueError, match=r"Expected a non-empty value for `feedback_id` but received ''"):
@@ -59,7 +59,7 @@ class TestFeedback:
                 "",
             )
 
-    @pytest.mark.skip(reason="Prism tests are disabled")
+    @pytest.mark.skip(reason="Mock server tests are disabled")
     @parametrize
     def test_method_submit(self, client: Papr) -> None:
         feedback = client.feedback.submit(
@@ -71,7 +71,7 @@ class TestFeedback:
         )
         assert_matches_type(FeedbackResponse, feedback, path=["response"])
 
-    @pytest.mark.skip(reason="Prism tests are disabled")
+    @pytest.mark.skip(reason="Mock server tests are disabled")
     @parametrize
     def test_method_submit_with_all_params(self, client: Papr) -> None:
         feedback = client.feedback.submit(
@@ -104,7 +104,7 @@ class TestFeedback:
         )
         assert_matches_type(FeedbackResponse, feedback, path=["response"])
 
-    @pytest.mark.skip(reason="Prism tests are disabled")
+    @pytest.mark.skip(reason="Mock server tests are disabled")
     @parametrize
     def test_raw_response_submit(self, client: Papr) -> None:
         response = client.feedback.with_raw_response.submit(
@@ -120,7 +120,7 @@ class TestFeedback:
         feedback = response.parse()
         assert_matches_type(FeedbackResponse, feedback, path=["response"])
 
-    @pytest.mark.skip(reason="Prism tests are disabled")
+    @pytest.mark.skip(reason="Mock server tests are disabled")
     @parametrize
     def test_streaming_response_submit(self, client: Papr) -> None:
         with client.feedback.with_streaming_response.submit(
@@ -138,7 +138,7 @@ class TestFeedback:
 
         assert cast(Any, response.is_closed) is True
 
-    @pytest.mark.skip(reason="Prism tests are disabled")
+    @pytest.mark.skip(reason="Mock server tests are disabled")
     @parametrize
     def test_method_submit_batch(self, client: Papr) -> None:
         feedback = client.feedback.submit_batch(
@@ -154,7 +154,7 @@ class TestFeedback:
         )
         assert_matches_type(BatchResponse, feedback, path=["response"])
 
-    @pytest.mark.skip(reason="Prism tests are disabled")
+    @pytest.mark.skip(reason="Mock server tests are disabled")
     @parametrize
     def test_method_submit_batch_with_all_params(self, client: Papr) -> None:
         feedback = client.feedback.submit_batch(
@@ -192,7 +192,7 @@ class TestFeedback:
         )
         assert_matches_type(BatchResponse, feedback, path=["response"])
 
-    @pytest.mark.skip(reason="Prism tests are disabled")
+    @pytest.mark.skip(reason="Mock server tests are disabled")
     @parametrize
     def test_raw_response_submit_batch(self, client: Papr) -> None:
         response = client.feedback.with_raw_response.submit_batch(
@@ -212,7 +212,7 @@ class TestFeedback:
         feedback = response.parse()
         assert_matches_type(BatchResponse, feedback, path=["response"])
 
-    @pytest.mark.skip(reason="Prism tests are disabled")
+    @pytest.mark.skip(reason="Mock server tests are disabled")
     @parametrize
     def test_streaming_response_submit_batch(self, client: Papr) -> None:
         with client.feedback.with_streaming_response.submit_batch(
@@ -240,7 +240,7 @@ class TestAsyncFeedback:
         "async_client", [False, True, {"http_client": "aiohttp"}], indirect=True, ids=["loose", "strict", "aiohttp"]
     )
 
-    @pytest.mark.skip(reason="Prism tests are disabled")
+    @pytest.mark.skip(reason="Mock server tests are disabled")
     @parametrize
     async def test_method_get_by_id(self, async_client: AsyncPapr) -> None:
         feedback = await async_client.feedback.get_by_id(
@@ -248,7 +248,7 @@ class TestAsyncFeedback:
         )
         assert_matches_type(FeedbackResponse, feedback, path=["response"])
 
-    @pytest.mark.skip(reason="Prism tests are disabled")
+    @pytest.mark.skip(reason="Mock server tests are disabled")
     @parametrize
     async def test_raw_response_get_by_id(self, async_client: AsyncPapr) -> None:
         response = await async_client.feedback.with_raw_response.get_by_id(
@@ -260,7 +260,7 @@ class TestAsyncFeedback:
         feedback = await response.parse()
         assert_matches_type(FeedbackResponse, feedback, path=["response"])
 
-    @pytest.mark.skip(reason="Prism tests are disabled")
+    @pytest.mark.skip(reason="Mock server tests are disabled")
     @parametrize
     async def test_streaming_response_get_by_id(self, async_client: AsyncPapr) -> None:
         async with async_client.feedback.with_streaming_response.get_by_id(
@@ -274,7 +274,7 @@ class TestAsyncFeedback:
 
         assert cast(Any, response.is_closed) is True
 
-    @pytest.mark.skip(reason="Prism tests are disabled")
+    @pytest.mark.skip(reason="Mock server tests are disabled")
     @parametrize
     async def test_path_params_get_by_id(self, async_client: AsyncPapr) -> None:
         with pytest.raises(ValueError, match=r"Expected a non-empty value for `feedback_id` but received ''"):
@@ -282,7 +282,7 @@ class TestAsyncFeedback:
                 "",
             )
 
-    @pytest.mark.skip(reason="Prism tests are disabled")
+    @pytest.mark.skip(reason="Mock server tests are disabled")
     @parametrize
     async def test_method_submit(self, async_client: AsyncPapr) -> None:
         feedback = await async_client.feedback.submit(
@@ -294,7 +294,7 @@ class TestAsyncFeedback:
         )
         assert_matches_type(FeedbackResponse, feedback, path=["response"])
 
-    @pytest.mark.skip(reason="Prism tests are disabled")
+    @pytest.mark.skip(reason="Mock server tests are disabled")
     @parametrize
     async def test_method_submit_with_all_params(self, async_client: AsyncPapr) -> None:
         feedback = await async_client.feedback.submit(
@@ -327,7 +327,7 @@ class TestAsyncFeedback:
         )
         assert_matches_type(FeedbackResponse, feedback, path=["response"])
 
-    @pytest.mark.skip(reason="Prism tests are disabled")
+    @pytest.mark.skip(reason="Mock server tests are disabled")
     @parametrize
     async def test_raw_response_submit(self, async_client: AsyncPapr) -> None:
         response = await async_client.feedback.with_raw_response.submit(
@@ -343,7 +343,7 @@ class TestAsyncFeedback:
         feedback = await response.parse()
         assert_matches_type(FeedbackResponse, feedback, path=["response"])
 
-    @pytest.mark.skip(reason="Prism tests are disabled")
+    @pytest.mark.skip(reason="Mock server tests are disabled")
     @parametrize
     async def test_streaming_response_submit(self, async_client: AsyncPapr) -> None:
         async with async_client.feedback.with_streaming_response.submit(
@@ -361,7 +361,7 @@ class TestAsyncFeedback:
 
         assert cast(Any, response.is_closed) is True
 
-    @pytest.mark.skip(reason="Prism tests are disabled")
+    @pytest.mark.skip(reason="Mock server tests are disabled")
     @parametrize
     async def test_method_submit_batch(self, async_client: AsyncPapr) -> None:
         feedback = await async_client.feedback.submit_batch(
@@ -377,7 +377,7 @@ class TestAsyncFeedback:
         )
         assert_matches_type(BatchResponse, feedback, path=["response"])
 
-    @pytest.mark.skip(reason="Prism tests are disabled")
+    @pytest.mark.skip(reason="Mock server tests are disabled")
     @parametrize
     async def test_method_submit_batch_with_all_params(self, async_client: AsyncPapr) -> None:
         feedback = await async_client.feedback.submit_batch(
@@ -415,7 +415,7 @@ class TestAsyncFeedback:
         )
         assert_matches_type(BatchResponse, feedback, path=["response"])
 
-    @pytest.mark.skip(reason="Prism tests are disabled")
+    @pytest.mark.skip(reason="Mock server tests are disabled")
     @parametrize
     async def test_raw_response_submit_batch(self, async_client: AsyncPapr) -> None:
         response = await async_client.feedback.with_raw_response.submit_batch(
@@ -435,7 +435,7 @@ class TestAsyncFeedback:
         feedback = await response.parse()
         assert_matches_type(BatchResponse, feedback, path=["response"])
 
-    @pytest.mark.skip(reason="Prism tests are disabled")
+    @pytest.mark.skip(reason="Mock server tests are disabled")
     @parametrize
     async def test_streaming_response_submit_batch(self, async_client: AsyncPapr) -> None:
         async with async_client.feedback.with_streaming_response.submit_batch(
