@@ -73,7 +73,7 @@ def download_coreml_model(
     
     try:
         # Download from HuggingFace
-        downloaded_path = snapshot_download(
+        downloaded_path = snapshot_download(  # type: ignore[call-overload]
             repo_id=repo_id,
             allow_patterns=[f"{variant}/*"],
             local_dir=cache_dir / "temp",

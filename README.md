@@ -48,17 +48,236 @@ client = Papr(
     x_api_key=os.environ.get("PAPR_MEMORY_API_KEY"),  # This is the default and can be omitted
 )
 
-user_response = client.user.create(
-    external_id="demo_user_123",
-    email="user@example.com",
+# Add a memory
+response = client.memory.add(
+    content="The project deadline was moved to March 15th. Team agreed to prioritize the auth module first.",
 )
-print(user_response.external_id)
+print(response.status)  # "success"
+
+# Search memories
+results = client.memory.search(
+    query="What is the project deadline?",
+    max_memories=10,
+    rank_results=True,
+)
+for memory in results.data.memories:
+    print(memory.content)
 ```
 
 While you can provide a `bearer_token` keyword argument,
 we recommend using [python-dotenv](https://pypi.org/project/python-dotenv/)
 to add `PAPR_MEMORY_BEARER_TOKEN="My Bearer Token"` to your `.env` file
 so that your Bearer Token is not stored in source control.
+
+## Graph Schemas & Memory Policies
+
+Schemas define the structure of your knowledge graph. When you add memories, the engine uses the schema to extract entities from the content, match them to existing nodes, and build relationships automatically.
+
+### 1. Define a Schema
+
+```python
+from papr_memory.lib import (
+    schema, node, lookup, upsert, constraint,
+    prop, edge, exact, semantic, Auto,
+    build_schema_params,
+)
+
+@schema("project_tracker")
+class ProjectSchema:
+
+    @node
+    @lookup  # Only match existing people, never create new ones
+    class Person:
+        name: str = prop(required=True, search=semantic(0.90))
+        email: str = prop(search=exact())
+
+    @node
+    @upsert  # Create or update tasks as they're mentioned
+    @constraint(
+        set={"status": Auto()},  # LLM infers status from memory content
+    )
+    class Task:
+        title: str = prop(required=True, search=semantic(0.85))
+        status: str = prop(enum_values=["open", "in_progress", "done"])
+
+    works_on = edge(Person, Task, create="upsert")
+
+# Register the schema once
+params = build_schema_params(ProjectSchema)
+client.schemas.create(**params)
+```
+
+### 2. Just Add Memories
+
+Once the schema is registered, just pass your content. The engine auto-detects the matching schema and applies the policies you defined:
+
+```python
+# Meeting transcript - just pass the content
+client.memory.add(
+    content="John (john@papr.ai) mentioned he fixed the authentication bug. It's now resolved.",
+)
+```
+
+That's it. Here's what happens automatically:
+
+1. **Schema matching** - The engine detects that this content matches the `project_tracker` schema (it contains a person and a task)
+2. **Entity extraction** - Identifies "John" / "john@papr.ai" as a Person and "authentication bug" as a Task
+3. **Node matching** - Finds the existing Task whose `title` semantically matches "authentication bug" (0.85 threshold) and the Person whose `email` exactly matches "john@papr.ai"
+4. **Resolution policies** - Task is `@upsert` so it gets updated. Person is `@lookup` so it only matches existing people, never creates new ones
+5. **Constraints** - `@constraint(set={"status": Auto()})` tells the LLM to infer status from context. Since the content says "fixed" and "resolved", it sets `status: "done"`. Use `Auto("prompt")` to provide per-field extraction guidance (e.g. `Auto("Summarize in 1-2 sentences")`)
+6. **Edge creation** - A `WORKS_ON` edge is created between John and the task
+
+> **Tip:** Include identifiers like emails or IDs in your content (e.g. `"John (john@papr.ai)"`) to help the engine match the right nodes via `exact()` search properties.
+
+### 3. More Control with `link_to`
+
+For cases where you want to explicitly direct which nodes to match, use `link_to`:
+
+```python
+from papr_memory.lib import build_link_to
+
+# Tell the engine exactly which properties to search
+client.memory.add(
+    content="The authentication bug is now resolved.",
+    link_to=build_link_to(
+        ProjectSchema.Task.title,  # -> "Task:title" (semantic match from schema)
+    ),
+)
+
+# Pin to a specific value when you know it
+client.memory.add(
+    content="Sprint update: auth module is done.",
+    link_to=build_link_to(
+        ProjectSchema.Task.title.exact("Fix authentication bug"),
+        ProjectSchema.Person.email.exact("john@papr.ai"),
+    ),
+)
+# -> link_to=["Task:title=Fix authentication bug", "Person:email=john@papr.ai"]
+```
+
+### 4. Memory-Level Policy Overrides
+
+Schema defines the default behavior. For specific memories that need different handling, override per-memory with `memory_policy`:
+
+```python
+from papr_memory.lib import build_memory_policy, serialize_set_values, Auto
+
+# Override: force exact match and set priority for this specific memory
+client.memory.add(
+    content="TASK-456 is now critical priority",
+    memory_policy=build_memory_policy(
+        schema_id="project_tracker",
+        node_constraints=[{
+            "node_type": "Task",
+            "create": "upsert",
+            "search": {"properties": [{"name": "title", "mode": "exact"}]},
+            "set": serialize_set_values({"priority": Auto()}),
+        }],
+    ),
+)
+```
+
+### Resolution Policies
+
+| Decorator | Policy | Use Case |
+|-----------|--------|----------|
+| `@upsert` | Create if not found, update if exists | Dynamic entities (tasks, conversations, events) |
+| `@lookup` | Only match existing nodes, never create | Controlled data (people from directory, product catalog) |
+| `@resolve(on_miss="error")` | Fail if not found | Strict validation (required references) |
+
+### Search Modes
+
+```python
+id: str = prop(search=exact())            # Exact string match
+title: str = prop(search=semantic(0.85))   # Embedding similarity (threshold 0.85)
+name: str = prop(search=fuzzy(0.80))       # Levenshtein distance (threshold 0.80)
+```
+
+### Conditional Constraints
+
+```python
+from papr_memory.lib import And, Or, Not, Auto
+
+@node
+@upsert
+@constraint(
+    when=And(
+        Or({"severity": "high"}, {"severity": "critical"}),
+        Not({"status": "resolved"}),
+    ),
+    set={
+        "flagged": True,
+        "summary": Auto("Summarize the security incident in 1-2 sentences"),
+    },  # Auto("prompt") guides LLM extraction; Auto() with no args also works
+)
+class Alert:
+    alert_id: str = prop(search=exact())
+    title: str = prop(required=True, search=semantic(0.85))
+    severity: str = prop()
+    status: str = prop()
+    flagged: bool = prop()
+    summary: str = prop()
+```
+
+### Complete Example: Security Monitoring
+
+```python
+from papr_memory.lib import (
+    schema, node, lookup, upsert, resolve, constraint,
+    prop, edge, exact, semantic, Auto,
+    build_schema_params, build_link_to,
+)
+
+@schema("security_monitoring")
+class SecuritySchema:
+
+    @node
+    @lookup
+    class TacticDef:
+        """MITRE ATT&CK tactic (pre-loaded reference data)."""
+        id: str = prop(search=exact())
+        name: str = prop(required=True, search=semantic(0.90))
+
+    @node
+    @upsert
+    class SecurityBehavior:
+        description: str = prop(required=True, search=semantic(0.85))
+        severity: str = prop(enum_values=["low", "medium", "high", "critical"])
+
+    @node
+    @upsert
+    @constraint(
+        when={"severity": "critical"},
+        set={"flagged": True, "reviewed_by": Auto()},
+    )
+    class Alert:
+        alert_id: str = prop(search=exact())
+        title: str = prop(required=True, search=semantic(0.85))
+        severity: str = prop()
+        flagged: bool = prop()
+        reviewed_by: str = prop()
+
+    mitigates = edge(
+        SecurityBehavior, TacticDef,
+        search=(TacticDef.id.exact(), TacticDef.name.semantic(0.90)),
+        create="lookup",
+    )
+
+    triggers = edge(SecurityBehavior, Alert, create="upsert")
+
+# Register schema
+params = build_schema_params(SecuritySchema)
+client.schemas.create(**params)
+
+# Add memory - graph is built automatically
+client.memory.add(
+    content="Detected credential stuffing attack targeting admin accounts",
+    link_to=build_link_to(
+        SecuritySchema.TacticDef.name.semantic(0.90, "credential access"),
+        SecuritySchema.Alert.title,
+    ),
+)
+```
 
 ## Async usage
 
