@@ -2217,7 +2217,7 @@ class MemoryResource(SyncAPIResource):
                 logger.info(f"Found {len(results['documents'][0])} relevant tier0 items locally")
                 # Return tuples of (document, distance) for score calculation
                 documents = results["documents"][0]
-                distances = results.get("distances", [[]])[0] if results.get("distances") else [0.0] * len(documents)
+                distances = results.get("distances", [[]])[0] if results.get("distances") else [0.0] * len(documents)  # type: ignore[index]
                 return list(zip(documents, distances))  # type: ignore
             else:
                 logger.info("No relevant tier0 items found locally")
