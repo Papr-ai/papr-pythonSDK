@@ -4,25 +4,24 @@ Tests full decorator -> build_schema_params -> API-compatible output flow.
 """
 
 from papr_memory.lib import (
-    And,
-    Auto,
-    Not,
     Or,
+    And,
+    Not,
+    Auto,
+    edge,
+    node,
+    prop,
+    exact,
+    lookup,
+    schema,
+    upsert,
+    resolve,
+    semantic,
+    constraint,
     build_link_to,
     build_memory_policy,
     build_schema_params,
-    constraint,
-    edge,
-    exact,
-    fuzzy,
-    lookup,
-    node,
-    prop,
-    resolve,
-    schema,
-    semantic,
     serialize_set_values,
-    upsert,
 )
 
 
@@ -347,27 +346,27 @@ class TestImportPaths:
     """Verify all public imports work from papr_memory.lib."""
 
     def test_all_imports(self) -> None:
-        from papr_memory.lib import (
-            And,
-            Auto,
-            Not,
+        from papr_memory.lib import (  # noqa: F401
             Or,
+            And,
+            Not,
+            Auto,
             PropertyRef,
-            build_link_to,
-            build_memory_policy,
-            build_schema_params,
-            constraint,
             edge,
+            node,
+            prop,
             exact,
             fuzzy,
             lookup,
-            node,
-            prop,
-            resolve,
             schema,
-            semantic,
-            serialize_set_values,
             upsert,
+            resolve,
+            semantic,
+            constraint,
+            build_link_to,
+            build_memory_policy,
+            build_schema_params,
+            serialize_set_values,
         )
         # Verify they're the right types
         assert callable(schema)

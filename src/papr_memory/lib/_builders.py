@@ -3,11 +3,11 @@ Builder functions that convert decorated schemas and property refs
 to API-compatible dicts (SchemaCreateParams, link_to, memory_policy).
 """
 
-from typing import Any, Dict, List, Optional, Sequence, Tuple, Union
+from typing import Any, Dict, List, Union, Optional
 
-from ._properties import Auto, EdgeDescriptor, PropDescriptor, PropertyRef
-from ._conditions import And, Not, Or, _condition_to_dict
 from ._schema import NodeMetadata, SchemaMetadata
+from ._conditions import Or, And, Not
+from ._properties import Auto, PropertyRef, EdgeDescriptor
 
 
 def build_link_to(

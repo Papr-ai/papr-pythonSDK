@@ -1,27 +1,24 @@
 """Tests for papr_memory.lib._schema module."""
 
-import pytest
 
-from papr_memory.lib._properties import (
-    Auto,
-    EdgeDescriptor,
-    PropDescriptor,
-    PropertyRef,
-    edge,
-    exact,
-    prop,
-    semantic,
-)
-from papr_memory.lib._conditions import And, Or, Not
 from papr_memory.lib._schema import (
     NodeMetadata,
     SchemaMetadata,
-    constraint,
-    lookup,
     node,
-    resolve,
+    lookup,
     schema,
     upsert,
+    resolve,
+    constraint,
+)
+from papr_memory.lib._conditions import And, Not
+from papr_memory.lib._properties import (
+    Auto,
+    PropertyRef,
+    edge,
+    prop,
+    exact,
+    semantic,
 )
 
 

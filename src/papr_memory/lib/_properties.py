@@ -5,7 +5,7 @@ Provides type-safe property references, search mode helpers, and descriptors
 for defining node schemas with full IDE support.
 """
 
-from typing import Any, Dict, List, Optional, Tuple, Union
+from typing import Any, Dict, List, Tuple, Union, Optional
 
 
 class Auto:

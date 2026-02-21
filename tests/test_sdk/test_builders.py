@@ -2,28 +2,28 @@
 
 import pytest
 
-from papr_memory.lib._properties import (
-    Auto,
-    PropertyRef,
-    edge,
-    exact,
-    prop,
-    semantic,
-)
-from papr_memory.lib._conditions import And, Not, Or
 from papr_memory.lib._schema import (
-    constraint,
-    lookup,
     node,
-    resolve,
+    lookup,
     schema,
     upsert,
+    resolve,
+    constraint,
 )
 from papr_memory.lib._builders import (
     build_link_to,
     build_memory_policy,
     build_schema_params,
     serialize_set_values,
+)
+from papr_memory.lib._conditions import And
+from papr_memory.lib._properties import (
+    Auto,
+    PropertyRef,
+    edge,
+    prop,
+    exact,
+    semantic,
 )
 
 

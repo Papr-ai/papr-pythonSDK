@@ -2,20 +2,19 @@
 
 import pytest
 
+from papr_memory.lib._schema import node
 from papr_memory.lib._properties import (
     Auto,
+    PropertyRef,
     EdgeDescriptor,
     PropDescriptor,
-    PropertyRef,
-    SearchMode,
     edge,
+    prop,
     exact,
     fuzzy,
-    prop,
     semantic,
     _resolve_node_name,
 )
-from papr_memory.lib._schema import node
 
 
 class TestAuto:

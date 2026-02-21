@@ -1,6 +1,6 @@
 """Tests for papr_memory.lib._conditions module."""
 
-from papr_memory.lib._conditions import And, Not, Or, _condition_to_dict
+from papr_memory.lib._conditions import Or, And, Not, _condition_to_dict
 
 
 class TestAnd:

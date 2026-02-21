@@ -41,16 +41,16 @@ Quick Start::
 """
 
 # Decorators
-from ._schema import schema, node, lookup, upsert, resolve, constraint
-
-# Property/search helpers
-from ._properties import prop, edge, exact, semantic, fuzzy, Auto, PropertyRef
-
-# Logical operators
-from ._conditions import And, Or, Not
+from ._schema import node, lookup, schema, upsert, resolve, constraint
 
 # Builders
-from ._builders import build_link_to, build_schema_params, build_memory_policy, serialize_set_values
+from ._builders import build_link_to, build_memory_policy, build_schema_params, serialize_set_values
+
+# Logical operators
+from ._conditions import Or, And, Not
+
+# Property/search helpers
+from ._properties import Auto, PropertyRef, edge, prop, exact, fuzzy, semantic
 
 __all__ = [
     # Decorators

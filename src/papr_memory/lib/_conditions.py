@@ -5,7 +5,7 @@ Provides ``And``, ``Or``, ``Not`` for building ``when`` conditions
 with full composability.
 """
 
-from typing import Any, Dict, List, Union
+from typing import Any, Dict, Union
 
 Condition = Union[Dict[str, Any], "And", "Or", "Not"]
 

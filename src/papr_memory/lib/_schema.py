@@ -31,10 +31,10 @@ Usage::
             priority: str = prop()
 """
 
-from typing import Any, Callable, Dict, List, Optional, Type, Union
+from typing import Any, Dict, Callable, Optional
 
-from ._properties import Auto, EdgeDescriptor, PropDescriptor, PropertyRef
-from ._conditions import And, Not, Or, _condition_to_dict
+from ._conditions import Or, And, Not
+from ._properties import Auto, EdgeDescriptor, PropDescriptor
 
 
 class NodeMetadata:
