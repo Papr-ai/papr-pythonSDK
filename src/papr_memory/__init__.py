@@ -2,7 +2,8 @@
 
 import typing as _t
 
-from . import types
+# SDK builder API for simplified memory policy definitions
+from . import lib, types
 from ._types import NOT_GIVEN, Omit, NoneType, NotGiven, Transport, ProxiesTypes, omit, not_given
 from ._utils import file_from_path
 from ._client import Papr, Client, Stream, Timeout, AsyncPapr, Transport, AsyncClient, AsyncStream, RequestOptions
@@ -30,6 +31,7 @@ from ._base_client import DefaultHttpxClient, DefaultAioHttpClient, DefaultAsync
 from ._utils._logs import setup_logging as _setup_logging
 
 __all__ = [
+    "lib",
     "types",
     "__version__",
     "__title__",
