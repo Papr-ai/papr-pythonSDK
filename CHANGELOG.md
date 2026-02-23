@@ -1,5 +1,13 @@
 # Changelog
 
+## 2.21.0 (2026-02-23)
+
+Full Changelog: [v2.20.1...v2.21.0](https://github.com/Papr-ai/papr-pythonSDK/compare/v2.20.1...v2.21.0)
+
+### Features
+
+* schema builder DSL and memory policy developer experience ([#39](https://github.com/Papr-ai/papr-pythonSDK/issues/39)) ([29370d4](https://github.com/Papr-ai/papr-pythonSDK/commit/29370d45089f36cad030037928ac420cb09473ae))
+
 ## 2.20.1 (2026-02-10)
 
 Full Changelog: [v2.20.0...v2.20.1](https://github.com/Papr-ai/papr-pythonSDK/compare/v2.20.0...v2.20.1)
