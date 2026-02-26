@@ -1,5 +1,9 @@
 # Changelog
 
+## 2.21.1 (2026-02-26)
+
+Full Changelog: [v2.21.0...v2.21.1](https://github.com/Papr-ai/papr-pythonSDK/compare/v2.21.0...v2.21.1)
+
 ## 2.21.0 (2026-02-23)
 
 Full Changelog: [v2.20.1...v2.21.0](https://github.com/Papr-ai/papr-pythonSDK/compare/v2.20.1...v2.21.0)
