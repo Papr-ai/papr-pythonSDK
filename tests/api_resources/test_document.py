@@ -109,7 +109,7 @@ class TestDocument:
     @parametrize
     def test_method_upload(self, client: Papr) -> None:
         document = client.document.upload(
-            file=b"raw file contents",
+            file=b"Example data",
         )
         assert_matches_type(DocumentUploadResponse, document, path=["response"])
 
@@ -117,7 +117,7 @@ class TestDocument:
     @parametrize
     def test_method_upload_with_all_params(self, client: Papr) -> None:
         document = client.document.upload(
-            file=b"raw file contents",
+            file=b"Example data",
             external_user_id="external_user_id",
             graph_override="graph_override",
             hierarchical_enabled=True,
@@ -137,7 +137,7 @@ class TestDocument:
     @parametrize
     def test_raw_response_upload(self, client: Papr) -> None:
         response = client.document.with_raw_response.upload(
-            file=b"raw file contents",
+            file=b"Example data",
         )
 
         assert response.is_closed is True
@@ -149,7 +149,7 @@ class TestDocument:
     @parametrize
     def test_streaming_response_upload(self, client: Papr) -> None:
         with client.document.with_streaming_response.upload(
-            file=b"raw file contents",
+            file=b"Example data",
         ) as response:
             assert not response.is_closed
             assert response.http_request.headers.get("X-Stainless-Lang") == "python"
@@ -253,7 +253,7 @@ class TestAsyncDocument:
     @parametrize
     async def test_method_upload(self, async_client: AsyncPapr) -> None:
         document = await async_client.document.upload(
-            file=b"raw file contents",
+            file=b"Example data",
         )
         assert_matches_type(DocumentUploadResponse, document, path=["response"])
 
@@ -261,7 +261,7 @@ class TestAsyncDocument:
     @parametrize
     async def test_method_upload_with_all_params(self, async_client: AsyncPapr) -> None:
         document = await async_client.document.upload(
-            file=b"raw file contents",
+            file=b"Example data",
             external_user_id="external_user_id",
             graph_override="graph_override",
             hierarchical_enabled=True,
@@ -281,7 +281,7 @@ class TestAsyncDocument:
     @parametrize
     async def test_raw_response_upload(self, async_client: AsyncPapr) -> None:
         response = await async_client.document.with_raw_response.upload(
-            file=b"raw file contents",
+            file=b"Example data",
         )
 
         assert response.is_closed is True
@@ -293,7 +293,7 @@ class TestAsyncDocument:
     @parametrize
     async def test_streaming_response_upload(self, async_client: AsyncPapr) -> None:
         async with async_client.document.with_streaming_response.upload(
-            file=b"raw file contents",
+            file=b"Example data",
         ) as response:
             assert not response.is_closed
             assert response.http_request.headers.get("X-Stainless-Lang") == "python"
