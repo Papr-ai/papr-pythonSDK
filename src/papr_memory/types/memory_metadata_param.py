@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from typing import Dict, Union, Iterable, Optional
-from typing_extensions import Literal, Annotated, TypeAlias, TypedDict
+from typing_extensions import Literal, Annotated, TypedDict
 
 from .._types import SequenceNotStr
 from .._utils import PropertyInfo
@@ -11,7 +11,7 @@ from .._utils import PropertyInfo
 __all__ = ["MemoryMetadataParam"]
 
 
-class MemoryMetadataParamTyped(TypedDict, total=False):
+class MemoryMetadataParam(TypedDict, total=False, extra_items=object):  # type: ignore[call-arg]
     """Metadata for memory request"""
 
     acl: Optional[Dict[str, SequenceNotStr[str]]]
@@ -195,6 +195,3 @@ class MemoryMetadataParamTyped(TypedDict, total=False):
 
     Use memory_policy.acl instead.
     """
-
-
-MemoryMetadataParam: TypeAlias = Union[MemoryMetadataParamTyped, Dict[str, object]]
