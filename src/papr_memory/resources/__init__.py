@@ -72,6 +72,30 @@ from .messages import (
     MessagesResourceWithStreamingResponse,
     AsyncMessagesResourceWithStreamingResponse,
 )
+from .namespace import (
+    NamespaceResource,
+    AsyncNamespaceResource,
+    NamespaceResourceWithRawResponse,
+    AsyncNamespaceResourceWithRawResponse,
+    NamespaceResourceWithStreamingResponse,
+    AsyncNamespaceResourceWithStreamingResponse,
+)
+from .frequencies import (
+    FrequenciesResource,
+    AsyncFrequenciesResource,
+    FrequenciesResourceWithRawResponse,
+    AsyncFrequenciesResourceWithRawResponse,
+    FrequenciesResourceWithStreamingResponse,
+    AsyncFrequenciesResourceWithStreamingResponse,
+)
+from .holographic import (
+    HolographicResource,
+    AsyncHolographicResource,
+    HolographicResourceWithRawResponse,
+    AsyncHolographicResourceWithRawResponse,
+    HolographicResourceWithStreamingResponse,
+    AsyncHolographicResourceWithStreamingResponse,
+)
 
 __all__ = [
     "UserResource",
@@ -128,4 +152,22 @@ __all__ = [
     "AsyncSyncResourceWithRawResponse",
     "SyncResourceWithStreamingResponse",
     "AsyncSyncResourceWithStreamingResponse",
+    "NamespaceResource",
+    "AsyncNamespaceResource",
+    "NamespaceResourceWithRawResponse",
+    "AsyncNamespaceResourceWithRawResponse",
+    "NamespaceResourceWithStreamingResponse",
+    "AsyncNamespaceResourceWithStreamingResponse",
+    "FrequenciesResource",
+    "AsyncFrequenciesResource",
+    "FrequenciesResourceWithRawResponse",
+    "AsyncFrequenciesResourceWithRawResponse",
+    "FrequenciesResourceWithStreamingResponse",
+    "AsyncFrequenciesResourceWithStreamingResponse",
+    "HolographicResource",
+    "AsyncHolographicResource",
+    "HolographicResourceWithRawResponse",
+    "AsyncHolographicResourceWithRawResponse",
+    "HolographicResourceWithStreamingResponse",
+    "AsyncHolographicResourceWithStreamingResponse",
 ]

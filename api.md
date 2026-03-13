@@ -60,6 +60,8 @@ from papr_memory.types import (
     SearchResult,
     MemoryUpdateResponse,
     MemoryDeleteResponse,
+    MemoryRetrieveBatchStatusResponse,
+    MemoryRetrieveStatusResponse,
 )
 ```
 
@@ -71,6 +73,8 @@ Methods:
 - <code title="post /v1/memory/batch">client.memory.<a href="./src/papr_memory/resources/memory.py">add_batch</a>(\*\*<a href="src/papr_memory/types/memory_add_batch_params.py">params</a>) -> <a href="./src/papr_memory/types/batch_memory_response.py">BatchMemoryResponse</a></code>
 - <code title="delete /v1/memory/all">client.memory.<a href="./src/papr_memory/resources/memory.py">delete_all</a>(\*\*<a href="src/papr_memory/types/memory_delete_all_params.py">params</a>) -> <a href="./src/papr_memory/types/batch_memory_response.py">BatchMemoryResponse</a></code>
 - <code title="get /v1/memory/{memory_id}">client.memory.<a href="./src/papr_memory/resources/memory.py">get</a>(memory_id, \*\*<a href="src/papr_memory/types/memory_get_params.py">params</a>) -> <a href="./src/papr_memory/types/search_response.py">SearchResponse</a></code>
+- <code title="get /v1/memory/batch/status/{batch_id}">client.memory.<a href="./src/papr_memory/resources/memory.py">retrieve_batch_status</a>(batch_id) -> <a href="./src/papr_memory/types/memory_retrieve_batch_status_response.py">MemoryRetrieveBatchStatusResponse</a></code>
+- <code title="get /v1/memory/status/{memory_id}">client.memory.<a href="./src/papr_memory/resources/memory.py">retrieve_status</a>(memory_id) -> <a href="./src/papr_memory/types/memory_retrieve_status_response.py">MemoryRetrieveStatusResponse</a></code>
 - <code title="post /v1/memory/search">client.memory.<a href="./src/papr_memory/resources/memory.py">search</a>(\*\*<a href="src/papr_memory/types/memory_search_params.py">params</a>) -> <a href="./src/papr_memory/types/search_response.py">SearchResponse</a></code>
 
 # Feedback
@@ -200,3 +204,77 @@ Methods:
 
 - <code title="get /v1/sync/delta">client.sync.<a href="./src/papr_memory/resources/sync.py">get_delta</a>(\*\*<a href="src/papr_memory/types/sync_get_delta_params.py">params</a>) -> <a href="./src/papr_memory/types/sync_get_delta_response.py">SyncGetDeltaResponse</a></code>
 - <code title="post /v1/sync/tiers">client.sync.<a href="./src/papr_memory/resources/sync.py">get_tiers</a>(\*\*<a href="src/papr_memory/types/sync_get_tiers_params.py">params</a>) -> <a href="./src/papr_memory/types/sync_get_tiers_response.py">SyncGetTiersResponse</a></code>
+
+# Namespace
+
+Types:
+
+```python
+from papr_memory.types import (
+    NamespaceCreateResponse,
+    NamespaceRetrieveResponse,
+    NamespaceUpdateResponse,
+    NamespaceListResponse,
+    NamespaceDeleteResponse,
+)
+```
+
+Methods:
+
+- <code title="post /v1/namespace">client.namespace.<a href="./src/papr_memory/resources/namespace.py">create</a>(\*\*<a href="src/papr_memory/types/namespace_create_params.py">params</a>) -> <a href="./src/papr_memory/types/namespace_create_response.py">NamespaceCreateResponse</a></code>
+- <code title="get /v1/namespace/{namespace_id}">client.namespace.<a href="./src/papr_memory/resources/namespace.py">retrieve</a>(namespace_id) -> <a href="./src/papr_memory/types/namespace_retrieve_response.py">NamespaceRetrieveResponse</a></code>
+- <code title="put /v1/namespace/{namespace_id}">client.namespace.<a href="./src/papr_memory/resources/namespace.py">update</a>(namespace_id, \*\*<a href="src/papr_memory/types/namespace_update_params.py">params</a>) -> <a href="./src/papr_memory/types/namespace_update_response.py">NamespaceUpdateResponse</a></code>
+- <code title="get /v1/namespace">client.namespace.<a href="./src/papr_memory/resources/namespace.py">list</a>(\*\*<a href="src/papr_memory/types/namespace_list_params.py">params</a>) -> <a href="./src/papr_memory/types/namespace_list_response.py">NamespaceListResponse</a></code>
+- <code title="delete /v1/namespace/{namespace_id}">client.namespace.<a href="./src/papr_memory/resources/namespace.py">delete</a>(namespace_id, \*\*<a href="src/papr_memory/types/namespace_delete_params.py">params</a>) -> <a href="./src/papr_memory/types/namespace_delete_response.py">NamespaceDeleteResponse</a></code>
+
+# Frequencies
+
+Types:
+
+```python
+from papr_memory.types import FrequencyRetrieveResponse, FrequencyListResponse
+```
+
+Methods:
+
+- <code title="get /v1/frequencies/{frequency_schema_id}">client.frequencies.<a href="./src/papr_memory/resources/frequencies.py">retrieve</a>(frequency_schema_id) -> <a href="./src/papr_memory/types/frequency_retrieve_response.py">FrequencyRetrieveResponse</a></code>
+- <code title="get /v1/frequencies">client.frequencies.<a href="./src/papr_memory/resources/frequencies.py">list</a>() -> <a href="./src/papr_memory/types/frequency_list_response.py">FrequencyListResponse</a></code>
+
+# Holographic
+
+Types:
+
+```python
+from papr_memory.types import HolographicExtractMetadataResponse, HolographicRerankResponse
+```
+
+Methods:
+
+- <code title="post /v1/holographic/metadata">client.holographic.<a href="./src/papr_memory/resources/holographic/holographic.py">extract_metadata</a>(\*\*<a href="src/papr_memory/types/holographic_extract_metadata_params.py">params</a>) -> <a href="./src/papr_memory/types/holographic_extract_metadata_response.py">HolographicExtractMetadataResponse</a></code>
+- <code title="post /v1/holographic/rerank">client.holographic.<a href="./src/papr_memory/resources/holographic/holographic.py">rerank</a>(\*\*<a href="src/papr_memory/types/holographic_rerank_params.py">params</a>) -> <a href="./src/papr_memory/types/holographic_rerank_response.py">HolographicRerankResponse</a></code>
+
+## Transform
+
+Types:
+
+```python
+from papr_memory.types.holographic import TransformCreateResponse, TransformCreateBatchResponse
+```
+
+Methods:
+
+- <code title="post /v1/holographic/transform">client.holographic.transform.<a href="./src/papr_memory/resources/holographic/transform.py">create</a>(\*\*<a href="src/papr_memory/types/holographic/transform_create_params.py">params</a>) -> <a href="./src/papr_memory/types/holographic/transform_create_response.py">TransformCreateResponse</a></code>
+- <code title="post /v1/holographic/transform/batch">client.holographic.transform.<a href="./src/papr_memory/resources/holographic/transform.py">create_batch</a>(\*\*<a href="src/papr_memory/types/holographic/transform_create_batch_params.py">params</a>) -> <a href="./src/papr_memory/types/holographic/transform_create_batch_response.py">TransformCreateBatchResponse</a></code>
+
+## Domains
+
+Types:
+
+```python
+from papr_memory.types.holographic import DomainCreateResponse, DomainListResponse
+```
+
+Methods:
+
+- <code title="post /v1/holographic/domains">client.holographic.domains.<a href="./src/papr_memory/resources/holographic/domains.py">create</a>(\*\*<a href="src/papr_memory/types/holographic/domain_create_params.py">params</a>) -> <a href="./src/papr_memory/types/holographic/domain_create_response.py">DomainCreateResponse</a></code>
+- <code title="get /v1/holographic/domains">client.holographic.domains.<a href="./src/papr_memory/resources/holographic/domains.py">list</a>() -> <a href="./src/papr_memory/types/holographic/domain_list_response.py">DomainListResponse</a></code>

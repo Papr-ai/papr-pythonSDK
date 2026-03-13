@@ -15,6 +15,8 @@ from papr_memory.types import (
     BatchMemoryResponse,
     MemoryDeleteResponse,
     MemoryUpdateResponse,
+    MemoryRetrieveStatusResponse,
+    MemoryRetrieveBatchStatusResponse,
 )
 
 base_url = os.environ.get("TEST_API_BASE_URL", "http://127.0.0.1:4010")
@@ -1380,6 +1382,90 @@ class TestMemory:
         with pytest.raises(ValueError, match=r"Expected a non-empty value for `memory_id` but received ''"):
             client.memory.with_raw_response.get(
                 memory_id="",
+            )
+
+    @pytest.mark.skip(reason="Mock server tests are disabled")
+    @parametrize
+    def test_method_retrieve_batch_status(self, client: Papr) -> None:
+        memory = client.memory.retrieve_batch_status(
+            "batch_id",
+        )
+        assert_matches_type(MemoryRetrieveBatchStatusResponse, memory, path=["response"])
+
+    @pytest.mark.skip(reason="Mock server tests are disabled")
+    @parametrize
+    def test_raw_response_retrieve_batch_status(self, client: Papr) -> None:
+        response = client.memory.with_raw_response.retrieve_batch_status(
+            "batch_id",
+        )
+
+        assert response.is_closed is True
+        assert response.http_request.headers.get("X-Stainless-Lang") == "python"
+        memory = response.parse()
+        assert_matches_type(MemoryRetrieveBatchStatusResponse, memory, path=["response"])
+
+    @pytest.mark.skip(reason="Mock server tests are disabled")
+    @parametrize
+    def test_streaming_response_retrieve_batch_status(self, client: Papr) -> None:
+        with client.memory.with_streaming_response.retrieve_batch_status(
+            "batch_id",
+        ) as response:
+            assert not response.is_closed
+            assert response.http_request.headers.get("X-Stainless-Lang") == "python"
+
+            memory = response.parse()
+            assert_matches_type(MemoryRetrieveBatchStatusResponse, memory, path=["response"])
+
+        assert cast(Any, response.is_closed) is True
+
+    @pytest.mark.skip(reason="Mock server tests are disabled")
+    @parametrize
+    def test_path_params_retrieve_batch_status(self, client: Papr) -> None:
+        with pytest.raises(ValueError, match=r"Expected a non-empty value for `batch_id` but received ''"):
+            client.memory.with_raw_response.retrieve_batch_status(
+                "",
+            )
+
+    @pytest.mark.skip(reason="Mock server tests are disabled")
+    @parametrize
+    def test_method_retrieve_status(self, client: Papr) -> None:
+        memory = client.memory.retrieve_status(
+            "memory_id",
+        )
+        assert_matches_type(MemoryRetrieveStatusResponse, memory, path=["response"])
+
+    @pytest.mark.skip(reason="Mock server tests are disabled")
+    @parametrize
+    def test_raw_response_retrieve_status(self, client: Papr) -> None:
+        response = client.memory.with_raw_response.retrieve_status(
+            "memory_id",
+        )
+
+        assert response.is_closed is True
+        assert response.http_request.headers.get("X-Stainless-Lang") == "python"
+        memory = response.parse()
+        assert_matches_type(MemoryRetrieveStatusResponse, memory, path=["response"])
+
+    @pytest.mark.skip(reason="Mock server tests are disabled")
+    @parametrize
+    def test_streaming_response_retrieve_status(self, client: Papr) -> None:
+        with client.memory.with_streaming_response.retrieve_status(
+            "memory_id",
+        ) as response:
+            assert not response.is_closed
+            assert response.http_request.headers.get("X-Stainless-Lang") == "python"
+
+            memory = response.parse()
+            assert_matches_type(MemoryRetrieveStatusResponse, memory, path=["response"])
+
+        assert cast(Any, response.is_closed) is True
+
+    @pytest.mark.skip(reason="Mock server tests are disabled")
+    @parametrize
+    def test_path_params_retrieve_status(self, client: Papr) -> None:
+        with pytest.raises(ValueError, match=r"Expected a non-empty value for `memory_id` but received ''"):
+            client.memory.with_raw_response.retrieve_status(
+                "",
             )
 
     @pytest.mark.skip(reason="Mock server tests are disabled")
@@ -2893,6 +2979,90 @@ class TestAsyncMemory:
         with pytest.raises(ValueError, match=r"Expected a non-empty value for `memory_id` but received ''"):
             await async_client.memory.with_raw_response.get(
                 memory_id="",
+            )
+
+    @pytest.mark.skip(reason="Mock server tests are disabled")
+    @parametrize
+    async def test_method_retrieve_batch_status(self, async_client: AsyncPapr) -> None:
+        memory = await async_client.memory.retrieve_batch_status(
+            "batch_id",
+        )
+        assert_matches_type(MemoryRetrieveBatchStatusResponse, memory, path=["response"])
+
+    @pytest.mark.skip(reason="Mock server tests are disabled")
+    @parametrize
+    async def test_raw_response_retrieve_batch_status(self, async_client: AsyncPapr) -> None:
+        response = await async_client.memory.with_raw_response.retrieve_batch_status(
+            "batch_id",
+        )
+
+        assert response.is_closed is True
+        assert response.http_request.headers.get("X-Stainless-Lang") == "python"
+        memory = await response.parse()
+        assert_matches_type(MemoryRetrieveBatchStatusResponse, memory, path=["response"])
+
+    @pytest.mark.skip(reason="Mock server tests are disabled")
+    @parametrize
+    async def test_streaming_response_retrieve_batch_status(self, async_client: AsyncPapr) -> None:
+        async with async_client.memory.with_streaming_response.retrieve_batch_status(
+            "batch_id",
+        ) as response:
+            assert not response.is_closed
+            assert response.http_request.headers.get("X-Stainless-Lang") == "python"
+
+            memory = await response.parse()
+            assert_matches_type(MemoryRetrieveBatchStatusResponse, memory, path=["response"])
+
+        assert cast(Any, response.is_closed) is True
+
+    @pytest.mark.skip(reason="Mock server tests are disabled")
+    @parametrize
+    async def test_path_params_retrieve_batch_status(self, async_client: AsyncPapr) -> None:
+        with pytest.raises(ValueError, match=r"Expected a non-empty value for `batch_id` but received ''"):
+            await async_client.memory.with_raw_response.retrieve_batch_status(
+                "",
+            )
+
+    @pytest.mark.skip(reason="Mock server tests are disabled")
+    @parametrize
+    async def test_method_retrieve_status(self, async_client: AsyncPapr) -> None:
+        memory = await async_client.memory.retrieve_status(
+            "memory_id",
+        )
+        assert_matches_type(MemoryRetrieveStatusResponse, memory, path=["response"])
+
+    @pytest.mark.skip(reason="Mock server tests are disabled")
+    @parametrize
+    async def test_raw_response_retrieve_status(self, async_client: AsyncPapr) -> None:
+        response = await async_client.memory.with_raw_response.retrieve_status(
+            "memory_id",
+        )
+
+        assert response.is_closed is True
+        assert response.http_request.headers.get("X-Stainless-Lang") == "python"
+        memory = await response.parse()
+        assert_matches_type(MemoryRetrieveStatusResponse, memory, path=["response"])
+
+    @pytest.mark.skip(reason="Mock server tests are disabled")
+    @parametrize
+    async def test_streaming_response_retrieve_status(self, async_client: AsyncPapr) -> None:
+        async with async_client.memory.with_streaming_response.retrieve_status(
+            "memory_id",
+        ) as response:
+            assert not response.is_closed
+            assert response.http_request.headers.get("X-Stainless-Lang") == "python"
+
+            memory = await response.parse()
+            assert_matches_type(MemoryRetrieveStatusResponse, memory, path=["response"])
+
+        assert cast(Any, response.is_closed) is True
+
+    @pytest.mark.skip(reason="Mock server tests are disabled")
+    @parametrize
+    async def test_path_params_retrieve_status(self, async_client: AsyncPapr) -> None:
+        with pytest.raises(ValueError, match=r"Expected a non-empty value for `memory_id` but received ''"):
+            await async_client.memory.with_raw_response.retrieve_status(
+                "",
             )
 
     @pytest.mark.skip(reason="Mock server tests are disabled")
