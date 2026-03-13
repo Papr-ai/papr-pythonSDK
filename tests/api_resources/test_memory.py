@@ -36,6 +36,8 @@ class TestMemory:
     def test_method_update_with_all_params(self, client: Papr) -> None:
         memory = client.memory.update(
             memory_id="memory_id",
+            enable_holographic=True,
+            frequency_schema_id="frequency_schema_id",
             content="Updated meeting notes from the product planning session",
             context=[
                 {
@@ -362,7 +364,10 @@ class TestMemory:
             content="Meeting with John Smith from Acme Corp about the Q4 project timeline",
             enable_holographic=True,
             format="format",
+            frequency_schema_id="frequency_schema_id",
             skip_background_processing=True,
+            webhook_secret="webhook_secret",
+            webhook_url="webhook_url",
             context=[
                 {
                     "content": "Let's discuss the Q4 project timeline with John",
@@ -1087,6 +1092,8 @@ class TestMemory:
                     "user_id": "user_id",
                 },
             ],
+            enable_holographic=True,
+            frequency_schema_id="frequency_schema_id",
             skip_background_processing=True,
             batch_size=10,
             external_user_id="external_user_abcde",
@@ -1395,9 +1402,11 @@ class TestMemory:
             external_user_id="external_user_123",
             holographic_config={
                 "enabled": True,
+                "frequency_schema_id": "cosqa",
                 "hcond_boost_factor": 0.12,
                 "hcond_boost_threshold": 0.35,
                 "hcond_penalty_factor": 0.06,
+                "scoring_method": "egr_rerank",
                 "search_mode": "post_search",
             },
             metadata={
@@ -1463,6 +1472,10 @@ class TestMemory:
                 "reranking_provider": "openai",
             },
             schema_id="schema_id",
+            search_acl={
+                "read": ["external_user:alice_123", "organization:org_acme"],
+                "write": ["external_user:alice_123"],
+            },
             search_override={
                 "pattern": {
                     "relationship_type": "ASSOCIATED_WITH",
@@ -1536,6 +1549,8 @@ class TestAsyncMemory:
     async def test_method_update_with_all_params(self, async_client: AsyncPapr) -> None:
         memory = await async_client.memory.update(
             memory_id="memory_id",
+            enable_holographic=True,
+            frequency_schema_id="frequency_schema_id",
             content="Updated meeting notes from the product planning session",
             context=[
                 {
@@ -1862,7 +1877,10 @@ class TestAsyncMemory:
             content="Meeting with John Smith from Acme Corp about the Q4 project timeline",
             enable_holographic=True,
             format="format",
+            frequency_schema_id="frequency_schema_id",
             skip_background_processing=True,
+            webhook_secret="webhook_secret",
+            webhook_url="webhook_url",
             context=[
                 {
                     "content": "Let's discuss the Q4 project timeline with John",
@@ -2587,6 +2605,8 @@ class TestAsyncMemory:
                     "user_id": "user_id",
                 },
             ],
+            enable_holographic=True,
+            frequency_schema_id="frequency_schema_id",
             skip_background_processing=True,
             batch_size=10,
             external_user_id="external_user_abcde",
@@ -2895,9 +2915,11 @@ class TestAsyncMemory:
             external_user_id="external_user_123",
             holographic_config={
                 "enabled": True,
+                "frequency_schema_id": "cosqa",
                 "hcond_boost_factor": 0.12,
                 "hcond_boost_threshold": 0.35,
                 "hcond_penalty_factor": 0.06,
+                "scoring_method": "egr_rerank",
                 "search_mode": "post_search",
             },
             metadata={
@@ -2963,6 +2985,10 @@ class TestAsyncMemory:
                 "reranking_provider": "openai",
             },
             schema_id="schema_id",
+            search_acl={
+                "read": ["external_user:alice_123", "organization:org_acme"],
+                "write": ["external_user:alice_123"],
+            },
             search_override={
                 "pattern": {
                     "relationship_type": "ASSOCIATED_WITH",

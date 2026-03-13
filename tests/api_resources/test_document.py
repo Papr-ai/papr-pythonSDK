@@ -118,7 +118,9 @@ class TestDocument:
     def test_method_upload_with_all_params(self, client: Papr) -> None:
         document = client.document.upload(
             file=b"Example data",
+            enable_holographic=True,
             external_user_id="external_user_id",
+            frequency_schema_id="frequency_schema_id",
             graph_override="graph_override",
             hierarchical_enabled=True,
             memory_policy="memory_policy",
@@ -262,7 +264,9 @@ class TestAsyncDocument:
     async def test_method_upload_with_all_params(self, async_client: AsyncPapr) -> None:
         document = await async_client.document.upload(
             file=b"Example data",
+            enable_holographic=True,
             external_user_id="external_user_id",
+            frequency_schema_id="frequency_schema_id",
             graph_override="graph_override",
             hierarchical_enabled=True,
             memory_policy="memory_policy",
