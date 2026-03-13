@@ -47,6 +47,7 @@ from papr_memory.types import (
     AddMemory,
     AddMemoryResponse,
     AutoGraphGeneration,
+    BatchMemoryError,
     BatchMemoryResponse,
     ContextItem,
     GraphGeneration,
@@ -56,6 +57,7 @@ from papr_memory.types import (
     MemoryType,
     RelationshipItem,
     SearchResponse,
+    SearchResult,
     MemoryUpdateResponse,
     MemoryDeleteResponse,
 )
@@ -157,7 +159,11 @@ Methods:
 Types:
 
 ```python
-from papr_memory.types.messages import SessionCompressResponse, SessionRetrieveHistoryResponse
+from papr_memory.types.messages import (
+    ConversationSummaryResponse,
+    SessionCompressResponse,
+    SessionRetrieveHistoryResponse,
+)
 ```
 
 Methods:

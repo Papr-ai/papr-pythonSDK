@@ -17,6 +17,7 @@ from .shared import (
 from .user_type import UserType as UserType
 from .memory_type import MemoryType as MemoryType
 from .context_item import ContextItem as ContextItem
+from .search_result import SearchResult as SearchResult
 from .user_response import UserResponse as UserResponse
 from .batch_response import BatchResponse as BatchResponse
 from .memory_metadata import MemoryMetadata as MemoryMetadata
@@ -27,6 +28,7 @@ from .feedback_response import FeedbackResponse as FeedbackResponse
 from .memory_add_params import MemoryAddParams as MemoryAddParams
 from .memory_get_params import MemoryGetParams as MemoryGetParams
 from .sync_tiers_params import SyncTiersParams as SyncTiersParams
+from .batch_memory_error import BatchMemoryError as BatchMemoryError
 from .context_item_param import ContextItemParam as ContextItemParam
 from .schema_list_params import SchemaListParams as SchemaListParams
 from .user_create_params import UserCreateParams as UserCreateParams

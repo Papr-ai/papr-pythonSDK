@@ -1,30 +1,11 @@
 # File generated from our OpenAPI spec by Stainless. See CONTRIBUTING.md for details.
 
-from typing import List, Optional
-from datetime import datetime
+from typing import Optional
 
 from ..._models import BaseModel
+from .conversation_summary_response import ConversationSummaryResponse
 
-__all__ = ["SessionCompressResponse", "Summaries"]
-
-
-class Summaries(BaseModel):
-    """Hierarchical conversation summaries"""
-
-    last_updated: Optional[datetime] = None
-    """When summaries were last updated"""
-
-    long_term: Optional[str] = None
-    """Full session summary"""
-
-    medium_term: Optional[str] = None
-    """Summary of last ~100 messages"""
-
-    short_term: Optional[str] = None
-    """Summary of last 15 messages"""
-
-    topics: Optional[List[str]] = None
-    """Key topics discussed"""
+__all__ = ["SessionCompressResponse"]
 
 
 class SessionCompressResponse(BaseModel):
@@ -42,7 +23,7 @@ class SessionCompressResponse(BaseModel):
     session_id: str
     """Session ID of the conversation"""
 
-    summaries: Summaries
+    summaries: ConversationSummaryResponse
     """Hierarchical conversation summaries"""
 
     message_count: Optional[int] = None
