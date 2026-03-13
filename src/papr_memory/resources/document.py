@@ -116,7 +116,9 @@ class DocumentResource(SyncAPIResource):
         self,
         *,
         file: FileTypes,
+        enable_holographic: bool | Omit = omit,
         external_user_id: Optional[str] | Omit = omit,
+        frequency_schema_id: Optional[str] | Omit = omit,
         graph_override: Optional[str] | Omit = omit,
         hierarchical_enabled: bool | Omit = omit,
         memory_policy: Optional[str] | Omit = omit,
@@ -150,8 +152,14 @@ class DocumentResource(SyncAPIResource):
             - Automatic fallback between providers
 
         Args:
+          enable_holographic: If True, applies holographic neural transforms and stores in holographic
+              collection
+
           external_user_id: Your application's user identifier. This is the primary way to identify users.
               Also accepts legacy 'end_user_id'.
+
+          frequency_schema_id: Frequency schema for holographic embedding (e.g. 'cosqa', 'scifact'). Required
+              when enable_holographic=True. Call GET /v1/frequencies to see available schemas.
 
           memory_policy: JSON-encoded memory policy. Includes mode ('auto'/'manual'), schema_id,
               node_constraints (applied in auto mode when present), and OMO fields (consent,
@@ -173,7 +181,9 @@ class DocumentResource(SyncAPIResource):
         body = deepcopy_minimal(
             {
                 "file": file,
+                "enable_holographic": enable_holographic,
                 "external_user_id": external_user_id,
+                "frequency_schema_id": frequency_schema_id,
                 "graph_override": graph_override,
                 "hierarchical_enabled": hierarchical_enabled,
                 "memory_policy": memory_policy,
@@ -293,7 +303,9 @@ class AsyncDocumentResource(AsyncAPIResource):
         self,
         *,
         file: FileTypes,
+        enable_holographic: bool | Omit = omit,
         external_user_id: Optional[str] | Omit = omit,
+        frequency_schema_id: Optional[str] | Omit = omit,
         graph_override: Optional[str] | Omit = omit,
         hierarchical_enabled: bool | Omit = omit,
         memory_policy: Optional[str] | Omit = omit,
@@ -327,8 +339,14 @@ class AsyncDocumentResource(AsyncAPIResource):
             - Automatic fallback between providers
 
         Args:
+          enable_holographic: If True, applies holographic neural transforms and stores in holographic
+              collection
+
           external_user_id: Your application's user identifier. This is the primary way to identify users.
               Also accepts legacy 'end_user_id'.
+
+          frequency_schema_id: Frequency schema for holographic embedding (e.g. 'cosqa', 'scifact'). Required
+              when enable_holographic=True. Call GET /v1/frequencies to see available schemas.
 
           memory_policy: JSON-encoded memory policy. Includes mode ('auto'/'manual'), schema_id,
               node_constraints (applied in auto mode when present), and OMO fields (consent,
@@ -350,7 +368,9 @@ class AsyncDocumentResource(AsyncAPIResource):
         body = deepcopy_minimal(
             {
                 "file": file,
+                "enable_holographic": enable_holographic,
                 "external_user_id": external_user_id,
+                "frequency_schema_id": frequency_schema_id,
                 "graph_override": graph_override,
                 "hierarchical_enabled": hierarchical_enabled,
                 "memory_policy": memory_policy,

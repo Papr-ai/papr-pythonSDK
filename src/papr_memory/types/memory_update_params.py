@@ -17,6 +17,12 @@ __all__ = ["MemoryUpdateParams"]
 
 
 class MemoryUpdateParams(TypedDict, total=False):
+    enable_holographic: bool
+    """If True, re-processes holographic neural transforms after content update"""
+
+    frequency_schema_id: Optional[str]
+    """Frequency schema for holographic embedding (e.g. 'cosqa', 'scifact')."""
+
     content: Optional[str]
     """The new content of the memory item"""
 

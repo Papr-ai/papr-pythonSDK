@@ -17,6 +17,19 @@ class MemoryAddBatchParams(TypedDict, total=False):
     memories: Required[Iterable[AddMemoryParam]]
     """List of memory items to add in batch"""
 
+    enable_holographic: bool
+    """
+    If True, applies holographic neural transforms and stores in holographic
+    collection
+    """
+
+    frequency_schema_id: Optional[str]
+    """Frequency schema for holographic embedding (e.g.
+
+    'cosqa', 'scifact'). Required when enable_holographic=True. Call GET
+    /v1/frequencies to see available schemas.
+    """
+
     skip_background_processing: bool
     """If True, skips adding background tasks for processing"""
 
@@ -77,9 +90,10 @@ class MemoryAddBatchParams(TypedDict, total=False):
     """
 
     organization_id: Optional[str]
-    """Optional organization ID for multi-tenant batch memory scoping.
+    """DEPRECATED - Internal only.
 
-    When provided, all memories in the batch are associated with this organization.
+    Auto-populated from API key scope. Do not set manually. The organization is
+    resolved automatically from the API key's associated organization.
     """
 
     user_id: Optional[str]

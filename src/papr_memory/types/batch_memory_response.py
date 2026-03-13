@@ -21,6 +21,12 @@ class Error(BaseModel):
 
 
 class BatchMemoryResponse(BaseModel):
+    batch_id: Optional[str] = None
+    """
+    Batch tracking ID for status polling via GET /v1/memory/batch/status/{batch_id}
+    and WebSocket updates
+    """
+
     code: Optional[int] = None
     """HTTP status code for the batch operation"""
 

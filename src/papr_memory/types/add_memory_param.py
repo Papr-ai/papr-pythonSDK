@@ -87,9 +87,10 @@ class AddMemoryParam(TypedDict, total=False):
     """
 
     organization_id: Optional[str]
-    """Optional organization ID for multi-tenant memory scoping.
+    """DEPRECATED - Internal only.
 
-    When provided, memory is associated with this organization.
+    Auto-populated from API key scope. Do not set manually. The organization is
+    resolved automatically from the API key's associated organization.
     """
 
     relationships_json: Optional[Iterable[RelationshipItemParam]]

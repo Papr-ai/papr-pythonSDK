@@ -39,6 +39,7 @@ from ..types.graph_generation_param import GraphGenerationParam
 from ..types.memory_delete_response import MemoryDeleteResponse
 from ..types.memory_update_response import MemoryUpdateResponse
 from ..types.relationship_item_param import RelationshipItemParam
+from ..types.shared_params.acl_config import ACLConfig
 from ..types.shared_params.memory_policy import MemoryPolicy
 
 __all__ = ["MemoryResource", "AsyncMemoryResource"]
@@ -68,6 +69,8 @@ class MemoryResource(SyncAPIResource):
         self,
         memory_id: str,
         *,
+        enable_holographic: bool | Omit = omit,
+        frequency_schema_id: Optional[str] | Omit = omit,
         content: Optional[str] | Omit = omit,
         context: Optional[Iterable[ContextItemParam]] | Omit = omit,
         graph_generation: Optional[GraphGenerationParam] | Omit = omit,
@@ -101,6 +104,10 @@ class MemoryResource(SyncAPIResource):
             The API validates content size against MAX_CONTENT_LENGTH environment variable (defaults to 15000 bytes).
 
         Args:
+          enable_holographic: If True, re-processes holographic neural transforms after content update
+
+          frequency_schema_id: Frequency schema for holographic embedding (e.g. 'cosqa', 'scifact').
+
           content: The new content of the memory item
 
           context: Updated context for the memory item
@@ -179,7 +186,17 @@ class MemoryResource(SyncAPIResource):
                 memory_update_params.MemoryUpdateParams,
             ),
             options=make_request_options(
-                extra_headers=extra_headers, extra_query=extra_query, extra_body=extra_body, timeout=timeout
+                extra_headers=extra_headers,
+                extra_query=extra_query,
+                extra_body=extra_body,
+                timeout=timeout,
+                query=maybe_transform(
+                    {
+                        "enable_holographic": enable_holographic,
+                        "frequency_schema_id": frequency_schema_id,
+                    },
+                    memory_update_params.MemoryUpdateParams,
+                ),
             ),
             cast_to=MemoryUpdateResponse,
         )
@@ -239,7 +256,10 @@ class MemoryResource(SyncAPIResource):
         content: str,
         enable_holographic: bool | Omit = omit,
         format: Optional[str] | Omit = omit,
+        frequency_schema_id: Optional[str] | Omit = omit,
         skip_background_processing: bool | Omit = omit,
+        webhook_secret: Optional[str] | Omit = omit,
+        webhook_url: Optional[str] | Omit = omit,
         context: Optional[Iterable[ContextItemParam]] | Omit = omit,
         external_user_id: Optional[str] | Omit = omit,
         graph_generation: Optional[GraphGenerationParam] | Omit = omit,
@@ -292,7 +312,16 @@ class MemoryResource(SyncAPIResource):
           format: Response format. Use 'omo' for Open Memory Object standard format (portable
               across platforms).
 
+          frequency_schema_id: Frequency schema for holographic embedding (e.g. 'cosqa', 'scifact'). Required
+              when enable_holographic=True. Call GET /v1/frequencies to see available schemas.
+
           skip_background_processing: If True, skips adding background tasks for processing
+
+          webhook_secret: Secret for webhook HMAC authentication. Sent as X-Webhook-Secret header and used
+              to generate X-Webhook-Signature.
+
+          webhook_url: Webhook URL to notify when background processing completes. Receives POST with
+              {event, memory_id, status, completed_at}.
 
           context: Conversation history context for this memory. Use for providing message history
               when adding a memory. Format: [{role: 'user'|'assistant', content: '...'}]
@@ -340,8 +369,9 @@ class MemoryResource(SyncAPIResource):
           namespace_id: Optional namespace ID for multi-tenant memory scoping. When provided, memory is
               associated with this namespace.
 
-          organization_id: Optional organization ID for multi-tenant memory scoping. When provided, memory
-              is associated with this organization.
+          organization_id: DEPRECATED - Internal only. Auto-populated from API key scope. Do not set
+              manually. The organization is resolved automatically from the API key's
+              associated organization.
 
           relationships_json:
               DEPRECATED: Use 'memory_policy' instead. Migration options: 1. Specific memory:
@@ -390,7 +420,10 @@ class MemoryResource(SyncAPIResource):
                     {
                         "enable_holographic": enable_holographic,
                         "format": format,
+                        "frequency_schema_id": frequency_schema_id,
                         "skip_background_processing": skip_background_processing,
+                        "webhook_secret": webhook_secret,
+                        "webhook_url": webhook_url,
                     },
                     memory_add_params.MemoryAddParams,
                 ),
@@ -402,6 +435,8 @@ class MemoryResource(SyncAPIResource):
         self,
         *,
         memories: Iterable[AddMemoryParam],
+        enable_holographic: bool | Omit = omit,
+        frequency_schema_id: Optional[str] | Omit = omit,
         skip_background_processing: bool | Omit = omit,
         batch_size: Optional[int] | Omit = omit,
         external_user_id: Optional[str] | Omit = omit,
@@ -438,6 +473,12 @@ class MemoryResource(SyncAPIResource):
 
         Args:
           memories: List of memory items to add in batch
+
+          enable_holographic: If True, applies holographic neural transforms and stores in holographic
+              collection
+
+          frequency_schema_id: Frequency schema for holographic embedding (e.g. 'cosqa', 'scifact'). Required
+              when enable_holographic=True. Call GET /v1/frequencies to see available schemas.
 
           skip_background_processing: If True, skips adding background tasks for processing
 
@@ -484,8 +525,9 @@ class MemoryResource(SyncAPIResource):
           namespace_id: Optional namespace ID for multi-tenant batch memory scoping. When provided, all
               memories in the batch are associated with this namespace.
 
-          organization_id: Optional organization ID for multi-tenant batch memory scoping. When provided,
-              all memories in the batch are associated with this organization.
+          organization_id: DEPRECATED - Internal only. Auto-populated from API key scope. Do not set
+              manually. The organization is resolved automatically from the API key's
+              associated organization.
 
           user_id: DEPRECATED: Use 'external_user_id' instead. Internal Papr Parse user ID.
 
@@ -527,7 +569,11 @@ class MemoryResource(SyncAPIResource):
                 extra_body=extra_body,
                 timeout=timeout,
                 query=maybe_transform(
-                    {"skip_background_processing": skip_background_processing},
+                    {
+                        "enable_holographic": enable_holographic,
+                        "frequency_schema_id": frequency_schema_id,
+                        "skip_background_processing": skip_background_processing,
+                    },
                     memory_add_batch_params.MemoryAddBatchParams,
                 ),
             ),
@@ -683,6 +729,7 @@ class MemoryResource(SyncAPIResource):
         rank_results: bool | Omit = omit,
         reranking_config: Optional[memory_search_params.RerankingConfig] | Omit = omit,
         schema_id: Optional[str] | Omit = omit,
+        search_acl: Optional[ACLConfig] | Omit = omit,
         search_override: Optional[memory_search_params.SearchOverride] | Omit = omit,
         user_id: Optional[str] | Omit = omit,
         accept_encoding: str | Omit = omit,
@@ -822,6 +869,38 @@ class MemoryResource(SyncAPIResource):
               (plus system schema) will be used for query generation. If not provided, system
               will automatically select relevant schema based on query content.
 
+          search_acl: Simplified Access Control List configuration.
+
+              Aligned with Open Memory Object (OMO) standard. See:
+              https://github.com/anthropics/open-memory-object
+
+              **Supported Entity Prefixes:**
+
+              | Prefix           | Description           | Validation                           |
+              | ---------------- | --------------------- | ------------------------------------ |
+              | `user:`          | Internal Papr user ID | Validated against Parse users        |
+              | `external_user:` | Your app's user ID    | Not validated (your responsibility)  |
+              | `organization:`  | Organization ID       | Validated against your organizations |
+              | `namespace:`     | Namespace ID          | Validated against your namespaces    |
+              | `workspace:`     | Workspace ID          | Validated against your workspaces    |
+              | `role:`          | Parse role ID         | Validated against your roles         |
+
+              **Examples:**
+
+              ```python
+              acl = ACLConfig(
+                  read=["external_user:alice_123", "organization:org_acme"], write=["external_user:alice_123"]
+              )
+              ```
+
+              **Validation Rules:**
+
+              - Internal entities (user, organization, namespace, workspace, role) are
+                validated
+              - External entities (external_user) are NOT validated - your app is responsible
+              - Invalid internal entities will return an error
+              - Unprefixed values default to `external_user:` for backwards compatibility
+
           search_override: Complete search override specification provided by developer
 
           user_id: DEPRECATED: Use 'external_user_id' instead. Internal Papr Parse user ID. Most
@@ -851,6 +930,7 @@ class MemoryResource(SyncAPIResource):
                     "rank_results": rank_results,
                     "reranking_config": reranking_config,
                     "schema_id": schema_id,
+                    "search_acl": search_acl,
                     "search_override": search_override,
                     "user_id": user_id,
                 },
@@ -898,6 +978,8 @@ class AsyncMemoryResource(AsyncAPIResource):
         self,
         memory_id: str,
         *,
+        enable_holographic: bool | Omit = omit,
+        frequency_schema_id: Optional[str] | Omit = omit,
         content: Optional[str] | Omit = omit,
         context: Optional[Iterable[ContextItemParam]] | Omit = omit,
         graph_generation: Optional[GraphGenerationParam] | Omit = omit,
@@ -931,6 +1013,10 @@ class AsyncMemoryResource(AsyncAPIResource):
             The API validates content size against MAX_CONTENT_LENGTH environment variable (defaults to 15000 bytes).
 
         Args:
+          enable_holographic: If True, re-processes holographic neural transforms after content update
+
+          frequency_schema_id: Frequency schema for holographic embedding (e.g. 'cosqa', 'scifact').
+
           content: The new content of the memory item
 
           context: Updated context for the memory item
@@ -1009,7 +1095,17 @@ class AsyncMemoryResource(AsyncAPIResource):
                 memory_update_params.MemoryUpdateParams,
             ),
             options=make_request_options(
-                extra_headers=extra_headers, extra_query=extra_query, extra_body=extra_body, timeout=timeout
+                extra_headers=extra_headers,
+                extra_query=extra_query,
+                extra_body=extra_body,
+                timeout=timeout,
+                query=await async_maybe_transform(
+                    {
+                        "enable_holographic": enable_holographic,
+                        "frequency_schema_id": frequency_schema_id,
+                    },
+                    memory_update_params.MemoryUpdateParams,
+                ),
             ),
             cast_to=MemoryUpdateResponse,
         )
@@ -1069,7 +1165,10 @@ class AsyncMemoryResource(AsyncAPIResource):
         content: str,
         enable_holographic: bool | Omit = omit,
         format: Optional[str] | Omit = omit,
+        frequency_schema_id: Optional[str] | Omit = omit,
         skip_background_processing: bool | Omit = omit,
+        webhook_secret: Optional[str] | Omit = omit,
+        webhook_url: Optional[str] | Omit = omit,
         context: Optional[Iterable[ContextItemParam]] | Omit = omit,
         external_user_id: Optional[str] | Omit = omit,
         graph_generation: Optional[GraphGenerationParam] | Omit = omit,
@@ -1122,7 +1221,16 @@ class AsyncMemoryResource(AsyncAPIResource):
           format: Response format. Use 'omo' for Open Memory Object standard format (portable
               across platforms).
 
+          frequency_schema_id: Frequency schema for holographic embedding (e.g. 'cosqa', 'scifact'). Required
+              when enable_holographic=True. Call GET /v1/frequencies to see available schemas.
+
           skip_background_processing: If True, skips adding background tasks for processing
+
+          webhook_secret: Secret for webhook HMAC authentication. Sent as X-Webhook-Secret header and used
+              to generate X-Webhook-Signature.
+
+          webhook_url: Webhook URL to notify when background processing completes. Receives POST with
+              {event, memory_id, status, completed_at}.
 
           context: Conversation history context for this memory. Use for providing message history
               when adding a memory. Format: [{role: 'user'|'assistant', content: '...'}]
@@ -1170,8 +1278,9 @@ class AsyncMemoryResource(AsyncAPIResource):
           namespace_id: Optional namespace ID for multi-tenant memory scoping. When provided, memory is
               associated with this namespace.
 
-          organization_id: Optional organization ID for multi-tenant memory scoping. When provided, memory
-              is associated with this organization.
+          organization_id: DEPRECATED - Internal only. Auto-populated from API key scope. Do not set
+              manually. The organization is resolved automatically from the API key's
+              associated organization.
 
           relationships_json:
               DEPRECATED: Use 'memory_policy' instead. Migration options: 1. Specific memory:
@@ -1220,7 +1329,10 @@ class AsyncMemoryResource(AsyncAPIResource):
                     {
                         "enable_holographic": enable_holographic,
                         "format": format,
+                        "frequency_schema_id": frequency_schema_id,
                         "skip_background_processing": skip_background_processing,
+                        "webhook_secret": webhook_secret,
+                        "webhook_url": webhook_url,
                     },
                     memory_add_params.MemoryAddParams,
                 ),
@@ -1232,6 +1344,8 @@ class AsyncMemoryResource(AsyncAPIResource):
         self,
         *,
         memories: Iterable[AddMemoryParam],
+        enable_holographic: bool | Omit = omit,
+        frequency_schema_id: Optional[str] | Omit = omit,
         skip_background_processing: bool | Omit = omit,
         batch_size: Optional[int] | Omit = omit,
         external_user_id: Optional[str] | Omit = omit,
@@ -1268,6 +1382,12 @@ class AsyncMemoryResource(AsyncAPIResource):
 
         Args:
           memories: List of memory items to add in batch
+
+          enable_holographic: If True, applies holographic neural transforms and stores in holographic
+              collection
+
+          frequency_schema_id: Frequency schema for holographic embedding (e.g. 'cosqa', 'scifact'). Required
+              when enable_holographic=True. Call GET /v1/frequencies to see available schemas.
 
           skip_background_processing: If True, skips adding background tasks for processing
 
@@ -1314,8 +1434,9 @@ class AsyncMemoryResource(AsyncAPIResource):
           namespace_id: Optional namespace ID for multi-tenant batch memory scoping. When provided, all
               memories in the batch are associated with this namespace.
 
-          organization_id: Optional organization ID for multi-tenant batch memory scoping. When provided,
-              all memories in the batch are associated with this organization.
+          organization_id: DEPRECATED - Internal only. Auto-populated from API key scope. Do not set
+              manually. The organization is resolved automatically from the API key's
+              associated organization.
 
           user_id: DEPRECATED: Use 'external_user_id' instead. Internal Papr Parse user ID.
 
@@ -1357,7 +1478,11 @@ class AsyncMemoryResource(AsyncAPIResource):
                 extra_body=extra_body,
                 timeout=timeout,
                 query=await async_maybe_transform(
-                    {"skip_background_processing": skip_background_processing},
+                    {
+                        "enable_holographic": enable_holographic,
+                        "frequency_schema_id": frequency_schema_id,
+                        "skip_background_processing": skip_background_processing,
+                    },
                     memory_add_batch_params.MemoryAddBatchParams,
                 ),
             ),
@@ -1513,6 +1638,7 @@ class AsyncMemoryResource(AsyncAPIResource):
         rank_results: bool | Omit = omit,
         reranking_config: Optional[memory_search_params.RerankingConfig] | Omit = omit,
         schema_id: Optional[str] | Omit = omit,
+        search_acl: Optional[ACLConfig] | Omit = omit,
         search_override: Optional[memory_search_params.SearchOverride] | Omit = omit,
         user_id: Optional[str] | Omit = omit,
         accept_encoding: str | Omit = omit,
@@ -1652,6 +1778,38 @@ class AsyncMemoryResource(AsyncAPIResource):
               (plus system schema) will be used for query generation. If not provided, system
               will automatically select relevant schema based on query content.
 
+          search_acl: Simplified Access Control List configuration.
+
+              Aligned with Open Memory Object (OMO) standard. See:
+              https://github.com/anthropics/open-memory-object
+
+              **Supported Entity Prefixes:**
+
+              | Prefix           | Description           | Validation                           |
+              | ---------------- | --------------------- | ------------------------------------ |
+              | `user:`          | Internal Papr user ID | Validated against Parse users        |
+              | `external_user:` | Your app's user ID    | Not validated (your responsibility)  |
+              | `organization:`  | Organization ID       | Validated against your organizations |
+              | `namespace:`     | Namespace ID          | Validated against your namespaces    |
+              | `workspace:`     | Workspace ID          | Validated against your workspaces    |
+              | `role:`          | Parse role ID         | Validated against your roles         |
+
+              **Examples:**
+
+              ```python
+              acl = ACLConfig(
+                  read=["external_user:alice_123", "organization:org_acme"], write=["external_user:alice_123"]
+              )
+              ```
+
+              **Validation Rules:**
+
+              - Internal entities (user, organization, namespace, workspace, role) are
+                validated
+              - External entities (external_user) are NOT validated - your app is responsible
+              - Invalid internal entities will return an error
+              - Unprefixed values default to `external_user:` for backwards compatibility
+
           search_override: Complete search override specification provided by developer
 
           user_id: DEPRECATED: Use 'external_user_id' instead. Internal Papr Parse user ID. Most
@@ -1681,6 +1839,7 @@ class AsyncMemoryResource(AsyncAPIResource):
                     "rank_results": rank_results,
                     "reranking_config": reranking_config,
                     "schema_id": schema_id,
+                    "search_acl": search_acl,
                     "search_override": search_override,
                     "user_id": user_id,
                 },
