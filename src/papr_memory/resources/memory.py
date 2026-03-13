@@ -62,6 +62,8 @@ from ..types.memory_update_response import MemoryUpdateResponse
 from ..types.relationship_item_param import RelationshipItemParam
 from ..types.shared_params.acl_config import ACLConfig
 from ..types.shared_params.memory_policy import MemoryPolicy
+from ..types.memory_retrieve_status_response import MemoryRetrieveStatusResponse
+from ..types.memory_retrieve_batch_status_response import MemoryRetrieveBatchStatusResponse
 
 __all__ = ["MemoryResource", "AsyncMemoryResource"]
 
@@ -818,6 +820,87 @@ class MemoryResource(SyncAPIResource):
                 ),
             ),
             cast_to=SearchResponse,
+        )
+
+    def retrieve_batch_status(
+        self,
+        batch_id: str,
+        *,
+        # Use the following arguments if you need to pass additional parameters to the API that aren't available via kwargs.
+        # The extra values given here take precedence over values defined on the client or passed to this method.
+        extra_headers: Headers | None = None,
+        extra_query: Query | None = None,
+        extra_body: Body | None = None,
+        timeout: float | httpx.Timeout | None | NotGiven = not_given,
+    ) -> MemoryRetrieveBatchStatusResponse:
+        """
+        Get processing status for a batch of memories.
+
+            Returns overall batch progress and per-memory status breakdown.
+            The `batch_id` is returned in the POST /v1/memory/batch response.
+
+            For real-time updates, connect to WebSocket at `/ws/memory-status`.
+
+        Args:
+          extra_headers: Send extra headers
+
+          extra_query: Add additional query parameters to the request
+
+          extra_body: Add additional JSON properties to the request
+
+          timeout: Override the client-level default timeout for this request, in seconds
+        """
+        if not batch_id:
+            raise ValueError(f"Expected a non-empty value for `batch_id` but received {batch_id!r}")
+        return self._get(
+            f"/v1/memory/batch/status/{batch_id}",
+            options=make_request_options(
+                extra_headers=extra_headers, extra_query=extra_query, extra_body=extra_body, timeout=timeout
+            ),
+            cast_to=MemoryRetrieveBatchStatusResponse,
+        )
+
+    def retrieve_status(
+        self,
+        memory_id: str,
+        *,
+        # Use the following arguments if you need to pass additional parameters to the API that aren't available via kwargs.
+        # The extra values given here take precedence over values defined on the client or passed to this method.
+        extra_headers: Headers | None = None,
+        extra_query: Query | None = None,
+        extra_body: Body | None = None,
+        timeout: float | httpx.Timeout | None | NotGiven = not_given,
+    ) -> MemoryRetrieveStatusResponse:
+        """
+        Get processing status for a memory item.
+
+            Returns the current processing lifecycle stage:
+            - `queued` — Accepted, waiting to be processed
+            - `quick_saved` — Quick add complete (stored in DB + vector store), background processing pending
+            - `processing` — Background processing in progress (graph indexing, Neo4j nodes, enrichment)
+            - `completed` — All processing finished
+            - `failed` — Processing failed
+
+            Use this endpoint to poll for completion after adding a memory.
+            For real-time updates, connect to WebSocket at `/ws/memory-status/{memory_id}`.
+
+        Args:
+          extra_headers: Send extra headers
+
+          extra_query: Add additional query parameters to the request
+
+          extra_body: Add additional JSON properties to the request
+
+          timeout: Override the client-level default timeout for this request, in seconds
+        """
+        if not memory_id:
+            raise ValueError(f"Expected a non-empty value for `memory_id` but received {memory_id!r}")
+        return self._get(
+            f"/v1/memory/status/{memory_id}",
+            options=make_request_options(
+                extra_headers=extra_headers, extra_query=extra_query, extra_body=extra_body, timeout=timeout
+            ),
+            cast_to=MemoryRetrieveStatusResponse,
         )
 
     def _process_sync_tiers_and_store(
@@ -4380,6 +4463,87 @@ class AsyncMemoryResource(AsyncAPIResource):
                     
         except Exception as e:
             logger.error(f"Error in sync_tiers processing: {e}")
+
+    async def retrieve_batch_status(
+        self,
+        batch_id: str,
+        *,
+        # Use the following arguments if you need to pass additional parameters to the API that aren't available via kwargs.
+        # The extra values given here take precedence over values defined on the client or passed to this method.
+        extra_headers: Headers | None = None,
+        extra_query: Query | None = None,
+        extra_body: Body | None = None,
+        timeout: float | httpx.Timeout | None | NotGiven = not_given,
+    ) -> MemoryRetrieveBatchStatusResponse:
+        """
+        Get processing status for a batch of memories.
+
+            Returns overall batch progress and per-memory status breakdown.
+            The `batch_id` is returned in the POST /v1/memory/batch response.
+
+            For real-time updates, connect to WebSocket at `/ws/memory-status`.
+
+        Args:
+          extra_headers: Send extra headers
+
+          extra_query: Add additional query parameters to the request
+
+          extra_body: Add additional JSON properties to the request
+
+          timeout: Override the client-level default timeout for this request, in seconds
+        """
+        if not batch_id:
+            raise ValueError(f"Expected a non-empty value for `batch_id` but received {batch_id!r}")
+        return await self._get(
+            f"/v1/memory/batch/status/{batch_id}",
+            options=make_request_options(
+                extra_headers=extra_headers, extra_query=extra_query, extra_body=extra_body, timeout=timeout
+            ),
+            cast_to=MemoryRetrieveBatchStatusResponse,
+        )
+
+    async def retrieve_status(
+        self,
+        memory_id: str,
+        *,
+        # Use the following arguments if you need to pass additional parameters to the API that aren't available via kwargs.
+        # The extra values given here take precedence over values defined on the client or passed to this method.
+        extra_headers: Headers | None = None,
+        extra_query: Query | None = None,
+        extra_body: Body | None = None,
+        timeout: float | httpx.Timeout | None | NotGiven = not_given,
+    ) -> MemoryRetrieveStatusResponse:
+        """
+        Get processing status for a memory item.
+
+            Returns the current processing lifecycle stage:
+            - `queued` — Accepted, waiting to be processed
+            - `quick_saved` — Quick add complete (stored in DB + vector store), background processing pending
+            - `processing` — Background processing in progress (graph indexing, Neo4j nodes, enrichment)
+            - `completed` — All processing finished
+            - `failed` — Processing failed
+
+            Use this endpoint to poll for completion after adding a memory.
+            For real-time updates, connect to WebSocket at `/ws/memory-status/{memory_id}`.
+
+        Args:
+          extra_headers: Send extra headers
+
+          extra_query: Add additional query parameters to the request
+
+          extra_body: Add additional JSON properties to the request
+
+          timeout: Override the client-level default timeout for this request, in seconds
+        """
+        if not memory_id:
+            raise ValueError(f"Expected a non-empty value for `memory_id` but received {memory_id!r}")
+        return await self._get(
+            f"/v1/memory/status/{memory_id}",
+            options=make_request_options(
+                extra_headers=extra_headers, extra_query=extra_query, extra_body=extra_body, timeout=timeout
+            ),
+            cast_to=MemoryRetrieveStatusResponse,
+        )
 
     async def search(
         self,
