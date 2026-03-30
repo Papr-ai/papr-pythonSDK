@@ -17,7 +17,7 @@ base_url = os.environ.get("TEST_API_BASE_URL", "http://127.0.0.1:4010")
 class TestMessages:
     parametrize = pytest.mark.parametrize("client", [False, True], indirect=True, ids=["loose", "strict"])
 
-    @pytest.mark.skip(reason="Prism tests are disabled")
+    @pytest.mark.skip(reason="Mock server tests are disabled")
     @parametrize
     def test_method_store(self, client: Papr) -> None:
         message = client.messages.store(
@@ -27,7 +27,7 @@ class TestMessages:
         )
         assert_matches_type(MessageStoreResponse, message, path=["response"])
 
-    @pytest.mark.skip(reason="Prism tests are disabled")
+    @pytest.mark.skip(reason="Mock server tests are disabled")
     @parametrize
     def test_method_store_with_all_params(self, client: Papr) -> None:
         message = client.messages.store(
@@ -238,10 +238,11 @@ class TestMessages:
             organization_id="organization_id",
             process_messages=True,
             relationships_json=[{"foo": "bar"}],
+            title="title",
         )
         assert_matches_type(MessageStoreResponse, message, path=["response"])
 
-    @pytest.mark.skip(reason="Prism tests are disabled")
+    @pytest.mark.skip(reason="Mock server tests are disabled")
     @parametrize
     def test_raw_response_store(self, client: Papr) -> None:
         response = client.messages.with_raw_response.store(
@@ -255,7 +256,7 @@ class TestMessages:
         message = response.parse()
         assert_matches_type(MessageStoreResponse, message, path=["response"])
 
-    @pytest.mark.skip(reason="Prism tests are disabled")
+    @pytest.mark.skip(reason="Mock server tests are disabled")
     @parametrize
     def test_streaming_response_store(self, client: Papr) -> None:
         with client.messages.with_streaming_response.store(
@@ -277,7 +278,7 @@ class TestAsyncMessages:
         "async_client", [False, True, {"http_client": "aiohttp"}], indirect=True, ids=["loose", "strict", "aiohttp"]
     )
 
-    @pytest.mark.skip(reason="Prism tests are disabled")
+    @pytest.mark.skip(reason="Mock server tests are disabled")
     @parametrize
     async def test_method_store(self, async_client: AsyncPapr) -> None:
         message = await async_client.messages.store(
@@ -287,7 +288,7 @@ class TestAsyncMessages:
         )
         assert_matches_type(MessageStoreResponse, message, path=["response"])
 
-    @pytest.mark.skip(reason="Prism tests are disabled")
+    @pytest.mark.skip(reason="Mock server tests are disabled")
     @parametrize
     async def test_method_store_with_all_params(self, async_client: AsyncPapr) -> None:
         message = await async_client.messages.store(
@@ -498,10 +499,11 @@ class TestAsyncMessages:
             organization_id="organization_id",
             process_messages=True,
             relationships_json=[{"foo": "bar"}],
+            title="title",
         )
         assert_matches_type(MessageStoreResponse, message, path=["response"])
 
-    @pytest.mark.skip(reason="Prism tests are disabled")
+    @pytest.mark.skip(reason="Mock server tests are disabled")
     @parametrize
     async def test_raw_response_store(self, async_client: AsyncPapr) -> None:
         response = await async_client.messages.with_raw_response.store(
@@ -515,7 +517,7 @@ class TestAsyncMessages:
         message = await response.parse()
         assert_matches_type(MessageStoreResponse, message, path=["response"])
 
-    @pytest.mark.skip(reason="Prism tests are disabled")
+    @pytest.mark.skip(reason="Mock server tests are disabled")
     @parametrize
     async def test_streaming_response_store(self, async_client: AsyncPapr) -> None:
         async with async_client.messages.with_streaming_response.store(

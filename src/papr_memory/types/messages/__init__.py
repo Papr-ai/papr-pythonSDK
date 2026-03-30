@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+from .session_update_params import SessionUpdateParams as SessionUpdateParams
 from .session_compress_response import SessionCompressResponse as SessionCompressResponse
+from .conversation_summary_response import ConversationSummaryResponse as ConversationSummaryResponse
 from .session_retrieve_history_params import SessionRetrieveHistoryParams as SessionRetrieveHistoryParams
 from .session_retrieve_history_response import SessionRetrieveHistoryResponse as SessionRetrieveHistoryResponse

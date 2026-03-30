@@ -21,7 +21,7 @@ base_url = os.environ.get("TEST_API_BASE_URL", "http://127.0.0.1:4010")
 class TestDocument:
     parametrize = pytest.mark.parametrize("client", [False, True], indirect=True, ids=["loose", "strict"])
 
-    @pytest.mark.skip(reason="Prism tests are disabled")
+    @pytest.mark.skip(reason="Mock server tests are disabled")
     @parametrize
     def test_method_cancel_processing(self, client: Papr) -> None:
         document = client.document.cancel_processing(
@@ -29,7 +29,7 @@ class TestDocument:
         )
         assert_matches_type(DocumentCancelProcessingResponse, document, path=["response"])
 
-    @pytest.mark.skip(reason="Prism tests are disabled")
+    @pytest.mark.skip(reason="Mock server tests are disabled")
     @parametrize
     def test_raw_response_cancel_processing(self, client: Papr) -> None:
         response = client.document.with_raw_response.cancel_processing(
@@ -41,7 +41,7 @@ class TestDocument:
         document = response.parse()
         assert_matches_type(DocumentCancelProcessingResponse, document, path=["response"])
 
-    @pytest.mark.skip(reason="Prism tests are disabled")
+    @pytest.mark.skip(reason="Mock server tests are disabled")
     @parametrize
     def test_streaming_response_cancel_processing(self, client: Papr) -> None:
         with client.document.with_streaming_response.cancel_processing(
@@ -55,7 +55,7 @@ class TestDocument:
 
         assert cast(Any, response.is_closed) is True
 
-    @pytest.mark.skip(reason="Prism tests are disabled")
+    @pytest.mark.skip(reason="Mock server tests are disabled")
     @parametrize
     def test_path_params_cancel_processing(self, client: Papr) -> None:
         with pytest.raises(ValueError, match=r"Expected a non-empty value for `upload_id` but received ''"):
@@ -63,7 +63,7 @@ class TestDocument:
                 "",
             )
 
-    @pytest.mark.skip(reason="Prism tests are disabled")
+    @pytest.mark.skip(reason="Mock server tests are disabled")
     @parametrize
     def test_method_get_status(self, client: Papr) -> None:
         document = client.document.get_status(
@@ -71,7 +71,7 @@ class TestDocument:
         )
         assert_matches_type(DocumentGetStatusResponse, document, path=["response"])
 
-    @pytest.mark.skip(reason="Prism tests are disabled")
+    @pytest.mark.skip(reason="Mock server tests are disabled")
     @parametrize
     def test_raw_response_get_status(self, client: Papr) -> None:
         response = client.document.with_raw_response.get_status(
@@ -83,7 +83,7 @@ class TestDocument:
         document = response.parse()
         assert_matches_type(DocumentGetStatusResponse, document, path=["response"])
 
-    @pytest.mark.skip(reason="Prism tests are disabled")
+    @pytest.mark.skip(reason="Mock server tests are disabled")
     @parametrize
     def test_streaming_response_get_status(self, client: Papr) -> None:
         with client.document.with_streaming_response.get_status(
@@ -97,7 +97,7 @@ class TestDocument:
 
         assert cast(Any, response.is_closed) is True
 
-    @pytest.mark.skip(reason="Prism tests are disabled")
+    @pytest.mark.skip(reason="Mock server tests are disabled")
     @parametrize
     def test_path_params_get_status(self, client: Papr) -> None:
         with pytest.raises(ValueError, match=r"Expected a non-empty value for `upload_id` but received ''"):
@@ -105,20 +105,22 @@ class TestDocument:
                 "",
             )
 
-    @pytest.mark.skip(reason="Prism tests are disabled")
+    @pytest.mark.skip(reason="Mock server tests are disabled")
     @parametrize
     def test_method_upload(self, client: Papr) -> None:
         document = client.document.upload(
-            file=b"raw file contents",
+            file=b"Example data",
         )
         assert_matches_type(DocumentUploadResponse, document, path=["response"])
 
-    @pytest.mark.skip(reason="Prism tests are disabled")
+    @pytest.mark.skip(reason="Mock server tests are disabled")
     @parametrize
     def test_method_upload_with_all_params(self, client: Papr) -> None:
         document = client.document.upload(
-            file=b"raw file contents",
+            file=b"Example data",
+            enable_holographic=True,
             external_user_id="external_user_id",
+            frequency_schema_id="frequency_schema_id",
             graph_override="graph_override",
             hierarchical_enabled=True,
             memory_policy="memory_policy",
@@ -133,11 +135,11 @@ class TestDocument:
         )
         assert_matches_type(DocumentUploadResponse, document, path=["response"])
 
-    @pytest.mark.skip(reason="Prism tests are disabled")
+    @pytest.mark.skip(reason="Mock server tests are disabled")
     @parametrize
     def test_raw_response_upload(self, client: Papr) -> None:
         response = client.document.with_raw_response.upload(
-            file=b"raw file contents",
+            file=b"Example data",
         )
 
         assert response.is_closed is True
@@ -145,11 +147,11 @@ class TestDocument:
         document = response.parse()
         assert_matches_type(DocumentUploadResponse, document, path=["response"])
 
-    @pytest.mark.skip(reason="Prism tests are disabled")
+    @pytest.mark.skip(reason="Mock server tests are disabled")
     @parametrize
     def test_streaming_response_upload(self, client: Papr) -> None:
         with client.document.with_streaming_response.upload(
-            file=b"raw file contents",
+            file=b"Example data",
         ) as response:
             assert not response.is_closed
             assert response.http_request.headers.get("X-Stainless-Lang") == "python"
@@ -165,7 +167,7 @@ class TestAsyncDocument:
         "async_client", [False, True, {"http_client": "aiohttp"}], indirect=True, ids=["loose", "strict", "aiohttp"]
     )
 
-    @pytest.mark.skip(reason="Prism tests are disabled")
+    @pytest.mark.skip(reason="Mock server tests are disabled")
     @parametrize
     async def test_method_cancel_processing(self, async_client: AsyncPapr) -> None:
         document = await async_client.document.cancel_processing(
@@ -173,7 +175,7 @@ class TestAsyncDocument:
         )
         assert_matches_type(DocumentCancelProcessingResponse, document, path=["response"])
 
-    @pytest.mark.skip(reason="Prism tests are disabled")
+    @pytest.mark.skip(reason="Mock server tests are disabled")
     @parametrize
     async def test_raw_response_cancel_processing(self, async_client: AsyncPapr) -> None:
         response = await async_client.document.with_raw_response.cancel_processing(
@@ -185,7 +187,7 @@ class TestAsyncDocument:
         document = await response.parse()
         assert_matches_type(DocumentCancelProcessingResponse, document, path=["response"])
 
-    @pytest.mark.skip(reason="Prism tests are disabled")
+    @pytest.mark.skip(reason="Mock server tests are disabled")
     @parametrize
     async def test_streaming_response_cancel_processing(self, async_client: AsyncPapr) -> None:
         async with async_client.document.with_streaming_response.cancel_processing(
@@ -199,7 +201,7 @@ class TestAsyncDocument:
 
         assert cast(Any, response.is_closed) is True
 
-    @pytest.mark.skip(reason="Prism tests are disabled")
+    @pytest.mark.skip(reason="Mock server tests are disabled")
     @parametrize
     async def test_path_params_cancel_processing(self, async_client: AsyncPapr) -> None:
         with pytest.raises(ValueError, match=r"Expected a non-empty value for `upload_id` but received ''"):
@@ -207,7 +209,7 @@ class TestAsyncDocument:
                 "",
             )
 
-    @pytest.mark.skip(reason="Prism tests are disabled")
+    @pytest.mark.skip(reason="Mock server tests are disabled")
     @parametrize
     async def test_method_get_status(self, async_client: AsyncPapr) -> None:
         document = await async_client.document.get_status(
@@ -215,7 +217,7 @@ class TestAsyncDocument:
         )
         assert_matches_type(DocumentGetStatusResponse, document, path=["response"])
 
-    @pytest.mark.skip(reason="Prism tests are disabled")
+    @pytest.mark.skip(reason="Mock server tests are disabled")
     @parametrize
     async def test_raw_response_get_status(self, async_client: AsyncPapr) -> None:
         response = await async_client.document.with_raw_response.get_status(
@@ -227,7 +229,7 @@ class TestAsyncDocument:
         document = await response.parse()
         assert_matches_type(DocumentGetStatusResponse, document, path=["response"])
 
-    @pytest.mark.skip(reason="Prism tests are disabled")
+    @pytest.mark.skip(reason="Mock server tests are disabled")
     @parametrize
     async def test_streaming_response_get_status(self, async_client: AsyncPapr) -> None:
         async with async_client.document.with_streaming_response.get_status(
@@ -241,7 +243,7 @@ class TestAsyncDocument:
 
         assert cast(Any, response.is_closed) is True
 
-    @pytest.mark.skip(reason="Prism tests are disabled")
+    @pytest.mark.skip(reason="Mock server tests are disabled")
     @parametrize
     async def test_path_params_get_status(self, async_client: AsyncPapr) -> None:
         with pytest.raises(ValueError, match=r"Expected a non-empty value for `upload_id` but received ''"):
@@ -249,20 +251,22 @@ class TestAsyncDocument:
                 "",
             )
 
-    @pytest.mark.skip(reason="Prism tests are disabled")
+    @pytest.mark.skip(reason="Mock server tests are disabled")
     @parametrize
     async def test_method_upload(self, async_client: AsyncPapr) -> None:
         document = await async_client.document.upload(
-            file=b"raw file contents",
+            file=b"Example data",
         )
         assert_matches_type(DocumentUploadResponse, document, path=["response"])
 
-    @pytest.mark.skip(reason="Prism tests are disabled")
+    @pytest.mark.skip(reason="Mock server tests are disabled")
     @parametrize
     async def test_method_upload_with_all_params(self, async_client: AsyncPapr) -> None:
         document = await async_client.document.upload(
-            file=b"raw file contents",
+            file=b"Example data",
+            enable_holographic=True,
             external_user_id="external_user_id",
+            frequency_schema_id="frequency_schema_id",
             graph_override="graph_override",
             hierarchical_enabled=True,
             memory_policy="memory_policy",
@@ -277,11 +281,11 @@ class TestAsyncDocument:
         )
         assert_matches_type(DocumentUploadResponse, document, path=["response"])
 
-    @pytest.mark.skip(reason="Prism tests are disabled")
+    @pytest.mark.skip(reason="Mock server tests are disabled")
     @parametrize
     async def test_raw_response_upload(self, async_client: AsyncPapr) -> None:
         response = await async_client.document.with_raw_response.upload(
-            file=b"raw file contents",
+            file=b"Example data",
         )
 
         assert response.is_closed is True
@@ -289,11 +293,11 @@ class TestAsyncDocument:
         document = await response.parse()
         assert_matches_type(DocumentUploadResponse, document, path=["response"])
 
-    @pytest.mark.skip(reason="Prism tests are disabled")
+    @pytest.mark.skip(reason="Mock server tests are disabled")
     @parametrize
     async def test_streaming_response_upload(self, async_client: AsyncPapr) -> None:
         async with async_client.document.with_streaming_response.upload(
-            file=b"raw file contents",
+            file=b"Example data",
         ) as response:
             assert not response.is_closed
             assert response.http_request.headers.get("X-Stainless-Lang") == "python"

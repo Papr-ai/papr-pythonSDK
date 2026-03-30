@@ -32,8 +32,27 @@ class MemoryAddParams(TypedDict, total=False):
     Use 'omo' for Open Memory Object standard format (portable across platforms).
     """
 
+    frequency_schema_id: Optional[str]
+    """Frequency schema for holographic embedding (e.g.
+
+    'cosqa', 'scifact'). Required when enable_holographic=True. Call GET
+    /v1/frequencies to see available schemas.
+    """
+
     skip_background_processing: bool
     """If True, skips adding background tasks for processing"""
+
+    webhook_secret: Optional[str]
+    """Secret for webhook HMAC authentication.
+
+    Sent as X-Webhook-Secret header and used to generate X-Webhook-Signature.
+    """
+
+    webhook_url: Optional[str]
+    """Webhook URL to notify when background processing completes.
+
+    Receives POST with {event, memory_id, status, completed_at}.
+    """
 
     context: Optional[Iterable[ContextItemParam]]
     """Conversation history context for this memory.
@@ -100,9 +119,10 @@ class MemoryAddParams(TypedDict, total=False):
     """
 
     organization_id: Optional[str]
-    """Optional organization ID for multi-tenant memory scoping.
+    """DEPRECATED - Internal only.
 
-    When provided, memory is associated with this organization.
+    Auto-populated from API key scope. Do not set manually. The organization is
+    resolved automatically from the API key's associated organization.
     """
 
     relationships_json: Optional[Iterable[RelationshipItemParam]]

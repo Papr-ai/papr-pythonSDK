@@ -10,6 +10,8 @@ __all__ = ["MemoryDeleteResponse", "DeletionStatus"]
 
 
 class DeletionStatus(BaseModel):
+    holographic: Optional[bool] = None
+
     neo4j: Optional[bool] = None
 
     parse: Optional[bool] = None

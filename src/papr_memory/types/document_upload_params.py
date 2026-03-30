@@ -13,10 +13,23 @@ __all__ = ["DocumentUploadParams"]
 class DocumentUploadParams(TypedDict, total=False):
     file: Required[FileTypes]
 
+    enable_holographic: bool
+    """
+    If True, applies holographic neural transforms and stores in holographic
+    collection
+    """
+
     external_user_id: Optional[str]
     """Your application's user identifier.
 
     This is the primary way to identify users. Also accepts legacy 'end_user_id'.
+    """
+
+    frequency_schema_id: Optional[str]
+    """Frequency schema for holographic embedding (e.g.
+
+    'cosqa', 'scifact'). Required when enable_holographic=True. Call GET
+    /v1/frequencies to see available schemas.
     """
 
     graph_override: Optional[str]

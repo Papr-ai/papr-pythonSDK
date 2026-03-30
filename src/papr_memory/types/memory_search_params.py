@@ -8,6 +8,7 @@ from typing_extensions import Literal, Required, Annotated, TypedDict
 from .._types import SequenceNotStr
 from .._utils import PropertyInfo
 from .memory_metadata_param import MemoryMetadataParam
+from .shared_params.acl_config import ACLConfig
 
 __all__ = [
     "MemorySearchParams",
@@ -124,6 +125,41 @@ class MemorySearchParams(TypedDict, total=False):
     content.
     """
 
+    search_acl: Optional[ACLConfig]
+    """Simplified Access Control List configuration.
+
+    Aligned with Open Memory Object (OMO) standard. See:
+    https://github.com/anthropics/open-memory-object
+
+    **Supported Entity Prefixes:**
+
+    | Prefix           | Description           | Validation                           |
+    | ---------------- | --------------------- | ------------------------------------ |
+    | `user:`          | Internal Papr user ID | Validated against Parse users        |
+    | `external_user:` | Your app's user ID    | Not validated (your responsibility)  |
+    | `organization:`  | Organization ID       | Validated against your organizations |
+    | `namespace:`     | Namespace ID          | Validated against your namespaces    |
+    | `workspace:`     | Workspace ID          | Validated against your workspaces    |
+    | `role:`          | Parse role ID         | Validated against your roles         |
+
+    **Examples:**
+
+    ```python
+    acl = ACLConfig(
+        read=["external_user:alice_123", "organization:org_acme"],
+        write=["external_user:alice_123"]
+    )
+    ```
+
+    **Validation Rules:**
+
+    - Internal entities (user, organization, namespace, workspace, role) are
+      validated
+    - External entities (external_user) are NOT validated - your app is responsible
+    - Invalid internal entities will return an error
+    - Unprefixed values default to `external_user:` for backwards compatibility
+    """
+
     search_override: Optional[SearchOverride]
     """Complete search override specification provided by developer"""
 
@@ -147,6 +183,13 @@ class HolographicConfig(TypedDict, total=False):
     enabled: bool
     """Whether to enable holographic embedding transforms"""
 
+    frequency_schema_id: Optional[str]
+    """Frequency schema for holographic scoring.
+
+    Use full ID (e.g. 'code_search:cosqa:2.0.0') or shorthand (e.g. 'cosqa'). Call
+    GET /v1/frequencies to see available schemas and shortcuts.
+    """
+
     hcond_boost_factor: float
     """Maximum boost to add for high alignment (0.0-0.5)"""
 
@@ -155,6 +198,14 @@ class HolographicConfig(TypedDict, total=False):
 
     hcond_penalty_factor: float
     """Maximum penalty for low alignment (0.0-0.5)"""
+
+    scoring_method: Optional[str]
+    """Scoring method for holographic search results.
+
+    Default: 'egr_rerank' (highest accuracy, requires GPU). Options include:
+    baseline, caesar8, egr_rerank, and 160+ others. If null, uses the schema's
+    default_scoring_method.
+    """
 
     search_mode: Literal["disabled", "integrated", "post_search"]
     """

@@ -7,8 +7,9 @@ from typing_extensions import Literal
 from pydantic import Field as FieldInfo
 
 from ..._models import BaseModel
+from .conversation_summary_response import ConversationSummaryResponse
 
-__all__ = ["SessionRetrieveHistoryResponse", "Message", "Summaries"]
+__all__ = ["SessionRetrieveHistoryResponse", "Message"]
 
 
 class Message(BaseModel):
@@ -33,25 +34,6 @@ class Message(BaseModel):
     """Status of background processing (queued, analyzing, completed, failed)"""
 
 
-class Summaries(BaseModel):
-    """Hierarchical conversation summaries for context window compression"""
-
-    last_updated: Optional[datetime] = None
-    """When summaries were last updated"""
-
-    long_term: Optional[str] = None
-    """Full session summary"""
-
-    medium_term: Optional[str] = None
-    """Summary of last ~100 messages"""
-
-    short_term: Optional[str] = None
-    """Summary of last 15 messages"""
-
-    topics: Optional[List[str]] = None
-    """Key topics discussed"""
-
-
 class SessionRetrieveHistoryResponse(BaseModel):
     """Response model for retrieving message history"""
 
@@ -70,5 +52,5 @@ class SessionRetrieveHistoryResponse(BaseModel):
     messages)
     """
 
-    summaries: Optional[Summaries] = None
+    summaries: Optional[ConversationSummaryResponse] = None
     """Hierarchical conversation summaries for context window compression"""

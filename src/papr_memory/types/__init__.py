@@ -17,6 +17,7 @@ from .shared import (
 from .user_type import UserType as UserType
 from .memory_type import MemoryType as MemoryType
 from .context_item import ContextItem as ContextItem
+from .search_result import SearchResult as SearchResult
 from .user_response import UserResponse as UserResponse
 from .batch_response import BatchResponse as BatchResponse
 from .memory_metadata import MemoryMetadata as MemoryMetadata
@@ -27,6 +28,7 @@ from .feedback_response import FeedbackResponse as FeedbackResponse
 from .memory_add_params import MemoryAddParams as MemoryAddParams
 from .memory_get_params import MemoryGetParams as MemoryGetParams
 from .sync_tiers_params import SyncTiersParams as SyncTiersParams
+from .batch_memory_error import BatchMemoryError as BatchMemoryError
 from .context_item_param import ContextItemParam as ContextItemParam
 from .schema_list_params import SchemaListParams as SchemaListParams
 from .user_create_params import UserCreateParams as UserCreateParams
@@ -48,6 +50,7 @@ from .search_config_output import SearchConfigOutput as SearchConfigOutput
 from .user_delete_response import UserDeleteResponse as UserDeleteResponse
 from .batch_memory_response import BatchMemoryResponse as BatchMemoryResponse
 from .memory_metadata_param import MemoryMetadataParam as MemoryMetadataParam
+from .namespace_list_params import NamespaceListParams as NamespaceListParams
 from .sync_get_delta_params import SyncGetDeltaParams as SyncGetDeltaParams
 from .sync_get_tiers_params import SyncGetTiersParams as SyncGetTiersParams
 from .document_upload_params import DocumentUploadParams as DocumentUploadParams
@@ -59,7 +62,12 @@ from .memory_update_response import MemoryUpdateResponse as MemoryUpdateResponse
 from .message_store_response import MessageStoreResponse as MessageStoreResponse
 from .schema_create_response import SchemaCreateResponse as SchemaCreateResponse
 from .schema_update_response import SchemaUpdateResponse as SchemaUpdateResponse
+from .frequency_list_response import FrequencyListResponse as FrequencyListResponse
 from .memory_add_batch_params import MemoryAddBatchParams as MemoryAddBatchParams
+from .namespace_create_params import NamespaceCreateParams as NamespaceCreateParams
+from .namespace_delete_params import NamespaceDeleteParams as NamespaceDeleteParams
+from .namespace_list_response import NamespaceListResponse as NamespaceListResponse
+from .namespace_update_params import NamespaceUpdateParams as NamespaceUpdateParams
 from .relationship_item_param import RelationshipItemParam as RelationshipItemParam
 from .sync_get_delta_response import SyncGetDeltaResponse as SyncGetDeltaResponse
 from .sync_get_tiers_response import SyncGetTiersResponse as SyncGetTiersResponse
@@ -68,15 +76,30 @@ from .memory_delete_all_params import MemoryDeleteAllParams as MemoryDeleteAllPa
 from .schema_retrieve_response import SchemaRetrieveResponse as SchemaRetrieveResponse
 from .user_create_batch_params import UserCreateBatchParams as UserCreateBatchParams
 from .user_graph_schema_output import UserGraphSchemaOutput as UserGraphSchemaOutput
+from .holographic_rerank_params import HolographicRerankParams as HolographicRerankParams
+from .namespace_create_response import NamespaceCreateResponse as NamespaceCreateResponse
+from .namespace_delete_response import NamespaceDeleteResponse as NamespaceDeleteResponse
+from .namespace_update_response import NamespaceUpdateResponse as NamespaceUpdateResponse
 from .property_definition_param import PropertyDefinitionParam as PropertyDefinitionParam
 from .omo_export_memories_params import OmoExportMemoriesParams as OmoExportMemoriesParams
 from .omo_import_memories_params import OmoImportMemoriesParams as OmoImportMemoriesParams
 from .user_create_batch_response import UserCreateBatchResponse as UserCreateBatchResponse
 from .auto_graph_generation_param import AutoGraphGenerationParam as AutoGraphGenerationParam
+from .frequency_retrieve_response import FrequencyRetrieveResponse as FrequencyRetrieveResponse
+from .holographic_rerank_response import HolographicRerankResponse as HolographicRerankResponse
+from .namespace_retrieve_response import NamespaceRetrieveResponse as NamespaceRetrieveResponse
 from .document_get_status_response import DocumentGetStatusResponse as DocumentGetStatusResponse
 from .feedback_submit_batch_params import FeedbackSubmitBatchParams as FeedbackSubmitBatchParams
 from .omo_export_memories_response import OmoExportMemoriesResponse as OmoExportMemoriesResponse
 from .omo_import_memories_response import OmoImportMemoriesResponse as OmoImportMemoriesResponse
 from .manual_graph_generation_param import ManualGraphGenerationParam as ManualGraphGenerationParam
+from .memory_retrieve_status_response import MemoryRetrieveStatusResponse as MemoryRetrieveStatusResponse
 from .omo_export_memories_as_json_params import OmoExportMemoriesAsJsonParams as OmoExportMemoriesAsJsonParams
 from .document_cancel_processing_response import DocumentCancelProcessingResponse as DocumentCancelProcessingResponse
+from .holographic_extract_metadata_params import HolographicExtractMetadataParams as HolographicExtractMetadataParams
+from .holographic_extract_metadata_response import (
+    HolographicExtractMetadataResponse as HolographicExtractMetadataResponse,
+)
+from .memory_retrieve_batch_status_response import (
+    MemoryRetrieveBatchStatusResponse as MemoryRetrieveBatchStatusResponse,
+)

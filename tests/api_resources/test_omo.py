@@ -20,7 +20,7 @@ base_url = os.environ.get("TEST_API_BASE_URL", "http://127.0.0.1:4010")
 class TestOmo:
     parametrize = pytest.mark.parametrize("client", [False, True], indirect=True, ids=["loose", "strict"])
 
-    @pytest.mark.skip(reason="Prism tests are disabled")
+    @pytest.mark.skip(reason="Mock server tests are disabled")
     @parametrize
     def test_method_export_memories(self, client: Papr) -> None:
         omo = client.omo.export_memories(
@@ -28,7 +28,7 @@ class TestOmo:
         )
         assert_matches_type(OmoExportMemoriesResponse, omo, path=["response"])
 
-    @pytest.mark.skip(reason="Prism tests are disabled")
+    @pytest.mark.skip(reason="Mock server tests are disabled")
     @parametrize
     def test_raw_response_export_memories(self, client: Papr) -> None:
         response = client.omo.with_raw_response.export_memories(
@@ -40,7 +40,7 @@ class TestOmo:
         omo = response.parse()
         assert_matches_type(OmoExportMemoriesResponse, omo, path=["response"])
 
-    @pytest.mark.skip(reason="Prism tests are disabled")
+    @pytest.mark.skip(reason="Mock server tests are disabled")
     @parametrize
     def test_streaming_response_export_memories(self, client: Papr) -> None:
         with client.omo.with_streaming_response.export_memories(
@@ -54,7 +54,7 @@ class TestOmo:
 
         assert cast(Any, response.is_closed) is True
 
-    @pytest.mark.skip(reason="Prism tests are disabled")
+    @pytest.mark.skip(reason="Mock server tests are disabled")
     @parametrize
     def test_method_export_memories_as_json(self, client: Papr) -> None:
         omo = client.omo.export_memories_as_json(
@@ -62,7 +62,7 @@ class TestOmo:
         )
         assert_matches_type(object, omo, path=["response"])
 
-    @pytest.mark.skip(reason="Prism tests are disabled")
+    @pytest.mark.skip(reason="Mock server tests are disabled")
     @parametrize
     def test_raw_response_export_memories_as_json(self, client: Papr) -> None:
         response = client.omo.with_raw_response.export_memories_as_json(
@@ -74,7 +74,7 @@ class TestOmo:
         omo = response.parse()
         assert_matches_type(object, omo, path=["response"])
 
-    @pytest.mark.skip(reason="Prism tests are disabled")
+    @pytest.mark.skip(reason="Mock server tests are disabled")
     @parametrize
     def test_streaming_response_export_memories_as_json(self, client: Papr) -> None:
         with client.omo.with_streaming_response.export_memories_as_json(
@@ -88,7 +88,7 @@ class TestOmo:
 
         assert cast(Any, response.is_closed) is True
 
-    @pytest.mark.skip(reason="Prism tests are disabled")
+    @pytest.mark.skip(reason="Mock server tests are disabled")
     @parametrize
     def test_method_import_memories(self, client: Papr) -> None:
         omo = client.omo.import_memories(
@@ -96,7 +96,7 @@ class TestOmo:
         )
         assert_matches_type(OmoImportMemoriesResponse, omo, path=["response"])
 
-    @pytest.mark.skip(reason="Prism tests are disabled")
+    @pytest.mark.skip(reason="Mock server tests are disabled")
     @parametrize
     def test_method_import_memories_with_all_params(self, client: Papr) -> None:
         omo = client.omo.import_memories(
@@ -105,7 +105,7 @@ class TestOmo:
         )
         assert_matches_type(OmoImportMemoriesResponse, omo, path=["response"])
 
-    @pytest.mark.skip(reason="Prism tests are disabled")
+    @pytest.mark.skip(reason="Mock server tests are disabled")
     @parametrize
     def test_raw_response_import_memories(self, client: Papr) -> None:
         response = client.omo.with_raw_response.import_memories(
@@ -117,7 +117,7 @@ class TestOmo:
         omo = response.parse()
         assert_matches_type(OmoImportMemoriesResponse, omo, path=["response"])
 
-    @pytest.mark.skip(reason="Prism tests are disabled")
+    @pytest.mark.skip(reason="Mock server tests are disabled")
     @parametrize
     def test_streaming_response_import_memories(self, client: Papr) -> None:
         with client.omo.with_streaming_response.import_memories(
@@ -137,7 +137,7 @@ class TestAsyncOmo:
         "async_client", [False, True, {"http_client": "aiohttp"}], indirect=True, ids=["loose", "strict", "aiohttp"]
     )
 
-    @pytest.mark.skip(reason="Prism tests are disabled")
+    @pytest.mark.skip(reason="Mock server tests are disabled")
     @parametrize
     async def test_method_export_memories(self, async_client: AsyncPapr) -> None:
         omo = await async_client.omo.export_memories(
@@ -145,7 +145,7 @@ class TestAsyncOmo:
         )
         assert_matches_type(OmoExportMemoriesResponse, omo, path=["response"])
 
-    @pytest.mark.skip(reason="Prism tests are disabled")
+    @pytest.mark.skip(reason="Mock server tests are disabled")
     @parametrize
     async def test_raw_response_export_memories(self, async_client: AsyncPapr) -> None:
         response = await async_client.omo.with_raw_response.export_memories(
@@ -157,7 +157,7 @@ class TestAsyncOmo:
         omo = await response.parse()
         assert_matches_type(OmoExportMemoriesResponse, omo, path=["response"])
 
-    @pytest.mark.skip(reason="Prism tests are disabled")
+    @pytest.mark.skip(reason="Mock server tests are disabled")
     @parametrize
     async def test_streaming_response_export_memories(self, async_client: AsyncPapr) -> None:
         async with async_client.omo.with_streaming_response.export_memories(
@@ -171,7 +171,7 @@ class TestAsyncOmo:
 
         assert cast(Any, response.is_closed) is True
 
-    @pytest.mark.skip(reason="Prism tests are disabled")
+    @pytest.mark.skip(reason="Mock server tests are disabled")
     @parametrize
     async def test_method_export_memories_as_json(self, async_client: AsyncPapr) -> None:
         omo = await async_client.omo.export_memories_as_json(
@@ -179,7 +179,7 @@ class TestAsyncOmo:
         )
         assert_matches_type(object, omo, path=["response"])
 
-    @pytest.mark.skip(reason="Prism tests are disabled")
+    @pytest.mark.skip(reason="Mock server tests are disabled")
     @parametrize
     async def test_raw_response_export_memories_as_json(self, async_client: AsyncPapr) -> None:
         response = await async_client.omo.with_raw_response.export_memories_as_json(
@@ -191,7 +191,7 @@ class TestAsyncOmo:
         omo = await response.parse()
         assert_matches_type(object, omo, path=["response"])
 
-    @pytest.mark.skip(reason="Prism tests are disabled")
+    @pytest.mark.skip(reason="Mock server tests are disabled")
     @parametrize
     async def test_streaming_response_export_memories_as_json(self, async_client: AsyncPapr) -> None:
         async with async_client.omo.with_streaming_response.export_memories_as_json(
@@ -205,7 +205,7 @@ class TestAsyncOmo:
 
         assert cast(Any, response.is_closed) is True
 
-    @pytest.mark.skip(reason="Prism tests are disabled")
+    @pytest.mark.skip(reason="Mock server tests are disabled")
     @parametrize
     async def test_method_import_memories(self, async_client: AsyncPapr) -> None:
         omo = await async_client.omo.import_memories(
@@ -213,7 +213,7 @@ class TestAsyncOmo:
         )
         assert_matches_type(OmoImportMemoriesResponse, omo, path=["response"])
 
-    @pytest.mark.skip(reason="Prism tests are disabled")
+    @pytest.mark.skip(reason="Mock server tests are disabled")
     @parametrize
     async def test_method_import_memories_with_all_params(self, async_client: AsyncPapr) -> None:
         omo = await async_client.omo.import_memories(
@@ -222,7 +222,7 @@ class TestAsyncOmo:
         )
         assert_matches_type(OmoImportMemoriesResponse, omo, path=["response"])
 
-    @pytest.mark.skip(reason="Prism tests are disabled")
+    @pytest.mark.skip(reason="Mock server tests are disabled")
     @parametrize
     async def test_raw_response_import_memories(self, async_client: AsyncPapr) -> None:
         response = await async_client.omo.with_raw_response.import_memories(
@@ -234,7 +234,7 @@ class TestAsyncOmo:
         omo = await response.parse()
         assert_matches_type(OmoImportMemoriesResponse, omo, path=["response"])
 
-    @pytest.mark.skip(reason="Prism tests are disabled")
+    @pytest.mark.skip(reason="Mock server tests are disabled")
     @parametrize
     async def test_streaming_response_import_memories(self, async_client: AsyncPapr) -> None:
         async with async_client.omo.with_streaming_response.import_memories(

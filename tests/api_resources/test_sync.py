@@ -17,13 +17,13 @@ base_url = os.environ.get("TEST_API_BASE_URL", "http://127.0.0.1:4010")
 class TestSync:
     parametrize = pytest.mark.parametrize("client", [False, True], indirect=True, ids=["loose", "strict"])
 
-    @pytest.mark.skip(reason="Prism tests are disabled")
+    @pytest.mark.skip(reason="Mock server tests are disabled")
     @parametrize
     def test_method_get_delta(self, client: Papr) -> None:
         sync = client.sync.get_delta()
         assert_matches_type(SyncGetDeltaResponse, sync, path=["response"])
 
-    @pytest.mark.skip(reason="Prism tests are disabled")
+    @pytest.mark.skip(reason="Mock server tests are disabled")
     @parametrize
     def test_method_get_delta_with_all_params(self, client: Papr) -> None:
         sync = client.sync.get_delta(
@@ -34,7 +34,7 @@ class TestSync:
         )
         assert_matches_type(SyncGetDeltaResponse, sync, path=["response"])
 
-    @pytest.mark.skip(reason="Prism tests are disabled")
+    @pytest.mark.skip(reason="Mock server tests are disabled")
     @parametrize
     def test_raw_response_get_delta(self, client: Papr) -> None:
         response = client.sync.with_raw_response.get_delta()
@@ -44,7 +44,7 @@ class TestSync:
         sync = response.parse()
         assert_matches_type(SyncGetDeltaResponse, sync, path=["response"])
 
-    @pytest.mark.skip(reason="Prism tests are disabled")
+    @pytest.mark.skip(reason="Mock server tests are disabled")
     @parametrize
     def test_streaming_response_get_delta(self, client: Papr) -> None:
         with client.sync.with_streaming_response.get_delta() as response:
@@ -56,13 +56,13 @@ class TestSync:
 
         assert cast(Any, response.is_closed) is True
 
-    @pytest.mark.skip(reason="Prism tests are disabled")
+    @pytest.mark.skip(reason="Mock server tests are disabled")
     @parametrize
     def test_method_get_tiers(self, client: Papr) -> None:
         sync = client.sync.get_tiers()
         assert_matches_type(SyncGetTiersResponse, sync, path=["response"])
 
-    @pytest.mark.skip(reason="Prism tests are disabled")
+    @pytest.mark.skip(reason="Mock server tests are disabled")
     @parametrize
     def test_method_get_tiers_with_all_params(self, client: Papr) -> None:
         sync = client.sync.get_tiers(
@@ -80,7 +80,7 @@ class TestSync:
         )
         assert_matches_type(SyncGetTiersResponse, sync, path=["response"])
 
-    @pytest.mark.skip(reason="Prism tests are disabled")
+    @pytest.mark.skip(reason="Mock server tests are disabled")
     @parametrize
     def test_raw_response_get_tiers(self, client: Papr) -> None:
         response = client.sync.with_raw_response.get_tiers()
@@ -90,7 +90,7 @@ class TestSync:
         sync = response.parse()
         assert_matches_type(SyncGetTiersResponse, sync, path=["response"])
 
-    @pytest.mark.skip(reason="Prism tests are disabled")
+    @pytest.mark.skip(reason="Mock server tests are disabled")
     @parametrize
     def test_streaming_response_get_tiers(self, client: Papr) -> None:
         with client.sync.with_streaming_response.get_tiers() as response:
@@ -108,13 +108,13 @@ class TestAsyncSync:
         "async_client", [False, True, {"http_client": "aiohttp"}], indirect=True, ids=["loose", "strict", "aiohttp"]
     )
 
-    @pytest.mark.skip(reason="Prism tests are disabled")
+    @pytest.mark.skip(reason="Mock server tests are disabled")
     @parametrize
     async def test_method_get_delta(self, async_client: AsyncPapr) -> None:
         sync = await async_client.sync.get_delta()
         assert_matches_type(SyncGetDeltaResponse, sync, path=["response"])
 
-    @pytest.mark.skip(reason="Prism tests are disabled")
+    @pytest.mark.skip(reason="Mock server tests are disabled")
     @parametrize
     async def test_method_get_delta_with_all_params(self, async_client: AsyncPapr) -> None:
         sync = await async_client.sync.get_delta(
@@ -125,7 +125,7 @@ class TestAsyncSync:
         )
         assert_matches_type(SyncGetDeltaResponse, sync, path=["response"])
 
-    @pytest.mark.skip(reason="Prism tests are disabled")
+    @pytest.mark.skip(reason="Mock server tests are disabled")
     @parametrize
     async def test_raw_response_get_delta(self, async_client: AsyncPapr) -> None:
         response = await async_client.sync.with_raw_response.get_delta()
@@ -135,7 +135,7 @@ class TestAsyncSync:
         sync = await response.parse()
         assert_matches_type(SyncGetDeltaResponse, sync, path=["response"])
 
-    @pytest.mark.skip(reason="Prism tests are disabled")
+    @pytest.mark.skip(reason="Mock server tests are disabled")
     @parametrize
     async def test_streaming_response_get_delta(self, async_client: AsyncPapr) -> None:
         async with async_client.sync.with_streaming_response.get_delta() as response:
@@ -147,13 +147,13 @@ class TestAsyncSync:
 
         assert cast(Any, response.is_closed) is True
 
-    @pytest.mark.skip(reason="Prism tests are disabled")
+    @pytest.mark.skip(reason="Mock server tests are disabled")
     @parametrize
     async def test_method_get_tiers(self, async_client: AsyncPapr) -> None:
         sync = await async_client.sync.get_tiers()
         assert_matches_type(SyncGetTiersResponse, sync, path=["response"])
 
-    @pytest.mark.skip(reason="Prism tests are disabled")
+    @pytest.mark.skip(reason="Mock server tests are disabled")
     @parametrize
     async def test_method_get_tiers_with_all_params(self, async_client: AsyncPapr) -> None:
         sync = await async_client.sync.get_tiers(
@@ -171,7 +171,7 @@ class TestAsyncSync:
         )
         assert_matches_type(SyncGetTiersResponse, sync, path=["response"])
 
-    @pytest.mark.skip(reason="Prism tests are disabled")
+    @pytest.mark.skip(reason="Mock server tests are disabled")
     @parametrize
     async def test_raw_response_get_tiers(self, async_client: AsyncPapr) -> None:
         response = await async_client.sync.with_raw_response.get_tiers()
@@ -181,7 +181,7 @@ class TestAsyncSync:
         sync = await response.parse()
         assert_matches_type(SyncGetTiersResponse, sync, path=["response"])
 
-    @pytest.mark.skip(reason="Prism tests are disabled")
+    @pytest.mark.skip(reason="Mock server tests are disabled")
     @parametrize
     async def test_streaming_response_get_tiers(self, async_client: AsyncPapr) -> None:
         async with async_client.sync.with_streaming_response.get_tiers() as response:

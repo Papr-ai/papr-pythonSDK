@@ -3,24 +3,19 @@
 from typing import List, Optional
 
 from .._models import BaseModel
+from .batch_memory_error import BatchMemoryError
 from .add_memory_response import AddMemoryResponse
 
-__all__ = ["BatchMemoryResponse", "Error"]
-
-
-class Error(BaseModel):
-    error: str
-
-    index: int
-
-    code: Optional[int] = None
-
-    details: Optional[object] = None
-
-    status: Optional[str] = None
+__all__ = ["BatchMemoryResponse"]
 
 
 class BatchMemoryResponse(BaseModel):
+    batch_id: Optional[str] = None
+    """
+    Batch tracking ID for status polling via GET /v1/memory/batch/status/{batch_id}
+    and WebSocket updates
+    """
+
     code: Optional[int] = None
     """HTTP status code for the batch operation"""
 
@@ -30,7 +25,7 @@ class BatchMemoryResponse(BaseModel):
     error: Optional[str] = None
     """Batch-level error message, if any"""
 
-    errors: Optional[List[Error]] = None
+    errors: Optional[List[BatchMemoryError]] = None
     """List of errors for failed items"""
 
     message: Optional[str] = None
