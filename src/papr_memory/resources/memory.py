@@ -4813,6 +4813,11 @@ class MemoryResourceWithRawResponse:
         self.get = to_raw_response_wrapper(
             memory.get,
         )
+        self.retrieve_batch_status = to_raw_response_wrapper(
+            memory.retrieve_batch_status,
+        )
+        self.retrieve_status = to_raw_response_wrapper(
+            memory.retrieve_status,
         self.sync_tiers = to_raw_response_wrapper(
             memory.sync_tiers,
         )
@@ -4843,6 +4848,11 @@ class AsyncMemoryResourceWithRawResponse:
         self.get = async_to_raw_response_wrapper(
             memory.get,
         )
+        self.retrieve_batch_status = async_to_raw_response_wrapper(
+            memory.retrieve_batch_status,
+        )
+        self.retrieve_status = async_to_raw_response_wrapper(
+            memory.retrieve_status,
         self.sync_tiers = async_to_raw_response_wrapper(
             memory.sync_tiers,
         )
@@ -4873,6 +4883,11 @@ class MemoryResourceWithStreamingResponse:
         self.get = to_streamed_response_wrapper(
             memory.get,
         )
+        self.retrieve_batch_status = to_streamed_response_wrapper(
+            memory.retrieve_batch_status,
+        )
+        self.retrieve_status = to_streamed_response_wrapper(
+            memory.retrieve_status,
         self.sync_tiers = to_streamed_response_wrapper(
             memory.sync_tiers,
         )
@@ -4903,6 +4918,11 @@ class AsyncMemoryResourceWithStreamingResponse:
         self.get = async_to_streamed_response_wrapper(
             memory.get,
         )
+        self.retrieve_batch_status = async_to_streamed_response_wrapper(
+            memory.retrieve_batch_status,
+        )
+        self.retrieve_status = async_to_streamed_response_wrapper(
+            memory.retrieve_status,
         self.sync_tiers = async_to_streamed_response_wrapper(
             memory.sync_tiers,
         )
