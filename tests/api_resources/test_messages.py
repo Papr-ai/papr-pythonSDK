@@ -21,9 +21,9 @@ class TestMessages:
     @parametrize
     def test_method_store(self, client: Papr) -> None:
         message = client.messages.store(
-            content="string",
+            content="Can you help me plan the Q4 product roadmap?",
             role="user",
-            session_id="sessionId",
+            session_id="session_123",
         )
         assert_matches_type(MessageStoreResponse, message, path=["response"])
 
@@ -31,9 +31,9 @@ class TestMessages:
     @parametrize
     def test_method_store_with_all_params(self, client: Papr) -> None:
         message = client.messages.store(
-            content="string",
+            content="Can you help me plan the Q4 product roadmap?",
             role="user",
-            session_id="sessionId",
+            session_id="session_123",
             context=[{"foo": "bar"}],
             graph_generation={
                 "auto": {
@@ -215,7 +215,7 @@ class TestMessages:
                 "external_user_write_access": ["string"],
                 "goal_classification_scores": [0],
                 "hierarchical_structures": "string",
-                "location": "location",
+                "location": "Office",
                 "namespace_id": "namespace_id",
                 "namespace_read_access": ["string"],
                 "namespace_write_access": ["string"],
@@ -235,7 +235,7 @@ class TestMessages:
                 "source_type": "sourceType",
                 "source_url": "sourceUrl",
                 "step_classification_scores": [0],
-                "topics": ["string"],
+                "topics": ["product", "planning", "roadmap"],
                 "upload_id": "upload_id",
                 "use_case_classification_scores": [0],
                 "user_id": "user_id",
@@ -250,7 +250,7 @@ class TestMessages:
             organization_id="organization_id",
             process_messages=True,
             relationships_json=[{"foo": "bar"}],
-            title="title",
+            title="Q4 Product Planning",
         )
         assert_matches_type(MessageStoreResponse, message, path=["response"])
 
@@ -258,9 +258,9 @@ class TestMessages:
     @parametrize
     def test_raw_response_store(self, client: Papr) -> None:
         response = client.messages.with_raw_response.store(
-            content="string",
+            content="Can you help me plan the Q4 product roadmap?",
             role="user",
-            session_id="sessionId",
+            session_id="session_123",
         )
 
         assert response.is_closed is True
@@ -272,9 +272,9 @@ class TestMessages:
     @parametrize
     def test_streaming_response_store(self, client: Papr) -> None:
         with client.messages.with_streaming_response.store(
-            content="string",
+            content="Can you help me plan the Q4 product roadmap?",
             role="user",
-            session_id="sessionId",
+            session_id="session_123",
         ) as response:
             assert not response.is_closed
             assert response.http_request.headers.get("X-Stainless-Lang") == "python"
@@ -294,9 +294,9 @@ class TestAsyncMessages:
     @parametrize
     async def test_method_store(self, async_client: AsyncPapr) -> None:
         message = await async_client.messages.store(
-            content="string",
+            content="Can you help me plan the Q4 product roadmap?",
             role="user",
-            session_id="sessionId",
+            session_id="session_123",
         )
         assert_matches_type(MessageStoreResponse, message, path=["response"])
 
@@ -304,9 +304,9 @@ class TestAsyncMessages:
     @parametrize
     async def test_method_store_with_all_params(self, async_client: AsyncPapr) -> None:
         message = await async_client.messages.store(
-            content="string",
+            content="Can you help me plan the Q4 product roadmap?",
             role="user",
-            session_id="sessionId",
+            session_id="session_123",
             context=[{"foo": "bar"}],
             graph_generation={
                 "auto": {
@@ -488,7 +488,7 @@ class TestAsyncMessages:
                 "external_user_write_access": ["string"],
                 "goal_classification_scores": [0],
                 "hierarchical_structures": "string",
-                "location": "location",
+                "location": "Office",
                 "namespace_id": "namespace_id",
                 "namespace_read_access": ["string"],
                 "namespace_write_access": ["string"],
@@ -508,7 +508,7 @@ class TestAsyncMessages:
                 "source_type": "sourceType",
                 "source_url": "sourceUrl",
                 "step_classification_scores": [0],
-                "topics": ["string"],
+                "topics": ["product", "planning", "roadmap"],
                 "upload_id": "upload_id",
                 "use_case_classification_scores": [0],
                 "user_id": "user_id",
@@ -523,7 +523,7 @@ class TestAsyncMessages:
             organization_id="organization_id",
             process_messages=True,
             relationships_json=[{"foo": "bar"}],
-            title="title",
+            title="Q4 Product Planning",
         )
         assert_matches_type(MessageStoreResponse, message, path=["response"])
 
@@ -531,9 +531,9 @@ class TestAsyncMessages:
     @parametrize
     async def test_raw_response_store(self, async_client: AsyncPapr) -> None:
         response = await async_client.messages.with_raw_response.store(
-            content="string",
+            content="Can you help me plan the Q4 product roadmap?",
             role="user",
-            session_id="sessionId",
+            session_id="session_123",
         )
 
         assert response.is_closed is True
@@ -545,9 +545,9 @@ class TestAsyncMessages:
     @parametrize
     async def test_streaming_response_store(self, async_client: AsyncPapr) -> None:
         async with async_client.messages.with_streaming_response.store(
-            content="string",
+            content="Can you help me plan the Q4 product roadmap?",
             role="user",
-            session_id="sessionId",
+            session_id="session_123",
         ) as response:
             assert not response.is_closed
             assert response.http_request.headers.get("X-Stainless-Lang") == "python"
