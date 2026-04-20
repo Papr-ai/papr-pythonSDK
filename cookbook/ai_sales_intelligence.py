@@ -37,7 +37,7 @@ Run:
 import os
 import json
 import argparse
-from typing import Optional, List
+from typing import Optional, List, cast
 from papr_memory import Papr
 from papr_memory.lib import (
     schema, node, lookup, upsert, constraint,
@@ -50,6 +50,7 @@ from papr_memory.types import (
     MemoryAddBatchParams,
     BatchMemoryResponse,
 )
+from papr_memory.types.shared_params import MemoryPolicy
 
 # ---------------------------------------------------------------------------
 # 1. DEFINE THE SCHEMA
@@ -752,9 +753,9 @@ def policy_override_example(client: Papr, namespace_id: Optional[str] = None):
 
     # Force exact match on deal name (override schema's semantic match)
     # and set a specific loss reason
-    client.memory.add(
-        content="Sondera.ai deal is lost — they went with a competitor solution.",
-        memory_policy=build_memory_policy(
+    policy = cast(
+        MemoryPolicy,
+        build_memory_policy(
             schema_id="ai_sales_platform",
             node_constraints=[{
                 "node_type": "Deal",
@@ -769,6 +770,10 @@ def policy_override_example(client: Papr, namespace_id: Optional[str] = None):
                 }),
             }],
         ),
+    )
+    client.memory.add(
+        content="Sondera.ai deal is lost — they went with a competitor solution.",
+        memory_policy=policy,
         **base_kwargs,
     )
     print("  Marked Sondera.ai deal as lost with policy override")
