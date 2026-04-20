@@ -1,0 +1,9 @@
+[console_scripts]
+papr-cleanup = papr_memory._cleanup:cleanup_chromadb
+
+[papr.cleanup]
+all = papr_memory._cleanup:cleanup_all_papr_data
+chromadb = papr_memory._cleanup:cleanup_chromadb
+
+[papr.uninstall]
+cleanup = papr_memory._uninstall:uninstall_cleanup
