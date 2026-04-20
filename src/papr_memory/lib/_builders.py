@@ -4,6 +4,9 @@ to API-compatible dicts (SchemaCreateParams, link_to, memory_policy).
 """
 
 from typing import Any, Dict, List, Union, Optional
+from typing_extensions import Literal
+
+from ..types.shared_params import EdgeConstraintInput, MemoryPolicy, NodeConstraintInput
 
 from ._schema import NodeMetadata, SchemaMetadata
 from ._conditions import Or, And, Not
@@ -179,11 +182,11 @@ def _build_relationship_type(edge_name: str, edge_desc: EdgeDescriptor) -> Dict[
 
 
 def build_memory_policy(
-    node_constraints: Optional[List[Dict[str, Any]]] = None,
-    edge_constraints: Optional[List[Dict[str, Any]]] = None,
+    node_constraints: Optional[List[NodeConstraintInput]] = None,
+    edge_constraints: Optional[List[EdgeConstraintInput]] = None,
     schema_id: Optional[str] = None,
-    mode: Optional[str] = None,
-) -> Dict[str, Any]:
+    mode: Optional[Literal["auto", "manual"]] = None,
+) -> MemoryPolicy:
     """Build a ``memory_policy`` dict from structured inputs.
 
     Usage::
@@ -206,7 +209,7 @@ def build_memory_policy(
     Returns:
         Dict matching the ``MemoryPolicy`` structure.
     """
-    policy: Dict[str, Any] = {}
+    policy: MemoryPolicy = {}
     if mode is not None:
         policy["mode"] = mode
     if schema_id is not None:
