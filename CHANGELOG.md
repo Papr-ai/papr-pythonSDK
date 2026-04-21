@@ -1,5 +1,42 @@
 # Changelog
 
+## 2.23.0 (2026-04-21)
+
+Full Changelog: [v2.22.0...v2.23.0](https://github.com/Papr-ai/papr-pythonSDK/compare/v2.22.0...v2.23.0)
+
+### Features
+
+* **api:** manual updates ([0735cc7](https://github.com/Papr-ai/papr-pythonSDK/commit/0735cc76e59144048008666a449bb11c8097847b))
+* **api:** manual updates ([fb0149e](https://github.com/Papr-ai/papr-pythonSDK/commit/fb0149e8d593ac701a2ab98f16ea6a20dbbe4b7c))
+* **internal:** implement indices array format for query and form serialization ([4a207df](https://github.com/Papr-ai/papr-pythonSDK/commit/4a207df36a2ed6705a8887c6dd39f312cbc9e783))
+
+
+### Bug Fixes
+
+* **client:** preserve hardcoded query params when merging with user params ([bb6c868](https://github.com/Papr-ai/papr-pythonSDK/commit/bb6c868bcbb82a011eb45fcaf730b3a01ab1dbcf))
+* **deps:** bump minimum typing-extensions version ([592648a](https://github.com/Papr-ai/papr-pythonSDK/commit/592648acb7796a3ebd8c73453babc78ea3b7cf25))
+* ensure file data are only sent as 1 parameter ([64b93b0](https://github.com/Papr-ai/papr-pythonSDK/commit/64b93b03076197115303e0796474142a42737f33))
+* **pydantic:** do not pass `by_alias` unless set ([924cc3d](https://github.com/Papr-ai/papr-pythonSDK/commit/924cc3dfb7d9c0cd51a02a5f375fc1c0d60daf99))
+* sanitize endpoint path params ([326b15c](https://github.com/Papr-ai/papr-pythonSDK/commit/326b15c9da57839d4b9afec02fbce8b61767dea4))
+
+
+### Performance Improvements
+
+* **client:** optimize file structure copying in multipart requests ([66e75b8](https://github.com/Papr-ai/papr-pythonSDK/commit/66e75b82a6b066cb2d47ccafc8aeb3000bfbcc66))
+
+
+### Chores
+
+* **ci:** skip lint on metadata-only changes ([ceb894d](https://github.com/Papr-ai/papr-pythonSDK/commit/ceb894debce3f48f99ebb980e0ecf45382590d35))
+* **internal:** tweak CI branches ([c0bd9ad](https://github.com/Papr-ai/papr-pythonSDK/commit/c0bd9ad90c9101aadafe92710dd6e70fbe79e0c4))
+* **internal:** update gitignore ([480f56b](https://github.com/Papr-ai/papr-pythonSDK/commit/480f56b93bfcfbb1554e290bc3b9dbada2284168))
+
+
+### Documentation
+
+* improve examples ([c598a80](https://github.com/Papr-ai/papr-pythonSDK/commit/c598a80f0e95126e42d31e5844fca63de99487f0))
+* update examples ([2de93e0](https://github.com/Papr-ai/papr-pythonSDK/commit/2de93e0f3d4e75301fb7bcbfdb75a93e7630a362))
+
 ## 2.21.1 (2026-02-26)
 
 Full Changelog: [v2.21.0...v2.21.1](https://github.com/Papr-ai/papr-pythonSDK/compare/v2.21.0...v2.21.1)
