@@ -7,28 +7,40 @@ from typing_extensions import Literal
 
 import httpx
 
-from ..types import namespace_list_params, namespace_create_params, namespace_delete_params, namespace_update_params
-from .._types import Body, Omit, Query, Headers, NotGiven, omit, not_given
-from .._utils import path_template, maybe_transform, async_maybe_transform
-from .._compat import cached_property
-from .._resource import SyncAPIResource, AsyncAPIResource
-from .._response import (
+from ...types import namespace_list_params, namespace_create_params, namespace_delete_params, namespace_update_params
+from ..._types import Body, Omit, Query, Headers, NotGiven, omit, not_given
+from ..._utils import path_template, maybe_transform, async_maybe_transform
+from .instance import (
+    InstanceResource,
+    AsyncInstanceResource,
+    InstanceResourceWithRawResponse,
+    AsyncInstanceResourceWithRawResponse,
+    InstanceResourceWithStreamingResponse,
+    AsyncInstanceResourceWithStreamingResponse,
+)
+from ..._compat import cached_property
+from ..._resource import SyncAPIResource, AsyncAPIResource
+from ..._response import (
     to_raw_response_wrapper,
     to_streamed_response_wrapper,
     async_to_raw_response_wrapper,
     async_to_streamed_response_wrapper,
 )
-from .._base_client import make_request_options
-from ..types.namespace_list_response import NamespaceListResponse
-from ..types.namespace_create_response import NamespaceCreateResponse
-from ..types.namespace_delete_response import NamespaceDeleteResponse
-from ..types.namespace_update_response import NamespaceUpdateResponse
-from ..types.namespace_retrieve_response import NamespaceRetrieveResponse
+from ..._base_client import make_request_options
+from ...types.namespace_list_response import NamespaceListResponse
+from ...types.namespace_create_response import NamespaceCreateResponse
+from ...types.namespace_delete_response import NamespaceDeleteResponse
+from ...types.namespace_update_response import NamespaceUpdateResponse
+from ...types.namespace_retrieve_response import NamespaceRetrieveResponse
 
 __all__ = ["NamespaceResource", "AsyncNamespaceResource"]
 
 
 class NamespaceResource(SyncAPIResource):
+    @cached_property
+    def instance(self) -> InstanceResource:
+        return InstanceResource(self._client)
+
     @cached_property
     def with_raw_response(self) -> NamespaceResourceWithRawResponse:
         """
@@ -288,6 +300,10 @@ class NamespaceResource(SyncAPIResource):
 
 
 class AsyncNamespaceResource(AsyncAPIResource):
+    @cached_property
+    def instance(self) -> AsyncInstanceResource:
+        return AsyncInstanceResource(self._client)
+
     @cached_property
     def with_raw_response(self) -> AsyncNamespaceResourceWithRawResponse:
         """
@@ -566,6 +582,10 @@ class NamespaceResourceWithRawResponse:
             namespace.delete,
         )
 
+    @cached_property
+    def instance(self) -> InstanceResourceWithRawResponse:
+        return InstanceResourceWithRawResponse(self._namespace.instance)
+
 
 class AsyncNamespaceResourceWithRawResponse:
     def __init__(self, namespace: AsyncNamespaceResource) -> None:
@@ -586,6 +606,10 @@ class AsyncNamespaceResourceWithRawResponse:
         self.delete = async_to_raw_response_wrapper(
             namespace.delete,
         )
+
+    @cached_property
+    def instance(self) -> AsyncInstanceResourceWithRawResponse:
+        return AsyncInstanceResourceWithRawResponse(self._namespace.instance)
 
 
 class NamespaceResourceWithStreamingResponse:
@@ -608,6 +632,10 @@ class NamespaceResourceWithStreamingResponse:
             namespace.delete,
         )
 
+    @cached_property
+    def instance(self) -> InstanceResourceWithStreamingResponse:
+        return InstanceResourceWithStreamingResponse(self._namespace.instance)
+
 
 class AsyncNamespaceResourceWithStreamingResponse:
     def __init__(self, namespace: AsyncNamespaceResource) -> None:
@@ -628,3 +656,7 @@ class AsyncNamespaceResourceWithStreamingResponse:
         self.delete = async_to_streamed_response_wrapper(
             namespace.delete,
         )
+
+    @cached_property
+    def instance(self) -> AsyncInstanceResourceWithStreamingResponse:
+        return AsyncInstanceResourceWithStreamingResponse(self._namespace.instance)
