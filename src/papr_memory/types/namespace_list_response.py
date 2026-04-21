@@ -1,93 +1,11 @@
 # File generated from our OpenAPI spec by Stainless. See CONTRIBUTING.md for details.
 
-from typing import TYPE_CHECKING, Dict, List, Optional
-
-from pydantic import Field as FieldInfo
+from typing import List, Optional
 
 from .._models import BaseModel
+from .namespace_item import NamespaceItem
 
-__all__ = ["NamespaceListResponse", "Data", "DataInstanceConfig", "DataInstanceConfigNeo4j"]
-
-
-class DataInstanceConfigNeo4j(BaseModel):
-    """Neo4j instance configuration — response (password masked)."""
-
-    bolt_url: str
-    """Neo4j bolt connection URL"""
-
-    password_masked: str
-    """Masked password (e.g. '\\**\\**\\**\\**ab12')"""
-
-    username: str
-    """Neo4j username"""
-
-    graphql_endpoint: Optional[str] = None
-    """Neo4j GraphQL endpoint URL"""
-
-
-class DataInstanceConfig(BaseModel):
-    """Instance configuration — response model for GET endpoints."""
-
-    provider: str
-    """Cloud provider"""
-
-    region: str
-    """Cloud region"""
-
-    scope: str
-    """Where this config was resolved from: 'namespace' or 'organization'"""
-
-    neo4j: Optional[DataInstanceConfigNeo4j] = None
-    """Neo4j instance configuration — response (password masked)."""
-
-
-class Data(BaseModel):
-    """Public-facing namespace data returned in API responses."""
-
-    created_at: Optional[str] = FieldInfo(alias="createdAt", default=None)
-    """Creation timestamp"""
-
-    environment_type: Optional[str] = None
-    """Environment type"""
-
-    instance_config: Optional[DataInstanceConfig] = None
-    """Instance configuration — response model for GET endpoints."""
-
-    is_active: Optional[bool] = None
-    """Whether namespace is active"""
-
-    memories_count: Optional[int] = FieldInfo(alias="memoriesCount", default=None)
-    """Total memories"""
-
-    name: Optional[str] = None
-    """Namespace name"""
-
-    object_id: Optional[str] = FieldInfo(alias="objectId", default=None)
-    """Parse objectId"""
-
-    organization_id: Optional[str] = None
-    """Owning organization ID"""
-
-    rate_limits: Optional[Dict[str, Optional[int]]] = None
-    """Rate limits"""
-
-    storage_count: Optional[int] = FieldInfo(alias="storageCount", default=None)
-    """Total storage items"""
-
-    updated_at: Optional[str] = FieldInfo(alias="updatedAt", default=None)
-    """Last update timestamp"""
-
-    if TYPE_CHECKING:
-        # Some versions of Pydantic <2.8.0 have a bug and don’t allow assigning a
-        # value to this field, so for compatibility we avoid doing it at runtime.
-        __pydantic_extra__: Dict[str, object] = FieldInfo(init=False)  # pyright: ignore[reportIncompatibleVariableOverride]
-
-        # Stub to indicate that arbitrary properties are accepted.
-        # To access properties that are not valid identifiers you can use `getattr`, e.g.
-        # `getattr(obj, '$type')`
-        def __getattr__(self, attr: str) -> object: ...
-    else:
-        __pydantic_extra__: Dict[str, object]
+__all__ = ["NamespaceListResponse"]
 
 
 class NamespaceListResponse(BaseModel):
@@ -96,7 +14,7 @@ class NamespaceListResponse(BaseModel):
     code: Optional[int] = None
     """HTTP status code"""
 
-    data: Optional[List[Data]] = None
+    data: Optional[List[NamespaceItem]] = None
     """List of namespaces"""
 
     details: Optional[object] = None
