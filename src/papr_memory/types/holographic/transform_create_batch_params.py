@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from typing import List, Iterable, Optional
+from typing import Dict, List, Iterable, Optional
 from typing_extensions import Literal, Required, TypedDict
 
 __all__ = ["TransformCreateBatchParams", "Item"]
@@ -46,3 +46,6 @@ class Item(TypedDict, total=False):
 
     embedding: Required[Iterable[float]]
     """Base embedding vector"""
+
+    context_metadata: Optional[Dict[str, object]]
+    """Optional context metadata for this item (createdAt, sourceType, etc.)"""

@@ -6,7 +6,39 @@ from pydantic import Field as FieldInfo
 
 from .._models import BaseModel
 
-__all__ = ["NamespaceListResponse", "Data"]
+__all__ = ["NamespaceListResponse", "Data", "DataInstanceConfig", "DataInstanceConfigNeo4j"]
+
+
+class DataInstanceConfigNeo4j(BaseModel):
+    """Neo4j instance configuration — response (password masked)."""
+
+    bolt_url: str
+    """Neo4j bolt connection URL"""
+
+    password_masked: str
+    """Masked password (e.g. '\\**\\**\\**\\**ab12')"""
+
+    username: str
+    """Neo4j username"""
+
+    graphql_endpoint: Optional[str] = None
+    """Neo4j GraphQL endpoint URL"""
+
+
+class DataInstanceConfig(BaseModel):
+    """Instance configuration — response model for GET endpoints."""
+
+    provider: str
+    """Cloud provider"""
+
+    region: str
+    """Cloud region"""
+
+    scope: str
+    """Where this config was resolved from: 'namespace' or 'organization'"""
+
+    neo4j: Optional[DataInstanceConfigNeo4j] = None
+    """Neo4j instance configuration — response (password masked)."""
 
 
 class Data(BaseModel):
@@ -17,6 +49,9 @@ class Data(BaseModel):
 
     environment_type: Optional[str] = None
     """Environment type"""
+
+    instance_config: Optional[DataInstanceConfig] = None
+    """Instance configuration — response model for GET endpoints."""
 
     is_active: Optional[bool] = None
     """Whether namespace is active"""

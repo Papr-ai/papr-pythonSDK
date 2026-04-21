@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from typing import List, Union, Iterable, Optional
+from typing import Dict, List, Union, Iterable, Optional
 from typing_extensions import Literal, Required, Annotated, TypedDict
 
 from .._types import SequenceNotStr
@@ -183,6 +183,16 @@ class HolographicConfig(TypedDict, total=False):
     enabled: bool
     """Whether to enable holographic embedding transforms"""
 
+    frequency_filters: Optional[Dict[str, float]]
+    """Filter results by minimum alignment on specific frequency dimensions.
+
+    Keys are field names (e.g., 'programming_domain', 'primary_operation'), values
+    are minimum alignment scores (0.0-1.0). Example: {'programming_domain': 0.8,
+    'primary_operation': 0.7} Only returns results that match at least 80% on domain
+    AND 70% on operation. Call GET /v1/frequencies to see available field names for
+    each schema.
+    """
+
     frequency_schema_id: Optional[str]
     """Frequency schema for holographic scoring.
 
@@ -198,6 +208,14 @@ class HolographicConfig(TypedDict, total=False):
 
     hcond_penalty_factor: float
     """Maximum penalty for low alignment (0.0-0.5)"""
+
+    include_frequency_scores: bool
+    """
+    If true, each result includes a per-frequency score breakdown showing how well
+    the query matched the document on each dimension (e.g., programming_domain:
+    0.95, primary_operation: 0.72). Useful for understanding WHY a result ranked
+    high or low.
+    """
 
     scoring_method: Optional[str]
     """Scoring method for holographic search results.

@@ -1,36 +1,41 @@
 # Changelog
 
-## 2.22.0 (2026-03-14)
+## 2.23.0 (2026-04-21)
 
-Full Changelog: [v2.21.1...v2.22.0](https://github.com/Papr-ai/papr-pythonSDK/compare/v2.21.1...v2.22.0)
+Full Changelog: [v2.22.0...v2.23.0](https://github.com/Papr-ai/papr-pythonSDK/compare/v2.22.0...v2.23.0)
 
 ### Features
 
-* **api:** manual updates ([ce4416c](https://github.com/Papr-ai/papr-pythonSDK/commit/ce4416ce471300b24928167b71fe081630151d65))
-* **api:** manual updates ([5132ad2](https://github.com/Papr-ai/papr-pythonSDK/commit/5132ad23683f1a31a7c380bc2c00f36f183f9a33))
-* **api:** manual updates ([d92016f](https://github.com/Papr-ai/papr-pythonSDK/commit/d92016f1f2826889620f83d34dd37bf82299666e))
-* **api:** manual updates ([bacf803](https://github.com/Papr-ai/papr-pythonSDK/commit/bacf80328fdf7524399deaef0785dcee2785db68))
-* **api:** manual updates ([9425f57](https://github.com/Papr-ai/papr-pythonSDK/commit/9425f572092dca59201b873a4c8e685c53379fc0))
+* **api:** manual updates ([0735cc7](https://github.com/Papr-ai/papr-pythonSDK/commit/0735cc76e59144048008666a449bb11c8097847b))
+* **api:** manual updates ([fb0149e](https://github.com/Papr-ai/papr-pythonSDK/commit/fb0149e8d593ac701a2ab98f16ea6a20dbbe4b7c))
+* **internal:** implement indices array format for query and form serialization ([4a207df](https://github.com/Papr-ai/papr-pythonSDK/commit/4a207df36a2ed6705a8887c6dd39f312cbc9e783))
+
+
+### Bug Fixes
+
+* **client:** preserve hardcoded query params when merging with user params ([bb6c868](https://github.com/Papr-ai/papr-pythonSDK/commit/bb6c868bcbb82a011eb45fcaf730b3a01ab1dbcf))
+* **deps:** bump minimum typing-extensions version ([592648a](https://github.com/Papr-ai/papr-pythonSDK/commit/592648acb7796a3ebd8c73453babc78ea3b7cf25))
+* ensure file data are only sent as 1 parameter ([64b93b0](https://github.com/Papr-ai/papr-pythonSDK/commit/64b93b03076197115303e0796474142a42737f33))
+* **pydantic:** do not pass `by_alias` unless set ([924cc3d](https://github.com/Papr-ai/papr-pythonSDK/commit/924cc3dfb7d9c0cd51a02a5f375fc1c0d60daf99))
+* sanitize endpoint path params ([326b15c](https://github.com/Papr-ai/papr-pythonSDK/commit/326b15c9da57839d4b9afec02fbce8b61767dea4))
+
+
+### Performance Improvements
+
+* **client:** optimize file structure copying in multipart requests ([66e75b8](https://github.com/Papr-ai/papr-pythonSDK/commit/66e75b82a6b066cb2d47ccafc8aeb3000bfbcc66))
 
 
 ### Chores
 
-* **ci:** skip uploading artifacts on stainless-internal branches ([969a357](https://github.com/Papr-ai/papr-pythonSDK/commit/969a357498b550a391d70d65b860713952473d62))
-* format all `api.md` files ([b37ad0e](https://github.com/Papr-ai/papr-pythonSDK/commit/b37ad0eac8972f52d62216edd54af20799f309a3))
-* **internal:** add request options to SSE classes ([e50351c](https://github.com/Papr-ai/papr-pythonSDK/commit/e50351cc4c1b31281c4c97d5e464f5414d6dce52))
-* **internal:** bump dependencies ([0210d42](https://github.com/Papr-ai/papr-pythonSDK/commit/0210d42d4ea725382c21f7da6db8f62d91f76625))
-* **internal:** fix lint error on Python 3.14 ([6e99789](https://github.com/Papr-ai/papr-pythonSDK/commit/6e99789cfa1ba405f59952bd4e6039d9fbee37b8))
-* **internal:** make `test_proxy_environment_variables` more resilient ([80618bf](https://github.com/Papr-ai/papr-pythonSDK/commit/80618bfa8e5daf7705cb59e9e35c657fc3da54b9))
-* **internal:** make `test_proxy_environment_variables` more resilient to env ([5c6502e](https://github.com/Papr-ai/papr-pythonSDK/commit/5c6502e25d699caab4ac35f4087149499877e8fe))
-* **internal:** remove mock server code ([0ece353](https://github.com/Papr-ai/papr-pythonSDK/commit/0ece353f65a1384f67f633abcca59c9ac6e3e72c))
-* **internal:** version bump ([22cce89](https://github.com/Papr-ai/papr-pythonSDK/commit/22cce89512e3a73a779773ccb22feaa25f67fd89))
-* update mock server docs ([0b68485](https://github.com/Papr-ai/papr-pythonSDK/commit/0b68485591dd7b746cb2550f4997471157cd24a2))
-* update placeholder string ([3b7ea86](https://github.com/Papr-ai/papr-pythonSDK/commit/3b7ea86774a8fceb67d70f91cb15d52caa33f25f))
+* **ci:** skip lint on metadata-only changes ([ceb894d](https://github.com/Papr-ai/papr-pythonSDK/commit/ceb894debce3f48f99ebb980e0ecf45382590d35))
+* **internal:** tweak CI branches ([c0bd9ad](https://github.com/Papr-ai/papr-pythonSDK/commit/c0bd9ad90c9101aadafe92710dd6e70fbe79e0c4))
+* **internal:** update gitignore ([480f56b](https://github.com/Papr-ai/papr-pythonSDK/commit/480f56b93bfcfbb1554e290bc3b9dbada2284168))
 
 
-### Refactors
+### Documentation
 
-* **types:** use `extra_items` from PEP 728 ([c60d886](https://github.com/Papr-ai/papr-pythonSDK/commit/c60d886756b85b67da9fb2e29b44f236838de506))
+* improve examples ([c598a80](https://github.com/Papr-ai/papr-pythonSDK/commit/c598a80f0e95126e42d31e5844fca63de99487f0))
+* update examples ([2de93e0](https://github.com/Papr-ai/papr-pythonSDK/commit/2de93e0f3d4e75301fb7bcbfdb75a93e7630a362))
 
 ## 2.21.1 (2026-02-26)
 

@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from typing import List, Iterable, Optional
+from typing import Dict, List, Iterable, Optional
 from typing_extensions import Literal
 
 import httpx
@@ -50,6 +50,7 @@ class TransformResource(SyncAPIResource):
         *,
         content: str,
         embedding: Iterable[float],
+        context_metadata: Optional[Dict[str, object]] | Omit = omit,
         domain: Optional[str] | Omit = omit,
         frequency_schema_id: Optional[str] | Omit = omit,
         output: Optional[
@@ -85,6 +86,9 @@ class TransformResource(SyncAPIResource):
 
           embedding: Base embedding vector (any dimensionality)
 
+          context_metadata: Optional context metadata (createdAt, sourceType, customMetadata, etc.) to
+              improve LLM extraction accuracy, especially for dates and entities.
+
           domain: Domain for frequency schema selection (e.g. 'biomedical', 'code', 'general')
 
           frequency_schema_id: Specific frequency schema ID override (e.g. 'biomedical:scifact:2.0.0'). Takes
@@ -107,6 +111,7 @@ class TransformResource(SyncAPIResource):
                 {
                     "content": content,
                     "embedding": embedding,
+                    "context_metadata": context_metadata,
                     "domain": domain,
                     "frequency_schema_id": frequency_schema_id,
                     "output": output,
@@ -211,6 +216,7 @@ class AsyncTransformResource(AsyncAPIResource):
         *,
         content: str,
         embedding: Iterable[float],
+        context_metadata: Optional[Dict[str, object]] | Omit = omit,
         domain: Optional[str] | Omit = omit,
         frequency_schema_id: Optional[str] | Omit = omit,
         output: Optional[
@@ -246,6 +252,9 @@ class AsyncTransformResource(AsyncAPIResource):
 
           embedding: Base embedding vector (any dimensionality)
 
+          context_metadata: Optional context metadata (createdAt, sourceType, customMetadata, etc.) to
+              improve LLM extraction accuracy, especially for dates and entities.
+
           domain: Domain for frequency schema selection (e.g. 'biomedical', 'code', 'general')
 
           frequency_schema_id: Specific frequency schema ID override (e.g. 'biomedical:scifact:2.0.0'). Takes
@@ -268,6 +277,7 @@ class AsyncTransformResource(AsyncAPIResource):
                 {
                     "content": content,
                     "embedding": embedding,
+                    "context_metadata": context_metadata,
                     "domain": domain,
                     "frequency_schema_id": frequency_schema_id,
                     "output": output,

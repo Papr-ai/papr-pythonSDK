@@ -40,7 +40,7 @@ from papr_memory.types.memory_update_response import MemoryUpdateResponse
 from papr_memory.types.relationship_item_param import RelationshipItemParam
 
 from .._types import Body, Omit, Query, Headers, NotGiven, SequenceNotStr, omit, not_given
-from .._utils import maybe_transform, strip_not_given, async_maybe_transform
+from .._utils import path_template, maybe_transform, strip_not_given, async_maybe_transform
 from .._compat import cached_property
 from .._resource import SyncAPIResource, AsyncAPIResource
 from .._response import (
@@ -211,7 +211,7 @@ class MemoryResource(SyncAPIResource):
         if not memory_id:
             raise ValueError(f"Expected a non-empty value for `memory_id` but received {memory_id!r}")
         return self._put(
-            f"/v1/memory/{memory_id}",
+            path_template("/v1/memory/{memory_id}", memory_id=memory_id),
             body=maybe_transform(
                 {
                     "content": content,
@@ -284,7 +284,7 @@ class MemoryResource(SyncAPIResource):
         if not memory_id:
             raise ValueError(f"Expected a non-empty value for `memory_id` but received {memory_id!r}")
         return self._delete(
-            f"/v1/memory/{memory_id}",
+            path_template("/v1/memory/{memory_id}", memory_id=memory_id),
             options=make_request_options(
                 extra_headers=extra_headers,
                 extra_query=extra_query,
@@ -629,6 +629,7 @@ class MemoryResource(SyncAPIResource):
         self,
         *,
         external_user_id: Optional[str] | Omit = omit,
+        namespace_id: Optional[str] | Omit = omit,
         skip_parse: bool | Omit = omit,
         user_id: Optional[str] | Omit = omit,
         # Use the following arguments if you need to pass additional parameters to the API that aren't available via kwargs.
@@ -660,6 +661,8 @@ class MemoryResource(SyncAPIResource):
         Args:
           external_user_id: Optional external user ID to resolve and delete memories for
 
+          namespace_id: Optional namespace ID to scope deletion to
+
           skip_parse: Skip Parse Server deletion
 
           user_id: Optional user ID to delete memories for (if not provided, uses authenticated
@@ -683,6 +686,7 @@ class MemoryResource(SyncAPIResource):
                 query=maybe_transform(
                     {
                         "external_user_id": external_user_id,
+                        "namespace_id": namespace_id,
                         "skip_parse": skip_parse,
                         "user_id": user_id,
                     },
@@ -804,7 +808,7 @@ class MemoryResource(SyncAPIResource):
         if not memory_id:
             raise ValueError(f"Expected a non-empty value for `memory_id` but received {memory_id!r}")
         return self._get(
-            f"/v1/memory/{memory_id}",
+            path_template("/v1/memory/{memory_id}", memory_id=memory_id),
             options=make_request_options(
                 extra_headers=extra_headers,
                 extra_query=extra_query,
@@ -853,7 +857,7 @@ class MemoryResource(SyncAPIResource):
         if not batch_id:
             raise ValueError(f"Expected a non-empty value for `batch_id` but received {batch_id!r}")
         return self._get(
-            f"/v1/memory/batch/status/{batch_id}",
+            path_template("/v1/memory/batch/status/{batch_id}", batch_id=batch_id),
             options=make_request_options(
                 extra_headers=extra_headers, extra_query=extra_query, extra_body=extra_body, timeout=timeout
             ),
@@ -896,7 +900,7 @@ class MemoryResource(SyncAPIResource):
         if not memory_id:
             raise ValueError(f"Expected a non-empty value for `memory_id` but received {memory_id!r}")
         return self._get(
-            f"/v1/memory/status/{memory_id}",
+            path_template("/v1/memory/status/{memory_id}", memory_id=memory_id),
             options=make_request_options(
                 extra_headers=extra_headers, extra_query=extra_query, extra_body=extra_body, timeout=timeout
             ),
@@ -3798,7 +3802,7 @@ class AsyncMemoryResource(AsyncAPIResource):
         if not memory_id:
             raise ValueError(f"Expected a non-empty value for `memory_id` but received {memory_id!r}")
         return await self._put(
-            f"/v1/memory/{memory_id}",
+            path_template("/v1/memory/{memory_id}", memory_id=memory_id),
             body=await async_maybe_transform(
                 {
                     "content": content,
@@ -3868,7 +3872,7 @@ class AsyncMemoryResource(AsyncAPIResource):
         if not memory_id:
             raise ValueError(f"Expected a non-empty value for `memory_id` but received {memory_id!r}")
         return await self._delete(
-            f"/v1/memory/{memory_id}",
+            path_template("/v1/memory/{memory_id}", memory_id=memory_id),
             options=make_request_options(
                 extra_headers=extra_headers,
                 extra_query=extra_query,
@@ -4213,6 +4217,7 @@ class AsyncMemoryResource(AsyncAPIResource):
         self,
         *,
         external_user_id: Optional[str] | Omit = omit,
+        namespace_id: Optional[str] | Omit = omit,
         skip_parse: bool | Omit = omit,
         user_id: Optional[str] | Omit = omit,
         # Use the following arguments if you need to pass additional parameters to the API that aren't available via kwargs.
@@ -4244,6 +4249,8 @@ class AsyncMemoryResource(AsyncAPIResource):
         Args:
           external_user_id: Optional external user ID to resolve and delete memories for
 
+          namespace_id: Optional namespace ID to scope deletion to
+
           skip_parse: Skip Parse Server deletion
 
           user_id: Optional user ID to delete memories for (if not provided, uses authenticated
@@ -4267,6 +4274,7 @@ class AsyncMemoryResource(AsyncAPIResource):
                 query=await async_maybe_transform(
                     {
                         "external_user_id": external_user_id,
+                        "namespace_id": namespace_id,
                         "skip_parse": skip_parse,
                         "user_id": user_id,
                     },
@@ -4388,7 +4396,7 @@ class AsyncMemoryResource(AsyncAPIResource):
         if not memory_id:
             raise ValueError(f"Expected a non-empty value for `memory_id` but received {memory_id!r}")
         return await self._get(
-            f"/v1/memory/{memory_id}",
+            path_template("/v1/memory/{memory_id}", memory_id=memory_id),
             options=make_request_options(
                 extra_headers=extra_headers,
                 extra_query=extra_query,
@@ -4495,7 +4503,7 @@ class AsyncMemoryResource(AsyncAPIResource):
         if not batch_id:
             raise ValueError(f"Expected a non-empty value for `batch_id` but received {batch_id!r}")
         return await self._get(
-            f"/v1/memory/batch/status/{batch_id}",
+            path_template("/v1/memory/batch/status/{batch_id}", batch_id=batch_id),
             options=make_request_options(
                 extra_headers=extra_headers, extra_query=extra_query, extra_body=extra_body, timeout=timeout
             ),
@@ -4538,7 +4546,7 @@ class AsyncMemoryResource(AsyncAPIResource):
         if not memory_id:
             raise ValueError(f"Expected a non-empty value for `memory_id` but received {memory_id!r}")
         return await self._get(
-            f"/v1/memory/status/{memory_id}",
+            path_template("/v1/memory/status/{memory_id}", memory_id=memory_id),
             options=make_request_options(
                 extra_headers=extra_headers, extra_query=extra_query, extra_body=extra_body, timeout=timeout
             ),
@@ -4813,6 +4821,11 @@ class MemoryResourceWithRawResponse:
         self.get = to_raw_response_wrapper(
             memory.get,
         )
+        self.retrieve_batch_status = to_raw_response_wrapper(
+            memory.retrieve_batch_status,
+        )
+        self.retrieve_status = to_raw_response_wrapper(
+            memory.retrieve_status,
         self.sync_tiers = to_raw_response_wrapper(
             memory.sync_tiers,
         )
@@ -4843,6 +4856,11 @@ class AsyncMemoryResourceWithRawResponse:
         self.get = async_to_raw_response_wrapper(
             memory.get,
         )
+        self.retrieve_batch_status = async_to_raw_response_wrapper(
+            memory.retrieve_batch_status,
+        )
+        self.retrieve_status = async_to_raw_response_wrapper(
+            memory.retrieve_status,
         self.sync_tiers = async_to_raw_response_wrapper(
             memory.sync_tiers,
         )
@@ -4873,6 +4891,11 @@ class MemoryResourceWithStreamingResponse:
         self.get = to_streamed_response_wrapper(
             memory.get,
         )
+        self.retrieve_batch_status = to_streamed_response_wrapper(
+            memory.retrieve_batch_status,
+        )
+        self.retrieve_status = to_streamed_response_wrapper(
+            memory.retrieve_status,
         self.sync_tiers = to_streamed_response_wrapper(
             memory.sync_tiers,
         )
@@ -4903,6 +4926,11 @@ class AsyncMemoryResourceWithStreamingResponse:
         self.get = async_to_streamed_response_wrapper(
             memory.get,
         )
+        self.retrieve_batch_status = async_to_streamed_response_wrapper(
+            memory.retrieve_batch_status,
+        )
+        self.retrieve_status = async_to_streamed_response_wrapper(
+            memory.retrieve_status,
         self.sync_tiers = async_to_streamed_response_wrapper(
             memory.sync_tiers,
         )
