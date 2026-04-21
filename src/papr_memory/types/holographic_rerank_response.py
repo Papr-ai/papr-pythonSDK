@@ -20,6 +20,12 @@ class DataRanking(BaseModel):
     score: float
     """Ensemble score"""
 
+    frequency_scores: Optional[Dict[str, float]] = None
+    """
+    Per-frequency-field alignment scores (when
+    options.include_frequency_scores=true).
+    """
+
     original_score: Optional[float] = None
     """Original retrieval score if provided"""
 

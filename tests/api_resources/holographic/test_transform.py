@@ -35,6 +35,10 @@ class TestTransform:
         transform = client.holographic.transform.create(
             content="The patient presents with elevated troponin levels indicating myocardial damage",
             embedding=[0.1, -0.2, 0.3],
+            context_metadata={
+                "createdAt": "bar",
+                "sourceType": "bar",
+            },
             domain="biomedical",
             frequency_schema_id="frequency_schema_id",
             output=["rotation_v3", "phases", "metadata"],
@@ -92,6 +96,7 @@ class TestTransform:
                     "id": "id",
                     "content": "content",
                     "embedding": [0],
+                    "context_metadata": {"foo": "bar"},
                 }
             ],
             domain="domain",
@@ -159,6 +164,10 @@ class TestAsyncTransform:
         transform = await async_client.holographic.transform.create(
             content="The patient presents with elevated troponin levels indicating myocardial damage",
             embedding=[0.1, -0.2, 0.3],
+            context_metadata={
+                "createdAt": "bar",
+                "sourceType": "bar",
+            },
             domain="biomedical",
             frequency_schema_id="frequency_schema_id",
             output=["rotation_v3", "phases", "metadata"],
@@ -216,6 +225,7 @@ class TestAsyncTransform:
                     "id": "id",
                     "content": "content",
                     "embedding": [0],
+                    "context_metadata": {"foo": "bar"},
                 }
             ],
             domain="domain",
