@@ -33,6 +33,7 @@ class TestHolographic:
     def test_method_extract_metadata_with_all_params(self, client: Papr) -> None:
         holographic = client.holographic.extract_metadata(
             content="content",
+            context_metadata={"foo": "bar"},
             domain="domain",
             frequency_schema_id="frequency_schema_id",
         )
@@ -81,14 +82,18 @@ class TestHolographic:
                 {
                     "id": "doc_1",
                     "content": "Troponin is a cardiac biomarker released during myocardial injury...",
+                    "context_metadata": {"foo": "bar"},
                     "embedding": [0],
+                    "metadata_embeddings": {"foo": [0]},
                     "phases": [0],
                     "score": 0,
                 },
                 {
                     "id": "doc_2",
                     "content": "Aspirin reduces platelet aggregation...",
+                    "context_metadata": {"foo": "bar"},
                     "embedding": [0],
+                    "metadata_embeddings": {"foo": [0]},
                     "phases": [0],
                     "score": 0,
                 },
@@ -97,12 +102,18 @@ class TestHolographic:
             domain="biomedical",
             frequency_schema_id="frequency_schema_id",
             options={
+                "cross_encoder_model": "cross_encoder_model",
+                "cross_encoder_weight": 0,
                 "ensemble": "auto",
+                "frequency_filters": {"foo": 0},
+                "include_frequency_scores": True,
                 "return_scores": True,
                 "scoring_method": "scoring_method",
                 "use_cross_encoder": True,
             },
             query_embedding=[0],
+            query_metadata_embeddings={"foo": [0]},
+            query_phases=[0],
             top_k=10,
         )
         assert_matches_type(HolographicRerankResponse, holographic, path=["response"])
@@ -154,6 +165,7 @@ class TestAsyncHolographic:
     async def test_method_extract_metadata_with_all_params(self, async_client: AsyncPapr) -> None:
         holographic = await async_client.holographic.extract_metadata(
             content="content",
+            context_metadata={"foo": "bar"},
             domain="domain",
             frequency_schema_id="frequency_schema_id",
         )
@@ -202,14 +214,18 @@ class TestAsyncHolographic:
                 {
                     "id": "doc_1",
                     "content": "Troponin is a cardiac biomarker released during myocardial injury...",
+                    "context_metadata": {"foo": "bar"},
                     "embedding": [0],
+                    "metadata_embeddings": {"foo": [0]},
                     "phases": [0],
                     "score": 0,
                 },
                 {
                     "id": "doc_2",
                     "content": "Aspirin reduces platelet aggregation...",
+                    "context_metadata": {"foo": "bar"},
                     "embedding": [0],
+                    "metadata_embeddings": {"foo": [0]},
                     "phases": [0],
                     "score": 0,
                 },
@@ -218,12 +234,18 @@ class TestAsyncHolographic:
             domain="biomedical",
             frequency_schema_id="frequency_schema_id",
             options={
+                "cross_encoder_model": "cross_encoder_model",
+                "cross_encoder_weight": 0,
                 "ensemble": "auto",
+                "frequency_filters": {"foo": 0},
+                "include_frequency_scores": True,
                 "return_scores": True,
                 "scoring_method": "scoring_method",
                 "use_cross_encoder": True,
             },
             query_embedding=[0],
+            query_metadata_embeddings={"foo": [0]},
+            query_phases=[0],
             top_k=10,
         )
         assert_matches_type(HolographicRerankResponse, holographic, path=["response"])

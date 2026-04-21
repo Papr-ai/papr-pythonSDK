@@ -586,6 +586,7 @@ class MemoryResource(SyncAPIResource):
         self,
         *,
         external_user_id: Optional[str] | Omit = omit,
+        namespace_id: Optional[str] | Omit = omit,
         skip_parse: bool | Omit = omit,
         user_id: Optional[str] | Omit = omit,
         # Use the following arguments if you need to pass additional parameters to the API that aren't available via kwargs.
@@ -617,6 +618,8 @@ class MemoryResource(SyncAPIResource):
         Args:
           external_user_id: Optional external user ID to resolve and delete memories for
 
+          namespace_id: Optional namespace ID to scope deletion to
+
           skip_parse: Skip Parse Server deletion
 
           user_id: Optional user ID to delete memories for (if not provided, uses authenticated
@@ -640,6 +643,7 @@ class MemoryResource(SyncAPIResource):
                 query=maybe_transform(
                     {
                         "external_user_id": external_user_id,
+                        "namespace_id": namespace_id,
                         "skip_parse": skip_parse,
                         "user_id": user_id,
                     },
@@ -1576,6 +1580,7 @@ class AsyncMemoryResource(AsyncAPIResource):
         self,
         *,
         external_user_id: Optional[str] | Omit = omit,
+        namespace_id: Optional[str] | Omit = omit,
         skip_parse: bool | Omit = omit,
         user_id: Optional[str] | Omit = omit,
         # Use the following arguments if you need to pass additional parameters to the API that aren't available via kwargs.
@@ -1607,6 +1612,8 @@ class AsyncMemoryResource(AsyncAPIResource):
         Args:
           external_user_id: Optional external user ID to resolve and delete memories for
 
+          namespace_id: Optional namespace ID to scope deletion to
+
           skip_parse: Skip Parse Server deletion
 
           user_id: Optional user ID to delete memories for (if not provided, uses authenticated
@@ -1630,6 +1637,7 @@ class AsyncMemoryResource(AsyncAPIResource):
                 query=await async_maybe_transform(
                     {
                         "external_user_id": external_user_id,
+                        "namespace_id": namespace_id,
                         "skip_parse": skip_parse,
                         "user_id": user_id,
                     },

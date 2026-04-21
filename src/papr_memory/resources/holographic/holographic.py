@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from typing import Iterable, Optional
+from typing import Dict, Iterable, Optional
 
 import httpx
 
@@ -72,6 +72,7 @@ class HolographicResource(SyncAPIResource):
         self,
         *,
         content: str,
+        context_metadata: Optional[Dict[str, object]] | Omit = omit,
         domain: Optional[str] | Omit = omit,
         frequency_schema_id: Optional[str] | Omit = omit,
         # Use the following arguments if you need to pass additional parameters to the API that aren't available via kwargs.
@@ -90,6 +91,8 @@ class HolographicResource(SyncAPIResource):
         Args:
           content: Text content for metadata extraction
 
+          context_metadata: Optional context metadata (createdAt, sourceType, etc.) to improve extraction.
+
           domain: Domain for frequency schema
 
           frequency_schema_id: Schema override
@@ -107,6 +110,7 @@ class HolographicResource(SyncAPIResource):
             body=maybe_transform(
                 {
                     "content": content,
+                    "context_metadata": context_metadata,
                     "domain": domain,
                     "frequency_schema_id": frequency_schema_id,
                 },
@@ -127,6 +131,8 @@ class HolographicResource(SyncAPIResource):
         frequency_schema_id: Optional[str] | Omit = omit,
         options: Optional[holographic_rerank_params.Options] | Omit = omit,
         query_embedding: Optional[Iterable[float]] | Omit = omit,
+        query_metadata_embeddings: Optional[Dict[str, Iterable[float]]] | Omit = omit,
+        query_phases: Optional[Iterable[float]] | Omit = omit,
         top_k: int | Omit = omit,
         # Use the following arguments if you need to pass additional parameters to the API that aren't available via kwargs.
         # The extra values given here take precedence over values defined on the client or passed to this method.
@@ -158,6 +164,13 @@ class HolographicResource(SyncAPIResource):
           query_embedding: Query embedding in the same space as candidate embeddings. If provided, used for
               cosine similarity. If omitted, computed server-side (Qwen 2560d).
 
+          query_metadata_embeddings: Pre-computed query metadata embeddings from a prior /transform call (keyed by
+              frequency string, e.g. '0.1'). Required for full HCond scoring with phase
+              alignment.
+
+          query_phases: Pre-computed query phases from a prior /transform call. If provided alongside
+              query_embedding, skips LLM extraction entirely (hot path).
+
           top_k: Number of results to return
 
           extra_headers: Send extra headers
@@ -178,6 +191,8 @@ class HolographicResource(SyncAPIResource):
                     "frequency_schema_id": frequency_schema_id,
                     "options": options,
                     "query_embedding": query_embedding,
+                    "query_metadata_embeddings": query_metadata_embeddings,
+                    "query_phases": query_phases,
                     "top_k": top_k,
                 },
                 holographic_rerank_params.HolographicRerankParams,
@@ -221,6 +236,7 @@ class AsyncHolographicResource(AsyncAPIResource):
         self,
         *,
         content: str,
+        context_metadata: Optional[Dict[str, object]] | Omit = omit,
         domain: Optional[str] | Omit = omit,
         frequency_schema_id: Optional[str] | Omit = omit,
         # Use the following arguments if you need to pass additional parameters to the API that aren't available via kwargs.
@@ -239,6 +255,8 @@ class AsyncHolographicResource(AsyncAPIResource):
         Args:
           content: Text content for metadata extraction
 
+          context_metadata: Optional context metadata (createdAt, sourceType, etc.) to improve extraction.
+
           domain: Domain for frequency schema
 
           frequency_schema_id: Schema override
@@ -256,6 +274,7 @@ class AsyncHolographicResource(AsyncAPIResource):
             body=await async_maybe_transform(
                 {
                     "content": content,
+                    "context_metadata": context_metadata,
                     "domain": domain,
                     "frequency_schema_id": frequency_schema_id,
                 },
@@ -276,6 +295,8 @@ class AsyncHolographicResource(AsyncAPIResource):
         frequency_schema_id: Optional[str] | Omit = omit,
         options: Optional[holographic_rerank_params.Options] | Omit = omit,
         query_embedding: Optional[Iterable[float]] | Omit = omit,
+        query_metadata_embeddings: Optional[Dict[str, Iterable[float]]] | Omit = omit,
+        query_phases: Optional[Iterable[float]] | Omit = omit,
         top_k: int | Omit = omit,
         # Use the following arguments if you need to pass additional parameters to the API that aren't available via kwargs.
         # The extra values given here take precedence over values defined on the client or passed to this method.
@@ -307,6 +328,13 @@ class AsyncHolographicResource(AsyncAPIResource):
           query_embedding: Query embedding in the same space as candidate embeddings. If provided, used for
               cosine similarity. If omitted, computed server-side (Qwen 2560d).
 
+          query_metadata_embeddings: Pre-computed query metadata embeddings from a prior /transform call (keyed by
+              frequency string, e.g. '0.1'). Required for full HCond scoring with phase
+              alignment.
+
+          query_phases: Pre-computed query phases from a prior /transform call. If provided alongside
+              query_embedding, skips LLM extraction entirely (hot path).
+
           top_k: Number of results to return
 
           extra_headers: Send extra headers
@@ -327,6 +355,8 @@ class AsyncHolographicResource(AsyncAPIResource):
                     "frequency_schema_id": frequency_schema_id,
                     "options": options,
                     "query_embedding": query_embedding,
+                    "query_metadata_embeddings": query_metadata_embeddings,
+                    "query_phases": query_phases,
                     "top_k": top_k,
                 },
                 holographic_rerank_params.HolographicRerankParams,

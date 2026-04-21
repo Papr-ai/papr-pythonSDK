@@ -1364,6 +1364,7 @@ class TestMemory:
     def test_method_delete_all_with_all_params(self, client: Papr) -> None:
         memory = client.memory.delete_all(
             external_user_id="external_user_id",
+            namespace_id="namespace_id",
             skip_parse=True,
             user_id="user_id",
         )
@@ -1548,10 +1549,12 @@ class TestMemory:
             external_user_id="external_user_123",
             holographic_config={
                 "enabled": True,
+                "frequency_filters": {"foo": 0},
                 "frequency_schema_id": "cosqa",
                 "hcond_boost_factor": 0.12,
                 "hcond_boost_threshold": 0.35,
                 "hcond_penalty_factor": 0.06,
+                "include_frequency_scores": True,
                 "scoring_method": "egr_rerank",
                 "search_mode": "post_search",
             },
@@ -3021,6 +3024,7 @@ class TestAsyncMemory:
     async def test_method_delete_all_with_all_params(self, async_client: AsyncPapr) -> None:
         memory = await async_client.memory.delete_all(
             external_user_id="external_user_id",
+            namespace_id="namespace_id",
             skip_parse=True,
             user_id="user_id",
         )
@@ -3205,10 +3209,12 @@ class TestAsyncMemory:
             external_user_id="external_user_123",
             holographic_config={
                 "enabled": True,
+                "frequency_filters": {"foo": 0},
                 "frequency_schema_id": "cosqa",
                 "hcond_boost_factor": 0.12,
                 "hcond_boost_threshold": 0.35,
                 "hcond_penalty_factor": 0.06,
+                "include_frequency_scores": True,
                 "scoring_method": "egr_rerank",
                 "search_mode": "post_search",
             },

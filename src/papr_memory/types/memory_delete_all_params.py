@@ -12,6 +12,9 @@ class MemoryDeleteAllParams(TypedDict, total=False):
     external_user_id: Optional[str]
     """Optional external user ID to resolve and delete memories for"""
 
+    namespace_id: Optional[str]
+    """Optional namespace ID to scope deletion to"""
+
     skip_parse: bool
     """Skip Parse Server deletion"""
 
