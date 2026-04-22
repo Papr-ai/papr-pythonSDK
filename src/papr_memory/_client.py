@@ -32,31 +32,47 @@ from ._base_client import (
 
 if TYPE_CHECKING:
     from .resources import (
+        ai,
+        me,
         omo,
         sync,
         user,
+        login,
+        token,
+        logout,
         memory,
         graphql,
         schemas,
+        callback,
         document,
         feedback,
         messages,
         namespace,
+        telemetry,
         frequencies,
         holographic,
+        organization,
     )
+    from .resources.me import MeResource, AsyncMeResource
     from .resources.omo import OmoResource, AsyncOmoResource
     from .resources.sync import SyncResource, AsyncSyncResource
     from .resources.user import UserResource, AsyncUserResource
+    from .resources.ai.ai import AIResource, AsyncAIResource
+    from .resources.login import LoginResource, AsyncLoginResource
+    from .resources.token import TokenResource, AsyncTokenResource
+    from .resources.logout import LogoutResource, AsyncLogoutResource
     from .resources.memory import MemoryResource, AsyncMemoryResource
     from .resources.graphql import GraphqlResource, AsyncGraphqlResource
     from .resources.schemas import SchemasResource, AsyncSchemasResource
+    from .resources.callback import CallbackResource, AsyncCallbackResource
     from .resources.document import DocumentResource, AsyncDocumentResource
     from .resources.feedback import FeedbackResource, AsyncFeedbackResource
-    from .resources.namespace import NamespaceResource, AsyncNamespaceResource
+    from .resources.telemetry import TelemetryResource, AsyncTelemetryResource
     from .resources.frequencies import FrequenciesResource, AsyncFrequenciesResource
     from .resources.messages.messages import MessagesResource, AsyncMessagesResource
+    from .resources.namespace.namespace import NamespaceResource, AsyncNamespaceResource
     from .resources.holographic.holographic import HolographicResource, AsyncHolographicResource
+    from .resources.organization.organization import OrganizationResource, AsyncOrganizationResource
 
 __all__ = ["Timeout", "Transport", "ProxiesTypes", "RequestOptions", "Papr", "AsyncPapr", "Client", "AsyncClient"]
 
@@ -202,6 +218,54 @@ class Papr(SyncAPIClient):
         from .resources.holographic import HolographicResource
 
         return HolographicResource(self)
+
+    @cached_property
+    def organization(self) -> OrganizationResource:
+        from .resources.organization import OrganizationResource
+
+        return OrganizationResource(self)
+
+    @cached_property
+    def ai(self) -> AIResource:
+        from .resources.ai import AIResource
+
+        return AIResource(self)
+
+    @cached_property
+    def telemetry(self) -> TelemetryResource:
+        from .resources.telemetry import TelemetryResource
+
+        return TelemetryResource(self)
+
+    @cached_property
+    def login(self) -> LoginResource:
+        from .resources.login import LoginResource
+
+        return LoginResource(self)
+
+    @cached_property
+    def callback(self) -> CallbackResource:
+        from .resources.callback import CallbackResource
+
+        return CallbackResource(self)
+
+    @cached_property
+    def token(self) -> TokenResource:
+        from .resources.token import TokenResource
+
+        return TokenResource(self)
+
+    @cached_property
+    def me(self) -> MeResource:
+        from .resources.me import MeResource
+
+        return MeResource(self)
+
+    @cached_property
+    def logout(self) -> LogoutResource:
+        from .resources.logout import LogoutResource
+
+        return LogoutResource(self)
 
     @cached_property
     def with_raw_response(self) -> PaprWithRawResponse:
@@ -500,6 +564,54 @@ class AsyncPapr(AsyncAPIClient):
         return AsyncHolographicResource(self)
 
     @cached_property
+    def organization(self) -> AsyncOrganizationResource:
+        from .resources.organization import AsyncOrganizationResource
+
+        return AsyncOrganizationResource(self)
+
+    @cached_property
+    def ai(self) -> AsyncAIResource:
+        from .resources.ai import AsyncAIResource
+
+        return AsyncAIResource(self)
+
+    @cached_property
+    def telemetry(self) -> AsyncTelemetryResource:
+        from .resources.telemetry import AsyncTelemetryResource
+
+        return AsyncTelemetryResource(self)
+
+    @cached_property
+    def login(self) -> AsyncLoginResource:
+        from .resources.login import AsyncLoginResource
+
+        return AsyncLoginResource(self)
+
+    @cached_property
+    def callback(self) -> AsyncCallbackResource:
+        from .resources.callback import AsyncCallbackResource
+
+        return AsyncCallbackResource(self)
+
+    @cached_property
+    def token(self) -> AsyncTokenResource:
+        from .resources.token import AsyncTokenResource
+
+        return AsyncTokenResource(self)
+
+    @cached_property
+    def me(self) -> AsyncMeResource:
+        from .resources.me import AsyncMeResource
+
+        return AsyncMeResource(self)
+
+    @cached_property
+    def logout(self) -> AsyncLogoutResource:
+        from .resources.logout import AsyncLogoutResource
+
+        return AsyncLogoutResource(self)
+
+    @cached_property
     def with_raw_response(self) -> AsyncPaprWithRawResponse:
         return AsyncPaprWithRawResponse(self)
 
@@ -731,6 +843,54 @@ class PaprWithRawResponse:
 
         return HolographicResourceWithRawResponse(self._client.holographic)
 
+    @cached_property
+    def organization(self) -> organization.OrganizationResourceWithRawResponse:
+        from .resources.organization import OrganizationResourceWithRawResponse
+
+        return OrganizationResourceWithRawResponse(self._client.organization)
+
+    @cached_property
+    def ai(self) -> ai.AIResourceWithRawResponse:
+        from .resources.ai import AIResourceWithRawResponse
+
+        return AIResourceWithRawResponse(self._client.ai)
+
+    @cached_property
+    def telemetry(self) -> telemetry.TelemetryResourceWithRawResponse:
+        from .resources.telemetry import TelemetryResourceWithRawResponse
+
+        return TelemetryResourceWithRawResponse(self._client.telemetry)
+
+    @cached_property
+    def login(self) -> login.LoginResourceWithRawResponse:
+        from .resources.login import LoginResourceWithRawResponse
+
+        return LoginResourceWithRawResponse(self._client.login)
+
+    @cached_property
+    def callback(self) -> callback.CallbackResourceWithRawResponse:
+        from .resources.callback import CallbackResourceWithRawResponse
+
+        return CallbackResourceWithRawResponse(self._client.callback)
+
+    @cached_property
+    def token(self) -> token.TokenResourceWithRawResponse:
+        from .resources.token import TokenResourceWithRawResponse
+
+        return TokenResourceWithRawResponse(self._client.token)
+
+    @cached_property
+    def me(self) -> me.MeResourceWithRawResponse:
+        from .resources.me import MeResourceWithRawResponse
+
+        return MeResourceWithRawResponse(self._client.me)
+
+    @cached_property
+    def logout(self) -> logout.LogoutResourceWithRawResponse:
+        from .resources.logout import LogoutResourceWithRawResponse
+
+        return LogoutResourceWithRawResponse(self._client.logout)
+
 
 class AsyncPaprWithRawResponse:
     _client: AsyncPapr
@@ -809,6 +969,54 @@ class AsyncPaprWithRawResponse:
         from .resources.holographic import AsyncHolographicResourceWithRawResponse
 
         return AsyncHolographicResourceWithRawResponse(self._client.holographic)
+
+    @cached_property
+    def organization(self) -> organization.AsyncOrganizationResourceWithRawResponse:
+        from .resources.organization import AsyncOrganizationResourceWithRawResponse
+
+        return AsyncOrganizationResourceWithRawResponse(self._client.organization)
+
+    @cached_property
+    def ai(self) -> ai.AsyncAIResourceWithRawResponse:
+        from .resources.ai import AsyncAIResourceWithRawResponse
+
+        return AsyncAIResourceWithRawResponse(self._client.ai)
+
+    @cached_property
+    def telemetry(self) -> telemetry.AsyncTelemetryResourceWithRawResponse:
+        from .resources.telemetry import AsyncTelemetryResourceWithRawResponse
+
+        return AsyncTelemetryResourceWithRawResponse(self._client.telemetry)
+
+    @cached_property
+    def login(self) -> login.AsyncLoginResourceWithRawResponse:
+        from .resources.login import AsyncLoginResourceWithRawResponse
+
+        return AsyncLoginResourceWithRawResponse(self._client.login)
+
+    @cached_property
+    def callback(self) -> callback.AsyncCallbackResourceWithRawResponse:
+        from .resources.callback import AsyncCallbackResourceWithRawResponse
+
+        return AsyncCallbackResourceWithRawResponse(self._client.callback)
+
+    @cached_property
+    def token(self) -> token.AsyncTokenResourceWithRawResponse:
+        from .resources.token import AsyncTokenResourceWithRawResponse
+
+        return AsyncTokenResourceWithRawResponse(self._client.token)
+
+    @cached_property
+    def me(self) -> me.AsyncMeResourceWithRawResponse:
+        from .resources.me import AsyncMeResourceWithRawResponse
+
+        return AsyncMeResourceWithRawResponse(self._client.me)
+
+    @cached_property
+    def logout(self) -> logout.AsyncLogoutResourceWithRawResponse:
+        from .resources.logout import AsyncLogoutResourceWithRawResponse
+
+        return AsyncLogoutResourceWithRawResponse(self._client.logout)
 
 
 class PaprWithStreamedResponse:
@@ -889,6 +1097,54 @@ class PaprWithStreamedResponse:
 
         return HolographicResourceWithStreamingResponse(self._client.holographic)
 
+    @cached_property
+    def organization(self) -> organization.OrganizationResourceWithStreamingResponse:
+        from .resources.organization import OrganizationResourceWithStreamingResponse
+
+        return OrganizationResourceWithStreamingResponse(self._client.organization)
+
+    @cached_property
+    def ai(self) -> ai.AIResourceWithStreamingResponse:
+        from .resources.ai import AIResourceWithStreamingResponse
+
+        return AIResourceWithStreamingResponse(self._client.ai)
+
+    @cached_property
+    def telemetry(self) -> telemetry.TelemetryResourceWithStreamingResponse:
+        from .resources.telemetry import TelemetryResourceWithStreamingResponse
+
+        return TelemetryResourceWithStreamingResponse(self._client.telemetry)
+
+    @cached_property
+    def login(self) -> login.LoginResourceWithStreamingResponse:
+        from .resources.login import LoginResourceWithStreamingResponse
+
+        return LoginResourceWithStreamingResponse(self._client.login)
+
+    @cached_property
+    def callback(self) -> callback.CallbackResourceWithStreamingResponse:
+        from .resources.callback import CallbackResourceWithStreamingResponse
+
+        return CallbackResourceWithStreamingResponse(self._client.callback)
+
+    @cached_property
+    def token(self) -> token.TokenResourceWithStreamingResponse:
+        from .resources.token import TokenResourceWithStreamingResponse
+
+        return TokenResourceWithStreamingResponse(self._client.token)
+
+    @cached_property
+    def me(self) -> me.MeResourceWithStreamingResponse:
+        from .resources.me import MeResourceWithStreamingResponse
+
+        return MeResourceWithStreamingResponse(self._client.me)
+
+    @cached_property
+    def logout(self) -> logout.LogoutResourceWithStreamingResponse:
+        from .resources.logout import LogoutResourceWithStreamingResponse
+
+        return LogoutResourceWithStreamingResponse(self._client.logout)
+
 
 class AsyncPaprWithStreamedResponse:
     _client: AsyncPapr
@@ -967,6 +1223,54 @@ class AsyncPaprWithStreamedResponse:
         from .resources.holographic import AsyncHolographicResourceWithStreamingResponse
 
         return AsyncHolographicResourceWithStreamingResponse(self._client.holographic)
+
+    @cached_property
+    def organization(self) -> organization.AsyncOrganizationResourceWithStreamingResponse:
+        from .resources.organization import AsyncOrganizationResourceWithStreamingResponse
+
+        return AsyncOrganizationResourceWithStreamingResponse(self._client.organization)
+
+    @cached_property
+    def ai(self) -> ai.AsyncAIResourceWithStreamingResponse:
+        from .resources.ai import AsyncAIResourceWithStreamingResponse
+
+        return AsyncAIResourceWithStreamingResponse(self._client.ai)
+
+    @cached_property
+    def telemetry(self) -> telemetry.AsyncTelemetryResourceWithStreamingResponse:
+        from .resources.telemetry import AsyncTelemetryResourceWithStreamingResponse
+
+        return AsyncTelemetryResourceWithStreamingResponse(self._client.telemetry)
+
+    @cached_property
+    def login(self) -> login.AsyncLoginResourceWithStreamingResponse:
+        from .resources.login import AsyncLoginResourceWithStreamingResponse
+
+        return AsyncLoginResourceWithStreamingResponse(self._client.login)
+
+    @cached_property
+    def callback(self) -> callback.AsyncCallbackResourceWithStreamingResponse:
+        from .resources.callback import AsyncCallbackResourceWithStreamingResponse
+
+        return AsyncCallbackResourceWithStreamingResponse(self._client.callback)
+
+    @cached_property
+    def token(self) -> token.AsyncTokenResourceWithStreamingResponse:
+        from .resources.token import AsyncTokenResourceWithStreamingResponse
+
+        return AsyncTokenResourceWithStreamingResponse(self._client.token)
+
+    @cached_property
+    def me(self) -> me.AsyncMeResourceWithStreamingResponse:
+        from .resources.me import AsyncMeResourceWithStreamingResponse
+
+        return AsyncMeResourceWithStreamingResponse(self._client.me)
+
+    @cached_property
+    def logout(self) -> logout.AsyncLogoutResourceWithStreamingResponse:
+        from .resources.logout import AsyncLogoutResourceWithStreamingResponse
+
+        return AsyncLogoutResourceWithStreamingResponse(self._client.logout)
 
 
 Client = Papr

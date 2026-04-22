@@ -211,6 +211,9 @@ Types:
 
 ```python
 from papr_memory.types import (
+    InstanceConfigItem,
+    NamespaceItem,
+    Neo4jInstanceConfigItem,
     NamespaceCreateResponse,
     NamespaceRetrieveResponse,
     NamespaceUpdateResponse,
@@ -221,18 +224,41 @@ from papr_memory.types import (
 
 Methods:
 
-- <code title="post /v1/namespace">client.namespace.<a href="./src/papr_memory/resources/namespace.py">create</a>(\*\*<a href="src/papr_memory/types/namespace_create_params.py">params</a>) -> <a href="./src/papr_memory/types/namespace_create_response.py">NamespaceCreateResponse</a></code>
-- <code title="get /v1/namespace/{namespace_id}">client.namespace.<a href="./src/papr_memory/resources/namespace.py">retrieve</a>(namespace_id) -> <a href="./src/papr_memory/types/namespace_retrieve_response.py">NamespaceRetrieveResponse</a></code>
-- <code title="put /v1/namespace/{namespace_id}">client.namespace.<a href="./src/papr_memory/resources/namespace.py">update</a>(namespace_id, \*\*<a href="src/papr_memory/types/namespace_update_params.py">params</a>) -> <a href="./src/papr_memory/types/namespace_update_response.py">NamespaceUpdateResponse</a></code>
-- <code title="get /v1/namespace">client.namespace.<a href="./src/papr_memory/resources/namespace.py">list</a>(\*\*<a href="src/papr_memory/types/namespace_list_params.py">params</a>) -> <a href="./src/papr_memory/types/namespace_list_response.py">NamespaceListResponse</a></code>
-- <code title="delete /v1/namespace/{namespace_id}">client.namespace.<a href="./src/papr_memory/resources/namespace.py">delete</a>(namespace_id, \*\*<a href="src/papr_memory/types/namespace_delete_params.py">params</a>) -> <a href="./src/papr_memory/types/namespace_delete_response.py">NamespaceDeleteResponse</a></code>
+- <code title="post /v1/namespace">client.namespace.<a href="./src/papr_memory/resources/namespace/namespace.py">create</a>(\*\*<a href="src/papr_memory/types/namespace_create_params.py">params</a>) -> <a href="./src/papr_memory/types/namespace_create_response.py">NamespaceCreateResponse</a></code>
+- <code title="get /v1/namespace/{namespace_id}">client.namespace.<a href="./src/papr_memory/resources/namespace/namespace.py">retrieve</a>(namespace_id) -> <a href="./src/papr_memory/types/namespace_retrieve_response.py">NamespaceRetrieveResponse</a></code>
+- <code title="put /v1/namespace/{namespace_id}">client.namespace.<a href="./src/papr_memory/resources/namespace/namespace.py">update</a>(namespace_id, \*\*<a href="src/papr_memory/types/namespace_update_params.py">params</a>) -> <a href="./src/papr_memory/types/namespace_update_response.py">NamespaceUpdateResponse</a></code>
+- <code title="get /v1/namespace">client.namespace.<a href="./src/papr_memory/resources/namespace/namespace.py">list</a>(\*\*<a href="src/papr_memory/types/namespace_list_params.py">params</a>) -> <a href="./src/papr_memory/types/namespace_list_response.py">NamespaceListResponse</a></code>
+- <code title="delete /v1/namespace/{namespace_id}">client.namespace.<a href="./src/papr_memory/resources/namespace/namespace.py">delete</a>(namespace_id, \*\*<a href="src/papr_memory/types/namespace_delete_params.py">params</a>) -> <a href="./src/papr_memory/types/namespace_delete_response.py">NamespaceDeleteResponse</a></code>
+
+## Instance
+
+Types:
+
+```python
+from papr_memory.types.namespace import (
+    InstanceRetrieveResponse,
+    InstanceUpdateResponse,
+    InstanceDeleteResponse,
+)
+```
+
+Methods:
+
+- <code title="get /v1/namespace/{namespace_id}/instance">client.namespace.instance.<a href="./src/papr_memory/resources/namespace/instance.py">retrieve</a>(namespace_id) -> <a href="./src/papr_memory/types/namespace/instance_retrieve_response.py">InstanceRetrieveResponse</a></code>
+- <code title="put /v1/namespace/{namespace_id}/instance">client.namespace.instance.<a href="./src/papr_memory/resources/namespace/instance.py">update</a>(namespace_id, \*\*<a href="src/papr_memory/types/namespace/instance_update_params.py">params</a>) -> <a href="./src/papr_memory/types/namespace/instance_update_response.py">InstanceUpdateResponse</a></code>
+- <code title="delete /v1/namespace/{namespace_id}/instance">client.namespace.instance.<a href="./src/papr_memory/resources/namespace/instance.py">delete</a>(namespace_id) -> <a href="./src/papr_memory/types/namespace/instance_delete_response.py">InstanceDeleteResponse</a></code>
 
 # Frequencies
 
 Types:
 
 ```python
-from papr_memory.types import FrequencyRetrieveResponse, FrequencyListResponse
+from papr_memory.types import (
+    FrequencyFieldResponse,
+    SchemaConfigResponse,
+    FrequencyRetrieveResponse,
+    FrequencyListResponse,
+)
 ```
 
 Methods:
@@ -258,7 +284,11 @@ Methods:
 Types:
 
 ```python
-from papr_memory.types.holographic import TransformCreateResponse, TransformCreateBatchResponse
+from papr_memory.types.holographic import (
+    TransformData,
+    TransformCreateResponse,
+    TransformCreateBatchResponse,
+)
 ```
 
 Methods:
@@ -278,3 +308,128 @@ Methods:
 
 - <code title="post /v1/holographic/domains">client.holographic.domains.<a href="./src/papr_memory/resources/holographic/domains.py">create</a>(\*\*<a href="src/papr_memory/types/holographic/domain_create_params.py">params</a>) -> <a href="./src/papr_memory/types/holographic/domain_create_response.py">DomainCreateResponse</a></code>
 - <code title="get /v1/holographic/domains">client.holographic.domains.<a href="./src/papr_memory/resources/holographic/domains.py">list</a>() -> <a href="./src/papr_memory/types/holographic/domain_list_response.py">DomainListResponse</a></code>
+
+# Organization
+
+## Instance
+
+Types:
+
+```python
+from papr_memory.types.organization import (
+    InstanceRetrieveResponse,
+    InstanceUpdateResponse,
+    InstanceDeleteResponse,
+)
+```
+
+Methods:
+
+- <code title="get /v1/organization/instance">client.organization.instance.<a href="./src/papr_memory/resources/organization/instance.py">retrieve</a>() -> <a href="./src/papr_memory/types/organization/instance_retrieve_response.py">InstanceRetrieveResponse</a></code>
+- <code title="put /v1/organization/instance">client.organization.instance.<a href="./src/papr_memory/resources/organization/instance.py">update</a>(\*\*<a href="src/papr_memory/types/organization/instance_update_params.py">params</a>) -> <a href="./src/papr_memory/types/organization/instance_update_response.py">InstanceUpdateResponse</a></code>
+- <code title="delete /v1/organization/instance">client.organization.instance.<a href="./src/papr_memory/resources/organization/instance.py">delete</a>() -> <a href="./src/papr_memory/types/organization/instance_delete_response.py">InstanceDeleteResponse</a></code>
+
+# AI
+
+Methods:
+
+- <code title="get /v1/ai/usage">client.ai.<a href="./src/papr_memory/resources/ai/ai.py">get_usage</a>() -> object</code>
+
+## OpenAI
+
+Methods:
+
+- <code title="post /v1/ai/openai/responses">client.ai.openai.<a href="./src/papr_memory/resources/ai/openai/openai.py">create_response</a>() -> object</code>
+
+### Chat
+
+Methods:
+
+- <code title="post /v1/ai/openai/chat/completions">client.ai.openai.chat.<a href="./src/papr_memory/resources/ai/openai/chat.py">create_completion</a>() -> object</code>
+
+## Anthropic
+
+Methods:
+
+- <code title="post /v1/ai/anthropic/messages">client.ai.anthropic.<a href="./src/papr_memory/resources/ai/anthropic.py">send_message</a>() -> object</code>
+
+## Google
+
+### Models
+
+Methods:
+
+- <code title="post /v1/ai/google/models/{model_id}:generateContent">client.ai.google.models.<a href="./src/papr_memory/resources/ai/google/models.py">generate_content</a>(model_id) -> object</code>
+- <code title="post /v1/ai/google/models/{model_id}:streamGenerateContent">client.ai.google.models.<a href="./src/papr_memory/resources/ai/google/models.py">stream_generate_content</a>(model_id) -> object</code>
+
+# Telemetry
+
+Types:
+
+```python
+from papr_memory.types import TelemetryTrackEventResponse
+```
+
+Methods:
+
+- <code title="post /v1/telemetry/events">client.telemetry.<a href="./src/papr_memory/resources/telemetry.py">track_event</a>(\*\*<a href="src/papr_memory/types/telemetry_track_event_params.py">params</a>) -> <a href="./src/papr_memory/types/telemetry_track_event_response.py">TelemetryTrackEventResponse</a></code>
+
+# Login
+
+Types:
+
+```python
+from papr_memory.types import LoginInitiateResponse
+```
+
+Methods:
+
+- <code title="get /login">client.login.<a href="./src/papr_memory/resources/login.py">initiate</a>() -> <a href="./src/papr_memory/types/login_initiate_response.py">LoginInitiateResponse</a></code>
+
+# Callback
+
+Types:
+
+```python
+from papr_memory.types import CallbackProcessResponse
+```
+
+Methods:
+
+- <code title="get /callback">client.callback.<a href="./src/papr_memory/resources/callback.py">process</a>() -> <a href="./src/papr_memory/types/callback_process_response.py">CallbackProcessResponse</a></code>
+
+# Token
+
+Types:
+
+```python
+from papr_memory.types import TokenCreateResponse
+```
+
+Methods:
+
+- <code title="post /token">client.token.<a href="./src/papr_memory/resources/token.py">create</a>() -> <a href="./src/papr_memory/types/token_create_response.py">TokenCreateResponse</a></code>
+
+# Me
+
+Types:
+
+```python
+from papr_memory.types import MeRetrieveResponse
+```
+
+Methods:
+
+- <code title="get /me">client.me.<a href="./src/papr_memory/resources/me.py">retrieve</a>() -> <a href="./src/papr_memory/types/me_retrieve_response.py">MeRetrieveResponse</a></code>
+
+# Logout
+
+Types:
+
+```python
+from papr_memory.types import LogoutPerformResponse
+```
+
+Methods:
+
+- <code title="get /logout">client.logout.<a href="./src/papr_memory/resources/logout.py">perform</a>() -> <a href="./src/papr_memory/types/logout_perform_response.py">LogoutPerformResponse</a></code>
