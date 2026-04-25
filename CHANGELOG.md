@@ -1,5 +1,13 @@
 # Changelog
 
+## 2.24.1 (2026-04-23)
+
+Full Changelog: [v2.24.0...v2.24.1](https://github.com/Papr-ai/papr-pythonSDK/compare/v2.24.0...v2.24.1)
+
+### Chores
+
+* **internal:** more robust bootstrap script ([b94b363](https://github.com/Papr-ai/papr-pythonSDK/commit/b94b363c725f0cdd872e6f5abe067cc38dfdff40))
+
 ## 2.24.0 (2026-04-21)
 
 Full Changelog: [v2.23.0...v2.24.0](https://github.com/Papr-ai/papr-pythonSDK/compare/v2.23.0...v2.24.0)
