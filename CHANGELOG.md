@@ -1,5 +1,23 @@
 # Changelog
 
+## 2.25.0 (2026-05-01)
+
+Full Changelog: [v2.24.1...v2.25.0](https://github.com/Papr-ai/papr-pythonSDK/compare/v2.24.1...v2.25.0)
+
+### Features
+
+* support setting headers via env ([834623c](https://github.com/Papr-ai/papr-pythonSDK/commit/834623cbba8393a560004720c658134519587d19))
+
+
+### Bug Fixes
+
+* use correct field name format for multipart file arrays ([c7161d9](https://github.com/Papr-ai/papr-pythonSDK/commit/c7161d9f48687be366ee8b0e0306d746c78726df))
+
+
+### Chores
+
+* **internal:** reformat pyproject.toml ([e3bc455](https://github.com/Papr-ai/papr-pythonSDK/commit/e3bc455d9fa3809fe70c9b5b78016c106c55a788))
+
 ## 2.24.1 (2026-04-23)
 
 Full Changelog: [v2.24.0...v2.24.1](https://github.com/Papr-ai/papr-pythonSDK/compare/v2.24.0...v2.24.1)
