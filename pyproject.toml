@@ -1,6 +1,6 @@
 [project]
 name = "papr_memory"
-version = "2.24.1"
+version = "2.25.0"
 description = "The official Python library for the Papr API"
 dynamic = ["readme"]
 license = "Apache-2.0"
@@ -191,7 +191,7 @@ show_error_codes = true
 #
 # We also exclude our `tests` as mypy doesn't always infer
 # types correctly and Pyright will still catch any type errors.
-exclude = ['src/papr_memory/_files.py', '_dev/.*.py', 'tests/.*']
+exclude = ["src/papr_memory/_files.py", "_dev/.*.py", "tests/.*"]
 
 strict_equality = true
 implicit_reexport = true
