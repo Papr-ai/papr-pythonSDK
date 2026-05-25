@@ -6,11 +6,10 @@ to API-compatible dicts (SchemaCreateParams, link_to, memory_policy).
 from typing import Any, Dict, List, Union, Optional
 from typing_extensions import Literal
 
-from ..types.shared_params import EdgeConstraintInput, MemoryPolicy, NodeConstraintInput
-
 from ._schema import NodeMetadata, SchemaMetadata
 from ._conditions import Or, And, Not
 from ._properties import Auto, PropertyRef, EdgeDescriptor
+from ..types.shared_params import EdgeConstraintInput, MemoryPolicy, NodeConstraintInput
 
 
 def build_link_to(
