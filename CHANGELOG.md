@@ -1,5 +1,28 @@
 # Changelog
 
+## 2.25.0 (2026-05-25)
+
+Full Changelog: [v2.24.1...v2.25.0](https://github.com/Papr-ai/papr-pythonSDK/compare/v2.24.1...v2.25.0)
+
+### Features
+
+* **internal/types:** support eagerly validating pydantic iterators ([aa0ecad](https://github.com/Papr-ai/papr-pythonSDK/commit/aa0ecadf9b484f5068c090f22c00f1237886174f))
+* support setting headers via env ([7489456](https://github.com/Papr-ai/papr-pythonSDK/commit/74894565416570521e06b5804909ea55b5a056c2))
+
+
+### Bug Fixes
+
+* **client:** add missing f-string prefix in file type error message ([f383eaf](https://github.com/Papr-ai/papr-pythonSDK/commit/f383eafe05f7469480ac71dc50738a3d76bbc30d))
+* correct syntax error in MemoryResource wrapper classes ([b0ec071](https://github.com/Papr-ai/papr-pythonSDK/commit/b0ec0717a5055b130dd6f531153ba9085e70152c))
+* sort imports in lib/_builders.py by ascending line length ([dcecc51](https://github.com/Papr-ai/papr-pythonSDK/commit/dcecc51e7dde8d7d0844ffa6ea0f23736952cf92))
+* sort imports in lib/_builders.py per ruff isort config ([1ee7e71](https://github.com/Papr-ai/papr-pythonSDK/commit/1ee7e71b776f77c4daa1ef1b1093c1fdae1cd22e))
+* use correct field name format for multipart file arrays ([1db0a7e](https://github.com/Papr-ai/papr-pythonSDK/commit/1db0a7e60b9bd5d0896d13c8077a56cf56425f0d))
+
+
+### Chores
+
+* **internal:** reformat pyproject.toml ([7803000](https://github.com/Papr-ai/papr-pythonSDK/commit/78030001c8750336560a650ebdbaab4e1a7becab))
+
 ## 2.24.1 (2026-04-23)
 
 Full Changelog: [v2.24.0...v2.24.1](https://github.com/Papr-ai/papr-pythonSDK/compare/v2.24.0...v2.24.1)
