@@ -4826,6 +4826,7 @@ class MemoryResourceWithRawResponse:
         )
         self.retrieve_status = to_raw_response_wrapper(
             memory.retrieve_status,
+        )
         self.sync_tiers = to_raw_response_wrapper(
             memory.sync_tiers,
         )
@@ -4861,6 +4862,7 @@ class AsyncMemoryResourceWithRawResponse:
         )
         self.retrieve_status = async_to_raw_response_wrapper(
             memory.retrieve_status,
+        )
         self.sync_tiers = async_to_raw_response_wrapper(
             memory.sync_tiers,
         )
@@ -4896,6 +4898,7 @@ class MemoryResourceWithStreamingResponse:
         )
         self.retrieve_status = to_streamed_response_wrapper(
             memory.retrieve_status,
+        )
         self.sync_tiers = to_streamed_response_wrapper(
             memory.sync_tiers,
         )
@@ -4931,6 +4934,7 @@ class AsyncMemoryResourceWithStreamingResponse:
         )
         self.retrieve_status = async_to_streamed_response_wrapper(
             memory.retrieve_status,
+        )
         self.sync_tiers = async_to_streamed_response_wrapper(
             memory.sync_tiers,
         )
