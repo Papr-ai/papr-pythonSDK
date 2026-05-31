@@ -31,6 +31,7 @@ from ...types.memory_metadata_param import MemoryMetadataParam
 from ...types.graph_generation_param import GraphGenerationParam
 from ...types.message_store_response import MessageStoreResponse
 from ...types.shared_params.memory_policy import MemoryPolicy
+from ...types.shared_params.memory_add_policy import MemoryAddPolicy
 
 __all__ = ["MessagesResource", "AsyncMessagesResource"]
 
@@ -71,7 +72,7 @@ class MessagesResource(SyncAPIResource):
         metadata: Optional[MemoryMetadataParam] | Omit = omit,
         namespace_id: Optional[str] | Omit = omit,
         organization_id: Optional[str] | Omit = omit,
-        policy: Optional[message_store_params.Policy] | Omit = omit,
+        policy: Optional[MemoryAddPolicy] | Omit = omit,
         process_messages: bool | Omit = omit,
         relationships_json: Optional[Iterable[Dict[str, object]]] | Omit = omit,
         title: Optional[str] | Omit = omit,
@@ -228,7 +229,7 @@ class AsyncMessagesResource(AsyncAPIResource):
         metadata: Optional[MemoryMetadataParam] | Omit = omit,
         namespace_id: Optional[str] | Omit = omit,
         organization_id: Optional[str] | Omit = omit,
-        policy: Optional[message_store_params.Policy] | Omit = omit,
+        policy: Optional[MemoryAddPolicy] | Omit = omit,
         process_messages: bool | Omit = omit,
         relationships_json: Optional[Iterable[Dict[str, object]]] | Omit = omit,
         title: Optional[str] | Omit = omit,

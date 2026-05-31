@@ -69,7 +69,7 @@ class HolographicResource(SyncAPIResource):
         """
         return HolographicResourceWithStreamingResponse(self)
 
-    @typing_extensions.deprecated("deprecated")
+    @typing_extensions.deprecated("Use /graph/transform instead.'")
     def extract_metadata(
         self,
         *,
@@ -141,7 +141,7 @@ class HolographicResource(SyncAPIResource):
             cast_to=HolographicExtractMetadataResponse,
         )
 
-    @typing_extensions.deprecated("deprecated")
+    @typing_extensions.deprecated("Use /graph/rerank instead.'")
     def rerank(
         self,
         *,
@@ -259,7 +259,7 @@ class AsyncHolographicResource(AsyncAPIResource):
         """
         return AsyncHolographicResourceWithStreamingResponse(self)
 
-    @typing_extensions.deprecated("deprecated")
+    @typing_extensions.deprecated("Use /graph/transform instead.'")
     async def extract_metadata(
         self,
         *,
@@ -331,7 +331,7 @@ class AsyncHolographicResource(AsyncAPIResource):
             cast_to=HolographicExtractMetadataResponse,
         )
 
-    @typing_extensions.deprecated("deprecated")
+    @typing_extensions.deprecated("Use /graph/rerank instead.'")
     async def rerank(
         self,
         *,
