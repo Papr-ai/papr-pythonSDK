@@ -9,6 +9,9 @@ __all__ = ["NamespaceUpdateParams"]
 
 
 class NamespaceUpdateParams(TypedDict, total=False):
+    default_policy: Optional[Dict[str, object]]
+    """Default memory policy for add/search when request omits policy."""
+
     environment_type: Optional[Literal["development", "staging", "production"]]
     """Environment types for namespaces"""
 

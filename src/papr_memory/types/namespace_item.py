@@ -16,6 +16,9 @@ class NamespaceItem(BaseModel):
     created_at: Optional[str] = FieldInfo(alias="createdAt", default=None)
     """Creation timestamp"""
 
+    default_policy: Optional[Dict[str, object]] = None
+    """Default memory policy when requests omit policy."""
+
     environment_type: Optional[str] = None
     """Environment type"""
 

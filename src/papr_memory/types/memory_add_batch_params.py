@@ -9,6 +9,7 @@ from .._types import SequenceNotStr
 from .add_memory_param import AddMemoryParam
 from .graph_generation_param import GraphGenerationParam
 from .shared_params.memory_policy import MemoryPolicy
+from .shared_params.memory_add_policy import MemoryAddPolicy
 
 __all__ = ["MemoryAddBatchParams"]
 
@@ -47,16 +48,20 @@ class MemoryAddBatchParams(TypedDict, total=False):
     """Graph generation configuration"""
 
     link_to: Union[str, SequenceNotStr[str], Dict[str, object], None]
-    """Shorthand DSL for node/edge constraints.
+    """DEPRECATED: Use policy.graph.link_to instead.
 
-    Expands to memory_policy.node_constraints and edge_constraints. Formats: -
-    String: 'Task:title' (semantic match on Task.title) - List: ['Task:title',
-    'Person:email'] (multiple constraints) - Dict: {'Task:title': {'set': {...}}}
-    (with options) Syntax: - Node: 'Type:property', 'Type:prop=value' (exact),
-    'Type:prop~value' (semantic) - Edge: 'Source->EDGE->Target:property' (arrow
-    syntax) - Via: 'Type.via(EDGE->Target:prop)' (relationship traversal) - Special:
-    '$this', '$previous', '$context:N' Example:
-    'SecurityBehavior->MITIGATES->TacticDef:name' with {'create': 'never'}
+    Shorthand DSL for node/edge constraints (same as node_constraints, compact
+    syntax). Expands and merges into memory_policy.node_constraints and
+    edge_constraints at resolve time. Default create is upsert; use dict form with
+    create='lookup' (or legacy 'never') for link-only. Formats: - String:
+    'Task:title' (semantic match on Task.title, upsert by default) - List:
+    ['Task:title', 'Person:email'] (multiple constraints) - Dict: {'Task:title':
+    {'set': {...}, 'create': 'lookup'}} (full options) Syntax: - Node:
+    'Type:property', 'Type:prop=value' (exact), 'Type:prop~value' (semantic) - Edge:
+    'Source->EDGE->Target:property' (arrow syntax) - Via:
+    'Type.via(EDGE->Target:prop)' (relationship traversal) - Special:
+    '$this', '$previous', '$context:N' Example lookup-only: {'SecurityPolicy:name':
+    {'create': 'lookup'}}
     """
 
     memory_policy: Optional[MemoryPolicy]
@@ -95,6 +100,9 @@ class MemoryAddBatchParams(TypedDict, total=False):
     Auto-populated from API key scope. Do not set manually. The organization is
     resolved automatically from the API key's associated organization.
     """
+
+    policy: Optional[MemoryAddPolicy]
+    """Policy for add / batch / document / message ingestion."""
 
     user_id: Optional[str]
     """DEPRECATED: Use 'external_user_id' instead. Internal Papr Parse user ID."""

@@ -9,6 +9,7 @@ from .._utils import PropertyInfo
 from .memory_metadata_param import MemoryMetadataParam
 from .graph_generation_param import GraphGenerationParam
 from .shared_params.memory_policy import MemoryPolicy
+from .shared_params.memory_add_policy import MemoryAddPolicy
 
 __all__ = ["MessageStoreParams"]
 
@@ -64,6 +65,9 @@ class MessageStoreParams(TypedDict, total=False):
 
     organization_id: Optional[str]
     """Optional organization ID for multi-tenant message scoping"""
+
+    policy: Optional[MemoryAddPolicy]
+    """Policy for add / batch / document / message ingestion."""
 
     process_messages: bool
     """Whether to process messages into memories (true) or just store them (false).

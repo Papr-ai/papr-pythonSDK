@@ -5,13 +5,16 @@ from papr_memory.types import (
     ACLConfig,
     AddMemoryItem,
     EdgeConstraintInput,
+    GraphPolicyBlock,
     Memory,
+    MemoryAddPolicy,
     MemoryPolicy,
     NodeConstraintInput,
     NodeSpec,
     PropertyValue,
     RelationshipSpec,
     SearchConfigInput,
+    TransformEmbeddingPolicy,
 )
 ```
 
@@ -219,6 +222,7 @@ from papr_memory.types import (
     NamespaceUpdateResponse,
     NamespaceListResponse,
     NamespaceDeleteResponse,
+    NamespaceCreateAPIKeyResponse,
 )
 ```
 
@@ -229,6 +233,7 @@ Methods:
 - <code title="put /v1/namespace/{namespace_id}">client.namespace.<a href="./src/papr_memory/resources/namespace/namespace.py">update</a>(namespace_id, \*\*<a href="src/papr_memory/types/namespace_update_params.py">params</a>) -> <a href="./src/papr_memory/types/namespace_update_response.py">NamespaceUpdateResponse</a></code>
 - <code title="get /v1/namespace">client.namespace.<a href="./src/papr_memory/resources/namespace/namespace.py">list</a>(\*\*<a href="src/papr_memory/types/namespace_list_params.py">params</a>) -> <a href="./src/papr_memory/types/namespace_list_response.py">NamespaceListResponse</a></code>
 - <code title="delete /v1/namespace/{namespace_id}">client.namespace.<a href="./src/papr_memory/resources/namespace/namespace.py">delete</a>(namespace_id, \*\*<a href="src/papr_memory/types/namespace_delete_params.py">params</a>) -> <a href="./src/papr_memory/types/namespace_delete_response.py">NamespaceDeleteResponse</a></code>
+- <code title="post /v1/namespace/{namespace_id}/api-keys">client.namespace.<a href="./src/papr_memory/resources/namespace/namespace.py">create_api_key</a>(namespace_id, \*\*<a href="src/papr_memory/types/namespace_create_api_key_params.py">params</a>) -> <a href="./src/papr_memory/types/namespace_create_api_key_response.py">NamespaceCreateAPIKeyResponse</a></code>
 
 ## Instance
 
@@ -433,3 +438,56 @@ from papr_memory.types import LogoutPerformResponse
 Methods:
 
 - <code title="get /logout">client.logout.<a href="./src/papr_memory/resources/logout.py">perform</a>() -> <a href="./src/papr_memory/types/logout_perform_response.py">LogoutPerformResponse</a></code>
+
+# Graph
+
+Types:
+
+```python
+from papr_memory.types import (
+    DocumentInput,
+    GraphDomainRoutingConfig,
+    GraphRerankResponse,
+    GraphTransformResponse,
+)
+```
+
+Methods:
+
+- <code title="post /v1/graph/rerank">client.graph.<a href="./src/papr_memory/resources/graph/graph.py">rerank</a>(\*\*<a href="src/papr_memory/types/graph_rerank_params.py">params</a>) -> <a href="./src/papr_memory/types/graph_rerank_response.py">GraphRerankResponse</a></code>
+- <code title="post /v1/graph/transform">client.graph.<a href="./src/papr_memory/resources/graph/graph.py">transform</a>(\*\*<a href="src/papr_memory/types/graph_transform_params.py">params</a>) -> <a href="./src/papr_memory/types/graph_transform_response.py">GraphTransformResponse</a></code>
+
+## Domains
+
+Types:
+
+```python
+from papr_memory.types.graph import (
+    CatalogBufferEntry,
+    CatalogEntityCluster,
+    CatalogRelationshipPattern,
+    DomainCatalog,
+    DomainCatalogConfig,
+    SignalField,
+    DomainCreateResponse,
+    DomainRetrieveResponse,
+    DomainUpdateResponse,
+    DomainListResponse,
+    DomainDeleteResponse,
+)
+```
+
+Methods:
+
+- <code title="post /v1/graph/domains">client.graph.domains.<a href="./src/papr_memory/resources/graph/domains/domains.py">create</a>(\*\*<a href="src/papr_memory/types/graph/domain_create_params.py">params</a>) -> <a href="./src/papr_memory/types/graph/domain_create_response.py">DomainCreateResponse</a></code>
+- <code title="get /v1/graph/domains/{domain_id}">client.graph.domains.<a href="./src/papr_memory/resources/graph/domains/domains.py">retrieve</a>(domain_id) -> <a href="./src/papr_memory/types/graph/domain_retrieve_response.py">DomainRetrieveResponse</a></code>
+- <code title="put /v1/graph/domains/{domain_id}">client.graph.domains.<a href="./src/papr_memory/resources/graph/domains/domains.py">update</a>(domain_id, \*\*<a href="src/papr_memory/types/graph/domain_update_params.py">params</a>) -> <a href="./src/papr_memory/types/graph/domain_update_response.py">DomainUpdateResponse</a></code>
+- <code title="get /v1/graph/domains">client.graph.domains.<a href="./src/papr_memory/resources/graph/domains/domains.py">list</a>() -> <a href="./src/papr_memory/types/graph/domain_list_response.py">DomainListResponse</a></code>
+- <code title="delete /v1/graph/domains/{domain_id}">client.graph.domains.<a href="./src/papr_memory/resources/graph/domains/domains.py">delete</a>(domain_id) -> <a href="./src/papr_memory/types/graph/domain_delete_response.py">DomainDeleteResponse</a></code>
+
+### Catalog
+
+Methods:
+
+- <code title="get /v1/graph/domains/{domain_id}/catalog">client.graph.domains.catalog.<a href="./src/papr_memory/resources/graph/domains/catalog.py">retrieve</a>(domain_id) -> <a href="./src/papr_memory/types/graph/domain_catalog.py">DomainCatalog</a></code>
+- <code title="post /v1/graph/domains/{domain_id}/catalog/refresh">client.graph.domains.catalog.<a href="./src/papr_memory/resources/graph/domains/catalog.py">refresh</a>(domain_id) -> <a href="./src/papr_memory/types/graph/domain_catalog.py">DomainCatalog</a></code>

@@ -28,6 +28,12 @@ class TransformData(BaseModel):
     concat: Optional[List[float]] = None
     """Concatenation transform (input_dims + 196)"""
 
+    dimension_weights: Optional[Dict[str, float]] = None
+    """Adaptive per-field weights (queries only, when is_query=true).
+
+    Pass to /rerank as query_dimension_weights to skip recomputation.
+    """
+
     metadata: Optional[Dict[str, object]] = None
     """LLM-extracted metadata keyed by frequency field name"""
 

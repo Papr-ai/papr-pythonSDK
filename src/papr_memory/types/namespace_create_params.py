@@ -12,6 +12,9 @@ class NamespaceCreateParams(TypedDict, total=False):
     name: Required[str]
     """Namespace name (e.g., 'acme-production')"""
 
+    default_policy: Optional[Dict[str, object]]
+    """Default memory policy for add/search when request omits policy."""
+
     environment_type: Literal["development", "staging", "production"]
     """Environment type: development, staging, production"""
 
