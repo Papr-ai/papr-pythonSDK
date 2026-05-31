@@ -265,6 +265,146 @@ class TestMemory:
             },
             namespace_id="namespace_id",
             organization_id="organization_id",
+            policy={
+                "acl": {
+                    "read": ["external_user:alice_123", "organization:org_acme"],
+                    "write": ["external_user:alice_123"],
+                },
+                "consent": "explicit",
+                "graph": {
+                    "edge_constraints": [
+                        {
+                            "create": "upsert",
+                            "direction": "outgoing",
+                            "edge_type": "x",
+                            "link_only": True,
+                            "on_miss": "create",
+                            "search": {
+                                "mode": "semantic",
+                                "properties": [
+                                    {
+                                        "name": "Exact ID match",
+                                        "mode": "semantic",
+                                        "threshold": 0,
+                                        "value": {
+                                            "mode": "exact",
+                                            "name": "id",
+                                        },
+                                    }
+                                ],
+                                "threshold": 0,
+                                "via_relationship": [
+                                    {
+                                        "name": "Find via ASSIGNED_TO",
+                                        "summary": "Find nodes assigned to a specific person",
+                                        "value": {
+                                            "edge_type": "ASSIGNED_TO",
+                                            "target_search": {
+                                                "properties": [
+                                                    {
+                                                        "name": "email",
+                                                        "mode": "exact",
+                                                        "value": "alice@example.com",
+                                                    }
+                                                ]
+                                            },
+                                            "target_type": "Person",
+                                        },
+                                    }
+                                ],
+                            },
+                            "set": {
+                                "foo": {
+                                    "mode": "auto",
+                                    "prompt": "Summarize in 1-2 sentences",
+                                    "text_mode": "merge",
+                                }
+                            },
+                            "source_type": "source_type",
+                            "target_type": "target_type",
+                            "when": {"foo": "bar"},
+                        }
+                    ],
+                    "link_to": "string",
+                    "mode": "none",
+                    "node_constraints": [
+                        {
+                            "create": "upsert",
+                            "link_only": True,
+                            "node_type": "x",
+                            "on_miss": "create",
+                            "search": {
+                                "mode": "semantic",
+                                "properties": [
+                                    {
+                                        "name": "Exact ID match",
+                                        "mode": "semantic",
+                                        "threshold": 0,
+                                        "value": {
+                                            "mode": "exact",
+                                            "name": "id",
+                                        },
+                                    }
+                                ],
+                                "threshold": 0,
+                                "via_relationship": [
+                                    {
+                                        "name": "Find via ASSIGNED_TO",
+                                        "summary": "Find nodes assigned to a specific person",
+                                        "value": {
+                                            "edge_type": "ASSIGNED_TO",
+                                            "target_search": {
+                                                "properties": [
+                                                    {
+                                                        "name": "email",
+                                                        "mode": "exact",
+                                                        "value": "alice@example.com",
+                                                    }
+                                                ]
+                                            },
+                                            "target_type": "Person",
+                                        },
+                                    }
+                                ],
+                            },
+                            "set": {
+                                "foo": {
+                                    "mode": "auto",
+                                    "prompt": "Summarize in 1-2 sentences",
+                                    "text_mode": "merge",
+                                }
+                            },
+                            "when": {"foo": "bar"},
+                        }
+                    ],
+                    "nodes": [
+                        {
+                            "id": "txn_12345",
+                            "type": "Transaction",
+                            "properties": {
+                                "amount": "bar",
+                                "product": "bar",
+                                "timestamp": "bar",
+                            },
+                        }
+                    ],
+                    "relationships": [
+                        {
+                            "source": "txn_12345",
+                            "target": "product_latte",
+                            "type": "PURCHASED",
+                            "properties": {"foo": "bar"},
+                        }
+                    ],
+                    "schema_id": "schema_id",
+                },
+                "risk": "none",
+                "transform_embedding": {
+                    "domain_id": "domain_id",
+                    "mode": "none",
+                    "signals": {"foo": "string"},
+                },
+            },
             relationships_json=[
                 {
                     "relation_type": "updates",
@@ -607,6 +747,146 @@ class TestMemory:
             },
             namespace_id="namespace_id",
             organization_id="organization_id",
+            policy={
+                "acl": {
+                    "read": ["external_user:alice_123", "organization:org_acme"],
+                    "write": ["external_user:alice_123"],
+                },
+                "consent": "explicit",
+                "graph": {
+                    "edge_constraints": [
+                        {
+                            "create": "upsert",
+                            "direction": "outgoing",
+                            "edge_type": "x",
+                            "link_only": True,
+                            "on_miss": "create",
+                            "search": {
+                                "mode": "semantic",
+                                "properties": [
+                                    {
+                                        "name": "Exact ID match",
+                                        "mode": "semantic",
+                                        "threshold": 0,
+                                        "value": {
+                                            "mode": "exact",
+                                            "name": "id",
+                                        },
+                                    }
+                                ],
+                                "threshold": 0,
+                                "via_relationship": [
+                                    {
+                                        "name": "Find via ASSIGNED_TO",
+                                        "summary": "Find nodes assigned to a specific person",
+                                        "value": {
+                                            "edge_type": "ASSIGNED_TO",
+                                            "target_search": {
+                                                "properties": [
+                                                    {
+                                                        "name": "email",
+                                                        "mode": "exact",
+                                                        "value": "alice@example.com",
+                                                    }
+                                                ]
+                                            },
+                                            "target_type": "Person",
+                                        },
+                                    }
+                                ],
+                            },
+                            "set": {
+                                "foo": {
+                                    "mode": "auto",
+                                    "prompt": "Summarize in 1-2 sentences",
+                                    "text_mode": "merge",
+                                }
+                            },
+                            "source_type": "source_type",
+                            "target_type": "target_type",
+                            "when": {"foo": "bar"},
+                        }
+                    ],
+                    "link_to": "string",
+                    "mode": "none",
+                    "node_constraints": [
+                        {
+                            "create": "upsert",
+                            "link_only": True,
+                            "node_type": "x",
+                            "on_miss": "create",
+                            "search": {
+                                "mode": "semantic",
+                                "properties": [
+                                    {
+                                        "name": "Exact ID match",
+                                        "mode": "semantic",
+                                        "threshold": 0,
+                                        "value": {
+                                            "mode": "exact",
+                                            "name": "id",
+                                        },
+                                    }
+                                ],
+                                "threshold": 0,
+                                "via_relationship": [
+                                    {
+                                        "name": "Find via ASSIGNED_TO",
+                                        "summary": "Find nodes assigned to a specific person",
+                                        "value": {
+                                            "edge_type": "ASSIGNED_TO",
+                                            "target_search": {
+                                                "properties": [
+                                                    {
+                                                        "name": "email",
+                                                        "mode": "exact",
+                                                        "value": "alice@example.com",
+                                                    }
+                                                ]
+                                            },
+                                            "target_type": "Person",
+                                        },
+                                    }
+                                ],
+                            },
+                            "set": {
+                                "foo": {
+                                    "mode": "auto",
+                                    "prompt": "Summarize in 1-2 sentences",
+                                    "text_mode": "merge",
+                                }
+                            },
+                            "when": {"foo": "bar"},
+                        }
+                    ],
+                    "nodes": [
+                        {
+                            "id": "txn_12345",
+                            "type": "Transaction",
+                            "properties": {
+                                "amount": "bar",
+                                "product": "bar",
+                                "timestamp": "bar",
+                            },
+                        }
+                    ],
+                    "relationships": [
+                        {
+                            "source": "txn_12345",
+                            "target": "product_latte",
+                            "type": "PURCHASED",
+                            "properties": {"foo": "bar"},
+                        }
+                    ],
+                    "schema_id": "schema_id",
+                },
+                "risk": "none",
+                "transform_embedding": {
+                    "domain_id": "domain_id",
+                    "mode": "none",
+                    "signals": {"foo": "string"},
+                },
+            },
             relationships_json=[
                 {
                     "relation_type": "relation_type",
@@ -890,6 +1170,146 @@ class TestMemory:
                     },
                     "namespace_id": "namespace_id",
                     "organization_id": "organization_id",
+                    "policy": {
+                        "acl": {
+                            "read": ["external_user:alice_123", "organization:org_acme"],
+                            "write": ["external_user:alice_123"],
+                        },
+                        "consent": "explicit",
+                        "graph": {
+                            "edge_constraints": [
+                                {
+                                    "create": "upsert",
+                                    "direction": "outgoing",
+                                    "edge_type": "x",
+                                    "link_only": True,
+                                    "on_miss": "create",
+                                    "search": {
+                                        "mode": "semantic",
+                                        "properties": [
+                                            {
+                                                "name": "Exact ID match",
+                                                "mode": "semantic",
+                                                "threshold": 0,
+                                                "value": {
+                                                    "mode": "exact",
+                                                    "name": "id",
+                                                },
+                                            }
+                                        ],
+                                        "threshold": 0,
+                                        "via_relationship": [
+                                            {
+                                                "name": "Find via ASSIGNED_TO",
+                                                "summary": "Find nodes assigned to a specific person",
+                                                "value": {
+                                                    "edge_type": "ASSIGNED_TO",
+                                                    "target_search": {
+                                                        "properties": [
+                                                            {
+                                                                "name": "email",
+                                                                "mode": "exact",
+                                                                "value": "alice@example.com",
+                                                            }
+                                                        ]
+                                                    },
+                                                    "target_type": "Person",
+                                                },
+                                            }
+                                        ],
+                                    },
+                                    "set": {
+                                        "foo": {
+                                            "mode": "auto",
+                                            "prompt": "Summarize in 1-2 sentences",
+                                            "text_mode": "merge",
+                                        }
+                                    },
+                                    "source_type": "source_type",
+                                    "target_type": "target_type",
+                                    "when": {"foo": "bar"},
+                                }
+                            ],
+                            "link_to": "string",
+                            "mode": "none",
+                            "node_constraints": [
+                                {
+                                    "create": "upsert",
+                                    "link_only": True,
+                                    "node_type": "x",
+                                    "on_miss": "create",
+                                    "search": {
+                                        "mode": "semantic",
+                                        "properties": [
+                                            {
+                                                "name": "Exact ID match",
+                                                "mode": "semantic",
+                                                "threshold": 0,
+                                                "value": {
+                                                    "mode": "exact",
+                                                    "name": "id",
+                                                },
+                                            }
+                                        ],
+                                        "threshold": 0,
+                                        "via_relationship": [
+                                            {
+                                                "name": "Find via ASSIGNED_TO",
+                                                "summary": "Find nodes assigned to a specific person",
+                                                "value": {
+                                                    "edge_type": "ASSIGNED_TO",
+                                                    "target_search": {
+                                                        "properties": [
+                                                            {
+                                                                "name": "email",
+                                                                "mode": "exact",
+                                                                "value": "alice@example.com",
+                                                            }
+                                                        ]
+                                                    },
+                                                    "target_type": "Person",
+                                                },
+                                            }
+                                        ],
+                                    },
+                                    "set": {
+                                        "foo": {
+                                            "mode": "auto",
+                                            "prompt": "Summarize in 1-2 sentences",
+                                            "text_mode": "merge",
+                                        }
+                                    },
+                                    "when": {"foo": "bar"},
+                                }
+                            ],
+                            "nodes": [
+                                {
+                                    "id": "txn_12345",
+                                    "type": "Transaction",
+                                    "properties": {
+                                        "amount": "bar",
+                                        "product": "bar",
+                                        "timestamp": "bar",
+                                    },
+                                }
+                            ],
+                            "relationships": [
+                                {
+                                    "source": "txn_12345",
+                                    "target": "product_latte",
+                                    "type": "PURCHASED",
+                                    "properties": {"foo": "bar"},
+                                }
+                            ],
+                            "schema_id": "schema_id",
+                        },
+                        "risk": "none",
+                        "transform_embedding": {
+                            "domain_id": "domain_id",
+                            "mode": "none",
+                            "signals": {"foo": "string"},
+                        },
+                    },
                     "relationships_json": [
                         {
                             "relation_type": "relation_type",
@@ -1129,6 +1549,146 @@ class TestMemory:
                     },
                     "namespace_id": "namespace_id",
                     "organization_id": "organization_id",
+                    "policy": {
+                        "acl": {
+                            "read": ["external_user:alice_123", "organization:org_acme"],
+                            "write": ["external_user:alice_123"],
+                        },
+                        "consent": "explicit",
+                        "graph": {
+                            "edge_constraints": [
+                                {
+                                    "create": "upsert",
+                                    "direction": "outgoing",
+                                    "edge_type": "x",
+                                    "link_only": True,
+                                    "on_miss": "create",
+                                    "search": {
+                                        "mode": "semantic",
+                                        "properties": [
+                                            {
+                                                "name": "Exact ID match",
+                                                "mode": "semantic",
+                                                "threshold": 0,
+                                                "value": {
+                                                    "mode": "exact",
+                                                    "name": "id",
+                                                },
+                                            }
+                                        ],
+                                        "threshold": 0,
+                                        "via_relationship": [
+                                            {
+                                                "name": "Find via ASSIGNED_TO",
+                                                "summary": "Find nodes assigned to a specific person",
+                                                "value": {
+                                                    "edge_type": "ASSIGNED_TO",
+                                                    "target_search": {
+                                                        "properties": [
+                                                            {
+                                                                "name": "email",
+                                                                "mode": "exact",
+                                                                "value": "alice@example.com",
+                                                            }
+                                                        ]
+                                                    },
+                                                    "target_type": "Person",
+                                                },
+                                            }
+                                        ],
+                                    },
+                                    "set": {
+                                        "foo": {
+                                            "mode": "auto",
+                                            "prompt": "Summarize in 1-2 sentences",
+                                            "text_mode": "merge",
+                                        }
+                                    },
+                                    "source_type": "source_type",
+                                    "target_type": "target_type",
+                                    "when": {"foo": "bar"},
+                                }
+                            ],
+                            "link_to": "string",
+                            "mode": "none",
+                            "node_constraints": [
+                                {
+                                    "create": "upsert",
+                                    "link_only": True,
+                                    "node_type": "x",
+                                    "on_miss": "create",
+                                    "search": {
+                                        "mode": "semantic",
+                                        "properties": [
+                                            {
+                                                "name": "Exact ID match",
+                                                "mode": "semantic",
+                                                "threshold": 0,
+                                                "value": {
+                                                    "mode": "exact",
+                                                    "name": "id",
+                                                },
+                                            }
+                                        ],
+                                        "threshold": 0,
+                                        "via_relationship": [
+                                            {
+                                                "name": "Find via ASSIGNED_TO",
+                                                "summary": "Find nodes assigned to a specific person",
+                                                "value": {
+                                                    "edge_type": "ASSIGNED_TO",
+                                                    "target_search": {
+                                                        "properties": [
+                                                            {
+                                                                "name": "email",
+                                                                "mode": "exact",
+                                                                "value": "alice@example.com",
+                                                            }
+                                                        ]
+                                                    },
+                                                    "target_type": "Person",
+                                                },
+                                            }
+                                        ],
+                                    },
+                                    "set": {
+                                        "foo": {
+                                            "mode": "auto",
+                                            "prompt": "Summarize in 1-2 sentences",
+                                            "text_mode": "merge",
+                                        }
+                                    },
+                                    "when": {"foo": "bar"},
+                                }
+                            ],
+                            "nodes": [
+                                {
+                                    "id": "txn_12345",
+                                    "type": "Transaction",
+                                    "properties": {
+                                        "amount": "bar",
+                                        "product": "bar",
+                                        "timestamp": "bar",
+                                    },
+                                }
+                            ],
+                            "relationships": [
+                                {
+                                    "source": "txn_12345",
+                                    "target": "product_latte",
+                                    "type": "PURCHASED",
+                                    "properties": {"foo": "bar"},
+                                }
+                            ],
+                            "schema_id": "schema_id",
+                        },
+                        "risk": "none",
+                        "transform_embedding": {
+                            "domain_id": "domain_id",
+                            "mode": "none",
+                            "signals": {"foo": "string"},
+                        },
+                    },
                     "relationships_json": [
                         {
                             "relation_type": "relation_type",
@@ -1315,6 +1875,146 @@ class TestMemory:
             },
             namespace_id="namespace_id",
             organization_id="organization_id",
+            policy={
+                "acl": {
+                    "read": ["external_user:alice_123", "organization:org_acme"],
+                    "write": ["external_user:alice_123"],
+                },
+                "consent": "explicit",
+                "graph": {
+                    "edge_constraints": [
+                        {
+                            "create": "upsert",
+                            "direction": "outgoing",
+                            "edge_type": "x",
+                            "link_only": True,
+                            "on_miss": "create",
+                            "search": {
+                                "mode": "semantic",
+                                "properties": [
+                                    {
+                                        "name": "Exact ID match",
+                                        "mode": "semantic",
+                                        "threshold": 0,
+                                        "value": {
+                                            "mode": "exact",
+                                            "name": "id",
+                                        },
+                                    }
+                                ],
+                                "threshold": 0,
+                                "via_relationship": [
+                                    {
+                                        "name": "Find via ASSIGNED_TO",
+                                        "summary": "Find nodes assigned to a specific person",
+                                        "value": {
+                                            "edge_type": "ASSIGNED_TO",
+                                            "target_search": {
+                                                "properties": [
+                                                    {
+                                                        "name": "email",
+                                                        "mode": "exact",
+                                                        "value": "alice@example.com",
+                                                    }
+                                                ]
+                                            },
+                                            "target_type": "Person",
+                                        },
+                                    }
+                                ],
+                            },
+                            "set": {
+                                "foo": {
+                                    "mode": "auto",
+                                    "prompt": "Summarize in 1-2 sentences",
+                                    "text_mode": "merge",
+                                }
+                            },
+                            "source_type": "source_type",
+                            "target_type": "target_type",
+                            "when": {"foo": "bar"},
+                        }
+                    ],
+                    "link_to": "string",
+                    "mode": "none",
+                    "node_constraints": [
+                        {
+                            "create": "upsert",
+                            "link_only": True,
+                            "node_type": "x",
+                            "on_miss": "create",
+                            "search": {
+                                "mode": "semantic",
+                                "properties": [
+                                    {
+                                        "name": "Exact ID match",
+                                        "mode": "semantic",
+                                        "threshold": 0,
+                                        "value": {
+                                            "mode": "exact",
+                                            "name": "id",
+                                        },
+                                    }
+                                ],
+                                "threshold": 0,
+                                "via_relationship": [
+                                    {
+                                        "name": "Find via ASSIGNED_TO",
+                                        "summary": "Find nodes assigned to a specific person",
+                                        "value": {
+                                            "edge_type": "ASSIGNED_TO",
+                                            "target_search": {
+                                                "properties": [
+                                                    {
+                                                        "name": "email",
+                                                        "mode": "exact",
+                                                        "value": "alice@example.com",
+                                                    }
+                                                ]
+                                            },
+                                            "target_type": "Person",
+                                        },
+                                    }
+                                ],
+                            },
+                            "set": {
+                                "foo": {
+                                    "mode": "auto",
+                                    "prompt": "Summarize in 1-2 sentences",
+                                    "text_mode": "merge",
+                                }
+                            },
+                            "when": {"foo": "bar"},
+                        }
+                    ],
+                    "nodes": [
+                        {
+                            "id": "txn_12345",
+                            "type": "Transaction",
+                            "properties": {
+                                "amount": "bar",
+                                "product": "bar",
+                                "timestamp": "bar",
+                            },
+                        }
+                    ],
+                    "relationships": [
+                        {
+                            "source": "txn_12345",
+                            "target": "product_latte",
+                            "type": "PURCHASED",
+                            "properties": {"foo": "bar"},
+                        }
+                    ],
+                    "schema_id": "schema_id",
+                },
+                "risk": "none",
+                "transform_embedding": {
+                    "domain_id": "domain_id",
+                    "mode": "none",
+                    "signals": {"foo": "string"},
+                },
+            },
             user_id="internal_user_id_12345",
             webhook_secret="webhook_secret",
             webhook_url="webhook_url",
@@ -1614,6 +2314,154 @@ class TestMemory:
                 "require_consent": True,
             },
             organization_id="organization_id",
+            policy={
+                "acl": {
+                    "read": ["external_user:alice_123", "organization:org_acme"],
+                    "write": ["external_user:alice_123"],
+                },
+                "consent": "explicit",
+                "graph": {
+                    "edge_constraints": [
+                        {
+                            "create": "upsert",
+                            "direction": "outgoing",
+                            "edge_type": "x",
+                            "link_only": True,
+                            "on_miss": "create",
+                            "search": {
+                                "mode": "semantic",
+                                "properties": [
+                                    {
+                                        "name": "Exact ID match",
+                                        "mode": "semantic",
+                                        "threshold": 0,
+                                        "value": {
+                                            "mode": "exact",
+                                            "name": "id",
+                                        },
+                                    }
+                                ],
+                                "threshold": 0,
+                                "via_relationship": [
+                                    {
+                                        "name": "Find via ASSIGNED_TO",
+                                        "summary": "Find nodes assigned to a specific person",
+                                        "value": {
+                                            "edge_type": "ASSIGNED_TO",
+                                            "target_search": {
+                                                "properties": [
+                                                    {
+                                                        "name": "email",
+                                                        "mode": "exact",
+                                                        "value": "alice@example.com",
+                                                    }
+                                                ]
+                                            },
+                                            "target_type": "Person",
+                                        },
+                                    }
+                                ],
+                            },
+                            "set": {
+                                "foo": {
+                                    "mode": "auto",
+                                    "prompt": "Summarize in 1-2 sentences",
+                                    "text_mode": "merge",
+                                }
+                            },
+                            "source_type": "source_type",
+                            "target_type": "target_type",
+                            "when": {"foo": "bar"},
+                        }
+                    ],
+                    "link_to": "string",
+                    "mode": "none",
+                    "node_constraints": [
+                        {
+                            "create": "upsert",
+                            "link_only": True,
+                            "node_type": "x",
+                            "on_miss": "create",
+                            "search": {
+                                "mode": "semantic",
+                                "properties": [
+                                    {
+                                        "name": "Exact ID match",
+                                        "mode": "semantic",
+                                        "threshold": 0,
+                                        "value": {
+                                            "mode": "exact",
+                                            "name": "id",
+                                        },
+                                    }
+                                ],
+                                "threshold": 0,
+                                "via_relationship": [
+                                    {
+                                        "name": "Find via ASSIGNED_TO",
+                                        "summary": "Find nodes assigned to a specific person",
+                                        "value": {
+                                            "edge_type": "ASSIGNED_TO",
+                                            "target_search": {
+                                                "properties": [
+                                                    {
+                                                        "name": "email",
+                                                        "mode": "exact",
+                                                        "value": "alice@example.com",
+                                                    }
+                                                ]
+                                            },
+                                            "target_type": "Person",
+                                        },
+                                    }
+                                ],
+                            },
+                            "set": {
+                                "foo": {
+                                    "mode": "auto",
+                                    "prompt": "Summarize in 1-2 sentences",
+                                    "text_mode": "merge",
+                                }
+                            },
+                            "when": {"foo": "bar"},
+                        }
+                    ],
+                    "nodes": [
+                        {
+                            "id": "txn_12345",
+                            "type": "Transaction",
+                            "properties": {
+                                "amount": "bar",
+                                "product": "bar",
+                                "timestamp": "bar",
+                            },
+                        }
+                    ],
+                    "relationships": [
+                        {
+                            "source": "txn_12345",
+                            "target": "product_latte",
+                            "type": "PURCHASED",
+                            "properties": {"foo": "bar"},
+                        }
+                    ],
+                    "schema_id": "schema_id",
+                },
+                "rerank": {
+                    "enabled": True,
+                    "model": "model",
+                    "provider": "provider",
+                },
+                "risk": "none",
+                "vector": {
+                    "domain_id": "domain_id",
+                    "mode": "fast",
+                    "return_debug": True,
+                    "return_signal_scores": True,
+                    "signal_multipliers": {"foo": 0},
+                    "signal_thresholds": {"foo": 0},
+                },
+            },
             rank_results=True,
             reranking_config={
                 "reranking_enabled": True,
@@ -1925,6 +2773,146 @@ class TestAsyncMemory:
             },
             namespace_id="namespace_id",
             organization_id="organization_id",
+            policy={
+                "acl": {
+                    "read": ["external_user:alice_123", "organization:org_acme"],
+                    "write": ["external_user:alice_123"],
+                },
+                "consent": "explicit",
+                "graph": {
+                    "edge_constraints": [
+                        {
+                            "create": "upsert",
+                            "direction": "outgoing",
+                            "edge_type": "x",
+                            "link_only": True,
+                            "on_miss": "create",
+                            "search": {
+                                "mode": "semantic",
+                                "properties": [
+                                    {
+                                        "name": "Exact ID match",
+                                        "mode": "semantic",
+                                        "threshold": 0,
+                                        "value": {
+                                            "mode": "exact",
+                                            "name": "id",
+                                        },
+                                    }
+                                ],
+                                "threshold": 0,
+                                "via_relationship": [
+                                    {
+                                        "name": "Find via ASSIGNED_TO",
+                                        "summary": "Find nodes assigned to a specific person",
+                                        "value": {
+                                            "edge_type": "ASSIGNED_TO",
+                                            "target_search": {
+                                                "properties": [
+                                                    {
+                                                        "name": "email",
+                                                        "mode": "exact",
+                                                        "value": "alice@example.com",
+                                                    }
+                                                ]
+                                            },
+                                            "target_type": "Person",
+                                        },
+                                    }
+                                ],
+                            },
+                            "set": {
+                                "foo": {
+                                    "mode": "auto",
+                                    "prompt": "Summarize in 1-2 sentences",
+                                    "text_mode": "merge",
+                                }
+                            },
+                            "source_type": "source_type",
+                            "target_type": "target_type",
+                            "when": {"foo": "bar"},
+                        }
+                    ],
+                    "link_to": "string",
+                    "mode": "none",
+                    "node_constraints": [
+                        {
+                            "create": "upsert",
+                            "link_only": True,
+                            "node_type": "x",
+                            "on_miss": "create",
+                            "search": {
+                                "mode": "semantic",
+                                "properties": [
+                                    {
+                                        "name": "Exact ID match",
+                                        "mode": "semantic",
+                                        "threshold": 0,
+                                        "value": {
+                                            "mode": "exact",
+                                            "name": "id",
+                                        },
+                                    }
+                                ],
+                                "threshold": 0,
+                                "via_relationship": [
+                                    {
+                                        "name": "Find via ASSIGNED_TO",
+                                        "summary": "Find nodes assigned to a specific person",
+                                        "value": {
+                                            "edge_type": "ASSIGNED_TO",
+                                            "target_search": {
+                                                "properties": [
+                                                    {
+                                                        "name": "email",
+                                                        "mode": "exact",
+                                                        "value": "alice@example.com",
+                                                    }
+                                                ]
+                                            },
+                                            "target_type": "Person",
+                                        },
+                                    }
+                                ],
+                            },
+                            "set": {
+                                "foo": {
+                                    "mode": "auto",
+                                    "prompt": "Summarize in 1-2 sentences",
+                                    "text_mode": "merge",
+                                }
+                            },
+                            "when": {"foo": "bar"},
+                        }
+                    ],
+                    "nodes": [
+                        {
+                            "id": "txn_12345",
+                            "type": "Transaction",
+                            "properties": {
+                                "amount": "bar",
+                                "product": "bar",
+                                "timestamp": "bar",
+                            },
+                        }
+                    ],
+                    "relationships": [
+                        {
+                            "source": "txn_12345",
+                            "target": "product_latte",
+                            "type": "PURCHASED",
+                            "properties": {"foo": "bar"},
+                        }
+                    ],
+                    "schema_id": "schema_id",
+                },
+                "risk": "none",
+                "transform_embedding": {
+                    "domain_id": "domain_id",
+                    "mode": "none",
+                    "signals": {"foo": "string"},
+                },
+            },
             relationships_json=[
                 {
                     "relation_type": "updates",
@@ -2267,6 +3255,146 @@ class TestAsyncMemory:
             },
             namespace_id="namespace_id",
             organization_id="organization_id",
+            policy={
+                "acl": {
+                    "read": ["external_user:alice_123", "organization:org_acme"],
+                    "write": ["external_user:alice_123"],
+                },
+                "consent": "explicit",
+                "graph": {
+                    "edge_constraints": [
+                        {
+                            "create": "upsert",
+                            "direction": "outgoing",
+                            "edge_type": "x",
+                            "link_only": True,
+                            "on_miss": "create",
+                            "search": {
+                                "mode": "semantic",
+                                "properties": [
+                                    {
+                                        "name": "Exact ID match",
+                                        "mode": "semantic",
+                                        "threshold": 0,
+                                        "value": {
+                                            "mode": "exact",
+                                            "name": "id",
+                                        },
+                                    }
+                                ],
+                                "threshold": 0,
+                                "via_relationship": [
+                                    {
+                                        "name": "Find via ASSIGNED_TO",
+                                        "summary": "Find nodes assigned to a specific person",
+                                        "value": {
+                                            "edge_type": "ASSIGNED_TO",
+                                            "target_search": {
+                                                "properties": [
+                                                    {
+                                                        "name": "email",
+                                                        "mode": "exact",
+                                                        "value": "alice@example.com",
+                                                    }
+                                                ]
+                                            },
+                                            "target_type": "Person",
+                                        },
+                                    }
+                                ],
+                            },
+                            "set": {
+                                "foo": {
+                                    "mode": "auto",
+                                    "prompt": "Summarize in 1-2 sentences",
+                                    "text_mode": "merge",
+                                }
+                            },
+                            "source_type": "source_type",
+                            "target_type": "target_type",
+                            "when": {"foo": "bar"},
+                        }
+                    ],
+                    "link_to": "string",
+                    "mode": "none",
+                    "node_constraints": [
+                        {
+                            "create": "upsert",
+                            "link_only": True,
+                            "node_type": "x",
+                            "on_miss": "create",
+                            "search": {
+                                "mode": "semantic",
+                                "properties": [
+                                    {
+                                        "name": "Exact ID match",
+                                        "mode": "semantic",
+                                        "threshold": 0,
+                                        "value": {
+                                            "mode": "exact",
+                                            "name": "id",
+                                        },
+                                    }
+                                ],
+                                "threshold": 0,
+                                "via_relationship": [
+                                    {
+                                        "name": "Find via ASSIGNED_TO",
+                                        "summary": "Find nodes assigned to a specific person",
+                                        "value": {
+                                            "edge_type": "ASSIGNED_TO",
+                                            "target_search": {
+                                                "properties": [
+                                                    {
+                                                        "name": "email",
+                                                        "mode": "exact",
+                                                        "value": "alice@example.com",
+                                                    }
+                                                ]
+                                            },
+                                            "target_type": "Person",
+                                        },
+                                    }
+                                ],
+                            },
+                            "set": {
+                                "foo": {
+                                    "mode": "auto",
+                                    "prompt": "Summarize in 1-2 sentences",
+                                    "text_mode": "merge",
+                                }
+                            },
+                            "when": {"foo": "bar"},
+                        }
+                    ],
+                    "nodes": [
+                        {
+                            "id": "txn_12345",
+                            "type": "Transaction",
+                            "properties": {
+                                "amount": "bar",
+                                "product": "bar",
+                                "timestamp": "bar",
+                            },
+                        }
+                    ],
+                    "relationships": [
+                        {
+                            "source": "txn_12345",
+                            "target": "product_latte",
+                            "type": "PURCHASED",
+                            "properties": {"foo": "bar"},
+                        }
+                    ],
+                    "schema_id": "schema_id",
+                },
+                "risk": "none",
+                "transform_embedding": {
+                    "domain_id": "domain_id",
+                    "mode": "none",
+                    "signals": {"foo": "string"},
+                },
+            },
             relationships_json=[
                 {
                     "relation_type": "relation_type",
@@ -2550,6 +3678,146 @@ class TestAsyncMemory:
                     },
                     "namespace_id": "namespace_id",
                     "organization_id": "organization_id",
+                    "policy": {
+                        "acl": {
+                            "read": ["external_user:alice_123", "organization:org_acme"],
+                            "write": ["external_user:alice_123"],
+                        },
+                        "consent": "explicit",
+                        "graph": {
+                            "edge_constraints": [
+                                {
+                                    "create": "upsert",
+                                    "direction": "outgoing",
+                                    "edge_type": "x",
+                                    "link_only": True,
+                                    "on_miss": "create",
+                                    "search": {
+                                        "mode": "semantic",
+                                        "properties": [
+                                            {
+                                                "name": "Exact ID match",
+                                                "mode": "semantic",
+                                                "threshold": 0,
+                                                "value": {
+                                                    "mode": "exact",
+                                                    "name": "id",
+                                                },
+                                            }
+                                        ],
+                                        "threshold": 0,
+                                        "via_relationship": [
+                                            {
+                                                "name": "Find via ASSIGNED_TO",
+                                                "summary": "Find nodes assigned to a specific person",
+                                                "value": {
+                                                    "edge_type": "ASSIGNED_TO",
+                                                    "target_search": {
+                                                        "properties": [
+                                                            {
+                                                                "name": "email",
+                                                                "mode": "exact",
+                                                                "value": "alice@example.com",
+                                                            }
+                                                        ]
+                                                    },
+                                                    "target_type": "Person",
+                                                },
+                                            }
+                                        ],
+                                    },
+                                    "set": {
+                                        "foo": {
+                                            "mode": "auto",
+                                            "prompt": "Summarize in 1-2 sentences",
+                                            "text_mode": "merge",
+                                        }
+                                    },
+                                    "source_type": "source_type",
+                                    "target_type": "target_type",
+                                    "when": {"foo": "bar"},
+                                }
+                            ],
+                            "link_to": "string",
+                            "mode": "none",
+                            "node_constraints": [
+                                {
+                                    "create": "upsert",
+                                    "link_only": True,
+                                    "node_type": "x",
+                                    "on_miss": "create",
+                                    "search": {
+                                        "mode": "semantic",
+                                        "properties": [
+                                            {
+                                                "name": "Exact ID match",
+                                                "mode": "semantic",
+                                                "threshold": 0,
+                                                "value": {
+                                                    "mode": "exact",
+                                                    "name": "id",
+                                                },
+                                            }
+                                        ],
+                                        "threshold": 0,
+                                        "via_relationship": [
+                                            {
+                                                "name": "Find via ASSIGNED_TO",
+                                                "summary": "Find nodes assigned to a specific person",
+                                                "value": {
+                                                    "edge_type": "ASSIGNED_TO",
+                                                    "target_search": {
+                                                        "properties": [
+                                                            {
+                                                                "name": "email",
+                                                                "mode": "exact",
+                                                                "value": "alice@example.com",
+                                                            }
+                                                        ]
+                                                    },
+                                                    "target_type": "Person",
+                                                },
+                                            }
+                                        ],
+                                    },
+                                    "set": {
+                                        "foo": {
+                                            "mode": "auto",
+                                            "prompt": "Summarize in 1-2 sentences",
+                                            "text_mode": "merge",
+                                        }
+                                    },
+                                    "when": {"foo": "bar"},
+                                }
+                            ],
+                            "nodes": [
+                                {
+                                    "id": "txn_12345",
+                                    "type": "Transaction",
+                                    "properties": {
+                                        "amount": "bar",
+                                        "product": "bar",
+                                        "timestamp": "bar",
+                                    },
+                                }
+                            ],
+                            "relationships": [
+                                {
+                                    "source": "txn_12345",
+                                    "target": "product_latte",
+                                    "type": "PURCHASED",
+                                    "properties": {"foo": "bar"},
+                                }
+                            ],
+                            "schema_id": "schema_id",
+                        },
+                        "risk": "none",
+                        "transform_embedding": {
+                            "domain_id": "domain_id",
+                            "mode": "none",
+                            "signals": {"foo": "string"},
+                        },
+                    },
                     "relationships_json": [
                         {
                             "relation_type": "relation_type",
@@ -2789,6 +4057,146 @@ class TestAsyncMemory:
                     },
                     "namespace_id": "namespace_id",
                     "organization_id": "organization_id",
+                    "policy": {
+                        "acl": {
+                            "read": ["external_user:alice_123", "organization:org_acme"],
+                            "write": ["external_user:alice_123"],
+                        },
+                        "consent": "explicit",
+                        "graph": {
+                            "edge_constraints": [
+                                {
+                                    "create": "upsert",
+                                    "direction": "outgoing",
+                                    "edge_type": "x",
+                                    "link_only": True,
+                                    "on_miss": "create",
+                                    "search": {
+                                        "mode": "semantic",
+                                        "properties": [
+                                            {
+                                                "name": "Exact ID match",
+                                                "mode": "semantic",
+                                                "threshold": 0,
+                                                "value": {
+                                                    "mode": "exact",
+                                                    "name": "id",
+                                                },
+                                            }
+                                        ],
+                                        "threshold": 0,
+                                        "via_relationship": [
+                                            {
+                                                "name": "Find via ASSIGNED_TO",
+                                                "summary": "Find nodes assigned to a specific person",
+                                                "value": {
+                                                    "edge_type": "ASSIGNED_TO",
+                                                    "target_search": {
+                                                        "properties": [
+                                                            {
+                                                                "name": "email",
+                                                                "mode": "exact",
+                                                                "value": "alice@example.com",
+                                                            }
+                                                        ]
+                                                    },
+                                                    "target_type": "Person",
+                                                },
+                                            }
+                                        ],
+                                    },
+                                    "set": {
+                                        "foo": {
+                                            "mode": "auto",
+                                            "prompt": "Summarize in 1-2 sentences",
+                                            "text_mode": "merge",
+                                        }
+                                    },
+                                    "source_type": "source_type",
+                                    "target_type": "target_type",
+                                    "when": {"foo": "bar"},
+                                }
+                            ],
+                            "link_to": "string",
+                            "mode": "none",
+                            "node_constraints": [
+                                {
+                                    "create": "upsert",
+                                    "link_only": True,
+                                    "node_type": "x",
+                                    "on_miss": "create",
+                                    "search": {
+                                        "mode": "semantic",
+                                        "properties": [
+                                            {
+                                                "name": "Exact ID match",
+                                                "mode": "semantic",
+                                                "threshold": 0,
+                                                "value": {
+                                                    "mode": "exact",
+                                                    "name": "id",
+                                                },
+                                            }
+                                        ],
+                                        "threshold": 0,
+                                        "via_relationship": [
+                                            {
+                                                "name": "Find via ASSIGNED_TO",
+                                                "summary": "Find nodes assigned to a specific person",
+                                                "value": {
+                                                    "edge_type": "ASSIGNED_TO",
+                                                    "target_search": {
+                                                        "properties": [
+                                                            {
+                                                                "name": "email",
+                                                                "mode": "exact",
+                                                                "value": "alice@example.com",
+                                                            }
+                                                        ]
+                                                    },
+                                                    "target_type": "Person",
+                                                },
+                                            }
+                                        ],
+                                    },
+                                    "set": {
+                                        "foo": {
+                                            "mode": "auto",
+                                            "prompt": "Summarize in 1-2 sentences",
+                                            "text_mode": "merge",
+                                        }
+                                    },
+                                    "when": {"foo": "bar"},
+                                }
+                            ],
+                            "nodes": [
+                                {
+                                    "id": "txn_12345",
+                                    "type": "Transaction",
+                                    "properties": {
+                                        "amount": "bar",
+                                        "product": "bar",
+                                        "timestamp": "bar",
+                                    },
+                                }
+                            ],
+                            "relationships": [
+                                {
+                                    "source": "txn_12345",
+                                    "target": "product_latte",
+                                    "type": "PURCHASED",
+                                    "properties": {"foo": "bar"},
+                                }
+                            ],
+                            "schema_id": "schema_id",
+                        },
+                        "risk": "none",
+                        "transform_embedding": {
+                            "domain_id": "domain_id",
+                            "mode": "none",
+                            "signals": {"foo": "string"},
+                        },
+                    },
                     "relationships_json": [
                         {
                             "relation_type": "relation_type",
@@ -2975,6 +4383,146 @@ class TestAsyncMemory:
             },
             namespace_id="namespace_id",
             organization_id="organization_id",
+            policy={
+                "acl": {
+                    "read": ["external_user:alice_123", "organization:org_acme"],
+                    "write": ["external_user:alice_123"],
+                },
+                "consent": "explicit",
+                "graph": {
+                    "edge_constraints": [
+                        {
+                            "create": "upsert",
+                            "direction": "outgoing",
+                            "edge_type": "x",
+                            "link_only": True,
+                            "on_miss": "create",
+                            "search": {
+                                "mode": "semantic",
+                                "properties": [
+                                    {
+                                        "name": "Exact ID match",
+                                        "mode": "semantic",
+                                        "threshold": 0,
+                                        "value": {
+                                            "mode": "exact",
+                                            "name": "id",
+                                        },
+                                    }
+                                ],
+                                "threshold": 0,
+                                "via_relationship": [
+                                    {
+                                        "name": "Find via ASSIGNED_TO",
+                                        "summary": "Find nodes assigned to a specific person",
+                                        "value": {
+                                            "edge_type": "ASSIGNED_TO",
+                                            "target_search": {
+                                                "properties": [
+                                                    {
+                                                        "name": "email",
+                                                        "mode": "exact",
+                                                        "value": "alice@example.com",
+                                                    }
+                                                ]
+                                            },
+                                            "target_type": "Person",
+                                        },
+                                    }
+                                ],
+                            },
+                            "set": {
+                                "foo": {
+                                    "mode": "auto",
+                                    "prompt": "Summarize in 1-2 sentences",
+                                    "text_mode": "merge",
+                                }
+                            },
+                            "source_type": "source_type",
+                            "target_type": "target_type",
+                            "when": {"foo": "bar"},
+                        }
+                    ],
+                    "link_to": "string",
+                    "mode": "none",
+                    "node_constraints": [
+                        {
+                            "create": "upsert",
+                            "link_only": True,
+                            "node_type": "x",
+                            "on_miss": "create",
+                            "search": {
+                                "mode": "semantic",
+                                "properties": [
+                                    {
+                                        "name": "Exact ID match",
+                                        "mode": "semantic",
+                                        "threshold": 0,
+                                        "value": {
+                                            "mode": "exact",
+                                            "name": "id",
+                                        },
+                                    }
+                                ],
+                                "threshold": 0,
+                                "via_relationship": [
+                                    {
+                                        "name": "Find via ASSIGNED_TO",
+                                        "summary": "Find nodes assigned to a specific person",
+                                        "value": {
+                                            "edge_type": "ASSIGNED_TO",
+                                            "target_search": {
+                                                "properties": [
+                                                    {
+                                                        "name": "email",
+                                                        "mode": "exact",
+                                                        "value": "alice@example.com",
+                                                    }
+                                                ]
+                                            },
+                                            "target_type": "Person",
+                                        },
+                                    }
+                                ],
+                            },
+                            "set": {
+                                "foo": {
+                                    "mode": "auto",
+                                    "prompt": "Summarize in 1-2 sentences",
+                                    "text_mode": "merge",
+                                }
+                            },
+                            "when": {"foo": "bar"},
+                        }
+                    ],
+                    "nodes": [
+                        {
+                            "id": "txn_12345",
+                            "type": "Transaction",
+                            "properties": {
+                                "amount": "bar",
+                                "product": "bar",
+                                "timestamp": "bar",
+                            },
+                        }
+                    ],
+                    "relationships": [
+                        {
+                            "source": "txn_12345",
+                            "target": "product_latte",
+                            "type": "PURCHASED",
+                            "properties": {"foo": "bar"},
+                        }
+                    ],
+                    "schema_id": "schema_id",
+                },
+                "risk": "none",
+                "transform_embedding": {
+                    "domain_id": "domain_id",
+                    "mode": "none",
+                    "signals": {"foo": "string"},
+                },
+            },
             user_id="internal_user_id_12345",
             webhook_secret="webhook_secret",
             webhook_url="webhook_url",
@@ -3274,6 +4822,154 @@ class TestAsyncMemory:
                 "require_consent": True,
             },
             organization_id="organization_id",
+            policy={
+                "acl": {
+                    "read": ["external_user:alice_123", "organization:org_acme"],
+                    "write": ["external_user:alice_123"],
+                },
+                "consent": "explicit",
+                "graph": {
+                    "edge_constraints": [
+                        {
+                            "create": "upsert",
+                            "direction": "outgoing",
+                            "edge_type": "x",
+                            "link_only": True,
+                            "on_miss": "create",
+                            "search": {
+                                "mode": "semantic",
+                                "properties": [
+                                    {
+                                        "name": "Exact ID match",
+                                        "mode": "semantic",
+                                        "threshold": 0,
+                                        "value": {
+                                            "mode": "exact",
+                                            "name": "id",
+                                        },
+                                    }
+                                ],
+                                "threshold": 0,
+                                "via_relationship": [
+                                    {
+                                        "name": "Find via ASSIGNED_TO",
+                                        "summary": "Find nodes assigned to a specific person",
+                                        "value": {
+                                            "edge_type": "ASSIGNED_TO",
+                                            "target_search": {
+                                                "properties": [
+                                                    {
+                                                        "name": "email",
+                                                        "mode": "exact",
+                                                        "value": "alice@example.com",
+                                                    }
+                                                ]
+                                            },
+                                            "target_type": "Person",
+                                        },
+                                    }
+                                ],
+                            },
+                            "set": {
+                                "foo": {
+                                    "mode": "auto",
+                                    "prompt": "Summarize in 1-2 sentences",
+                                    "text_mode": "merge",
+                                }
+                            },
+                            "source_type": "source_type",
+                            "target_type": "target_type",
+                            "when": {"foo": "bar"},
+                        }
+                    ],
+                    "link_to": "string",
+                    "mode": "none",
+                    "node_constraints": [
+                        {
+                            "create": "upsert",
+                            "link_only": True,
+                            "node_type": "x",
+                            "on_miss": "create",
+                            "search": {
+                                "mode": "semantic",
+                                "properties": [
+                                    {
+                                        "name": "Exact ID match",
+                                        "mode": "semantic",
+                                        "threshold": 0,
+                                        "value": {
+                                            "mode": "exact",
+                                            "name": "id",
+                                        },
+                                    }
+                                ],
+                                "threshold": 0,
+                                "via_relationship": [
+                                    {
+                                        "name": "Find via ASSIGNED_TO",
+                                        "summary": "Find nodes assigned to a specific person",
+                                        "value": {
+                                            "edge_type": "ASSIGNED_TO",
+                                            "target_search": {
+                                                "properties": [
+                                                    {
+                                                        "name": "email",
+                                                        "mode": "exact",
+                                                        "value": "alice@example.com",
+                                                    }
+                                                ]
+                                            },
+                                            "target_type": "Person",
+                                        },
+                                    }
+                                ],
+                            },
+                            "set": {
+                                "foo": {
+                                    "mode": "auto",
+                                    "prompt": "Summarize in 1-2 sentences",
+                                    "text_mode": "merge",
+                                }
+                            },
+                            "when": {"foo": "bar"},
+                        }
+                    ],
+                    "nodes": [
+                        {
+                            "id": "txn_12345",
+                            "type": "Transaction",
+                            "properties": {
+                                "amount": "bar",
+                                "product": "bar",
+                                "timestamp": "bar",
+                            },
+                        }
+                    ],
+                    "relationships": [
+                        {
+                            "source": "txn_12345",
+                            "target": "product_latte",
+                            "type": "PURCHASED",
+                            "properties": {"foo": "bar"},
+                        }
+                    ],
+                    "schema_id": "schema_id",
+                },
+                "rerank": {
+                    "enabled": True,
+                    "model": "model",
+                    "provider": "provider",
+                },
+                "risk": "none",
+                "vector": {
+                    "domain_id": "domain_id",
+                    "mode": "fast",
+                    "return_debug": True,
+                    "return_signal_scores": True,
+                    "signal_multipliers": {"foo": 0},
+                    "signal_thresholds": {"foo": 0},
+                },
+            },
             rank_results=True,
             reranking_config={
                 "reranking_enabled": True,

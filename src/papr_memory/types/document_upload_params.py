@@ -14,9 +14,10 @@ class DocumentUploadParams(TypedDict, total=False):
     file: Required[FileTypes]
 
     enable_holographic: bool
-    """
+    """DEPRECATED: Use policy.transform_embedding instead.
+
     If True, applies holographic neural transforms and stores in holographic
-    collection
+    collection.
     """
 
     external_user_id: Optional[str]
@@ -26,10 +27,10 @@ class DocumentUploadParams(TypedDict, total=False):
     """
 
     frequency_schema_id: Optional[str]
-    """Frequency schema for holographic embedding (e.g.
+    """DEPRECATED: Use policy.transform_embedding.domain_id instead.
 
-    'cosqa', 'scifact'). Required when enable_holographic=True. Call GET
-    /v1/frequencies to see available schemas.
+    Frequency schema for holographic embedding (e.g. 'cosqa', 'scifact'). Required
+    when enable_holographic=True. Call GET /v1/frequencies to see available schemas.
     """
 
     graph_override: Optional[str]
@@ -37,16 +38,22 @@ class DocumentUploadParams(TypedDict, total=False):
     hierarchical_enabled: bool
 
     memory_policy: Optional[str]
-    """JSON-encoded memory policy.
+    """DEPRECATED: Use 'policy' instead.
 
-    Includes mode ('auto'/'manual'), schema_id, node_constraints (applied in auto
-    mode when present), and OMO fields (consent, risk, acl). This is the recommended
-    way to configure memory processing.
+    JSON-encoded memory policy. Includes mode ('auto'/'manual'), schema_id,
+    node_constraints (applied in auto mode when present), and OMO fields (consent,
+    risk, acl).
     """
 
     metadata: Optional[str]
 
     namespace_id: Optional[str]
+
+    policy: Optional[str]
+    """JSON-encoded unified processing policy (transform_embedding, graph incl.
+
+    link_to, consent, risk, acl). Applies to all chunks from this document.
+    """
 
     preferred_provider: Optional[Literal["gemini", "tensorlake", "reducto", "auto"]]
     """Preferred provider for document processing."""

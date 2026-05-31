@@ -24,6 +24,14 @@ class HolographicRerankParams(TypedDict, total=False):
     options: Optional[Options]
     """Options for the rerank endpoint."""
 
+    query_dimension_weights: Optional[Dict[str, float]]
+    """Pre-computed per-field weights from a prior /transform call (is_query=true).
+
+    If provided, skips the adaptive Groq weights call entirely (saves ~500ms + LLM
+    cost). Keyed by frequency string (e.g. '0.1') OR field name (e.g.
+    'mega_domain').
+    """
+
     query_embedding: Optional[Iterable[float]]
     """Query embedding in the same space as candidate embeddings.
 
@@ -60,6 +68,9 @@ class Candidate(TypedDict, total=False):
     id: Required[str]
     """Unique identifier"""
 
+    concat_embedding: Optional[Iterable[float]]
+    """Pre-computed concat (new) embedding from holographic transform."""
+
     content: Optional[str]
     """Text content. Required for cold path (LLM extraction + cross-encoder)."""
 
@@ -80,6 +91,18 @@ class Candidate(TypedDict, total=False):
 
     phases: Optional[Iterable[float]]
     """Pre-computed phases from a prior /transform call. Enables fast path."""
+
+    rotation_embedding: Optional[Iterable[float]]
+    """Pre-computed rotation (old) embedding from holographic transform.
+
+    Enables rot_v2/v3 similarity scoring and full CAESAR ensemble.
+    """
+
+    rotation_v2_embedding: Optional[Iterable[float]]
+    """Pre-computed rotation V2 embedding from holographic transform."""
+
+    rotation_v3_embedding: Optional[Iterable[float]]
+    """Pre-computed rotation V3 embedding from holographic transform."""
 
     score: Optional[float]
     """Original retrieval score (used as a signal in ensemble methods)"""

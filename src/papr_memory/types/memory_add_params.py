@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from typing import Dict, Union, Iterable, Optional
-from typing_extensions import Required, TypedDict
+from typing_extensions import Literal, Required, TypedDict
 
 from .._types import SequenceNotStr
 from .memory_type import MemoryType
@@ -11,9 +11,14 @@ from .context_item_param import ContextItemParam
 from .memory_metadata_param import MemoryMetadataParam
 from .graph_generation_param import GraphGenerationParam
 from .relationship_item_param import RelationshipItemParam
+from .shared_params.node_spec import NodeSpec
+from .shared_params.acl_config import ACLConfig
 from .shared_params.memory_policy import MemoryPolicy
+from .shared_params.relationship_spec import RelationshipSpec
+from .shared_params.edge_constraint_input import EdgeConstraintInput
+from .shared_params.node_constraint_input import NodeConstraintInput
 
-__all__ = ["MemoryAddParams"]
+__all__ = ["MemoryAddParams", "Policy", "PolicyGraph", "PolicyTransformEmbedding"]
 
 
 class MemoryAddParams(TypedDict, total=False):
@@ -73,16 +78,20 @@ class MemoryAddParams(TypedDict, total=False):
     """Graph generation configuration"""
 
     link_to: Union[str, SequenceNotStr[str], Dict[str, object], None]
-    """Shorthand DSL for node/edge constraints.
+    """DEPRECATED: Use policy.graph.link_to instead.
 
-    Expands to memory_policy.node_constraints and edge_constraints. Formats: -
-    String: 'Task:title' (semantic match on Task.title) - List: ['Task:title',
-    'Person:email'] (multiple constraints) - Dict: {'Task:title': {'set': {...}}}
-    (with options) Syntax: - Node: 'Type:property', 'Type:prop=value' (exact),
-    'Type:prop~value' (semantic) - Edge: 'Source->EDGE->Target:property' (arrow
-    syntax) - Via: 'Type.via(EDGE->Target:prop)' (relationship traversal) - Special:
-    '$this', '$previous', '$context:N' Example:
-    'SecurityBehavior->MITIGATES->TacticDef:name' with {'create': 'never'}
+    Shorthand DSL for node/edge constraints (same as node_constraints, compact
+    syntax). Expands and merges into memory_policy.node_constraints and
+    edge_constraints at resolve time. Default create is upsert; use dict form with
+    create='lookup' (or legacy 'never') for link-only. Formats: - String:
+    'Task:title' (semantic match on Task.title, upsert by default) - List:
+    ['Task:title', 'Person:email'] (multiple constraints) - Dict: {'Task:title':
+    {'set': {...}, 'create': 'lookup'}} (full options) Syntax: - Node:
+    'Type:property', 'Type:prop=value' (exact), 'Type:prop~value' (semantic) - Edge:
+    'Source->EDGE->Target:property' (arrow syntax) - Via:
+    'Type.via(EDGE->Target:prop)' (relationship traversal) - Special:
+    '$this', '$previous', '$context:N' Example lookup-only: {'SecurityPolicy:name':
+    {'create': 'lookup'}}
     """
 
     memory_policy: Optional[MemoryPolicy]
@@ -125,6 +134,9 @@ class MemoryAddParams(TypedDict, total=False):
     resolved automatically from the API key's associated organization.
     """
 
+    policy: Optional[Policy]
+    """Policy for add / batch / document / message ingestion."""
+
     relationships_json: Optional[Iterable[RelationshipItemParam]]
     """DEPRECATED: Use 'memory_policy' instead.
 
@@ -149,3 +161,102 @@ class MemoryAddParams(TypedDict, total=False):
 
     Internal Papr Parse user ID. Most developers should not use this field directly.
     """
+
+
+class PolicyGraph(TypedDict, total=False):
+    edge_constraints: Optional[Iterable[EdgeConstraintInput]]
+    """Full edge constraint objects.
+
+    Same rules as edge entries in policy.graph.link_to after expansion; both may be
+    set in the same request.
+    """
+
+    link_to: Union[str, SequenceNotStr[str], Dict[str, object], None]
+    """Shorthand DSL for node/edge constraints under policy.graph.
+
+    Not a separate graph mode — expands into node_constraints and edge_constraints
+    at resolve time and merges with any explicit constraints in the same request.
+    Default create policy is upsert (create if not found); use dict form with
+    create='lookup' for link-only. Prefer over deprecated top-level link_to.
+    """
+
+    mode: Literal["none", "auto", "manual"]
+
+    node_constraints: Optional[Iterable[NodeConstraintInput]]
+    """Full node constraint objects.
+
+    Same rules as policy.graph.link_to after expansion; use link_to for compact DSL
+    or this field for explicit control. Both may be set.
+    """
+
+    nodes: Optional[Iterable[NodeSpec]]
+
+    relationships: Optional[Iterable[RelationshipSpec]]
+
+    schema_id: Optional[str]
+
+
+class PolicyTransformEmbedding(TypedDict, total=False):
+    domain_id: Optional[str]
+    """Signal domain id or shorthand (e.g. cosqa)"""
+
+    mode: Literal["none", "auto", "manual"]
+    """none=base embed only; auto=run graph transform; manual=BYO signals"""
+
+    signals: Optional[Dict[str, str]]
+    """BYO band text values when mode=manual"""
+
+
+class Policy(TypedDict, total=False):
+    """Policy for add / batch / document / message ingestion."""
+
+    acl: Optional[ACLConfig]
+    """Simplified Access Control List configuration.
+
+    Aligned with Open Memory Object (OMO) standard. See:
+    https://github.com/anthropics/open-memory-object
+
+    **Supported Entity Prefixes:**
+
+    | Prefix           | Description           | Validation                           |
+    | ---------------- | --------------------- | ------------------------------------ |
+    | `user:`          | Internal Papr user ID | Validated against Parse users        |
+    | `external_user:` | Your app's user ID    | Not validated (your responsibility)  |
+    | `organization:`  | Organization ID       | Validated against your organizations |
+    | `namespace:`     | Namespace ID          | Validated against your namespaces    |
+    | `workspace:`     | Workspace ID          | Validated against your workspaces    |
+    | `role:`          | Parse role ID         | Validated against your roles         |
+
+    **Examples:**
+
+    ```python
+    acl = ACLConfig(
+        read=["external_user:alice_123", "organization:org_acme"],
+        write=["external_user:alice_123"]
+    )
+    ```
+
+    **Validation Rules:**
+
+    - Internal entities (user, organization, namespace, workspace, role) are
+      validated
+    - External entities (external_user) are NOT validated - your app is responsible
+    - Invalid internal entities will return an error
+    - Unprefixed values default to `external_user:` for backwards compatibility
+    """
+
+    consent: Literal["explicit", "implicit", "terms", "none"]
+    """How the data owner allowed this memory to be stored/used.
+
+    Aligned with Open Memory Object (OMO) standard.
+    """
+
+    graph: Optional[PolicyGraph]
+
+    risk: Literal["none", "sensitive", "flagged"]
+    """Post-ingest safety assessment of memory content.
+
+    Aligned with Open Memory Object (OMO) standard.
+    """
+
+    transform_embedding: Optional[PolicyTransformEmbedding]

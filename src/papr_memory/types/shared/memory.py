@@ -61,6 +61,12 @@ class Memory(BaseModel):
 
     hierarchical_structures: Optional[str] = None
 
+    holographic_frequency_scores: Optional[Dict[str, float]] = None
+    """Per-frequency-field scores from holographic scoring (e.g.
+
+    {category: 0.9, topic: 0.7}). Only present when include_frequency_scores=True.
+    """
+
     location: Optional[str] = None
 
     metadata: Union[str, Dict[str, object], None] = None

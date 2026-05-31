@@ -14,6 +14,8 @@ from papr_memory.types import (
     HolographicExtractMetadataResponse,
 )
 
+# pyright: reportDeprecated=false
+
 base_url = os.environ.get("TEST_API_BASE_URL", "http://127.0.0.1:4010")
 
 
@@ -23,28 +25,37 @@ class TestHolographic:
     @pytest.mark.skip(reason="Mock server tests are disabled")
     @parametrize
     def test_method_extract_metadata(self, client: Papr) -> None:
-        holographic = client.holographic.extract_metadata(
-            content="content",
-        )
+        with pytest.warns(DeprecationWarning):
+            holographic = client.holographic.extract_metadata(
+                content="content",
+            )
+
         assert_matches_type(HolographicExtractMetadataResponse, holographic, path=["response"])
 
     @pytest.mark.skip(reason="Mock server tests are disabled")
     @parametrize
     def test_method_extract_metadata_with_all_params(self, client: Papr) -> None:
-        holographic = client.holographic.extract_metadata(
-            content="content",
-            context_metadata={"foo": "bar"},
-            domain="domain",
-            frequency_schema_id="frequency_schema_id",
-        )
+        with pytest.warns(DeprecationWarning):
+            holographic = client.holographic.extract_metadata(
+                content="content",
+                concat_embedding=[0],
+                context_metadata={"foo": "bar"},
+                domain="domain",
+                frequency_schema_id="frequency_schema_id",
+                rotation_embedding=[0],
+                rotation_v2_embedding=[0],
+                rotation_v3_embedding=[0],
+            )
+
         assert_matches_type(HolographicExtractMetadataResponse, holographic, path=["response"])
 
     @pytest.mark.skip(reason="Mock server tests are disabled")
     @parametrize
     def test_raw_response_extract_metadata(self, client: Papr) -> None:
-        response = client.holographic.with_raw_response.extract_metadata(
-            content="content",
-        )
+        with pytest.warns(DeprecationWarning):
+            response = client.holographic.with_raw_response.extract_metadata(
+                content="content",
+            )
 
         assert response.is_closed is True
         assert response.http_request.headers.get("X-Stainless-Lang") == "python"
@@ -54,77 +65,92 @@ class TestHolographic:
     @pytest.mark.skip(reason="Mock server tests are disabled")
     @parametrize
     def test_streaming_response_extract_metadata(self, client: Papr) -> None:
-        with client.holographic.with_streaming_response.extract_metadata(
-            content="content",
-        ) as response:
-            assert not response.is_closed
-            assert response.http_request.headers.get("X-Stainless-Lang") == "python"
+        with pytest.warns(DeprecationWarning):
+            with client.holographic.with_streaming_response.extract_metadata(
+                content="content",
+            ) as response:
+                assert not response.is_closed
+                assert response.http_request.headers.get("X-Stainless-Lang") == "python"
 
-            holographic = response.parse()
-            assert_matches_type(HolographicExtractMetadataResponse, holographic, path=["response"])
+                holographic = response.parse()
+                assert_matches_type(HolographicExtractMetadataResponse, holographic, path=["response"])
 
         assert cast(Any, response.is_closed) is True
 
     @pytest.mark.skip(reason="Mock server tests are disabled")
     @parametrize
     def test_method_rerank(self, client: Papr) -> None:
-        holographic = client.holographic.rerank(
-            candidates=[{"id": "doc_1"}, {"id": "doc_2"}],
-            query="How does troponin relate to myocardial infarction?",
-        )
+        with pytest.warns(DeprecationWarning):
+            holographic = client.holographic.rerank(
+                candidates=[{"id": "doc_1"}, {"id": "doc_2"}],
+                query="How does troponin relate to myocardial infarction?",
+            )
+
         assert_matches_type(HolographicRerankResponse, holographic, path=["response"])
 
     @pytest.mark.skip(reason="Mock server tests are disabled")
     @parametrize
     def test_method_rerank_with_all_params(self, client: Papr) -> None:
-        holographic = client.holographic.rerank(
-            candidates=[
-                {
-                    "id": "doc_1",
-                    "content": "Troponin is a cardiac biomarker released during myocardial injury...",
-                    "context_metadata": {"foo": "bar"},
-                    "embedding": [0],
-                    "metadata_embeddings": {"foo": [0]},
-                    "phases": [0],
-                    "score": 0,
+        with pytest.warns(DeprecationWarning):
+            holographic = client.holographic.rerank(
+                candidates=[
+                    {
+                        "id": "doc_1",
+                        "concat_embedding": [0],
+                        "content": "Troponin is a cardiac biomarker released during myocardial injury...",
+                        "context_metadata": {"foo": "bar"},
+                        "embedding": [0],
+                        "metadata_embeddings": {"foo": [0]},
+                        "phases": [0],
+                        "rotation_embedding": [0],
+                        "rotation_v2_embedding": [0],
+                        "rotation_v3_embedding": [0],
+                        "score": 0,
+                    },
+                    {
+                        "id": "doc_2",
+                        "concat_embedding": [0],
+                        "content": "Aspirin reduces platelet aggregation...",
+                        "context_metadata": {"foo": "bar"},
+                        "embedding": [0],
+                        "metadata_embeddings": {"foo": [0]},
+                        "phases": [0],
+                        "rotation_embedding": [0],
+                        "rotation_v2_embedding": [0],
+                        "rotation_v3_embedding": [0],
+                        "score": 0,
+                    },
+                ],
+                query="How does troponin relate to myocardial infarction?",
+                domain="biomedical",
+                frequency_schema_id="frequency_schema_id",
+                options={
+                    "cross_encoder_model": "cross_encoder_model",
+                    "cross_encoder_weight": 0,
+                    "ensemble": "auto",
+                    "frequency_filters": {"foo": 0},
+                    "include_frequency_scores": True,
+                    "return_scores": True,
+                    "scoring_method": "scoring_method",
+                    "use_cross_encoder": True,
                 },
-                {
-                    "id": "doc_2",
-                    "content": "Aspirin reduces platelet aggregation...",
-                    "context_metadata": {"foo": "bar"},
-                    "embedding": [0],
-                    "metadata_embeddings": {"foo": [0]},
-                    "phases": [0],
-                    "score": 0,
-                },
-            ],
-            query="How does troponin relate to myocardial infarction?",
-            domain="biomedical",
-            frequency_schema_id="frequency_schema_id",
-            options={
-                "cross_encoder_model": "cross_encoder_model",
-                "cross_encoder_weight": 0,
-                "ensemble": "auto",
-                "frequency_filters": {"foo": 0},
-                "include_frequency_scores": True,
-                "return_scores": True,
-                "scoring_method": "scoring_method",
-                "use_cross_encoder": True,
-            },
-            query_embedding=[0],
-            query_metadata_embeddings={"foo": [0]},
-            query_phases=[0],
-            top_k=10,
-        )
+                query_dimension_weights={"foo": 0},
+                query_embedding=[0],
+                query_metadata_embeddings={"foo": [0]},
+                query_phases=[0],
+                top_k=10,
+            )
+
         assert_matches_type(HolographicRerankResponse, holographic, path=["response"])
 
     @pytest.mark.skip(reason="Mock server tests are disabled")
     @parametrize
     def test_raw_response_rerank(self, client: Papr) -> None:
-        response = client.holographic.with_raw_response.rerank(
-            candidates=[{"id": "doc_1"}, {"id": "doc_2"}],
-            query="How does troponin relate to myocardial infarction?",
-        )
+        with pytest.warns(DeprecationWarning):
+            response = client.holographic.with_raw_response.rerank(
+                candidates=[{"id": "doc_1"}, {"id": "doc_2"}],
+                query="How does troponin relate to myocardial infarction?",
+            )
 
         assert response.is_closed is True
         assert response.http_request.headers.get("X-Stainless-Lang") == "python"
@@ -134,15 +160,16 @@ class TestHolographic:
     @pytest.mark.skip(reason="Mock server tests are disabled")
     @parametrize
     def test_streaming_response_rerank(self, client: Papr) -> None:
-        with client.holographic.with_streaming_response.rerank(
-            candidates=[{"id": "doc_1"}, {"id": "doc_2"}],
-            query="How does troponin relate to myocardial infarction?",
-        ) as response:
-            assert not response.is_closed
-            assert response.http_request.headers.get("X-Stainless-Lang") == "python"
+        with pytest.warns(DeprecationWarning):
+            with client.holographic.with_streaming_response.rerank(
+                candidates=[{"id": "doc_1"}, {"id": "doc_2"}],
+                query="How does troponin relate to myocardial infarction?",
+            ) as response:
+                assert not response.is_closed
+                assert response.http_request.headers.get("X-Stainless-Lang") == "python"
 
-            holographic = response.parse()
-            assert_matches_type(HolographicRerankResponse, holographic, path=["response"])
+                holographic = response.parse()
+                assert_matches_type(HolographicRerankResponse, holographic, path=["response"])
 
         assert cast(Any, response.is_closed) is True
 
@@ -155,28 +182,37 @@ class TestAsyncHolographic:
     @pytest.mark.skip(reason="Mock server tests are disabled")
     @parametrize
     async def test_method_extract_metadata(self, async_client: AsyncPapr) -> None:
-        holographic = await async_client.holographic.extract_metadata(
-            content="content",
-        )
+        with pytest.warns(DeprecationWarning):
+            holographic = await async_client.holographic.extract_metadata(
+                content="content",
+            )
+
         assert_matches_type(HolographicExtractMetadataResponse, holographic, path=["response"])
 
     @pytest.mark.skip(reason="Mock server tests are disabled")
     @parametrize
     async def test_method_extract_metadata_with_all_params(self, async_client: AsyncPapr) -> None:
-        holographic = await async_client.holographic.extract_metadata(
-            content="content",
-            context_metadata={"foo": "bar"},
-            domain="domain",
-            frequency_schema_id="frequency_schema_id",
-        )
+        with pytest.warns(DeprecationWarning):
+            holographic = await async_client.holographic.extract_metadata(
+                content="content",
+                concat_embedding=[0],
+                context_metadata={"foo": "bar"},
+                domain="domain",
+                frequency_schema_id="frequency_schema_id",
+                rotation_embedding=[0],
+                rotation_v2_embedding=[0],
+                rotation_v3_embedding=[0],
+            )
+
         assert_matches_type(HolographicExtractMetadataResponse, holographic, path=["response"])
 
     @pytest.mark.skip(reason="Mock server tests are disabled")
     @parametrize
     async def test_raw_response_extract_metadata(self, async_client: AsyncPapr) -> None:
-        response = await async_client.holographic.with_raw_response.extract_metadata(
-            content="content",
-        )
+        with pytest.warns(DeprecationWarning):
+            response = await async_client.holographic.with_raw_response.extract_metadata(
+                content="content",
+            )
 
         assert response.is_closed is True
         assert response.http_request.headers.get("X-Stainless-Lang") == "python"
@@ -186,77 +222,92 @@ class TestAsyncHolographic:
     @pytest.mark.skip(reason="Mock server tests are disabled")
     @parametrize
     async def test_streaming_response_extract_metadata(self, async_client: AsyncPapr) -> None:
-        async with async_client.holographic.with_streaming_response.extract_metadata(
-            content="content",
-        ) as response:
-            assert not response.is_closed
-            assert response.http_request.headers.get("X-Stainless-Lang") == "python"
+        with pytest.warns(DeprecationWarning):
+            async with async_client.holographic.with_streaming_response.extract_metadata(
+                content="content",
+            ) as response:
+                assert not response.is_closed
+                assert response.http_request.headers.get("X-Stainless-Lang") == "python"
 
-            holographic = await response.parse()
-            assert_matches_type(HolographicExtractMetadataResponse, holographic, path=["response"])
+                holographic = await response.parse()
+                assert_matches_type(HolographicExtractMetadataResponse, holographic, path=["response"])
 
         assert cast(Any, response.is_closed) is True
 
     @pytest.mark.skip(reason="Mock server tests are disabled")
     @parametrize
     async def test_method_rerank(self, async_client: AsyncPapr) -> None:
-        holographic = await async_client.holographic.rerank(
-            candidates=[{"id": "doc_1"}, {"id": "doc_2"}],
-            query="How does troponin relate to myocardial infarction?",
-        )
+        with pytest.warns(DeprecationWarning):
+            holographic = await async_client.holographic.rerank(
+                candidates=[{"id": "doc_1"}, {"id": "doc_2"}],
+                query="How does troponin relate to myocardial infarction?",
+            )
+
         assert_matches_type(HolographicRerankResponse, holographic, path=["response"])
 
     @pytest.mark.skip(reason="Mock server tests are disabled")
     @parametrize
     async def test_method_rerank_with_all_params(self, async_client: AsyncPapr) -> None:
-        holographic = await async_client.holographic.rerank(
-            candidates=[
-                {
-                    "id": "doc_1",
-                    "content": "Troponin is a cardiac biomarker released during myocardial injury...",
-                    "context_metadata": {"foo": "bar"},
-                    "embedding": [0],
-                    "metadata_embeddings": {"foo": [0]},
-                    "phases": [0],
-                    "score": 0,
+        with pytest.warns(DeprecationWarning):
+            holographic = await async_client.holographic.rerank(
+                candidates=[
+                    {
+                        "id": "doc_1",
+                        "concat_embedding": [0],
+                        "content": "Troponin is a cardiac biomarker released during myocardial injury...",
+                        "context_metadata": {"foo": "bar"},
+                        "embedding": [0],
+                        "metadata_embeddings": {"foo": [0]},
+                        "phases": [0],
+                        "rotation_embedding": [0],
+                        "rotation_v2_embedding": [0],
+                        "rotation_v3_embedding": [0],
+                        "score": 0,
+                    },
+                    {
+                        "id": "doc_2",
+                        "concat_embedding": [0],
+                        "content": "Aspirin reduces platelet aggregation...",
+                        "context_metadata": {"foo": "bar"},
+                        "embedding": [0],
+                        "metadata_embeddings": {"foo": [0]},
+                        "phases": [0],
+                        "rotation_embedding": [0],
+                        "rotation_v2_embedding": [0],
+                        "rotation_v3_embedding": [0],
+                        "score": 0,
+                    },
+                ],
+                query="How does troponin relate to myocardial infarction?",
+                domain="biomedical",
+                frequency_schema_id="frequency_schema_id",
+                options={
+                    "cross_encoder_model": "cross_encoder_model",
+                    "cross_encoder_weight": 0,
+                    "ensemble": "auto",
+                    "frequency_filters": {"foo": 0},
+                    "include_frequency_scores": True,
+                    "return_scores": True,
+                    "scoring_method": "scoring_method",
+                    "use_cross_encoder": True,
                 },
-                {
-                    "id": "doc_2",
-                    "content": "Aspirin reduces platelet aggregation...",
-                    "context_metadata": {"foo": "bar"},
-                    "embedding": [0],
-                    "metadata_embeddings": {"foo": [0]},
-                    "phases": [0],
-                    "score": 0,
-                },
-            ],
-            query="How does troponin relate to myocardial infarction?",
-            domain="biomedical",
-            frequency_schema_id="frequency_schema_id",
-            options={
-                "cross_encoder_model": "cross_encoder_model",
-                "cross_encoder_weight": 0,
-                "ensemble": "auto",
-                "frequency_filters": {"foo": 0},
-                "include_frequency_scores": True,
-                "return_scores": True,
-                "scoring_method": "scoring_method",
-                "use_cross_encoder": True,
-            },
-            query_embedding=[0],
-            query_metadata_embeddings={"foo": [0]},
-            query_phases=[0],
-            top_k=10,
-        )
+                query_dimension_weights={"foo": 0},
+                query_embedding=[0],
+                query_metadata_embeddings={"foo": [0]},
+                query_phases=[0],
+                top_k=10,
+            )
+
         assert_matches_type(HolographicRerankResponse, holographic, path=["response"])
 
     @pytest.mark.skip(reason="Mock server tests are disabled")
     @parametrize
     async def test_raw_response_rerank(self, async_client: AsyncPapr) -> None:
-        response = await async_client.holographic.with_raw_response.rerank(
-            candidates=[{"id": "doc_1"}, {"id": "doc_2"}],
-            query="How does troponin relate to myocardial infarction?",
-        )
+        with pytest.warns(DeprecationWarning):
+            response = await async_client.holographic.with_raw_response.rerank(
+                candidates=[{"id": "doc_1"}, {"id": "doc_2"}],
+                query="How does troponin relate to myocardial infarction?",
+            )
 
         assert response.is_closed is True
         assert response.http_request.headers.get("X-Stainless-Lang") == "python"
@@ -266,14 +317,15 @@ class TestAsyncHolographic:
     @pytest.mark.skip(reason="Mock server tests are disabled")
     @parametrize
     async def test_streaming_response_rerank(self, async_client: AsyncPapr) -> None:
-        async with async_client.holographic.with_streaming_response.rerank(
-            candidates=[{"id": "doc_1"}, {"id": "doc_2"}],
-            query="How does troponin relate to myocardial infarction?",
-        ) as response:
-            assert not response.is_closed
-            assert response.http_request.headers.get("X-Stainless-Lang") == "python"
+        with pytest.warns(DeprecationWarning):
+            async with async_client.holographic.with_streaming_response.rerank(
+                candidates=[{"id": "doc_1"}, {"id": "doc_2"}],
+                query="How does troponin relate to myocardial infarction?",
+            ) as response:
+                assert not response.is_closed
+                assert response.http_request.headers.get("X-Stainless-Lang") == "python"
 
-            holographic = await response.parse()
-            assert_matches_type(HolographicRerankResponse, holographic, path=["response"])
+                holographic = await response.parse()
+                assert_matches_type(HolographicRerankResponse, holographic, path=["response"])
 
         assert cast(Any, response.is_closed) is True

@@ -36,9 +36,10 @@ class TestNamespace:
     def test_method_create_with_all_params(self, client: Papr) -> None:
         namespace = client.namespace.create(
             name="acme-production",
+            default_policy={"foo": "bar"},
             environment_type="production",
             is_active=True,
-            rate_limits={},
+            rate_limits={"foo": 0},
         )
         assert_matches_type(NamespaceCreateResponse, namespace, path=["response"])
 
@@ -123,6 +124,7 @@ class TestNamespace:
     def test_method_update_with_all_params(self, client: Papr) -> None:
         namespace = client.namespace.update(
             namespace_id="namespace_id",
+            default_policy={"foo": "bar"},
             environment_type="staging",
             is_active=True,
             name="acme-staging",
@@ -273,9 +275,10 @@ class TestAsyncNamespace:
     async def test_method_create_with_all_params(self, async_client: AsyncPapr) -> None:
         namespace = await async_client.namespace.create(
             name="acme-production",
+            default_policy={"foo": "bar"},
             environment_type="production",
             is_active=True,
-            rate_limits={},
+            rate_limits={"foo": 0},
         )
         assert_matches_type(NamespaceCreateResponse, namespace, path=["response"])
 
@@ -360,6 +363,7 @@ class TestAsyncNamespace:
     async def test_method_update_with_all_params(self, async_client: AsyncPapr) -> None:
         namespace = await async_client.namespace.update(
             namespace_id="namespace_id",
+            default_policy={"foo": "bar"},
             environment_type="staging",
             is_active=True,
             name="acme-staging",

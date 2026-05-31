@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import typing_extensions
 from typing import Dict, List, Iterable, Optional
 from typing_extensions import Literal
 
@@ -45,14 +46,17 @@ class TransformResource(SyncAPIResource):
         """
         return TransformResourceWithStreamingResponse(self)
 
+    @typing_extensions.deprecated("deprecated")
     def create(
         self,
         *,
         content: str,
         embedding: Iterable[float],
+        concat_embedding: Optional[Iterable[float]] | Omit = omit,
         context_metadata: Optional[Dict[str, object]] | Omit = omit,
         domain: Optional[str] | Omit = omit,
         frequency_schema_id: Optional[str] | Omit = omit,
+        is_query: bool | Omit = omit,
         output: Optional[
             List[
                 Literal[
@@ -68,6 +72,9 @@ class TransformResource(SyncAPIResource):
             ]
         ]
         | Omit = omit,
+        rotation_embedding: Optional[Iterable[float]] | Omit = omit,
+        rotation_v2_embedding: Optional[Iterable[float]] | Omit = omit,
+        rotation_v3_embedding: Optional[Iterable[float]] | Omit = omit,
         # Use the following arguments if you need to pass additional parameters to the API that aren't available via kwargs.
         # The extra values given here take precedence over values defined on the client or passed to this method.
         extra_headers: Headers | None = None,
@@ -86,6 +93,8 @@ class TransformResource(SyncAPIResource):
 
           embedding: Base embedding vector (any dimensionality)
 
+          concat_embedding: Pre-computed concat (new) embedding from holographic transform.
+
           context_metadata: Optional context metadata (createdAt, sourceType, customMetadata, etc.) to
               improve LLM extraction accuracy, especially for dates and entities.
 
@@ -94,8 +103,19 @@ class TransformResource(SyncAPIResource):
           frequency_schema_id: Specific frequency schema ID override (e.g. 'biomedical:scifact:2.0.0'). Takes
               precedence over domain.
 
+          is_query: If true, treat content as a query (not a doc): runs adaptive dimension-weight
+              scoring and returns weights in TransformData. Pass these weights into a
+              subsequent /rerank call as `query_dimension_weights` to skip recomputation.
+
           output: Which output fields to return. Default: ['rotation_v3', 'metadata']. Request
               only what you need to minimize response size.
+
+          rotation_embedding: Pre-computed rotation (old) embedding from holographic transform. Enables
+              rot_v2/v3 similarity scoring and full CAESAR ensemble.
+
+          rotation_v2_embedding: Pre-computed rotation V2 embedding from holographic transform.
+
+          rotation_v3_embedding: Pre-computed rotation V3 embedding from holographic transform.
 
           extra_headers: Send extra headers
 
@@ -111,10 +131,15 @@ class TransformResource(SyncAPIResource):
                 {
                     "content": content,
                     "embedding": embedding,
+                    "concat_embedding": concat_embedding,
                     "context_metadata": context_metadata,
                     "domain": domain,
                     "frequency_schema_id": frequency_schema_id,
+                    "is_query": is_query,
                     "output": output,
+                    "rotation_embedding": rotation_embedding,
+                    "rotation_v2_embedding": rotation_v2_embedding,
+                    "rotation_v3_embedding": rotation_v3_embedding,
                 },
                 transform_create_params.TransformCreateParams,
             ),
@@ -124,6 +149,7 @@ class TransformResource(SyncAPIResource):
             cast_to=TransformCreateResponse,
         )
 
+    @typing_extensions.deprecated("deprecated")
     def create_batch(
         self,
         *,
@@ -211,14 +237,17 @@ class AsyncTransformResource(AsyncAPIResource):
         """
         return AsyncTransformResourceWithStreamingResponse(self)
 
+    @typing_extensions.deprecated("deprecated")
     async def create(
         self,
         *,
         content: str,
         embedding: Iterable[float],
+        concat_embedding: Optional[Iterable[float]] | Omit = omit,
         context_metadata: Optional[Dict[str, object]] | Omit = omit,
         domain: Optional[str] | Omit = omit,
         frequency_schema_id: Optional[str] | Omit = omit,
+        is_query: bool | Omit = omit,
         output: Optional[
             List[
                 Literal[
@@ -234,6 +263,9 @@ class AsyncTransformResource(AsyncAPIResource):
             ]
         ]
         | Omit = omit,
+        rotation_embedding: Optional[Iterable[float]] | Omit = omit,
+        rotation_v2_embedding: Optional[Iterable[float]] | Omit = omit,
+        rotation_v3_embedding: Optional[Iterable[float]] | Omit = omit,
         # Use the following arguments if you need to pass additional parameters to the API that aren't available via kwargs.
         # The extra values given here take precedence over values defined on the client or passed to this method.
         extra_headers: Headers | None = None,
@@ -252,6 +284,8 @@ class AsyncTransformResource(AsyncAPIResource):
 
           embedding: Base embedding vector (any dimensionality)
 
+          concat_embedding: Pre-computed concat (new) embedding from holographic transform.
+
           context_metadata: Optional context metadata (createdAt, sourceType, customMetadata, etc.) to
               improve LLM extraction accuracy, especially for dates and entities.
 
@@ -260,8 +294,19 @@ class AsyncTransformResource(AsyncAPIResource):
           frequency_schema_id: Specific frequency schema ID override (e.g. 'biomedical:scifact:2.0.0'). Takes
               precedence over domain.
 
+          is_query: If true, treat content as a query (not a doc): runs adaptive dimension-weight
+              scoring and returns weights in TransformData. Pass these weights into a
+              subsequent /rerank call as `query_dimension_weights` to skip recomputation.
+
           output: Which output fields to return. Default: ['rotation_v3', 'metadata']. Request
               only what you need to minimize response size.
+
+          rotation_embedding: Pre-computed rotation (old) embedding from holographic transform. Enables
+              rot_v2/v3 similarity scoring and full CAESAR ensemble.
+
+          rotation_v2_embedding: Pre-computed rotation V2 embedding from holographic transform.
+
+          rotation_v3_embedding: Pre-computed rotation V3 embedding from holographic transform.
 
           extra_headers: Send extra headers
 
@@ -277,10 +322,15 @@ class AsyncTransformResource(AsyncAPIResource):
                 {
                     "content": content,
                     "embedding": embedding,
+                    "concat_embedding": concat_embedding,
                     "context_metadata": context_metadata,
                     "domain": domain,
                     "frequency_schema_id": frequency_schema_id,
+                    "is_query": is_query,
                     "output": output,
+                    "rotation_embedding": rotation_embedding,
+                    "rotation_v2_embedding": rotation_v2_embedding,
+                    "rotation_v3_embedding": rotation_v3_embedding,
                 },
                 transform_create_params.TransformCreateParams,
             ),
@@ -290,6 +340,7 @@ class AsyncTransformResource(AsyncAPIResource):
             cast_to=TransformCreateResponse,
         )
 
+    @typing_extensions.deprecated("deprecated")
     async def create_batch(
         self,
         *,
@@ -361,11 +412,15 @@ class TransformResourceWithRawResponse:
     def __init__(self, transform: TransformResource) -> None:
         self._transform = transform
 
-        self.create = to_raw_response_wrapper(
-            transform.create,
+        self.create = (  # pyright: ignore[reportDeprecated]
+            to_raw_response_wrapper(
+                transform.create,  # pyright: ignore[reportDeprecated],
+            )
         )
-        self.create_batch = to_raw_response_wrapper(
-            transform.create_batch,
+        self.create_batch = (  # pyright: ignore[reportDeprecated]
+            to_raw_response_wrapper(
+                transform.create_batch,  # pyright: ignore[reportDeprecated],
+            )
         )
 
 
@@ -373,11 +428,15 @@ class AsyncTransformResourceWithRawResponse:
     def __init__(self, transform: AsyncTransformResource) -> None:
         self._transform = transform
 
-        self.create = async_to_raw_response_wrapper(
-            transform.create,
+        self.create = (  # pyright: ignore[reportDeprecated]
+            async_to_raw_response_wrapper(
+                transform.create,  # pyright: ignore[reportDeprecated],
+            )
         )
-        self.create_batch = async_to_raw_response_wrapper(
-            transform.create_batch,
+        self.create_batch = (  # pyright: ignore[reportDeprecated]
+            async_to_raw_response_wrapper(
+                transform.create_batch,  # pyright: ignore[reportDeprecated],
+            )
         )
 
 
@@ -385,11 +444,15 @@ class TransformResourceWithStreamingResponse:
     def __init__(self, transform: TransformResource) -> None:
         self._transform = transform
 
-        self.create = to_streamed_response_wrapper(
-            transform.create,
+        self.create = (  # pyright: ignore[reportDeprecated]
+            to_streamed_response_wrapper(
+                transform.create,  # pyright: ignore[reportDeprecated],
+            )
         )
-        self.create_batch = to_streamed_response_wrapper(
-            transform.create_batch,
+        self.create_batch = (  # pyright: ignore[reportDeprecated]
+            to_streamed_response_wrapper(
+                transform.create_batch,  # pyright: ignore[reportDeprecated],
+            )
         )
 
 
@@ -397,9 +460,13 @@ class AsyncTransformResourceWithStreamingResponse:
     def __init__(self, transform: AsyncTransformResource) -> None:
         self._transform = transform
 
-        self.create = async_to_streamed_response_wrapper(
-            transform.create,
+        self.create = (  # pyright: ignore[reportDeprecated]
+            async_to_streamed_response_wrapper(
+                transform.create,  # pyright: ignore[reportDeprecated],
+            )
         )
-        self.create_batch = async_to_streamed_response_wrapper(
-            transform.create_batch,
+        self.create_batch = (  # pyright: ignore[reportDeprecated]
+            async_to_streamed_response_wrapper(
+                transform.create_batch,  # pyright: ignore[reportDeprecated],
+            )
         )

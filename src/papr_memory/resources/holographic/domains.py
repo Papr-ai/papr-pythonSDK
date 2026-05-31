@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import typing_extensions
 from typing import Iterable, Optional
 
 import httpx
@@ -44,6 +45,7 @@ class DomainsResource(SyncAPIResource):
         """
         return DomainsResourceWithStreamingResponse(self)
 
+    @typing_extensions.deprecated("deprecated")
     def create(
         self,
         *,
@@ -95,6 +97,7 @@ class DomainsResource(SyncAPIResource):
             cast_to=DomainCreateResponse,
         )
 
+    @typing_extensions.deprecated("deprecated")
     def list(
         self,
         *,
@@ -139,6 +142,7 @@ class AsyncDomainsResource(AsyncAPIResource):
         """
         return AsyncDomainsResourceWithStreamingResponse(self)
 
+    @typing_extensions.deprecated("deprecated")
     async def create(
         self,
         *,
@@ -190,6 +194,7 @@ class AsyncDomainsResource(AsyncAPIResource):
             cast_to=DomainCreateResponse,
         )
 
+    @typing_extensions.deprecated("deprecated")
     async def list(
         self,
         *,
@@ -218,11 +223,15 @@ class DomainsResourceWithRawResponse:
     def __init__(self, domains: DomainsResource) -> None:
         self._domains = domains
 
-        self.create = to_raw_response_wrapper(
-            domains.create,
+        self.create = (  # pyright: ignore[reportDeprecated]
+            to_raw_response_wrapper(
+                domains.create,  # pyright: ignore[reportDeprecated],
+            )
         )
-        self.list = to_raw_response_wrapper(
-            domains.list,
+        self.list = (  # pyright: ignore[reportDeprecated]
+            to_raw_response_wrapper(
+                domains.list,  # pyright: ignore[reportDeprecated],
+            )
         )
 
 
@@ -230,11 +239,15 @@ class AsyncDomainsResourceWithRawResponse:
     def __init__(self, domains: AsyncDomainsResource) -> None:
         self._domains = domains
 
-        self.create = async_to_raw_response_wrapper(
-            domains.create,
+        self.create = (  # pyright: ignore[reportDeprecated]
+            async_to_raw_response_wrapper(
+                domains.create,  # pyright: ignore[reportDeprecated],
+            )
         )
-        self.list = async_to_raw_response_wrapper(
-            domains.list,
+        self.list = (  # pyright: ignore[reportDeprecated]
+            async_to_raw_response_wrapper(
+                domains.list,  # pyright: ignore[reportDeprecated],
+            )
         )
 
 
@@ -242,11 +255,15 @@ class DomainsResourceWithStreamingResponse:
     def __init__(self, domains: DomainsResource) -> None:
         self._domains = domains
 
-        self.create = to_streamed_response_wrapper(
-            domains.create,
+        self.create = (  # pyright: ignore[reportDeprecated]
+            to_streamed_response_wrapper(
+                domains.create,  # pyright: ignore[reportDeprecated],
+            )
         )
-        self.list = to_streamed_response_wrapper(
-            domains.list,
+        self.list = (  # pyright: ignore[reportDeprecated]
+            to_streamed_response_wrapper(
+                domains.list,  # pyright: ignore[reportDeprecated],
+            )
         )
 
 
@@ -254,9 +271,13 @@ class AsyncDomainsResourceWithStreamingResponse:
     def __init__(self, domains: AsyncDomainsResource) -> None:
         self._domains = domains
 
-        self.create = async_to_streamed_response_wrapper(
-            domains.create,
+        self.create = (  # pyright: ignore[reportDeprecated]
+            async_to_streamed_response_wrapper(
+                domains.create,  # pyright: ignore[reportDeprecated],
+            )
         )
-        self.list = async_to_streamed_response_wrapper(
-            domains.list,
+        self.list = (  # pyright: ignore[reportDeprecated]
+            async_to_streamed_response_wrapper(
+                domains.list,  # pyright: ignore[reportDeprecated],
+            )
         )
