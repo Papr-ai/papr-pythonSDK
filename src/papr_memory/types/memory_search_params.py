@@ -8,18 +8,14 @@ from typing_extensions import Literal, Required, Annotated, TypedDict
 from .._types import SequenceNotStr
 from .._utils import PropertyInfo
 from .memory_metadata_param import MemoryMetadataParam
-from .shared_params.node_spec import NodeSpec
 from .shared_params.acl_config import ACLConfig
-from .shared_params.relationship_spec import RelationshipSpec
-from .shared_params.edge_constraint_input import EdgeConstraintInput
-from .shared_params.node_constraint_input import NodeConstraintInput
+from .shared_params.graph_policy_block import GraphPolicyBlock
 
 __all__ = [
     "MemorySearchParams",
     "HolographicConfig",
     "OmoFilter",
     "Policy",
-    "PolicyGraph",
     "PolicyRerank",
     "PolicyVector",
     "RerankingConfig",
@@ -286,39 +282,6 @@ class OmoFilter(TypedDict, total=False):
     """
 
 
-class PolicyGraph(TypedDict, total=False):
-    edge_constraints: Optional[Iterable[EdgeConstraintInput]]
-    """Full edge constraint objects.
-
-    Same rules as edge entries in policy.graph.link_to after expansion; both may be
-    set in the same request.
-    """
-
-    link_to: Union[str, SequenceNotStr[str], Dict[str, object], None]
-    """Shorthand DSL for node/edge constraints under policy.graph.
-
-    Not a separate graph mode — expands into node_constraints and edge_constraints
-    at resolve time and merges with any explicit constraints in the same request.
-    Default create policy is upsert (create if not found); use dict form with
-    create='lookup' for link-only. Prefer over deprecated top-level link_to.
-    """
-
-    mode: Literal["none", "auto", "manual"]
-
-    node_constraints: Optional[Iterable[NodeConstraintInput]]
-    """Full node constraint objects.
-
-    Same rules as policy.graph.link_to after expansion; use link_to for compact DSL
-    or this field for explicit control. Both may be set.
-    """
-
-    nodes: Optional[Iterable[NodeSpec]]
-
-    relationships: Optional[Iterable[RelationshipSpec]]
-
-    schema_id: Optional[str]
-
-
 class PolicyRerank(TypedDict, total=False):
     enabled: bool
 
@@ -387,7 +350,7 @@ class Policy(TypedDict, total=False):
     Aligned with Open Memory Object (OMO) standard.
     """
 
-    graph: Optional[PolicyGraph]
+    graph: Optional[GraphPolicyBlock]
 
     rerank: Optional[PolicyRerank]
 

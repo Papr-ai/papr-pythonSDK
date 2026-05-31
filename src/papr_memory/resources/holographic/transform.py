@@ -46,7 +46,7 @@ class TransformResource(SyncAPIResource):
         """
         return TransformResourceWithStreamingResponse(self)
 
-    @typing_extensions.deprecated("deprecated")
+    @typing_extensions.deprecated("Use /graph/transform instead.'")
     def create(
         self,
         *,
@@ -149,7 +149,7 @@ class TransformResource(SyncAPIResource):
             cast_to=TransformCreateResponse,
         )
 
-    @typing_extensions.deprecated("deprecated")
+    @typing_extensions.deprecated("Use /graph/transform instead.'")
     def create_batch(
         self,
         *,
@@ -237,7 +237,7 @@ class AsyncTransformResource(AsyncAPIResource):
         """
         return AsyncTransformResourceWithStreamingResponse(self)
 
-    @typing_extensions.deprecated("deprecated")
+    @typing_extensions.deprecated("Use /graph/transform instead.'")
     async def create(
         self,
         *,
@@ -340,7 +340,7 @@ class AsyncTransformResource(AsyncAPIResource):
             cast_to=TransformCreateResponse,
         )
 
-    @typing_extensions.deprecated("deprecated")
+    @typing_extensions.deprecated("Use /graph/transform instead.'")
     async def create_batch(
         self,
         *,

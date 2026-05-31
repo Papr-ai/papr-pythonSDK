@@ -4,7 +4,10 @@ from .node_spec import NodeSpec as NodeSpec
 from .acl_config import ACLConfig as ACLConfig
 from .memory_policy import MemoryPolicy as MemoryPolicy
 from .property_value import PropertyValue as PropertyValue
+from .memory_add_policy import MemoryAddPolicy as MemoryAddPolicy
 from .relationship_spec import RelationshipSpec as RelationshipSpec
+from .graph_policy_block import GraphPolicyBlock as GraphPolicyBlock
 from .search_config_input import SearchConfigInput as SearchConfigInput
 from .edge_constraint_input import EdgeConstraintInput as EdgeConstraintInput
 from .node_constraint_input import NodeConstraintInput as NodeConstraintInput
+from .transform_embedding_policy import TransformEmbeddingPolicy as TransformEmbeddingPolicy

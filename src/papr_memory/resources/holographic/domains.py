@@ -45,7 +45,7 @@ class DomainsResource(SyncAPIResource):
         """
         return DomainsResourceWithStreamingResponse(self)
 
-    @typing_extensions.deprecated("deprecated")
+    @typing_extensions.deprecated("Use /graph/domains instead.")
     def create(
         self,
         *,
@@ -97,7 +97,7 @@ class DomainsResource(SyncAPIResource):
             cast_to=DomainCreateResponse,
         )
 
-    @typing_extensions.deprecated("deprecated")
+    @typing_extensions.deprecated("Use /graph/domains instead.'")
     def list(
         self,
         *,
@@ -142,7 +142,7 @@ class AsyncDomainsResource(AsyncAPIResource):
         """
         return AsyncDomainsResourceWithStreamingResponse(self)
 
-    @typing_extensions.deprecated("deprecated")
+    @typing_extensions.deprecated("Use /graph/domains instead.")
     async def create(
         self,
         *,
@@ -194,7 +194,7 @@ class AsyncDomainsResource(AsyncAPIResource):
             cast_to=DomainCreateResponse,
         )
 
-    @typing_extensions.deprecated("deprecated")
+    @typing_extensions.deprecated("Use /graph/domains instead.'")
     async def list(
         self,
         *,

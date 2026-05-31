@@ -41,6 +41,7 @@ if TYPE_CHECKING:
         omo,
         sync,
         user,
+        graph,
         login,
         token,
         logout,
@@ -73,6 +74,7 @@ if TYPE_CHECKING:
     from .resources.feedback import FeedbackResource, AsyncFeedbackResource
     from .resources.telemetry import TelemetryResource, AsyncTelemetryResource
     from .resources.frequencies import FrequenciesResource, AsyncFrequenciesResource
+    from .resources.graph.graph import GraphResource, AsyncGraphResource
     from .resources.messages.messages import MessagesResource, AsyncMessagesResource
     from .resources.namespace.namespace import NamespaceResource, AsyncNamespaceResource
     from .resources.holographic.holographic import HolographicResource, AsyncHolographicResource
@@ -279,6 +281,12 @@ class Papr(SyncAPIClient):
         from .resources.logout import LogoutResource
 
         return LogoutResource(self)
+
+    @cached_property
+    def graph(self) -> GraphResource:
+        from .resources.graph import GraphResource
+
+        return GraphResource(self)
 
     @cached_property
     def with_raw_response(self) -> PaprWithRawResponse:
@@ -615,6 +623,12 @@ class AsyncPapr(AsyncAPIClient):
         return AsyncLogoutResource(self)
 
     @cached_property
+    def graph(self) -> AsyncGraphResource:
+        from .resources.graph import AsyncGraphResource
+
+        return AsyncGraphResource(self)
+
+    @cached_property
     def with_raw_response(self) -> AsyncPaprWithRawResponse:
         return AsyncPaprWithRawResponse(self)
 
@@ -875,6 +889,12 @@ class PaprWithRawResponse:
 
         return LogoutResourceWithRawResponse(self._client.logout)
 
+    @cached_property
+    def graph(self) -> graph.GraphResourceWithRawResponse:
+        from .resources.graph import GraphResourceWithRawResponse
+
+        return GraphResourceWithRawResponse(self._client.graph)
+
 
 class AsyncPaprWithRawResponse:
     _client: AsyncPapr
@@ -1001,6 +1021,12 @@ class AsyncPaprWithRawResponse:
         from .resources.logout import AsyncLogoutResourceWithRawResponse
 
         return AsyncLogoutResourceWithRawResponse(self._client.logout)
+
+    @cached_property
+    def graph(self) -> graph.AsyncGraphResourceWithRawResponse:
+        from .resources.graph import AsyncGraphResourceWithRawResponse
+
+        return AsyncGraphResourceWithRawResponse(self._client.graph)
 
 
 class PaprWithStreamedResponse:
@@ -1129,6 +1155,12 @@ class PaprWithStreamedResponse:
 
         return LogoutResourceWithStreamingResponse(self._client.logout)
 
+    @cached_property
+    def graph(self) -> graph.GraphResourceWithStreamingResponse:
+        from .resources.graph import GraphResourceWithStreamingResponse
+
+        return GraphResourceWithStreamingResponse(self._client.graph)
+
 
 class AsyncPaprWithStreamedResponse:
     _client: AsyncPapr
@@ -1255,6 +1287,12 @@ class AsyncPaprWithStreamedResponse:
         from .resources.logout import AsyncLogoutResourceWithStreamingResponse
 
         return AsyncLogoutResourceWithStreamingResponse(self._client.logout)
+
+    @cached_property
+    def graph(self) -> graph.AsyncGraphResourceWithStreamingResponse:
+        from .resources.graph import AsyncGraphResourceWithStreamingResponse
+
+        return AsyncGraphResourceWithStreamingResponse(self._client.graph)
 
 
 Client = Papr

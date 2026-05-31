@@ -15,6 +15,7 @@ from papr_memory.types import (
     NamespaceDeleteResponse,
     NamespaceUpdateResponse,
     NamespaceRetrieveResponse,
+    NamespaceCreateAPIKeyResponse,
 )
 
 base_url = os.environ.get("TEST_API_BASE_URL", "http://127.0.0.1:4010")
@@ -256,6 +257,63 @@ class TestNamespace:
                 namespace_id="",
             )
 
+    @pytest.mark.skip(reason="Mock server tests are disabled")
+    @parametrize
+    def test_method_create_api_key(self, client: Papr) -> None:
+        namespace = client.namespace.create_api_key(
+            namespace_id="namespace_id",
+            name="Acme Production API Key",
+        )
+        assert_matches_type(NamespaceCreateAPIKeyResponse, namespace, path=["response"])
+
+    @pytest.mark.skip(reason="Mock server tests are disabled")
+    @parametrize
+    def test_method_create_api_key_with_all_params(self, client: Papr) -> None:
+        namespace = client.namespace.create_api_key(
+            namespace_id="namespace_id",
+            name="Acme Production API Key",
+            environment="production",
+            permissions=["read", "write", "delete"],
+        )
+        assert_matches_type(NamespaceCreateAPIKeyResponse, namespace, path=["response"])
+
+    @pytest.mark.skip(reason="Mock server tests are disabled")
+    @parametrize
+    def test_raw_response_create_api_key(self, client: Papr) -> None:
+        response = client.namespace.with_raw_response.create_api_key(
+            namespace_id="namespace_id",
+            name="Acme Production API Key",
+        )
+
+        assert response.is_closed is True
+        assert response.http_request.headers.get("X-Stainless-Lang") == "python"
+        namespace = response.parse()
+        assert_matches_type(NamespaceCreateAPIKeyResponse, namespace, path=["response"])
+
+    @pytest.mark.skip(reason="Mock server tests are disabled")
+    @parametrize
+    def test_streaming_response_create_api_key(self, client: Papr) -> None:
+        with client.namespace.with_streaming_response.create_api_key(
+            namespace_id="namespace_id",
+            name="Acme Production API Key",
+        ) as response:
+            assert not response.is_closed
+            assert response.http_request.headers.get("X-Stainless-Lang") == "python"
+
+            namespace = response.parse()
+            assert_matches_type(NamespaceCreateAPIKeyResponse, namespace, path=["response"])
+
+        assert cast(Any, response.is_closed) is True
+
+    @pytest.mark.skip(reason="Mock server tests are disabled")
+    @parametrize
+    def test_path_params_create_api_key(self, client: Papr) -> None:
+        with pytest.raises(ValueError, match=r"Expected a non-empty value for `namespace_id` but received ''"):
+            client.namespace.with_raw_response.create_api_key(
+                namespace_id="",
+                name="Acme Production API Key",
+            )
+
 
 class TestAsyncNamespace:
     parametrize = pytest.mark.parametrize(
@@ -493,4 +551,61 @@ class TestAsyncNamespace:
         with pytest.raises(ValueError, match=r"Expected a non-empty value for `namespace_id` but received ''"):
             await async_client.namespace.with_raw_response.delete(
                 namespace_id="",
+            )
+
+    @pytest.mark.skip(reason="Mock server tests are disabled")
+    @parametrize
+    async def test_method_create_api_key(self, async_client: AsyncPapr) -> None:
+        namespace = await async_client.namespace.create_api_key(
+            namespace_id="namespace_id",
+            name="Acme Production API Key",
+        )
+        assert_matches_type(NamespaceCreateAPIKeyResponse, namespace, path=["response"])
+
+    @pytest.mark.skip(reason="Mock server tests are disabled")
+    @parametrize
+    async def test_method_create_api_key_with_all_params(self, async_client: AsyncPapr) -> None:
+        namespace = await async_client.namespace.create_api_key(
+            namespace_id="namespace_id",
+            name="Acme Production API Key",
+            environment="production",
+            permissions=["read", "write", "delete"],
+        )
+        assert_matches_type(NamespaceCreateAPIKeyResponse, namespace, path=["response"])
+
+    @pytest.mark.skip(reason="Mock server tests are disabled")
+    @parametrize
+    async def test_raw_response_create_api_key(self, async_client: AsyncPapr) -> None:
+        response = await async_client.namespace.with_raw_response.create_api_key(
+            namespace_id="namespace_id",
+            name="Acme Production API Key",
+        )
+
+        assert response.is_closed is True
+        assert response.http_request.headers.get("X-Stainless-Lang") == "python"
+        namespace = await response.parse()
+        assert_matches_type(NamespaceCreateAPIKeyResponse, namespace, path=["response"])
+
+    @pytest.mark.skip(reason="Mock server tests are disabled")
+    @parametrize
+    async def test_streaming_response_create_api_key(self, async_client: AsyncPapr) -> None:
+        async with async_client.namespace.with_streaming_response.create_api_key(
+            namespace_id="namespace_id",
+            name="Acme Production API Key",
+        ) as response:
+            assert not response.is_closed
+            assert response.http_request.headers.get("X-Stainless-Lang") == "python"
+
+            namespace = await response.parse()
+            assert_matches_type(NamespaceCreateAPIKeyResponse, namespace, path=["response"])
+
+        assert cast(Any, response.is_closed) is True
+
+    @pytest.mark.skip(reason="Mock server tests are disabled")
+    @parametrize
+    async def test_path_params_create_api_key(self, async_client: AsyncPapr) -> None:
+        with pytest.raises(ValueError, match=r"Expected a non-empty value for `namespace_id` but received ''"):
+            await async_client.namespace.with_raw_response.create_api_key(
+                namespace_id="",
+                name="Acme Production API Key",
             )

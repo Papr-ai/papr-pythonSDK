@@ -42,6 +42,7 @@ from ..types.relationship_item_param import RelationshipItemParam
 from ..types.shared_params.acl_config import ACLConfig
 from ..types.shared_params.memory_policy import MemoryPolicy
 from ..types.memory_retrieve_status_response import MemoryRetrieveStatusResponse
+from ..types.shared_params.memory_add_policy import MemoryAddPolicy
 from ..types.memory_retrieve_batch_status_response import MemoryRetrieveBatchStatusResponse
 
 __all__ = ["MemoryResource", "AsyncMemoryResource"]
@@ -81,7 +82,7 @@ class MemoryResource(SyncAPIResource):
         metadata: Optional[MemoryMetadataParam] | Omit = omit,
         namespace_id: Optional[str] | Omit = omit,
         organization_id: Optional[str] | Omit = omit,
-        policy: Optional[memory_update_params.Policy] | Omit = omit,
+        policy: Optional[MemoryAddPolicy] | Omit = omit,
         relationships_json: Optional[Iterable[RelationshipItemParam]] | Omit = omit,
         type: Optional[MemoryType] | Omit = omit,
         # Use the following arguments if you need to pass additional parameters to the API that aren't available via kwargs.
@@ -277,7 +278,7 @@ class MemoryResource(SyncAPIResource):
         metadata: Optional[MemoryMetadataParam] | Omit = omit,
         namespace_id: Optional[str] | Omit = omit,
         organization_id: Optional[str] | Omit = omit,
-        policy: Optional[memory_add_params.Policy] | Omit = omit,
+        policy: Optional[MemoryAddPolicy] | Omit = omit,
         relationships_json: Optional[Iterable[RelationshipItemParam]] | Omit = omit,
         type: MemoryType | Omit = omit,
         user_id: Optional[str] | Omit = omit,
@@ -461,7 +462,7 @@ class MemoryResource(SyncAPIResource):
         memory_policy: Optional[MemoryPolicy] | Omit = omit,
         namespace_id: Optional[str] | Omit = omit,
         organization_id: Optional[str] | Omit = omit,
-        policy: Optional[memory_add_batch_params.Policy] | Omit = omit,
+        policy: Optional[MemoryAddPolicy] | Omit = omit,
         user_id: Optional[str] | Omit = omit,
         webhook_secret: Optional[str] | Omit = omit,
         webhook_url: Optional[str] | Omit = omit,
@@ -1100,7 +1101,7 @@ class AsyncMemoryResource(AsyncAPIResource):
         metadata: Optional[MemoryMetadataParam] | Omit = omit,
         namespace_id: Optional[str] | Omit = omit,
         organization_id: Optional[str] | Omit = omit,
-        policy: Optional[memory_update_params.Policy] | Omit = omit,
+        policy: Optional[MemoryAddPolicy] | Omit = omit,
         relationships_json: Optional[Iterable[RelationshipItemParam]] | Omit = omit,
         type: Optional[MemoryType] | Omit = omit,
         # Use the following arguments if you need to pass additional parameters to the API that aren't available via kwargs.
@@ -1296,7 +1297,7 @@ class AsyncMemoryResource(AsyncAPIResource):
         metadata: Optional[MemoryMetadataParam] | Omit = omit,
         namespace_id: Optional[str] | Omit = omit,
         organization_id: Optional[str] | Omit = omit,
-        policy: Optional[memory_add_params.Policy] | Omit = omit,
+        policy: Optional[MemoryAddPolicy] | Omit = omit,
         relationships_json: Optional[Iterable[RelationshipItemParam]] | Omit = omit,
         type: MemoryType | Omit = omit,
         user_id: Optional[str] | Omit = omit,
@@ -1480,7 +1481,7 @@ class AsyncMemoryResource(AsyncAPIResource):
         memory_policy: Optional[MemoryPolicy] | Omit = omit,
         namespace_id: Optional[str] | Omit = omit,
         organization_id: Optional[str] | Omit = omit,
-        policy: Optional[memory_add_batch_params.Policy] | Omit = omit,
+        policy: Optional[MemoryAddPolicy] | Omit = omit,
         user_id: Optional[str] | Omit = omit,
         webhook_secret: Optional[str] | Omit = omit,
         webhook_url: Optional[str] | Omit = omit,

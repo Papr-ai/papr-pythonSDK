@@ -9,10 +9,13 @@ from .shared import (
     MemoryPolicy as MemoryPolicy,
     AddMemoryItem as AddMemoryItem,
     PropertyValue as PropertyValue,
+    MemoryAddPolicy as MemoryAddPolicy,
+    GraphPolicyBlock as GraphPolicyBlock,
     RelationshipSpec as RelationshipSpec,
     SearchConfigInput as SearchConfigInput,
     EdgeConstraintInput as EdgeConstraintInput,
     NodeConstraintInput as NodeConstraintInput,
+    TransformEmbeddingPolicy as TransformEmbeddingPolicy,
 )
 from .user_type import UserType as UserType
 from .memory_type import MemoryType as MemoryType
@@ -36,6 +39,7 @@ from .user_delete_params import UserDeleteParams as UserDeleteParams
 from .user_list_response import UserListResponse as UserListResponse
 from .user_update_params import UserUpdateParams as UserUpdateParams
 from .add_memory_response import AddMemoryResponse as AddMemoryResponse
+from .graph_rerank_params import GraphRerankParams as GraphRerankParams
 from .parse_pointer_param import ParsePointerParam as ParsePointerParam
 from .property_definition import PropertyDefinition as PropertyDefinition
 from .instance_config_item import InstanceConfigItem as InstanceConfigItem
@@ -50,6 +54,7 @@ from .schema_update_params import SchemaUpdateParams as SchemaUpdateParams
 from .search_config_output import SearchConfigOutput as SearchConfigOutput
 from .user_delete_response import UserDeleteResponse as UserDeleteResponse
 from .batch_memory_response import BatchMemoryResponse as BatchMemoryResponse
+from .graph_rerank_response import GraphRerankResponse as GraphRerankResponse
 from .memory_metadata_param import MemoryMetadataParam as MemoryMetadataParam
 from .namespace_list_params import NamespaceListParams as NamespaceListParams
 from .sync_get_delta_params import SyncGetDeltaParams as SyncGetDeltaParams
@@ -59,6 +64,7 @@ from .document_upload_params import DocumentUploadParams as DocumentUploadParams
 from .feedback_request_param import FeedbackRequestParam as FeedbackRequestParam
 from .feedback_submit_params import FeedbackSubmitParams as FeedbackSubmitParams
 from .graph_generation_param import GraphGenerationParam as GraphGenerationParam
+from .graph_transform_params import GraphTransformParams as GraphTransformParams
 from .memory_delete_response import MemoryDeleteResponse as MemoryDeleteResponse
 from .memory_update_response import MemoryUpdateResponse as MemoryUpdateResponse
 from .message_store_response import MessageStoreResponse as MessageStoreResponse
@@ -78,6 +84,7 @@ from .sync_get_delta_response import SyncGetDeltaResponse as SyncGetDeltaRespons
 from .sync_get_tiers_response import SyncGetTiersResponse as SyncGetTiersResponse
 from .document_upload_response import DocumentUploadResponse as DocumentUploadResponse
 from .frequency_field_response import FrequencyFieldResponse as FrequencyFieldResponse
+from .graph_transform_response import GraphTransformResponse as GraphTransformResponse
 from .memory_delete_all_params import MemoryDeleteAllParams as MemoryDeleteAllParams
 from .schema_retrieve_response import SchemaRetrieveResponse as SchemaRetrieveResponse
 from .user_create_batch_params import UserCreateBatchParams as UserCreateBatchParams
@@ -104,6 +111,8 @@ from .telemetry_track_event_params import TelemetryTrackEventParams as Telemetry
 from .manual_graph_generation_param import ManualGraphGenerationParam as ManualGraphGenerationParam
 from .telemetry_track_event_response import TelemetryTrackEventResponse as TelemetryTrackEventResponse
 from .memory_retrieve_status_response import MemoryRetrieveStatusResponse as MemoryRetrieveStatusResponse
+from .namespace_create_api_key_params import NamespaceCreateAPIKeyParams as NamespaceCreateAPIKeyParams
+from .namespace_create_api_key_response import NamespaceCreateAPIKeyResponse as NamespaceCreateAPIKeyResponse
 from .omo_export_memories_as_json_params import OmoExportMemoriesAsJsonParams as OmoExportMemoriesAsJsonParams
 from .document_cancel_processing_response import DocumentCancelProcessingResponse as DocumentCancelProcessingResponse
 from .holographic_extract_metadata_params import HolographicExtractMetadataParams as HolographicExtractMetadataParams

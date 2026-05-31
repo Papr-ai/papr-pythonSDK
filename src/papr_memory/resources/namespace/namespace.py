@@ -2,12 +2,18 @@
 
 from __future__ import annotations
 
-from typing import Dict, Optional
+from typing import Dict, List, Optional
 from typing_extensions import Literal
 
 import httpx
 
-from ...types import namespace_list_params, namespace_create_params, namespace_delete_params, namespace_update_params
+from ...types import (
+    namespace_list_params,
+    namespace_create_params,
+    namespace_delete_params,
+    namespace_update_params,
+    namespace_create_api_key_params,
+)
 from ..._types import Body, Omit, Query, Headers, NotGiven, omit, not_given
 from ..._utils import path_template, maybe_transform, async_maybe_transform
 from .instance import (
@@ -32,6 +38,7 @@ from ...types.namespace_create_response import NamespaceCreateResponse
 from ...types.namespace_delete_response import NamespaceDeleteResponse
 from ...types.namespace_update_response import NamespaceUpdateResponse
 from ...types.namespace_retrieve_response import NamespaceRetrieveResponse
+from ...types.namespace_create_api_key_response import NamespaceCreateAPIKeyResponse
 
 __all__ = ["NamespaceResource", "AsyncNamespaceResource"]
 
@@ -306,6 +313,64 @@ class NamespaceResource(SyncAPIResource):
             cast_to=NamespaceDeleteResponse,
         )
 
+    def create_api_key(
+        self,
+        namespace_id: str,
+        *,
+        name: str,
+        environment: Literal["development", "staging", "production"] | Omit = omit,
+        permissions: List[Literal["read", "write", "delete"]] | Omit = omit,
+        # Use the following arguments if you need to pass additional parameters to the API that aren't available via kwargs.
+        # The extra values given here take precedence over values defined on the client or passed to this method.
+        extra_headers: Headers | None = None,
+        extra_query: Query | None = None,
+        extra_body: Body | None = None,
+        timeout: float | httpx.Timeout | None | NotGiven = not_given,
+    ) -> NamespaceCreateAPIKeyResponse:
+        """Mint a new API key bound to the given namespace.
+
+        Caller must authenticate with
+        any API key belonging to the same organization (typically the org-wide /
+        default-namespace key).
+
+        **Security:** The full key is returned exactly once in this response. Store it
+        immediately — it cannot be retrieved later. Subsequent reads expose only the
+        masked `key_prefix`.
+
+        Args:
+          name: Human-readable name for the API key (shown in admin UIs).
+
+          environment: Environment label: development, staging, or production.
+
+          permissions: Permissions granted by this key. Must be a subset of ['read', 'write',
+              'delete'].
+
+          extra_headers: Send extra headers
+
+          extra_query: Add additional query parameters to the request
+
+          extra_body: Add additional JSON properties to the request
+
+          timeout: Override the client-level default timeout for this request, in seconds
+        """
+        if not namespace_id:
+            raise ValueError(f"Expected a non-empty value for `namespace_id` but received {namespace_id!r}")
+        return self._post(
+            path_template("/v1/namespace/{namespace_id}/api-keys", namespace_id=namespace_id),
+            body=maybe_transform(
+                {
+                    "name": name,
+                    "environment": environment,
+                    "permissions": permissions,
+                },
+                namespace_create_api_key_params.NamespaceCreateAPIKeyParams,
+            ),
+            options=make_request_options(
+                extra_headers=extra_headers, extra_query=extra_query, extra_body=extra_body, timeout=timeout
+            ),
+            cast_to=NamespaceCreateAPIKeyResponse,
+        )
+
 
 class AsyncNamespaceResource(AsyncAPIResource):
     @cached_property
@@ -577,6 +642,64 @@ class AsyncNamespaceResource(AsyncAPIResource):
             cast_to=NamespaceDeleteResponse,
         )
 
+    async def create_api_key(
+        self,
+        namespace_id: str,
+        *,
+        name: str,
+        environment: Literal["development", "staging", "production"] | Omit = omit,
+        permissions: List[Literal["read", "write", "delete"]] | Omit = omit,
+        # Use the following arguments if you need to pass additional parameters to the API that aren't available via kwargs.
+        # The extra values given here take precedence over values defined on the client or passed to this method.
+        extra_headers: Headers | None = None,
+        extra_query: Query | None = None,
+        extra_body: Body | None = None,
+        timeout: float | httpx.Timeout | None | NotGiven = not_given,
+    ) -> NamespaceCreateAPIKeyResponse:
+        """Mint a new API key bound to the given namespace.
+
+        Caller must authenticate with
+        any API key belonging to the same organization (typically the org-wide /
+        default-namespace key).
+
+        **Security:** The full key is returned exactly once in this response. Store it
+        immediately — it cannot be retrieved later. Subsequent reads expose only the
+        masked `key_prefix`.
+
+        Args:
+          name: Human-readable name for the API key (shown in admin UIs).
+
+          environment: Environment label: development, staging, or production.
+
+          permissions: Permissions granted by this key. Must be a subset of ['read', 'write',
+              'delete'].
+
+          extra_headers: Send extra headers
+
+          extra_query: Add additional query parameters to the request
+
+          extra_body: Add additional JSON properties to the request
+
+          timeout: Override the client-level default timeout for this request, in seconds
+        """
+        if not namespace_id:
+            raise ValueError(f"Expected a non-empty value for `namespace_id` but received {namespace_id!r}")
+        return await self._post(
+            path_template("/v1/namespace/{namespace_id}/api-keys", namespace_id=namespace_id),
+            body=await async_maybe_transform(
+                {
+                    "name": name,
+                    "environment": environment,
+                    "permissions": permissions,
+                },
+                namespace_create_api_key_params.NamespaceCreateAPIKeyParams,
+            ),
+            options=make_request_options(
+                extra_headers=extra_headers, extra_query=extra_query, extra_body=extra_body, timeout=timeout
+            ),
+            cast_to=NamespaceCreateAPIKeyResponse,
+        )
+
 
 class NamespaceResourceWithRawResponse:
     def __init__(self, namespace: NamespaceResource) -> None:
@@ -596,6 +719,9 @@ class NamespaceResourceWithRawResponse:
         )
         self.delete = to_raw_response_wrapper(
             namespace.delete,
+        )
+        self.create_api_key = to_raw_response_wrapper(
+            namespace.create_api_key,
         )
 
     @cached_property
@@ -622,6 +748,9 @@ class AsyncNamespaceResourceWithRawResponse:
         self.delete = async_to_raw_response_wrapper(
             namespace.delete,
         )
+        self.create_api_key = async_to_raw_response_wrapper(
+            namespace.create_api_key,
+        )
 
     @cached_property
     def instance(self) -> AsyncInstanceResourceWithRawResponse:
@@ -647,6 +776,9 @@ class NamespaceResourceWithStreamingResponse:
         self.delete = to_streamed_response_wrapper(
             namespace.delete,
         )
+        self.create_api_key = to_streamed_response_wrapper(
+            namespace.create_api_key,
+        )
 
     @cached_property
     def instance(self) -> InstanceResourceWithStreamingResponse:
@@ -671,6 +803,9 @@ class AsyncNamespaceResourceWithStreamingResponse:
         )
         self.delete = async_to_streamed_response_wrapper(
             namespace.delete,
+        )
+        self.create_api_key = async_to_streamed_response_wrapper(
+            namespace.create_api_key,
         )
 
     @cached_property
