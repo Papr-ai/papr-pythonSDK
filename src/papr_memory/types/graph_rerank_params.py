@@ -6,8 +6,10 @@ from typing import Dict, Union, Iterable, Optional
 from typing_extensions import Literal, Required, TypeAlias, TypedDict
 
 from .._types import SequenceNotStr
+from .document_input_param import DocumentInputParam
+from .graph_domain_routing_config_param import GraphDomainRoutingConfigParam
 
-__all__ = ["GraphRerankParams", "Document", "DocumentDocumentInput", "Query", "QueryQueryItem", "RoutingConfig"]
+__all__ = ["GraphRerankParams", "Document", "Query", "QueryQueryItem"]
 
 
 class GraphRerankParams(TypedDict, total=False):
@@ -46,7 +48,7 @@ class GraphRerankParams(TypedDict, total=False):
     alignments such as `key_apis`, `language`).
     """
 
-    routing_config: Optional[RoutingConfig]
+    routing_config: Optional[GraphDomainRoutingConfigParam]
     """Domain-scoped CAESAR-VIII routing overrides (stored on graph_domains)."""
 
     signal_embedder: Literal["sbert", "qwen"]
@@ -76,56 +78,7 @@ class GraphRerankParams(TypedDict, total=False):
     """Return at most this many results. Defaults to len(documents)."""
 
 
-class DocumentDocumentInput(TypedDict, total=False):
-    """Object form of a document (when developer wants to attach an id/metadata).
-
-    Either ``embedding`` or ``text`` should be set; both are accepted by the
-    rerank pipeline. ``metadata`` round-trips into the response if requested.
-
-    BYO artifact fields (``signals``, ``signal_embeddings``,
-    ``phases``, ``rot_v3``, ``concat_embedding``) are all optional and let
-    callers skip the per-doc extract+embed pass at scoring time. They map
-    1:1 to the producer fields returned by /v1/graph/transform.
-    """
-
-    id: Optional[str]
-    """Stable doc identifier echoed back in results."""
-
-    concat_embedding: Optional[Iterable[float]]
-    """Pre-computed concat reconstruction."""
-
-    embedding: Optional[Iterable[float]]
-    """Pre-computed base embedding (BYOE). Qwen 2560-d expected."""
-
-    metadata: Optional[Dict[str, object]]
-    """Free-form user metadata, echoed back if return_documents=true."""
-
-    phases: Optional[Iterable[float]]
-    """Pre-computed per-frequency phase angles (14-dim).
-
-    If provided, phase computation is skipped.
-    """
-
-    rot_v3: Optional[Iterable[float]]
-    """Pre-computed rotation v3 vector."""
-
-    signal_embeddings: Optional[Dict[str, Iterable[float]]]
-    """Pre-computed signal band-name -> vector (typically 384d sbert).
-
-    If provided, per-band embedding step is skipped.
-    """
-
-    signals: Optional[Dict[str, str]]
-    """Pre-extracted signal band-name -> text.
-
-    If provided, the LLM extractor is skipped for this doc.
-    """
-
-    text: Optional[str]
-    """Document text (if not BYOE)."""
-
-
-Document: TypeAlias = Union[str, DocumentDocumentInput]
+Document: TypeAlias = Union[str, DocumentInputParam]
 
 
 class QueryQueryItem(TypedDict, total=False):
@@ -158,51 +111,3 @@ class QueryQueryItem(TypedDict, total=False):
 
 
 Query: TypeAlias = Union[str, QueryQueryItem]
-
-
-class RoutingConfig(TypedDict, total=False):
-    """Domain-scoped CAESAR-VIII routing overrides (stored on graph_domains)."""
-
-    caesar4_source: Optional[str]
-    """
-    Which ranking is exposed as rankings['caesar4'] to CAESAR-VIII rules
-    (c4_c7_diverge, etc.). Accepts 'v4a' (default — alias to family-routed v4a / v3a
-    fallback), 'v3a' (force v3a only), or 'legacy' (SKIP the alias; keep the
-    original Jaccard / trust-score selection at rankings['caesar4'] and stash a copy
-    at rankings['_caesar4_legacy']). Use 'legacy' to A/B C-VIII rules against the
-    original SciFact calibration semantics. Label-free in all modes.
-    """
-
-    ce_gate_min_phi: Optional[float]
-    """Minimum phi to allow caesar7/baseline_rerank to bypass holographic floor."""
-
-    disabled_rules: Optional[SequenceNotStr[str]]
-    """Global SciFact routing rule names to skip for this domain (e.g.
-
-    'DANGER_LOW_RSG_LOW_PHI').
-    """
-
-    egr_lambda_ce: Optional[float]
-    """Stacked EGR entailment fusion weight (0–1). Lower for code domains."""
-
-    enabled_rule_packs: Optional[SequenceNotStr[str]]
-    """Named domain rule packs to run after global rules (e.g. 'cosqa_caesar8_v2')."""
-
-    enhanced_initial_source: Optional[str]
-    """CAESAR-VIII initial source for the CE-on path.
-
-    Domain defaults may pin 'caesar4_5_v4a' on code_search for public enhanced;
-    public max overrides to 'caesar7' unless this field is set.
-    """
-
-    holographic_floor: Optional[bool]
-    """
-    When true, never return a ranking worse than max(v4a, baseline) unless CE gate
-    (ce_gate_min_phi) passes.
-    """
-
-    threshold_overrides: Optional[Dict[str, float]]
-    """Optional CaesarConfig field overrides keyed by threshold name (e.g.
-
-    {'cmas_c4_trust_jaccard_threshold': 0.95}).
-    """

@@ -23,6 +23,7 @@ from .context_item import ContextItem as ContextItem
 from .search_result import SearchResult as SearchResult
 from .user_response import UserResponse as UserResponse
 from .batch_response import BatchResponse as BatchResponse
+from .document_input import DocumentInput as DocumentInput
 from .namespace_item import NamespaceItem as NamespaceItem
 from .memory_metadata import MemoryMetadata as MemoryMetadata
 from .search_response import SearchResponse as SearchResponse
@@ -42,6 +43,7 @@ from .add_memory_response import AddMemoryResponse as AddMemoryResponse
 from .graph_rerank_params import GraphRerankParams as GraphRerankParams
 from .parse_pointer_param import ParsePointerParam as ParsePointerParam
 from .property_definition import PropertyDefinition as PropertyDefinition
+from .document_input_param import DocumentInputParam as DocumentInputParam
 from .instance_config_item import InstanceConfigItem as InstanceConfigItem
 from .me_retrieve_response import MeRetrieveResponse as MeRetrieveResponse
 from .memory_delete_params import MemoryDeleteParams as MemoryDeleteParams
@@ -101,6 +103,7 @@ from .omo_import_memories_params import OmoImportMemoriesParams as OmoImportMemo
 from .user_create_batch_response import UserCreateBatchResponse as UserCreateBatchResponse
 from .auto_graph_generation_param import AutoGraphGenerationParam as AutoGraphGenerationParam
 from .frequency_retrieve_response import FrequencyRetrieveResponse as FrequencyRetrieveResponse
+from .graph_domain_routing_config import GraphDomainRoutingConfig as GraphDomainRoutingConfig
 from .holographic_rerank_response import HolographicRerankResponse as HolographicRerankResponse
 from .namespace_retrieve_response import NamespaceRetrieveResponse as NamespaceRetrieveResponse
 from .document_get_status_response import DocumentGetStatusResponse as DocumentGetStatusResponse
@@ -112,6 +115,7 @@ from .manual_graph_generation_param import ManualGraphGenerationParam as ManualG
 from .telemetry_track_event_response import TelemetryTrackEventResponse as TelemetryTrackEventResponse
 from .memory_retrieve_status_response import MemoryRetrieveStatusResponse as MemoryRetrieveStatusResponse
 from .namespace_create_api_key_params import NamespaceCreateAPIKeyParams as NamespaceCreateAPIKeyParams
+from .graph_domain_routing_config_param import GraphDomainRoutingConfigParam as GraphDomainRoutingConfigParam
 from .namespace_create_api_key_response import NamespaceCreateAPIKeyResponse as NamespaceCreateAPIKeyResponse
 from .omo_export_memories_as_json_params import OmoExportMemoriesAsJsonParams as OmoExportMemoriesAsJsonParams
 from .document_cancel_processing_response import DocumentCancelProcessingResponse as DocumentCancelProcessingResponse

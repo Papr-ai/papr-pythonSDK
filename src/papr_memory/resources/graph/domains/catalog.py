@@ -15,8 +15,7 @@ from ...._response import (
     async_to_streamed_response_wrapper,
 )
 from ...._base_client import make_request_options
-from ....types.graph.domains.catalog_refresh_response import CatalogRefreshResponse
-from ....types.graph.domains.catalog_retrieve_response import CatalogRetrieveResponse
+from ....types.graph.domain_catalog import DomainCatalog
 
 __all__ = ["CatalogResource", "AsyncCatalogResource"]
 
@@ -51,7 +50,7 @@ class CatalogResource(SyncAPIResource):
         extra_query: Query | None = None,
         extra_body: Body | None = None,
         timeout: float | httpx.Timeout | None | NotGiven = not_given,
-    ) -> CatalogRetrieveResponse:
+    ) -> DomainCatalog:
         """
         Return the LLM-curated catalog showing what signal values exist in this domain.
 
@@ -79,7 +78,7 @@ class CatalogResource(SyncAPIResource):
             options=make_request_options(
                 extra_headers=extra_headers, extra_query=extra_query, extra_body=extra_body, timeout=timeout
             ),
-            cast_to=CatalogRetrieveResponse,
+            cast_to=DomainCatalog,
         )
 
     def refresh(
@@ -92,7 +91,7 @@ class CatalogResource(SyncAPIResource):
         extra_query: Query | None = None,
         extra_body: Body | None = None,
         timeout: float | httpx.Timeout | None | NotGiven = not_given,
-    ) -> CatalogRefreshResponse:
+    ) -> DomainCatalog:
         """
         Process any buffered signal values through LLM clustering.
 
@@ -116,7 +115,7 @@ class CatalogResource(SyncAPIResource):
             options=make_request_options(
                 extra_headers=extra_headers, extra_query=extra_query, extra_body=extra_body, timeout=timeout
             ),
-            cast_to=CatalogRefreshResponse,
+            cast_to=DomainCatalog,
         )
 
 
@@ -150,7 +149,7 @@ class AsyncCatalogResource(AsyncAPIResource):
         extra_query: Query | None = None,
         extra_body: Body | None = None,
         timeout: float | httpx.Timeout | None | NotGiven = not_given,
-    ) -> CatalogRetrieveResponse:
+    ) -> DomainCatalog:
         """
         Return the LLM-curated catalog showing what signal values exist in this domain.
 
@@ -178,7 +177,7 @@ class AsyncCatalogResource(AsyncAPIResource):
             options=make_request_options(
                 extra_headers=extra_headers, extra_query=extra_query, extra_body=extra_body, timeout=timeout
             ),
-            cast_to=CatalogRetrieveResponse,
+            cast_to=DomainCatalog,
         )
 
     async def refresh(
@@ -191,7 +190,7 @@ class AsyncCatalogResource(AsyncAPIResource):
         extra_query: Query | None = None,
         extra_body: Body | None = None,
         timeout: float | httpx.Timeout | None | NotGiven = not_given,
-    ) -> CatalogRefreshResponse:
+    ) -> DomainCatalog:
         """
         Process any buffered signal values through LLM clustering.
 
@@ -215,7 +214,7 @@ class AsyncCatalogResource(AsyncAPIResource):
             options=make_request_options(
                 extra_headers=extra_headers, extra_query=extra_query, extra_body=extra_body, timeout=timeout
             ),
-            cast_to=CatalogRefreshResponse,
+            cast_to=DomainCatalog,
         )
 
 

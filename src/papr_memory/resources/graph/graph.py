@@ -29,6 +29,7 @@ from .domains.domains import (
 )
 from ...types.graph_rerank_response import GraphRerankResponse
 from ...types.graph_transform_response import GraphTransformResponse
+from ...types.graph_domain_routing_config_param import GraphDomainRoutingConfigParam
 
 __all__ = ["GraphResource", "AsyncGraphResource"]
 
@@ -67,7 +68,7 @@ class GraphResource(SyncAPIResource):
         return_debug: bool | Omit = omit,
         return_documents: bool | Omit = omit,
         return_signal_scores: bool | Omit = omit,
-        routing_config: Optional[graph_rerank_params.RoutingConfig] | Omit = omit,
+        routing_config: Optional[GraphDomainRoutingConfigParam] | Omit = omit,
         signal_embedder: Literal["sbert", "qwen"] | Omit = omit,
         signal_filters: Optional[Dict[str, float]] | Omit = omit,
         signal_multipliers: Optional[Dict[str, object]] | Omit = omit,
@@ -267,7 +268,7 @@ class AsyncGraphResource(AsyncAPIResource):
         return_debug: bool | Omit = omit,
         return_documents: bool | Omit = omit,
         return_signal_scores: bool | Omit = omit,
-        routing_config: Optional[graph_rerank_params.RoutingConfig] | Omit = omit,
+        routing_config: Optional[GraphDomainRoutingConfigParam] | Omit = omit,
         signal_embedder: Literal["sbert", "qwen"] | Omit = omit,
         signal_filters: Optional[Dict[str, float]] | Omit = omit,
         signal_multipliers: Optional[Dict[str, object]] | Omit = omit,
