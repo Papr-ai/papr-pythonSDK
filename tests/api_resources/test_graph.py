@@ -9,7 +9,10 @@ import pytest
 
 from papr_memory import Papr, AsyncPapr
 from tests.utils import assert_matches_type
-from papr_memory.types import GraphRerankResponse, GraphTransformResponse
+from papr_memory.types import (
+    GraphRerankResponse,
+    GraphTransformResponse,
+)
 
 base_url = os.environ.get("TEST_API_BASE_URL", "http://127.0.0.1:4010")
 

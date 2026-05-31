@@ -9,7 +9,7 @@ import pytest
 
 from papr_memory import Papr, AsyncPapr
 from tests.utils import assert_matches_type
-from papr_memory.types.graph.domains import CatalogRefreshResponse, CatalogRetrieveResponse
+from papr_memory.types.graph import DomainCatalog
 
 base_url = os.environ.get("TEST_API_BASE_URL", "http://127.0.0.1:4010")
 
@@ -23,7 +23,7 @@ class TestCatalog:
         catalog = client.graph.domains.catalog.retrieve(
             "domain_id",
         )
-        assert_matches_type(CatalogRetrieveResponse, catalog, path=["response"])
+        assert_matches_type(DomainCatalog, catalog, path=["response"])
 
     @pytest.mark.skip(reason="Mock server tests are disabled")
     @parametrize
@@ -35,7 +35,7 @@ class TestCatalog:
         assert response.is_closed is True
         assert response.http_request.headers.get("X-Stainless-Lang") == "python"
         catalog = response.parse()
-        assert_matches_type(CatalogRetrieveResponse, catalog, path=["response"])
+        assert_matches_type(DomainCatalog, catalog, path=["response"])
 
     @pytest.mark.skip(reason="Mock server tests are disabled")
     @parametrize
@@ -47,7 +47,7 @@ class TestCatalog:
             assert response.http_request.headers.get("X-Stainless-Lang") == "python"
 
             catalog = response.parse()
-            assert_matches_type(CatalogRetrieveResponse, catalog, path=["response"])
+            assert_matches_type(DomainCatalog, catalog, path=["response"])
 
         assert cast(Any, response.is_closed) is True
 
@@ -65,7 +65,7 @@ class TestCatalog:
         catalog = client.graph.domains.catalog.refresh(
             "domain_id",
         )
-        assert_matches_type(CatalogRefreshResponse, catalog, path=["response"])
+        assert_matches_type(DomainCatalog, catalog, path=["response"])
 
     @pytest.mark.skip(reason="Mock server tests are disabled")
     @parametrize
@@ -77,7 +77,7 @@ class TestCatalog:
         assert response.is_closed is True
         assert response.http_request.headers.get("X-Stainless-Lang") == "python"
         catalog = response.parse()
-        assert_matches_type(CatalogRefreshResponse, catalog, path=["response"])
+        assert_matches_type(DomainCatalog, catalog, path=["response"])
 
     @pytest.mark.skip(reason="Mock server tests are disabled")
     @parametrize
@@ -89,7 +89,7 @@ class TestCatalog:
             assert response.http_request.headers.get("X-Stainless-Lang") == "python"
 
             catalog = response.parse()
-            assert_matches_type(CatalogRefreshResponse, catalog, path=["response"])
+            assert_matches_type(DomainCatalog, catalog, path=["response"])
 
         assert cast(Any, response.is_closed) is True
 
@@ -113,7 +113,7 @@ class TestAsyncCatalog:
         catalog = await async_client.graph.domains.catalog.retrieve(
             "domain_id",
         )
-        assert_matches_type(CatalogRetrieveResponse, catalog, path=["response"])
+        assert_matches_type(DomainCatalog, catalog, path=["response"])
 
     @pytest.mark.skip(reason="Mock server tests are disabled")
     @parametrize
@@ -125,7 +125,7 @@ class TestAsyncCatalog:
         assert response.is_closed is True
         assert response.http_request.headers.get("X-Stainless-Lang") == "python"
         catalog = await response.parse()
-        assert_matches_type(CatalogRetrieveResponse, catalog, path=["response"])
+        assert_matches_type(DomainCatalog, catalog, path=["response"])
 
     @pytest.mark.skip(reason="Mock server tests are disabled")
     @parametrize
@@ -137,7 +137,7 @@ class TestAsyncCatalog:
             assert response.http_request.headers.get("X-Stainless-Lang") == "python"
 
             catalog = await response.parse()
-            assert_matches_type(CatalogRetrieveResponse, catalog, path=["response"])
+            assert_matches_type(DomainCatalog, catalog, path=["response"])
 
         assert cast(Any, response.is_closed) is True
 
@@ -155,7 +155,7 @@ class TestAsyncCatalog:
         catalog = await async_client.graph.domains.catalog.refresh(
             "domain_id",
         )
-        assert_matches_type(CatalogRefreshResponse, catalog, path=["response"])
+        assert_matches_type(DomainCatalog, catalog, path=["response"])
 
     @pytest.mark.skip(reason="Mock server tests are disabled")
     @parametrize
@@ -167,7 +167,7 @@ class TestAsyncCatalog:
         assert response.is_closed is True
         assert response.http_request.headers.get("X-Stainless-Lang") == "python"
         catalog = await response.parse()
-        assert_matches_type(CatalogRefreshResponse, catalog, path=["response"])
+        assert_matches_type(DomainCatalog, catalog, path=["response"])
 
     @pytest.mark.skip(reason="Mock server tests are disabled")
     @parametrize
@@ -179,7 +179,7 @@ class TestAsyncCatalog:
             assert response.http_request.headers.get("X-Stainless-Lang") == "python"
 
             catalog = await response.parse()
-            assert_matches_type(CatalogRefreshResponse, catalog, path=["response"])
+            assert_matches_type(DomainCatalog, catalog, path=["response"])
 
         assert cast(Any, response.is_closed) is True
 

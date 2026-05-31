@@ -26,11 +26,14 @@ from ...._response import (
 )
 from ....types.graph import domain_create_params, domain_update_params
 from ...._base_client import make_request_options
+from ....types.graph.signal_field_param import SignalFieldParam
 from ....types.graph.domain_list_response import DomainListResponse
 from ....types.graph.domain_create_response import DomainCreateResponse
 from ....types.graph.domain_delete_response import DomainDeleteResponse
 from ....types.graph.domain_update_response import DomainUpdateResponse
 from ....types.graph.domain_retrieve_response import DomainRetrieveResponse
+from ....types.graph.domain_catalog_config_param import DomainCatalogConfigParam
+from ....types.graph_domain_routing_config_param import GraphDomainRoutingConfigParam
 
 __all__ = ["DomainsResource", "AsyncDomainsResource"]
 
@@ -65,9 +68,9 @@ class DomainsResource(SyncAPIResource):
         description: str,
         domain_id: str,
         name: str,
-        signals: Iterable[domain_create_params.Signal],
-        catalog_config: Optional[domain_create_params.CatalogConfig] | Omit = omit,
-        routing_config: Optional[domain_create_params.RoutingConfig] | Omit = omit,
+        signals: Iterable[SignalFieldParam],
+        catalog_config: Optional[DomainCatalogConfigParam] | Omit = omit,
+        routing_config: Optional[GraphDomainRoutingConfigParam] | Omit = omit,
         signal_multipliers: Optional[Dict[str, float]] | Omit = omit,
         # Use the following arguments if you need to pass additional parameters to the API that aren't available via kwargs.
         # The extra values given here take precedence over values defined on the client or passed to this method.
@@ -163,10 +166,10 @@ class DomainsResource(SyncAPIResource):
         self,
         domain_id: str,
         *,
-        catalog_config: Optional[domain_update_params.CatalogConfig] | Omit = omit,
+        catalog_config: Optional[DomainCatalogConfigParam] | Omit = omit,
         description: Optional[str] | Omit = omit,
         name: Optional[str] | Omit = omit,
-        routing_config: Optional[domain_update_params.RoutingConfig] | Omit = omit,
+        routing_config: Optional[GraphDomainRoutingConfigParam] | Omit = omit,
         signal_multipliers: Optional[Dict[str, float]] | Omit = omit,
         # Use the following arguments if you need to pass additional parameters to the API that aren't available via kwargs.
         # The extra values given here take precedence over values defined on the client or passed to this method.
@@ -301,9 +304,9 @@ class AsyncDomainsResource(AsyncAPIResource):
         description: str,
         domain_id: str,
         name: str,
-        signals: Iterable[domain_create_params.Signal],
-        catalog_config: Optional[domain_create_params.CatalogConfig] | Omit = omit,
-        routing_config: Optional[domain_create_params.RoutingConfig] | Omit = omit,
+        signals: Iterable[SignalFieldParam],
+        catalog_config: Optional[DomainCatalogConfigParam] | Omit = omit,
+        routing_config: Optional[GraphDomainRoutingConfigParam] | Omit = omit,
         signal_multipliers: Optional[Dict[str, float]] | Omit = omit,
         # Use the following arguments if you need to pass additional parameters to the API that aren't available via kwargs.
         # The extra values given here take precedence over values defined on the client or passed to this method.
@@ -399,10 +402,10 @@ class AsyncDomainsResource(AsyncAPIResource):
         self,
         domain_id: str,
         *,
-        catalog_config: Optional[domain_update_params.CatalogConfig] | Omit = omit,
+        catalog_config: Optional[DomainCatalogConfigParam] | Omit = omit,
         description: Optional[str] | Omit = omit,
         name: Optional[str] | Omit = omit,
-        routing_config: Optional[domain_update_params.RoutingConfig] | Omit = omit,
+        routing_config: Optional[GraphDomainRoutingConfigParam] | Omit = omit,
         signal_multipliers: Optional[Dict[str, float]] | Omit = omit,
         # Use the following arguments if you need to pass additional parameters to the API that aren't available via kwargs.
         # The extra values given here take precedence over values defined on the client or passed to this method.

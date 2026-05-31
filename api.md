@@ -444,7 +444,12 @@ Methods:
 Types:
 
 ```python
-from papr_memory.types import GraphRerankResponse, GraphTransformResponse
+from papr_memory.types import (
+    DocumentInput,
+    GraphDomainRoutingConfig,
+    GraphRerankResponse,
+    GraphTransformResponse,
+)
 ```
 
 Methods:
@@ -458,6 +463,12 @@ Types:
 
 ```python
 from papr_memory.types.graph import (
+    CatalogBufferEntry,
+    CatalogEntityCluster,
+    CatalogRelationshipPattern,
+    DomainCatalog,
+    DomainCatalogConfig,
+    SignalField,
     DomainCreateResponse,
     DomainRetrieveResponse,
     DomainUpdateResponse,
@@ -476,13 +487,7 @@ Methods:
 
 ### Catalog
 
-Types:
-
-```python
-from papr_memory.types.graph.domains import CatalogRetrieveResponse, CatalogRefreshResponse
-```
-
 Methods:
 
-- <code title="get /v1/graph/domains/{domain_id}/catalog">client.graph.domains.catalog.<a href="./src/papr_memory/resources/graph/domains/catalog.py">retrieve</a>(domain_id) -> <a href="./src/papr_memory/types/graph/domains/catalog_retrieve_response.py">CatalogRetrieveResponse</a></code>
-- <code title="post /v1/graph/domains/{domain_id}/catalog/refresh">client.graph.domains.catalog.<a href="./src/papr_memory/resources/graph/domains/catalog.py">refresh</a>(domain_id) -> <a href="./src/papr_memory/types/graph/domains/catalog_refresh_response.py">CatalogRefreshResponse</a></code>
+- <code title="get /v1/graph/domains/{domain_id}/catalog">client.graph.domains.catalog.<a href="./src/papr_memory/resources/graph/domains/catalog.py">retrieve</a>(domain_id) -> <a href="./src/papr_memory/types/graph/domain_catalog.py">DomainCatalog</a></code>
+- <code title="post /v1/graph/domains/{domain_id}/catalog/refresh">client.graph.domains.catalog.<a href="./src/papr_memory/resources/graph/domains/catalog.py">refresh</a>(domain_id) -> <a href="./src/papr_memory/types/graph/domain_catalog.py">DomainCatalog</a></code>
