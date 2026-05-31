@@ -3584,8 +3584,8 @@ class MemoryResource(SyncAPIResource):
             if tier0_context:
                 logger.info(f"Using {len(tier0_context)} tier0 items for search context enhancement")
                 # Convert tier0_context (list of documents) to Memory objects
+                from papr_memory.types.search_result import SearchResult
                 from papr_memory.types.shared.memory import Memory
-                from papr_memory.types.search_response import Data
 
                 memories = []
                 for i, item in enumerate(tier0_context):
@@ -3631,7 +3631,7 @@ class MemoryResource(SyncAPIResource):
                             continue
                 
                 # Return search results with proper SearchResponse structure
-                return SearchResponse(data=Data(memories=memories, nodes=[]), status="success")  # type: ignore[arg-type]
+                return SearchResponse(data=SearchResult(memories=memories, nodes=[]), status="success")
         elif not ondevice_processing:
             logger.info("On-device processing disabled - using API-only search")
         else:
