@@ -125,6 +125,7 @@ class DocumentResource(SyncAPIResource):
         memory_policy: Optional[str] | Omit = omit,
         metadata: Optional[str] | Omit = omit,
         namespace_id: Optional[str] | Omit = omit,
+        policy: Optional[str] | Omit = omit,
         preferred_provider: Optional[Literal["gemini", "tensorlake", "reducto", "auto"]] | Omit = omit,
         property_overrides: Optional[str] | Omit = omit,
         schema_id: Optional[str] | Omit = omit,
@@ -153,18 +154,22 @@ class DocumentResource(SyncAPIResource):
             - Automatic fallback between providers
 
         Args:
-          enable_holographic: If True, applies holographic neural transforms and stores in holographic
-              collection
+          enable_holographic: DEPRECATED: Use policy.transform_embedding instead. If True, applies holographic
+              neural transforms and stores in holographic collection.
 
           external_user_id: Your application's user identifier. This is the primary way to identify users.
               Also accepts legacy 'end_user_id'.
 
-          frequency_schema_id: Frequency schema for holographic embedding (e.g. 'cosqa', 'scifact'). Required
-              when enable_holographic=True. Call GET /v1/frequencies to see available schemas.
+          frequency_schema_id: DEPRECATED: Use policy.transform_embedding.domain_id instead. Frequency schema
+              for holographic embedding (e.g. 'cosqa', 'scifact'). Required when
+              enable_holographic=True. Call GET /v1/frequencies to see available schemas.
 
-          memory_policy: JSON-encoded memory policy. Includes mode ('auto'/'manual'), schema_id,
-              node_constraints (applied in auto mode when present), and OMO fields (consent,
-              risk, acl). This is the recommended way to configure memory processing.
+          memory_policy: DEPRECATED: Use 'policy' instead. JSON-encoded memory policy. Includes mode
+              ('auto'/'manual'), schema_id, node_constraints (applied in auto mode when
+              present), and OMO fields (consent, risk, acl).
+
+          policy: JSON-encoded unified processing policy (transform_embedding, graph incl.
+              link_to, consent, risk, acl). Applies to all chunks from this document.
 
           preferred_provider: Preferred provider for document processing.
 
@@ -190,6 +195,7 @@ class DocumentResource(SyncAPIResource):
                 "memory_policy": memory_policy,
                 "metadata": metadata,
                 "namespace_id": namespace_id,
+                "policy": policy,
                 "preferred_provider": preferred_provider,
                 "property_overrides": property_overrides,
                 "schema_id": schema_id,
@@ -313,6 +319,7 @@ class AsyncDocumentResource(AsyncAPIResource):
         memory_policy: Optional[str] | Omit = omit,
         metadata: Optional[str] | Omit = omit,
         namespace_id: Optional[str] | Omit = omit,
+        policy: Optional[str] | Omit = omit,
         preferred_provider: Optional[Literal["gemini", "tensorlake", "reducto", "auto"]] | Omit = omit,
         property_overrides: Optional[str] | Omit = omit,
         schema_id: Optional[str] | Omit = omit,
@@ -341,18 +348,22 @@ class AsyncDocumentResource(AsyncAPIResource):
             - Automatic fallback between providers
 
         Args:
-          enable_holographic: If True, applies holographic neural transforms and stores in holographic
-              collection
+          enable_holographic: DEPRECATED: Use policy.transform_embedding instead. If True, applies holographic
+              neural transforms and stores in holographic collection.
 
           external_user_id: Your application's user identifier. This is the primary way to identify users.
               Also accepts legacy 'end_user_id'.
 
-          frequency_schema_id: Frequency schema for holographic embedding (e.g. 'cosqa', 'scifact'). Required
-              when enable_holographic=True. Call GET /v1/frequencies to see available schemas.
+          frequency_schema_id: DEPRECATED: Use policy.transform_embedding.domain_id instead. Frequency schema
+              for holographic embedding (e.g. 'cosqa', 'scifact'). Required when
+              enable_holographic=True. Call GET /v1/frequencies to see available schemas.
 
-          memory_policy: JSON-encoded memory policy. Includes mode ('auto'/'manual'), schema_id,
-              node_constraints (applied in auto mode when present), and OMO fields (consent,
-              risk, acl). This is the recommended way to configure memory processing.
+          memory_policy: DEPRECATED: Use 'policy' instead. JSON-encoded memory policy. Includes mode
+              ('auto'/'manual'), schema_id, node_constraints (applied in auto mode when
+              present), and OMO fields (consent, risk, acl).
+
+          policy: JSON-encoded unified processing policy (transform_embedding, graph incl.
+              link_to, consent, risk, acl). Applies to all chunks from this document.
 
           preferred_provider: Preferred provider for document processing.
 
@@ -378,6 +389,7 @@ class AsyncDocumentResource(AsyncAPIResource):
                 "memory_policy": memory_policy,
                 "metadata": metadata,
                 "namespace_id": namespace_id,
+                "policy": policy,
                 "preferred_provider": preferred_provider,
                 "property_overrides": property_overrides,
                 "schema_id": schema_id,

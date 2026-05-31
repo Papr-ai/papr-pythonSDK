@@ -81,6 +81,7 @@ class MemoryResource(SyncAPIResource):
         metadata: Optional[MemoryMetadataParam] | Omit = omit,
         namespace_id: Optional[str] | Omit = omit,
         organization_id: Optional[str] | Omit = omit,
+        policy: Optional[memory_update_params.Policy] | Omit = omit,
         relationships_json: Optional[Iterable[RelationshipItemParam]] | Omit = omit,
         type: Optional[MemoryType] | Omit = omit,
         # Use the following arguments if you need to pass additional parameters to the API that aren't available via kwargs.
@@ -116,15 +117,18 @@ class MemoryResource(SyncAPIResource):
 
           graph_generation: Graph generation configuration
 
-          link_to: Shorthand DSL for node/edge constraints. Expands to
-              memory_policy.node_constraints and edge_constraints. Formats: - String:
-              'Task:title' (semantic match on Task.title) - List: ['Task:title',
-              'Person:email'] (multiple constraints) - Dict: {'Task:title': {'set': {...}}}
-              (with options) Syntax: - Node: 'Type:property', 'Type:prop=value' (exact),
-              'Type:prop~value' (semantic) - Edge: 'Source->EDGE->Target:property' (arrow
-              syntax) - Via: 'Type.via(EDGE->Target:prop)' (relationship traversal) - Special:
-              '$this', '$previous', '$context:N' Example:
-              'SecurityBehavior->MITIGATES->TacticDef:name' with {'create': 'never'}
+          link_to: DEPRECATED: Use policy.graph.link_to instead. Shorthand DSL for node/edge
+              constraints (same as node_constraints, compact syntax). Expands and merges into
+              memory_policy.node_constraints and edge_constraints at resolve time. Default
+              create is upsert; use dict form with create='lookup' (or legacy 'never') for
+              link-only. Formats: - String: 'Task:title' (semantic match on Task.title, upsert
+              by default) - List: ['Task:title', 'Person:email'] (multiple constraints) -
+              Dict: {'Task:title': {'set': {...}, 'create': 'lookup'}} (full options)
+              Syntax: - Node: 'Type:property', 'Type:prop=value' (exact), 'Type:prop~value'
+              (semantic) - Edge: 'Source->EDGE->Target:property' (arrow syntax) - Via:
+              'Type.via(EDGE->Target:prop)' (relationship traversal) - Special:
+              '$this', '$previous', '$context:N' Example lookup-only: {'SecurityPolicy:name':
+              {'create': 'lookup'}}
 
           memory_policy: Unified memory processing policy.
 
@@ -156,6 +160,8 @@ class MemoryResource(SyncAPIResource):
           organization_id: Optional organization ID for multi-tenant memory scoping. When provided, update
               is scoped to memories within this organization.
 
+          policy: Policy for add / batch / document / message ingestion.
+
           relationships_json: Updated relationships for Graph DB (neo4J)
 
           type: Valid memory types
@@ -182,6 +188,7 @@ class MemoryResource(SyncAPIResource):
                     "metadata": metadata,
                     "namespace_id": namespace_id,
                     "organization_id": organization_id,
+                    "policy": policy,
                     "relationships_json": relationships_json,
                     "type": type,
                 },
@@ -270,6 +277,7 @@ class MemoryResource(SyncAPIResource):
         metadata: Optional[MemoryMetadataParam] | Omit = omit,
         namespace_id: Optional[str] | Omit = omit,
         organization_id: Optional[str] | Omit = omit,
+        policy: Optional[memory_add_params.Policy] | Omit = omit,
         relationships_json: Optional[Iterable[RelationshipItemParam]] | Omit = omit,
         type: MemoryType | Omit = omit,
         user_id: Optional[str] | Omit = omit,
@@ -334,15 +342,18 @@ class MemoryResource(SyncAPIResource):
 
           graph_generation: Graph generation configuration
 
-          link_to: Shorthand DSL for node/edge constraints. Expands to
-              memory_policy.node_constraints and edge_constraints. Formats: - String:
-              'Task:title' (semantic match on Task.title) - List: ['Task:title',
-              'Person:email'] (multiple constraints) - Dict: {'Task:title': {'set': {...}}}
-              (with options) Syntax: - Node: 'Type:property', 'Type:prop=value' (exact),
-              'Type:prop~value' (semantic) - Edge: 'Source->EDGE->Target:property' (arrow
-              syntax) - Via: 'Type.via(EDGE->Target:prop)' (relationship traversal) - Special:
-              '$this', '$previous', '$context:N' Example:
-              'SecurityBehavior->MITIGATES->TacticDef:name' with {'create': 'never'}
+          link_to: DEPRECATED: Use policy.graph.link_to instead. Shorthand DSL for node/edge
+              constraints (same as node_constraints, compact syntax). Expands and merges into
+              memory_policy.node_constraints and edge_constraints at resolve time. Default
+              create is upsert; use dict form with create='lookup' (or legacy 'never') for
+              link-only. Formats: - String: 'Task:title' (semantic match on Task.title, upsert
+              by default) - List: ['Task:title', 'Person:email'] (multiple constraints) -
+              Dict: {'Task:title': {'set': {...}, 'create': 'lookup'}} (full options)
+              Syntax: - Node: 'Type:property', 'Type:prop=value' (exact), 'Type:prop~value'
+              (semantic) - Edge: 'Source->EDGE->Target:property' (arrow syntax) - Via:
+              'Type.via(EDGE->Target:prop)' (relationship traversal) - Special:
+              '$this', '$previous', '$context:N' Example lookup-only: {'SecurityPolicy:name':
+              {'create': 'lookup'}}
 
           memory_policy: Unified memory processing policy.
 
@@ -374,6 +385,8 @@ class MemoryResource(SyncAPIResource):
           organization_id: DEPRECATED - Internal only. Auto-populated from API key scope. Do not set
               manually. The organization is resolved automatically from the API key's
               associated organization.
+
+          policy: Policy for add / batch / document / message ingestion.
 
           relationships_json:
               DEPRECATED: Use 'memory_policy' instead. Migration options: 1. Specific memory:
@@ -407,6 +420,7 @@ class MemoryResource(SyncAPIResource):
                     "metadata": metadata,
                     "namespace_id": namespace_id,
                     "organization_id": organization_id,
+                    "policy": policy,
                     "relationships_json": relationships_json,
                     "type": type,
                     "user_id": user_id,
@@ -447,6 +461,7 @@ class MemoryResource(SyncAPIResource):
         memory_policy: Optional[MemoryPolicy] | Omit = omit,
         namespace_id: Optional[str] | Omit = omit,
         organization_id: Optional[str] | Omit = omit,
+        policy: Optional[memory_add_batch_params.Policy] | Omit = omit,
         user_id: Optional[str] | Omit = omit,
         webhook_secret: Optional[str] | Omit = omit,
         webhook_url: Optional[str] | Omit = omit,
@@ -492,15 +507,18 @@ class MemoryResource(SyncAPIResource):
 
           graph_generation: Graph generation configuration
 
-          link_to: Shorthand DSL for node/edge constraints. Expands to
-              memory_policy.node_constraints and edge_constraints. Formats: - String:
-              'Task:title' (semantic match on Task.title) - List: ['Task:title',
-              'Person:email'] (multiple constraints) - Dict: {'Task:title': {'set': {...}}}
-              (with options) Syntax: - Node: 'Type:property', 'Type:prop=value' (exact),
-              'Type:prop~value' (semantic) - Edge: 'Source->EDGE->Target:property' (arrow
-              syntax) - Via: 'Type.via(EDGE->Target:prop)' (relationship traversal) - Special:
-              '$this', '$previous', '$context:N' Example:
-              'SecurityBehavior->MITIGATES->TacticDef:name' with {'create': 'never'}
+          link_to: DEPRECATED: Use policy.graph.link_to instead. Shorthand DSL for node/edge
+              constraints (same as node_constraints, compact syntax). Expands and merges into
+              memory_policy.node_constraints and edge_constraints at resolve time. Default
+              create is upsert; use dict form with create='lookup' (or legacy 'never') for
+              link-only. Formats: - String: 'Task:title' (semantic match on Task.title, upsert
+              by default) - List: ['Task:title', 'Person:email'] (multiple constraints) -
+              Dict: {'Task:title': {'set': {...}, 'create': 'lookup'}} (full options)
+              Syntax: - Node: 'Type:property', 'Type:prop=value' (exact), 'Type:prop~value'
+              (semantic) - Edge: 'Source->EDGE->Target:property' (arrow syntax) - Via:
+              'Type.via(EDGE->Target:prop)' (relationship traversal) - Special:
+              '$this', '$previous', '$context:N' Example lookup-only: {'SecurityPolicy:name':
+              {'create': 'lookup'}}
 
           memory_policy: Unified memory processing policy.
 
@@ -531,6 +549,8 @@ class MemoryResource(SyncAPIResource):
               manually. The organization is resolved automatically from the API key's
               associated organization.
 
+          policy: Policy for add / batch / document / message ingestion.
+
           user_id: DEPRECATED: Use 'external_user_id' instead. Internal Papr Parse user ID.
 
           webhook_secret: Optional secret key for webhook authentication. If provided, will be included in
@@ -559,6 +579,7 @@ class MemoryResource(SyncAPIResource):
                     "memory_policy": memory_policy,
                     "namespace_id": namespace_id,
                     "organization_id": organization_id,
+                    "policy": policy,
                     "user_id": user_id,
                     "webhook_secret": webhook_secret,
                     "webhook_url": webhook_url,
@@ -813,6 +834,7 @@ class MemoryResource(SyncAPIResource):
         namespace_id: Optional[str] | Omit = omit,
         omo_filter: Optional[memory_search_params.OmoFilter] | Omit = omit,
         organization_id: Optional[str] | Omit = omit,
+        policy: Optional[memory_search_params.Policy] | Omit = omit,
         rank_results: bool | Omit = omit,
         reranking_config: Optional[memory_search_params.RerankingConfig] | Omit = omit,
         schema_id: Optional[str] | Omit = omit,
@@ -942,6 +964,8 @@ class MemoryResource(SyncAPIResource):
           organization_id: Optional organization ID for multi-tenant search scoping. When provided, search
               is scoped to memories within this organization.
 
+          policy: Policy for POST /v1/memory/search.
+
           rank_results: DEPRECATED: Use 'reranking_config' instead. Whether to enable additional ranking
               of search results. Default is false because results are already ranked when
               using an LLM for search (recommended approach). Only enable this if you're not
@@ -1014,6 +1038,7 @@ class MemoryResource(SyncAPIResource):
                     "namespace_id": namespace_id,
                     "omo_filter": omo_filter,
                     "organization_id": organization_id,
+                    "policy": policy,
                     "rank_results": rank_results,
                     "reranking_config": reranking_config,
                     "schema_id": schema_id,
@@ -1075,6 +1100,7 @@ class AsyncMemoryResource(AsyncAPIResource):
         metadata: Optional[MemoryMetadataParam] | Omit = omit,
         namespace_id: Optional[str] | Omit = omit,
         organization_id: Optional[str] | Omit = omit,
+        policy: Optional[memory_update_params.Policy] | Omit = omit,
         relationships_json: Optional[Iterable[RelationshipItemParam]] | Omit = omit,
         type: Optional[MemoryType] | Omit = omit,
         # Use the following arguments if you need to pass additional parameters to the API that aren't available via kwargs.
@@ -1110,15 +1136,18 @@ class AsyncMemoryResource(AsyncAPIResource):
 
           graph_generation: Graph generation configuration
 
-          link_to: Shorthand DSL for node/edge constraints. Expands to
-              memory_policy.node_constraints and edge_constraints. Formats: - String:
-              'Task:title' (semantic match on Task.title) - List: ['Task:title',
-              'Person:email'] (multiple constraints) - Dict: {'Task:title': {'set': {...}}}
-              (with options) Syntax: - Node: 'Type:property', 'Type:prop=value' (exact),
-              'Type:prop~value' (semantic) - Edge: 'Source->EDGE->Target:property' (arrow
-              syntax) - Via: 'Type.via(EDGE->Target:prop)' (relationship traversal) - Special:
-              '$this', '$previous', '$context:N' Example:
-              'SecurityBehavior->MITIGATES->TacticDef:name' with {'create': 'never'}
+          link_to: DEPRECATED: Use policy.graph.link_to instead. Shorthand DSL for node/edge
+              constraints (same as node_constraints, compact syntax). Expands and merges into
+              memory_policy.node_constraints and edge_constraints at resolve time. Default
+              create is upsert; use dict form with create='lookup' (or legacy 'never') for
+              link-only. Formats: - String: 'Task:title' (semantic match on Task.title, upsert
+              by default) - List: ['Task:title', 'Person:email'] (multiple constraints) -
+              Dict: {'Task:title': {'set': {...}, 'create': 'lookup'}} (full options)
+              Syntax: - Node: 'Type:property', 'Type:prop=value' (exact), 'Type:prop~value'
+              (semantic) - Edge: 'Source->EDGE->Target:property' (arrow syntax) - Via:
+              'Type.via(EDGE->Target:prop)' (relationship traversal) - Special:
+              '$this', '$previous', '$context:N' Example lookup-only: {'SecurityPolicy:name':
+              {'create': 'lookup'}}
 
           memory_policy: Unified memory processing policy.
 
@@ -1150,6 +1179,8 @@ class AsyncMemoryResource(AsyncAPIResource):
           organization_id: Optional organization ID for multi-tenant memory scoping. When provided, update
               is scoped to memories within this organization.
 
+          policy: Policy for add / batch / document / message ingestion.
+
           relationships_json: Updated relationships for Graph DB (neo4J)
 
           type: Valid memory types
@@ -1176,6 +1207,7 @@ class AsyncMemoryResource(AsyncAPIResource):
                     "metadata": metadata,
                     "namespace_id": namespace_id,
                     "organization_id": organization_id,
+                    "policy": policy,
                     "relationships_json": relationships_json,
                     "type": type,
                 },
@@ -1264,6 +1296,7 @@ class AsyncMemoryResource(AsyncAPIResource):
         metadata: Optional[MemoryMetadataParam] | Omit = omit,
         namespace_id: Optional[str] | Omit = omit,
         organization_id: Optional[str] | Omit = omit,
+        policy: Optional[memory_add_params.Policy] | Omit = omit,
         relationships_json: Optional[Iterable[RelationshipItemParam]] | Omit = omit,
         type: MemoryType | Omit = omit,
         user_id: Optional[str] | Omit = omit,
@@ -1328,15 +1361,18 @@ class AsyncMemoryResource(AsyncAPIResource):
 
           graph_generation: Graph generation configuration
 
-          link_to: Shorthand DSL for node/edge constraints. Expands to
-              memory_policy.node_constraints and edge_constraints. Formats: - String:
-              'Task:title' (semantic match on Task.title) - List: ['Task:title',
-              'Person:email'] (multiple constraints) - Dict: {'Task:title': {'set': {...}}}
-              (with options) Syntax: - Node: 'Type:property', 'Type:prop=value' (exact),
-              'Type:prop~value' (semantic) - Edge: 'Source->EDGE->Target:property' (arrow
-              syntax) - Via: 'Type.via(EDGE->Target:prop)' (relationship traversal) - Special:
-              '$this', '$previous', '$context:N' Example:
-              'SecurityBehavior->MITIGATES->TacticDef:name' with {'create': 'never'}
+          link_to: DEPRECATED: Use policy.graph.link_to instead. Shorthand DSL for node/edge
+              constraints (same as node_constraints, compact syntax). Expands and merges into
+              memory_policy.node_constraints and edge_constraints at resolve time. Default
+              create is upsert; use dict form with create='lookup' (or legacy 'never') for
+              link-only. Formats: - String: 'Task:title' (semantic match on Task.title, upsert
+              by default) - List: ['Task:title', 'Person:email'] (multiple constraints) -
+              Dict: {'Task:title': {'set': {...}, 'create': 'lookup'}} (full options)
+              Syntax: - Node: 'Type:property', 'Type:prop=value' (exact), 'Type:prop~value'
+              (semantic) - Edge: 'Source->EDGE->Target:property' (arrow syntax) - Via:
+              'Type.via(EDGE->Target:prop)' (relationship traversal) - Special:
+              '$this', '$previous', '$context:N' Example lookup-only: {'SecurityPolicy:name':
+              {'create': 'lookup'}}
 
           memory_policy: Unified memory processing policy.
 
@@ -1368,6 +1404,8 @@ class AsyncMemoryResource(AsyncAPIResource):
           organization_id: DEPRECATED - Internal only. Auto-populated from API key scope. Do not set
               manually. The organization is resolved automatically from the API key's
               associated organization.
+
+          policy: Policy for add / batch / document / message ingestion.
 
           relationships_json:
               DEPRECATED: Use 'memory_policy' instead. Migration options: 1. Specific memory:
@@ -1401,6 +1439,7 @@ class AsyncMemoryResource(AsyncAPIResource):
                     "metadata": metadata,
                     "namespace_id": namespace_id,
                     "organization_id": organization_id,
+                    "policy": policy,
                     "relationships_json": relationships_json,
                     "type": type,
                     "user_id": user_id,
@@ -1441,6 +1480,7 @@ class AsyncMemoryResource(AsyncAPIResource):
         memory_policy: Optional[MemoryPolicy] | Omit = omit,
         namespace_id: Optional[str] | Omit = omit,
         organization_id: Optional[str] | Omit = omit,
+        policy: Optional[memory_add_batch_params.Policy] | Omit = omit,
         user_id: Optional[str] | Omit = omit,
         webhook_secret: Optional[str] | Omit = omit,
         webhook_url: Optional[str] | Omit = omit,
@@ -1486,15 +1526,18 @@ class AsyncMemoryResource(AsyncAPIResource):
 
           graph_generation: Graph generation configuration
 
-          link_to: Shorthand DSL for node/edge constraints. Expands to
-              memory_policy.node_constraints and edge_constraints. Formats: - String:
-              'Task:title' (semantic match on Task.title) - List: ['Task:title',
-              'Person:email'] (multiple constraints) - Dict: {'Task:title': {'set': {...}}}
-              (with options) Syntax: - Node: 'Type:property', 'Type:prop=value' (exact),
-              'Type:prop~value' (semantic) - Edge: 'Source->EDGE->Target:property' (arrow
-              syntax) - Via: 'Type.via(EDGE->Target:prop)' (relationship traversal) - Special:
-              '$this', '$previous', '$context:N' Example:
-              'SecurityBehavior->MITIGATES->TacticDef:name' with {'create': 'never'}
+          link_to: DEPRECATED: Use policy.graph.link_to instead. Shorthand DSL for node/edge
+              constraints (same as node_constraints, compact syntax). Expands and merges into
+              memory_policy.node_constraints and edge_constraints at resolve time. Default
+              create is upsert; use dict form with create='lookup' (or legacy 'never') for
+              link-only. Formats: - String: 'Task:title' (semantic match on Task.title, upsert
+              by default) - List: ['Task:title', 'Person:email'] (multiple constraints) -
+              Dict: {'Task:title': {'set': {...}, 'create': 'lookup'}} (full options)
+              Syntax: - Node: 'Type:property', 'Type:prop=value' (exact), 'Type:prop~value'
+              (semantic) - Edge: 'Source->EDGE->Target:property' (arrow syntax) - Via:
+              'Type.via(EDGE->Target:prop)' (relationship traversal) - Special:
+              '$this', '$previous', '$context:N' Example lookup-only: {'SecurityPolicy:name':
+              {'create': 'lookup'}}
 
           memory_policy: Unified memory processing policy.
 
@@ -1525,6 +1568,8 @@ class AsyncMemoryResource(AsyncAPIResource):
               manually. The organization is resolved automatically from the API key's
               associated organization.
 
+          policy: Policy for add / batch / document / message ingestion.
+
           user_id: DEPRECATED: Use 'external_user_id' instead. Internal Papr Parse user ID.
 
           webhook_secret: Optional secret key for webhook authentication. If provided, will be included in
@@ -1553,6 +1598,7 @@ class AsyncMemoryResource(AsyncAPIResource):
                     "memory_policy": memory_policy,
                     "namespace_id": namespace_id,
                     "organization_id": organization_id,
+                    "policy": policy,
                     "user_id": user_id,
                     "webhook_secret": webhook_secret,
                     "webhook_url": webhook_url,
@@ -1807,6 +1853,7 @@ class AsyncMemoryResource(AsyncAPIResource):
         namespace_id: Optional[str] | Omit = omit,
         omo_filter: Optional[memory_search_params.OmoFilter] | Omit = omit,
         organization_id: Optional[str] | Omit = omit,
+        policy: Optional[memory_search_params.Policy] | Omit = omit,
         rank_results: bool | Omit = omit,
         reranking_config: Optional[memory_search_params.RerankingConfig] | Omit = omit,
         schema_id: Optional[str] | Omit = omit,
@@ -1936,6 +1983,8 @@ class AsyncMemoryResource(AsyncAPIResource):
           organization_id: Optional organization ID for multi-tenant search scoping. When provided, search
               is scoped to memories within this organization.
 
+          policy: Policy for POST /v1/memory/search.
+
           rank_results: DEPRECATED: Use 'reranking_config' instead. Whether to enable additional ranking
               of search results. Default is false because results are already ranked when
               using an LLM for search (recommended approach). Only enable this if you're not
@@ -2008,6 +2057,7 @@ class AsyncMemoryResource(AsyncAPIResource):
                     "namespace_id": namespace_id,
                     "omo_filter": omo_filter,
                     "organization_id": organization_id,
+                    "policy": policy,
                     "rank_results": rank_results,
                     "reranking_config": reranking_config,
                     "schema_id": schema_id,

@@ -64,6 +64,7 @@ class NamespaceResource(SyncAPIResource):
         self,
         *,
         name: str,
+        default_policy: Optional[Dict[str, object]] | Omit = omit,
         environment_type: Literal["development", "staging", "production"] | Omit = omit,
         is_active: bool | Omit = omit,
         rate_limits: Optional[Dict[str, Optional[int]]] | Omit = omit,
@@ -79,6 +80,8 @@ class NamespaceResource(SyncAPIResource):
 
         Args:
           name: Namespace name (e.g., 'acme-production')
+
+          default_policy: Default memory policy for add/search when request omits policy.
 
           environment_type: Environment type: development, staging, production
 
@@ -99,6 +102,7 @@ class NamespaceResource(SyncAPIResource):
             body=maybe_transform(
                 {
                     "name": name,
+                    "default_policy": default_policy,
                     "environment_type": environment_type,
                     "is_active": is_active,
                     "rate_limits": rate_limits,
@@ -148,6 +152,7 @@ class NamespaceResource(SyncAPIResource):
         self,
         namespace_id: str,
         *,
+        default_policy: Optional[Dict[str, object]] | Omit = omit,
         environment_type: Optional[Literal["development", "staging", "production"]] | Omit = omit,
         is_active: Optional[bool] | Omit = omit,
         name: Optional[str] | Omit = omit,
@@ -163,6 +168,8 @@ class NamespaceResource(SyncAPIResource):
         Update an existing namespace.
 
         Args:
+          default_policy: Default memory policy for add/search when request omits policy.
+
           environment_type: Environment types for namespaces
 
           is_active: Whether this namespace is active
@@ -185,6 +192,7 @@ class NamespaceResource(SyncAPIResource):
             path_template("/v1/namespace/{namespace_id}", namespace_id=namespace_id),
             body=maybe_transform(
                 {
+                    "default_policy": default_policy,
                     "environment_type": environment_type,
                     "is_active": is_active,
                     "name": name,
@@ -327,6 +335,7 @@ class AsyncNamespaceResource(AsyncAPIResource):
         self,
         *,
         name: str,
+        default_policy: Optional[Dict[str, object]] | Omit = omit,
         environment_type: Literal["development", "staging", "production"] | Omit = omit,
         is_active: bool | Omit = omit,
         rate_limits: Optional[Dict[str, Optional[int]]] | Omit = omit,
@@ -342,6 +351,8 @@ class AsyncNamespaceResource(AsyncAPIResource):
 
         Args:
           name: Namespace name (e.g., 'acme-production')
+
+          default_policy: Default memory policy for add/search when request omits policy.
 
           environment_type: Environment type: development, staging, production
 
@@ -362,6 +373,7 @@ class AsyncNamespaceResource(AsyncAPIResource):
             body=await async_maybe_transform(
                 {
                     "name": name,
+                    "default_policy": default_policy,
                     "environment_type": environment_type,
                     "is_active": is_active,
                     "rate_limits": rate_limits,
@@ -411,6 +423,7 @@ class AsyncNamespaceResource(AsyncAPIResource):
         self,
         namespace_id: str,
         *,
+        default_policy: Optional[Dict[str, object]] | Omit = omit,
         environment_type: Optional[Literal["development", "staging", "production"]] | Omit = omit,
         is_active: Optional[bool] | Omit = omit,
         name: Optional[str] | Omit = omit,
@@ -426,6 +439,8 @@ class AsyncNamespaceResource(AsyncAPIResource):
         Update an existing namespace.
 
         Args:
+          default_policy: Default memory policy for add/search when request omits policy.
+
           environment_type: Environment types for namespaces
 
           is_active: Whether this namespace is active
@@ -448,6 +463,7 @@ class AsyncNamespaceResource(AsyncAPIResource):
             path_template("/v1/namespace/{namespace_id}", namespace_id=namespace_id),
             body=await async_maybe_transform(
                 {
+                    "default_policy": default_policy,
                     "environment_type": environment_type,
                     "is_active": is_active,
                     "name": name,

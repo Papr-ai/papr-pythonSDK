@@ -45,6 +45,12 @@ class Data(BaseModel):
     optimization_hint: Optional[str] = None
     """Present when cold path was used. Suggests storing phases for faster reranking."""
 
+    query_dimension_weights: Optional[Dict[str, float]] = None
+    """LLM-determined importance weights per dimension for this query (0.0-1.0).
+
+    Shows how the adaptive weighting system interpreted this query's intent.
+    """
+
 
 class HolographicRerankResponse(BaseModel):
     """Response for POST /v1/holographic/rerank"""

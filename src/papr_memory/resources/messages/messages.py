@@ -71,6 +71,7 @@ class MessagesResource(SyncAPIResource):
         metadata: Optional[MemoryMetadataParam] | Omit = omit,
         namespace_id: Optional[str] | Omit = omit,
         organization_id: Optional[str] | Omit = omit,
+        policy: Optional[message_store_params.Policy] | Omit = omit,
         process_messages: bool | Omit = omit,
         relationships_json: Optional[Iterable[Dict[str, object]]] | Omit = omit,
         title: Optional[str] | Omit = omit,
@@ -146,6 +147,8 @@ class MessagesResource(SyncAPIResource):
 
           organization_id: Optional organization ID for multi-tenant message scoping
 
+          policy: Policy for add / batch / document / message ingestion.
+
           process_messages: Whether to process messages into memories (true) or just store them (false).
               Default is true.
 
@@ -175,6 +178,7 @@ class MessagesResource(SyncAPIResource):
                     "metadata": metadata,
                     "namespace_id": namespace_id,
                     "organization_id": organization_id,
+                    "policy": policy,
                     "process_messages": process_messages,
                     "relationships_json": relationships_json,
                     "title": title,
@@ -224,6 +228,7 @@ class AsyncMessagesResource(AsyncAPIResource):
         metadata: Optional[MemoryMetadataParam] | Omit = omit,
         namespace_id: Optional[str] | Omit = omit,
         organization_id: Optional[str] | Omit = omit,
+        policy: Optional[message_store_params.Policy] | Omit = omit,
         process_messages: bool | Omit = omit,
         relationships_json: Optional[Iterable[Dict[str, object]]] | Omit = omit,
         title: Optional[str] | Omit = omit,
@@ -299,6 +304,8 @@ class AsyncMessagesResource(AsyncAPIResource):
 
           organization_id: Optional organization ID for multi-tenant message scoping
 
+          policy: Policy for add / batch / document / message ingestion.
+
           process_messages: Whether to process messages into memories (true) or just store them (false).
               Default is true.
 
@@ -328,6 +335,7 @@ class AsyncMessagesResource(AsyncAPIResource):
                     "metadata": metadata,
                     "namespace_id": namespace_id,
                     "organization_id": organization_id,
+                    "policy": policy,
                     "process_messages": process_messages,
                     "relationships_json": relationships_json,
                     "title": title,
