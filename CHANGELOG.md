@@ -1,5 +1,20 @@
 # Changelog
 
+## 2.26.0 (2026-05-31)
+
+Full Changelog: [v2.25.0...v2.26.0](https://github.com/Papr-ai/papr-pythonSDK/compare/v2.25.0...v2.26.0)
+
+### Features
+
+* **api:** manual updates ([b540a99](https://github.com/Papr-ai/papr-pythonSDK/commit/b540a994ac8bf1b5a125c224b48764abc15a09b2))
+* **api:** manual updates ([2bfc08e](https://github.com/Papr-ai/papr-pythonSDK/commit/2bfc08e23e8dd91b02931439f7861a208952fa87))
+* **api:** manual updates ([32a10ae](https://github.com/Papr-ai/papr-pythonSDK/commit/32a10aebf0f0128008118d1aa6d51b1a428126f0))
+
+
+### Bug Fixes
+
+* correct shared_params imports and SearchResult typing for lint CI ([857566a](https://github.com/Papr-ai/papr-pythonSDK/commit/857566a5786deeca0d8eb99b171406f383b87f1a))
+
 ## 2.25.0 (2026-05-25)
 
 Full Changelog: [v2.24.1...v2.25.0](https://github.com/Papr-ai/papr-pythonSDK/compare/v2.24.1...v2.25.0)
