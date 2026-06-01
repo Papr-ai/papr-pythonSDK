@@ -253,24 +253,6 @@ Methods:
 - <code title="put /v1/namespace/{namespace_id}/instance">client.namespace.instance.<a href="./src/papr_memory/resources/namespace/instance.py">update</a>(namespace_id, \*\*<a href="src/papr_memory/types/namespace/instance_update_params.py">params</a>) -> <a href="./src/papr_memory/types/namespace/instance_update_response.py">InstanceUpdateResponse</a></code>
 - <code title="delete /v1/namespace/{namespace_id}/instance">client.namespace.instance.<a href="./src/papr_memory/resources/namespace/instance.py">delete</a>(namespace_id) -> <a href="./src/papr_memory/types/namespace/instance_delete_response.py">InstanceDeleteResponse</a></code>
 
-# Frequencies
-
-Types:
-
-```python
-from papr_memory.types import FrequencyFieldResponse, SchemaConfigResponse
-```
-
-# Holographic
-
-## Transform
-
-Types:
-
-```python
-from papr_memory.types.holographic import TransformData
-```
-
 # Organization
 
 ## Instance

@@ -4,7 +4,6 @@ from typing import Dict, List, Optional
 
 from ..._models import BaseModel
 from .signal_field import SignalField
-from .catalog_buffer_entry import CatalogBufferEntry
 from ..graph_domain_routing_config import GraphDomainRoutingConfig
 
 __all__ = ["DomainUpdateResponse"]
@@ -21,15 +20,6 @@ class DomainUpdateResponse(BaseModel):
 
     builtin: Optional[bool] = None
     """True for built-in domains shipped with Papr (read-only)."""
-
-    catalog: Optional[object] = None
-    """Curated catalog of signal values in this domain's frequency space."""
-
-    catalog_buffer: Optional[List[CatalogBufferEntry]] = None
-    """Buffered raw signals awaiting LLM clustering (internal)."""
-
-    catalog_config: Optional[object] = None
-    """Catalog settings (see DomainCatalogConfig)."""
 
     created_at: Optional[str] = None
 
