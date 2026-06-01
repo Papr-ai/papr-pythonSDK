@@ -11,12 +11,6 @@ __all__ = ["DomainUpdateParams"]
 
 
 class DomainUpdateParams(TypedDict, total=False):
-    catalog_config: object
-    """Update catalog settings.
-
-    Pass {enabled: false} to disable signal accumulation. Omit to leave unchanged.
-    """
-
     description: Optional[str]
     """Updated description."""
 

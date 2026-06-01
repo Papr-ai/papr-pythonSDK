@@ -4,7 +4,6 @@ from __future__ import annotations
 
 from .signal_field import SignalField as SignalField
 from .signal_field_param import SignalFieldParam as SignalFieldParam
-from .catalog_buffer_entry import CatalogBufferEntry as CatalogBufferEntry
 from .domain_create_params import DomainCreateParams as DomainCreateParams
 from .domain_list_response import DomainListResponse as DomainListResponse
 from .domain_update_params import DomainUpdateParams as DomainUpdateParams
