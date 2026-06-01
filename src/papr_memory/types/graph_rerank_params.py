@@ -30,7 +30,7 @@ class GraphRerankParams(TypedDict, total=False):
     """
 
     method: Literal["fast", "enhanced"]
-    """Public: enhanced or max (CE reranker).
+    """Public: enhanced (CAESAR-8) or max (CE+entailment).
 
     Accepts deprecated 'fast'/'enhanced' aliases.
     """

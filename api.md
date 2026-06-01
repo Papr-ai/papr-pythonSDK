@@ -258,61 +258,18 @@ Methods:
 Types:
 
 ```python
-from papr_memory.types import (
-    FrequencyFieldResponse,
-    SchemaConfigResponse,
-    FrequencyRetrieveResponse,
-    FrequencyListResponse,
-)
+from papr_memory.types import FrequencyFieldResponse, SchemaConfigResponse
 ```
-
-Methods:
-
-- <code title="get /v1/frequencies/{frequency_schema_id}">client.frequencies.<a href="./src/papr_memory/resources/frequencies.py">retrieve</a>(frequency_schema_id) -> <a href="./src/papr_memory/types/frequency_retrieve_response.py">FrequencyRetrieveResponse</a></code>
-- <code title="get /v1/frequencies">client.frequencies.<a href="./src/papr_memory/resources/frequencies.py">list</a>() -> <a href="./src/papr_memory/types/frequency_list_response.py">FrequencyListResponse</a></code>
 
 # Holographic
-
-Types:
-
-```python
-from papr_memory.types import HolographicExtractMetadataResponse, HolographicRerankResponse
-```
-
-Methods:
-
-- <code title="post /v1/holographic/metadata">client.holographic.<a href="./src/papr_memory/resources/holographic/holographic.py">extract_metadata</a>(\*\*<a href="src/papr_memory/types/holographic_extract_metadata_params.py">params</a>) -> <a href="./src/papr_memory/types/holographic_extract_metadata_response.py">HolographicExtractMetadataResponse</a></code>
-- <code title="post /v1/holographic/rerank">client.holographic.<a href="./src/papr_memory/resources/holographic/holographic.py">rerank</a>(\*\*<a href="src/papr_memory/types/holographic_rerank_params.py">params</a>) -> <a href="./src/papr_memory/types/holographic_rerank_response.py">HolographicRerankResponse</a></code>
 
 ## Transform
 
 Types:
 
 ```python
-from papr_memory.types.holographic import (
-    TransformData,
-    TransformCreateResponse,
-    TransformCreateBatchResponse,
-)
+from papr_memory.types.holographic import TransformData
 ```
-
-Methods:
-
-- <code title="post /v1/holographic/transform">client.holographic.transform.<a href="./src/papr_memory/resources/holographic/transform.py">create</a>(\*\*<a href="src/papr_memory/types/holographic/transform_create_params.py">params</a>) -> <a href="./src/papr_memory/types/holographic/transform_create_response.py">TransformCreateResponse</a></code>
-- <code title="post /v1/holographic/transform/batch">client.holographic.transform.<a href="./src/papr_memory/resources/holographic/transform.py">create_batch</a>(\*\*<a href="src/papr_memory/types/holographic/transform_create_batch_params.py">params</a>) -> <a href="./src/papr_memory/types/holographic/transform_create_batch_response.py">TransformCreateBatchResponse</a></code>
-
-## Domains
-
-Types:
-
-```python
-from papr_memory.types.holographic import DomainCreateResponse, DomainListResponse
-```
-
-Methods:
-
-- <code title="post /v1/holographic/domains">client.holographic.domains.<a href="./src/papr_memory/resources/holographic/domains.py">create</a>(\*\*<a href="src/papr_memory/types/holographic/domain_create_params.py">params</a>) -> <a href="./src/papr_memory/types/holographic/domain_create_response.py">DomainCreateResponse</a></code>
-- <code title="get /v1/holographic/domains">client.holographic.domains.<a href="./src/papr_memory/resources/holographic/domains.py">list</a>() -> <a href="./src/papr_memory/types/holographic/domain_list_response.py">DomainListResponse</a></code>
 
 # Organization
 
@@ -466,8 +423,6 @@ from papr_memory.types.graph import (
     CatalogBufferEntry,
     CatalogEntityCluster,
     CatalogRelationshipPattern,
-    DomainCatalog,
-    DomainCatalogConfig,
     SignalField,
     DomainCreateResponse,
     DomainRetrieveResponse,
@@ -479,15 +434,8 @@ from papr_memory.types.graph import (
 
 Methods:
 
-- <code title="post /v1/graph/domains">client.graph.domains.<a href="./src/papr_memory/resources/graph/domains/domains.py">create</a>(\*\*<a href="src/papr_memory/types/graph/domain_create_params.py">params</a>) -> <a href="./src/papr_memory/types/graph/domain_create_response.py">DomainCreateResponse</a></code>
-- <code title="get /v1/graph/domains/{domain_id}">client.graph.domains.<a href="./src/papr_memory/resources/graph/domains/domains.py">retrieve</a>(domain_id) -> <a href="./src/papr_memory/types/graph/domain_retrieve_response.py">DomainRetrieveResponse</a></code>
-- <code title="put /v1/graph/domains/{domain_id}">client.graph.domains.<a href="./src/papr_memory/resources/graph/domains/domains.py">update</a>(domain_id, \*\*<a href="src/papr_memory/types/graph/domain_update_params.py">params</a>) -> <a href="./src/papr_memory/types/graph/domain_update_response.py">DomainUpdateResponse</a></code>
-- <code title="get /v1/graph/domains">client.graph.domains.<a href="./src/papr_memory/resources/graph/domains/domains.py">list</a>() -> <a href="./src/papr_memory/types/graph/domain_list_response.py">DomainListResponse</a></code>
-- <code title="delete /v1/graph/domains/{domain_id}">client.graph.domains.<a href="./src/papr_memory/resources/graph/domains/domains.py">delete</a>(domain_id) -> <a href="./src/papr_memory/types/graph/domain_delete_response.py">DomainDeleteResponse</a></code>
-
-### Catalog
-
-Methods:
-
-- <code title="get /v1/graph/domains/{domain_id}/catalog">client.graph.domains.catalog.<a href="./src/papr_memory/resources/graph/domains/catalog.py">retrieve</a>(domain_id) -> <a href="./src/papr_memory/types/graph/domain_catalog.py">DomainCatalog</a></code>
-- <code title="post /v1/graph/domains/{domain_id}/catalog/refresh">client.graph.domains.catalog.<a href="./src/papr_memory/resources/graph/domains/catalog.py">refresh</a>(domain_id) -> <a href="./src/papr_memory/types/graph/domain_catalog.py">DomainCatalog</a></code>
+- <code title="post /v1/graph/domains">client.graph.domains.<a href="./src/papr_memory/resources/graph/domains.py">create</a>(\*\*<a href="src/papr_memory/types/graph/domain_create_params.py">params</a>) -> <a href="./src/papr_memory/types/graph/domain_create_response.py">DomainCreateResponse</a></code>
+- <code title="get /v1/graph/domains/{domain_id}">client.graph.domains.<a href="./src/papr_memory/resources/graph/domains.py">retrieve</a>(domain_id) -> <a href="./src/papr_memory/types/graph/domain_retrieve_response.py">DomainRetrieveResponse</a></code>
+- <code title="put /v1/graph/domains/{domain_id}">client.graph.domains.<a href="./src/papr_memory/resources/graph/domains.py">update</a>(domain_id, \*\*<a href="src/papr_memory/types/graph/domain_update_params.py">params</a>) -> <a href="./src/papr_memory/types/graph/domain_update_response.py">DomainUpdateResponse</a></code>
+- <code title="get /v1/graph/domains">client.graph.domains.<a href="./src/papr_memory/resources/graph/domains.py">list</a>() -> <a href="./src/papr_memory/types/graph/domain_list_response.py">DomainListResponse</a></code>
+- <code title="delete /v1/graph/domains/{domain_id}">client.graph.domains.<a href="./src/papr_memory/resources/graph/domains.py">delete</a>(domain_id) -> <a href="./src/papr_memory/types/graph/domain_delete_response.py">DomainDeleteResponse</a></code>

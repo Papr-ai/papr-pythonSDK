@@ -5,15 +5,17 @@ from __future__ import annotations
 from typing import Dict, Optional
 from typing_extensions import TypedDict
 
-from .domain_catalog_config_param import DomainCatalogConfigParam
 from ..graph_domain_routing_config_param import GraphDomainRoutingConfigParam
 
 __all__ = ["DomainUpdateParams"]
 
 
 class DomainUpdateParams(TypedDict, total=False):
-    catalog_config: Optional[DomainCatalogConfigParam]
-    """Catalog settings on a domain."""
+    catalog_config: object
+    """Update catalog settings.
+
+    Pass {enabled: false} to disable signal accumulation. Omit to leave unchanged.
+    """
 
     description: Optional[str]
     """Updated description."""
