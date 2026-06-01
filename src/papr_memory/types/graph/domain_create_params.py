@@ -6,7 +6,6 @@ from typing import Dict, Iterable, Optional
 from typing_extensions import Required, TypedDict
 
 from .signal_field_param import SignalFieldParam
-from .domain_catalog_config_param import DomainCatalogConfigParam
 from ..graph_domain_routing_config_param import GraphDomainRoutingConfigParam
 
 __all__ = ["DomainCreateParams"]
@@ -24,9 +23,6 @@ class DomainCreateParams(TypedDict, total=False):
 
     signals: Required[Iterable[SignalFieldParam]]
     """Per-domain signal definitions."""
-
-    catalog_config: Optional[DomainCatalogConfigParam]
-    """Catalog settings on a domain."""
 
     routing_config: Optional[GraphDomainRoutingConfigParam]
     """Domain-scoped CAESAR-VIII routing overrides (stored on graph_domains)."""

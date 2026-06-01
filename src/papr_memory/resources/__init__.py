@@ -144,22 +144,6 @@ from .telemetry import (
     TelemetryResourceWithStreamingResponse,
     AsyncTelemetryResourceWithStreamingResponse,
 )
-from .frequencies import (
-    FrequenciesResource,
-    AsyncFrequenciesResource,
-    FrequenciesResourceWithRawResponse,
-    AsyncFrequenciesResourceWithRawResponse,
-    FrequenciesResourceWithStreamingResponse,
-    AsyncFrequenciesResourceWithStreamingResponse,
-)
-from .holographic import (
-    HolographicResource,
-    AsyncHolographicResource,
-    HolographicResourceWithRawResponse,
-    AsyncHolographicResourceWithRawResponse,
-    HolographicResourceWithStreamingResponse,
-    AsyncHolographicResourceWithStreamingResponse,
-)
 from .organization import (
     OrganizationResource,
     AsyncOrganizationResource,
@@ -230,18 +214,6 @@ __all__ = [
     "AsyncNamespaceResourceWithRawResponse",
     "NamespaceResourceWithStreamingResponse",
     "AsyncNamespaceResourceWithStreamingResponse",
-    "FrequenciesResource",
-    "AsyncFrequenciesResource",
-    "FrequenciesResourceWithRawResponse",
-    "AsyncFrequenciesResourceWithRawResponse",
-    "FrequenciesResourceWithStreamingResponse",
-    "AsyncFrequenciesResourceWithStreamingResponse",
-    "HolographicResource",
-    "AsyncHolographicResource",
-    "HolographicResourceWithRawResponse",
-    "AsyncHolographicResourceWithRawResponse",
-    "HolographicResourceWithStreamingResponse",
-    "AsyncHolographicResourceWithStreamingResponse",
     "OrganizationResource",
     "AsyncOrganizationResource",
     "OrganizationResourceWithRawResponse",

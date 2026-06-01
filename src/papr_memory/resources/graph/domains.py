@@ -6,43 +6,30 @@ from typing import Dict, Iterable, Optional
 
 import httpx
 
-from .catalog import (
-    CatalogResource,
-    AsyncCatalogResource,
-    CatalogResourceWithRawResponse,
-    AsyncCatalogResourceWithRawResponse,
-    CatalogResourceWithStreamingResponse,
-    AsyncCatalogResourceWithStreamingResponse,
-)
-from ...._types import Body, Omit, Query, Headers, NotGiven, omit, not_given
-from ...._utils import path_template, maybe_transform, async_maybe_transform
-from ...._compat import cached_property
-from ...._resource import SyncAPIResource, AsyncAPIResource
-from ...._response import (
+from ..._types import Body, Omit, Query, Headers, NotGiven, omit, not_given
+from ..._utils import path_template, maybe_transform, async_maybe_transform
+from ..._compat import cached_property
+from ..._resource import SyncAPIResource, AsyncAPIResource
+from ..._response import (
     to_raw_response_wrapper,
     to_streamed_response_wrapper,
     async_to_raw_response_wrapper,
     async_to_streamed_response_wrapper,
 )
-from ....types.graph import domain_create_params, domain_update_params
-from ...._base_client import make_request_options
-from ....types.graph.signal_field_param import SignalFieldParam
-from ....types.graph.domain_list_response import DomainListResponse
-from ....types.graph.domain_create_response import DomainCreateResponse
-from ....types.graph.domain_delete_response import DomainDeleteResponse
-from ....types.graph.domain_update_response import DomainUpdateResponse
-from ....types.graph.domain_retrieve_response import DomainRetrieveResponse
-from ....types.graph.domain_catalog_config_param import DomainCatalogConfigParam
-from ....types.graph_domain_routing_config_param import GraphDomainRoutingConfigParam
+from ...types.graph import domain_create_params, domain_update_params
+from ..._base_client import make_request_options
+from ...types.graph.signal_field_param import SignalFieldParam
+from ...types.graph.domain_list_response import DomainListResponse
+from ...types.graph.domain_create_response import DomainCreateResponse
+from ...types.graph.domain_delete_response import DomainDeleteResponse
+from ...types.graph.domain_update_response import DomainUpdateResponse
+from ...types.graph.domain_retrieve_response import DomainRetrieveResponse
+from ...types.graph_domain_routing_config_param import GraphDomainRoutingConfigParam
 
 __all__ = ["DomainsResource", "AsyncDomainsResource"]
 
 
 class DomainsResource(SyncAPIResource):
-    @cached_property
-    def catalog(self) -> CatalogResource:
-        return CatalogResource(self._client)
-
     @cached_property
     def with_raw_response(self) -> DomainsResourceWithRawResponse:
         """
@@ -69,7 +56,6 @@ class DomainsResource(SyncAPIResource):
         domain_id: str,
         name: str,
         signals: Iterable[SignalFieldParam],
-        catalog_config: Optional[DomainCatalogConfigParam] | Omit = omit,
         routing_config: Optional[GraphDomainRoutingConfigParam] | Omit = omit,
         signal_multipliers: Optional[Dict[str, float]] | Omit = omit,
         # Use the following arguments if you need to pass additional parameters to the API that aren't available via kwargs.
@@ -90,8 +76,6 @@ class DomainsResource(SyncAPIResource):
           name: Human-readable domain name.
 
           signals: Per-domain signal definitions.
-
-          catalog_config: Catalog settings on a domain.
 
           routing_config: Domain-scoped CAESAR-VIII routing overrides (stored on graph_domains).
 
@@ -117,7 +101,6 @@ class DomainsResource(SyncAPIResource):
                     "domain_id": domain_id,
                     "name": name,
                     "signals": signals,
-                    "catalog_config": catalog_config,
                     "routing_config": routing_config,
                     "signal_multipliers": signal_multipliers,
                 },
@@ -166,7 +149,6 @@ class DomainsResource(SyncAPIResource):
         self,
         domain_id: str,
         *,
-        catalog_config: Optional[DomainCatalogConfigParam] | Omit = omit,
         description: Optional[str] | Omit = omit,
         name: Optional[str] | Omit = omit,
         routing_config: Optional[GraphDomainRoutingConfigParam] | Omit = omit,
@@ -182,8 +164,6 @@ class DomainsResource(SyncAPIResource):
         Update name, description, or signal_multipliers for a custom domain
 
         Args:
-          catalog_config: Catalog settings on a domain.
-
           description: Updated description.
 
           name: Updated human-readable name.
@@ -207,7 +187,6 @@ class DomainsResource(SyncAPIResource):
             path_template("/v1/graph/domains/{domain_id}", domain_id=domain_id),
             body=maybe_transform(
                 {
-                    "catalog_config": catalog_config,
                     "description": description,
                     "name": name,
                     "routing_config": routing_config,
@@ -276,10 +255,6 @@ class DomainsResource(SyncAPIResource):
 
 class AsyncDomainsResource(AsyncAPIResource):
     @cached_property
-    def catalog(self) -> AsyncCatalogResource:
-        return AsyncCatalogResource(self._client)
-
-    @cached_property
     def with_raw_response(self) -> AsyncDomainsResourceWithRawResponse:
         """
         This property can be used as a prefix for any HTTP method call to return
@@ -305,7 +280,6 @@ class AsyncDomainsResource(AsyncAPIResource):
         domain_id: str,
         name: str,
         signals: Iterable[SignalFieldParam],
-        catalog_config: Optional[DomainCatalogConfigParam] | Omit = omit,
         routing_config: Optional[GraphDomainRoutingConfigParam] | Omit = omit,
         signal_multipliers: Optional[Dict[str, float]] | Omit = omit,
         # Use the following arguments if you need to pass additional parameters to the API that aren't available via kwargs.
@@ -326,8 +300,6 @@ class AsyncDomainsResource(AsyncAPIResource):
           name: Human-readable domain name.
 
           signals: Per-domain signal definitions.
-
-          catalog_config: Catalog settings on a domain.
 
           routing_config: Domain-scoped CAESAR-VIII routing overrides (stored on graph_domains).
 
@@ -353,7 +325,6 @@ class AsyncDomainsResource(AsyncAPIResource):
                     "domain_id": domain_id,
                     "name": name,
                     "signals": signals,
-                    "catalog_config": catalog_config,
                     "routing_config": routing_config,
                     "signal_multipliers": signal_multipliers,
                 },
@@ -402,7 +373,6 @@ class AsyncDomainsResource(AsyncAPIResource):
         self,
         domain_id: str,
         *,
-        catalog_config: Optional[DomainCatalogConfigParam] | Omit = omit,
         description: Optional[str] | Omit = omit,
         name: Optional[str] | Omit = omit,
         routing_config: Optional[GraphDomainRoutingConfigParam] | Omit = omit,
@@ -418,8 +388,6 @@ class AsyncDomainsResource(AsyncAPIResource):
         Update name, description, or signal_multipliers for a custom domain
 
         Args:
-          catalog_config: Catalog settings on a domain.
-
           description: Updated description.
 
           name: Updated human-readable name.
@@ -443,7 +411,6 @@ class AsyncDomainsResource(AsyncAPIResource):
             path_template("/v1/graph/domains/{domain_id}", domain_id=domain_id),
             body=await async_maybe_transform(
                 {
-                    "catalog_config": catalog_config,
                     "description": description,
                     "name": name,
                     "routing_config": routing_config,
@@ -530,10 +497,6 @@ class DomainsResourceWithRawResponse:
             domains.delete,
         )
 
-    @cached_property
-    def catalog(self) -> CatalogResourceWithRawResponse:
-        return CatalogResourceWithRawResponse(self._domains.catalog)
-
 
 class AsyncDomainsResourceWithRawResponse:
     def __init__(self, domains: AsyncDomainsResource) -> None:
@@ -554,10 +517,6 @@ class AsyncDomainsResourceWithRawResponse:
         self.delete = async_to_raw_response_wrapper(
             domains.delete,
         )
-
-    @cached_property
-    def catalog(self) -> AsyncCatalogResourceWithRawResponse:
-        return AsyncCatalogResourceWithRawResponse(self._domains.catalog)
 
 
 class DomainsResourceWithStreamingResponse:
@@ -580,10 +539,6 @@ class DomainsResourceWithStreamingResponse:
             domains.delete,
         )
 
-    @cached_property
-    def catalog(self) -> CatalogResourceWithStreamingResponse:
-        return CatalogResourceWithStreamingResponse(self._domains.catalog)
-
 
 class AsyncDomainsResourceWithStreamingResponse:
     def __init__(self, domains: AsyncDomainsResource) -> None:
@@ -604,7 +559,3 @@ class AsyncDomainsResourceWithStreamingResponse:
         self.delete = async_to_streamed_response_wrapper(
             domains.delete,
         )
-
-    @cached_property
-    def catalog(self) -> AsyncCatalogResourceWithStreamingResponse:
-        return AsyncCatalogResourceWithStreamingResponse(self._domains.catalog)

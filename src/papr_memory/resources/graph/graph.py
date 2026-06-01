@@ -8,6 +8,14 @@ from typing_extensions import Literal
 import httpx
 
 from ...types import graph_rerank_params, graph_transform_params
+from .domains import (
+    DomainsResource,
+    AsyncDomainsResource,
+    DomainsResourceWithRawResponse,
+    AsyncDomainsResourceWithRawResponse,
+    DomainsResourceWithStreamingResponse,
+    AsyncDomainsResourceWithStreamingResponse,
+)
 from ..._types import Body, Omit, Query, Headers, NotGiven, SequenceNotStr, omit, not_given
 from ..._utils import maybe_transform, async_maybe_transform
 from ..._compat import cached_property
@@ -19,14 +27,6 @@ from ..._response import (
     async_to_streamed_response_wrapper,
 )
 from ..._base_client import make_request_options
-from .domains.domains import (
-    DomainsResource,
-    AsyncDomainsResource,
-    DomainsResourceWithRawResponse,
-    AsyncDomainsResourceWithRawResponse,
-    DomainsResourceWithStreamingResponse,
-    AsyncDomainsResourceWithStreamingResponse,
-)
 from ...types.graph_rerank_response import GraphRerankResponse
 from ...types.graph_transform_response import GraphTransformResponse
 from ...types.graph_domain_routing_config_param import GraphDomainRoutingConfigParam
@@ -95,8 +95,8 @@ class GraphResource(SyncAPIResource):
               You can also pass a full schema id (e.g. "code_search:cosqa:2.0.0") or a custom
               domain_id registered via POST /v1/graph/domains.
 
-          method: Public: enhanced or max (CE reranker). Accepts deprecated 'fast'/'enhanced'
-              aliases.
+          method: Public: enhanced (CAESAR-8) or max (CE+entailment). Accepts deprecated
+              'fast'/'enhanced' aliases.
 
           return_debug: If true, include CAESAR meta-signals + timing in `meta.debug`.
 
@@ -295,8 +295,8 @@ class AsyncGraphResource(AsyncAPIResource):
               You can also pass a full schema id (e.g. "code_search:cosqa:2.0.0") or a custom
               domain_id registered via POST /v1/graph/domains.
 
-          method: Public: enhanced or max (CE reranker). Accepts deprecated 'fast'/'enhanced'
-              aliases.
+          method: Public: enhanced (CAESAR-8) or max (CE+entailment). Accepts deprecated
+              'fast'/'enhanced' aliases.
 
           return_debug: If true, include CAESAR meta-signals + timing in `meta.debug`.
 
