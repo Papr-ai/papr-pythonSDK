@@ -54,8 +54,6 @@ if TYPE_CHECKING:
         messages,
         namespace,
         telemetry,
-        frequencies,
-        holographic,
         organization,
     )
     from .resources.me import MeResource, AsyncMeResource
@@ -73,11 +71,9 @@ if TYPE_CHECKING:
     from .resources.document import DocumentResource, AsyncDocumentResource
     from .resources.feedback import FeedbackResource, AsyncFeedbackResource
     from .resources.telemetry import TelemetryResource, AsyncTelemetryResource
-    from .resources.frequencies import FrequenciesResource, AsyncFrequenciesResource
     from .resources.graph.graph import GraphResource, AsyncGraphResource
     from .resources.messages.messages import MessagesResource, AsyncMessagesResource
     from .resources.namespace.namespace import NamespaceResource, AsyncNamespaceResource
-    from .resources.holographic.holographic import HolographicResource, AsyncHolographicResource
     from .resources.organization.organization import OrganizationResource, AsyncOrganizationResource
 
 __all__ = ["Timeout", "Transport", "ProxiesTypes", "RequestOptions", "Papr", "AsyncPapr", "Client", "AsyncClient"]
@@ -221,18 +217,6 @@ class Papr(SyncAPIClient):
         from .resources.namespace import NamespaceResource
 
         return NamespaceResource(self)
-
-    @cached_property
-    def frequencies(self) -> FrequenciesResource:
-        from .resources.frequencies import FrequenciesResource
-
-        return FrequenciesResource(self)
-
-    @cached_property
-    def holographic(self) -> HolographicResource:
-        from .resources.holographic import HolographicResource
-
-        return HolographicResource(self)
 
     @cached_property
     def organization(self) -> OrganizationResource:
@@ -563,18 +547,6 @@ class AsyncPapr(AsyncAPIClient):
         return AsyncNamespaceResource(self)
 
     @cached_property
-    def frequencies(self) -> AsyncFrequenciesResource:
-        from .resources.frequencies import AsyncFrequenciesResource
-
-        return AsyncFrequenciesResource(self)
-
-    @cached_property
-    def holographic(self) -> AsyncHolographicResource:
-        from .resources.holographic import AsyncHolographicResource
-
-        return AsyncHolographicResource(self)
-
-    @cached_property
     def organization(self) -> AsyncOrganizationResource:
         from .resources.organization import AsyncOrganizationResource
 
@@ -830,18 +802,6 @@ class PaprWithRawResponse:
         return NamespaceResourceWithRawResponse(self._client.namespace)
 
     @cached_property
-    def frequencies(self) -> frequencies.FrequenciesResourceWithRawResponse:
-        from .resources.frequencies import FrequenciesResourceWithRawResponse
-
-        return FrequenciesResourceWithRawResponse(self._client.frequencies)
-
-    @cached_property
-    def holographic(self) -> holographic.HolographicResourceWithRawResponse:
-        from .resources.holographic import HolographicResourceWithRawResponse
-
-        return HolographicResourceWithRawResponse(self._client.holographic)
-
-    @cached_property
     def organization(self) -> organization.OrganizationResourceWithRawResponse:
         from .resources.organization import OrganizationResourceWithRawResponse
 
@@ -961,18 +921,6 @@ class AsyncPaprWithRawResponse:
         from .resources.namespace import AsyncNamespaceResourceWithRawResponse
 
         return AsyncNamespaceResourceWithRawResponse(self._client.namespace)
-
-    @cached_property
-    def frequencies(self) -> frequencies.AsyncFrequenciesResourceWithRawResponse:
-        from .resources.frequencies import AsyncFrequenciesResourceWithRawResponse
-
-        return AsyncFrequenciesResourceWithRawResponse(self._client.frequencies)
-
-    @cached_property
-    def holographic(self) -> holographic.AsyncHolographicResourceWithRawResponse:
-        from .resources.holographic import AsyncHolographicResourceWithRawResponse
-
-        return AsyncHolographicResourceWithRawResponse(self._client.holographic)
 
     @cached_property
     def organization(self) -> organization.AsyncOrganizationResourceWithRawResponse:
@@ -1096,18 +1044,6 @@ class PaprWithStreamedResponse:
         return NamespaceResourceWithStreamingResponse(self._client.namespace)
 
     @cached_property
-    def frequencies(self) -> frequencies.FrequenciesResourceWithStreamingResponse:
-        from .resources.frequencies import FrequenciesResourceWithStreamingResponse
-
-        return FrequenciesResourceWithStreamingResponse(self._client.frequencies)
-
-    @cached_property
-    def holographic(self) -> holographic.HolographicResourceWithStreamingResponse:
-        from .resources.holographic import HolographicResourceWithStreamingResponse
-
-        return HolographicResourceWithStreamingResponse(self._client.holographic)
-
-    @cached_property
     def organization(self) -> organization.OrganizationResourceWithStreamingResponse:
         from .resources.organization import OrganizationResourceWithStreamingResponse
 
@@ -1227,18 +1163,6 @@ class AsyncPaprWithStreamedResponse:
         from .resources.namespace import AsyncNamespaceResourceWithStreamingResponse
 
         return AsyncNamespaceResourceWithStreamingResponse(self._client.namespace)
-
-    @cached_property
-    def frequencies(self) -> frequencies.AsyncFrequenciesResourceWithStreamingResponse:
-        from .resources.frequencies import AsyncFrequenciesResourceWithStreamingResponse
-
-        return AsyncFrequenciesResourceWithStreamingResponse(self._client.frequencies)
-
-    @cached_property
-    def holographic(self) -> holographic.AsyncHolographicResourceWithStreamingResponse:
-        from .resources.holographic import AsyncHolographicResourceWithStreamingResponse
-
-        return AsyncHolographicResourceWithStreamingResponse(self._client.holographic)
 
     @cached_property
     def organization(self) -> organization.AsyncOrganizationResourceWithStreamingResponse:

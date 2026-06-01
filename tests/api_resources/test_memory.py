@@ -516,9 +516,7 @@ class TestMemory:
     def test_method_add_with_all_params(self, client: Papr) -> None:
         memory = client.memory.add(
             content="Meeting with John Smith from Acme Corp about the Q4 project timeline",
-            enable_holographic=True,
             format="format",
-            frequency_schema_id="frequency_schema_id",
             skip_background_processing=True,
             webhook_secret="webhook_secret",
             webhook_url="webhook_url",
@@ -532,7 +530,7 @@ class TestMemory:
                     "role": "assistant",
                 },
             ],
-            external_user_id="external_user_id",
+            external_user_id="user_alice_123",
             graph_generation={
                 "auto": {
                     "property_overrides": [
@@ -705,13 +703,16 @@ class TestMemory:
                 "category": "preference",
                 "consent": "consent",
                 "conversation_id": "conv-123",
-                "created_at": "2024-10-04T10:00:00Z",
-                "custom_metadata": {"foo": "string"},
+                "created_at": "createdAt",
+                "custom_metadata": {
+                    "project_id": "q4-roadmap",
+                    "meeting_type": "planning",
+                },
                 "emoji_tags": ["string"],
                 "emotion_tags": ["string"],
-                "external_user_id": "external_user_123",
-                "external_user_read_access": ["external_user_123", "external_user_789"],
-                "external_user_write_access": ["external_user_123"],
+                "external_user_id": "external_user_id",
+                "external_user_read_access": ["string"],
+                "external_user_write_access": ["string"],
                 "goal_classification_scores": [0],
                 "hierarchical_structures": "Business/Meetings/Project Planning",
                 "location": "Conference Room A",
@@ -734,7 +735,7 @@ class TestMemory:
                 "source_type": "sourceType",
                 "source_url": "https://calendar.example.com/meeting/123",
                 "step_classification_scores": [0],
-                "topics": ["product", "planning"],
+                "topics": ["product", "planning", "meetings"],
                 "upload_id": "upload_id",
                 "use_case_classification_scores": [0],
                 "user_id": "user_id",
@@ -749,10 +750,10 @@ class TestMemory:
             organization_id="organization_id",
             policy={
                 "acl": {
-                    "read": ["external_user:alice_123", "organization:org_acme"],
-                    "write": ["external_user:alice_123"],
+                    "read": ["external_user:user_alice_123"],
+                    "write": ["external_user:user_alice_123"],
                 },
-                "consent": "explicit",
+                "consent": "implicit",
                 "graph": {
                     "edge_constraints": [
                         {
@@ -807,8 +808,12 @@ class TestMemory:
                             "when": {"foo": "bar"},
                         }
                     ],
-                    "link_to": "string",
-                    "mode": "none",
+                    "link_to": [
+                        "Person:name~John Smith",
+                        "Company:name~Acme Corp",
+                        "Meeting:title~Q4 project timeline",
+                    ],
+                    "mode": "auto",
                     "node_constraints": [
                         {
                             "create": "upsert",
@@ -882,8 +887,8 @@ class TestMemory:
                 },
                 "risk": "none",
                 "transform_embedding": {
-                    "domain_id": "domain_id",
-                    "mode": "none",
+                    "domain_id": "general",
+                    "mode": "auto",
                     "signals": {"foo": "string"},
                 },
             },
@@ -955,7 +960,7 @@ class TestMemory:
                             "role": "assistant",
                         },
                     ],
-                    "external_user_id": "external_user_id",
+                    "external_user_id": "user_alice_123",
                     "graph_generation": {
                         "auto": {
                             "property_overrides": [
@@ -1172,10 +1177,10 @@ class TestMemory:
                     "organization_id": "organization_id",
                     "policy": {
                         "acl": {
-                            "read": ["external_user:alice_123", "organization:org_acme"],
-                            "write": ["external_user:alice_123"],
+                            "read": ["external_user:user_alice_123"],
+                            "write": ["external_user:user_alice_123"],
                         },
-                        "consent": "explicit",
+                        "consent": "implicit",
                         "graph": {
                             "edge_constraints": [
                                 {
@@ -1230,8 +1235,12 @@ class TestMemory:
                                     "when": {"foo": "bar"},
                                 }
                             ],
-                            "link_to": "string",
-                            "mode": "none",
+                            "link_to": [
+                                "Person:name~John Smith",
+                                "Company:name~Acme Corp",
+                                "Meeting:title~Q4 project timeline",
+                            ],
+                            "mode": "auto",
                             "node_constraints": [
                                 {
                                     "create": "upsert",
@@ -1305,8 +1314,8 @@ class TestMemory:
                         },
                         "risk": "none",
                         "transform_embedding": {
-                            "domain_id": "domain_id",
-                            "mode": "none",
+                            "domain_id": "general",
+                            "mode": "auto",
                             "signals": {"foo": "string"},
                         },
                     },
@@ -1334,7 +1343,7 @@ class TestMemory:
                             "role": "assistant",
                         },
                     ],
-                    "external_user_id": "external_user_id",
+                    "external_user_id": "user_alice_123",
                     "graph_generation": {
                         "auto": {
                             "property_overrides": [
@@ -1551,10 +1560,10 @@ class TestMemory:
                     "organization_id": "organization_id",
                     "policy": {
                         "acl": {
-                            "read": ["external_user:alice_123", "organization:org_acme"],
-                            "write": ["external_user:alice_123"],
+                            "read": ["external_user:user_alice_123"],
+                            "write": ["external_user:user_alice_123"],
                         },
-                        "consent": "explicit",
+                        "consent": "implicit",
                         "graph": {
                             "edge_constraints": [
                                 {
@@ -1609,8 +1618,12 @@ class TestMemory:
                                     "when": {"foo": "bar"},
                                 }
                             ],
-                            "link_to": "string",
-                            "mode": "none",
+                            "link_to": [
+                                "Person:name~John Smith",
+                                "Company:name~Acme Corp",
+                                "Meeting:title~Q4 project timeline",
+                            ],
+                            "mode": "auto",
                             "node_constraints": [
                                 {
                                     "create": "upsert",
@@ -1684,8 +1697,8 @@ class TestMemory:
                         },
                         "risk": "none",
                         "transform_embedding": {
-                            "domain_id": "domain_id",
-                            "mode": "none",
+                            "domain_id": "general",
+                            "mode": "auto",
                             "signals": {"foo": "string"},
                         },
                     },
@@ -1702,8 +1715,6 @@ class TestMemory:
                     "user_id": "user_id",
                 },
             ],
-            enable_holographic=True,
-            frequency_schema_id="frequency_schema_id",
             skip_background_processing=True,
             batch_size=10,
             external_user_id="external_user_abcde",
@@ -2315,10 +2326,6 @@ class TestMemory:
             },
             organization_id="organization_id",
             policy={
-                "acl": {
-                    "read": ["external_user:alice_123", "organization:org_acme"],
-                    "write": ["external_user:alice_123"],
-                },
                 "consent": "explicit",
                 "graph": {
                     "edge_constraints": [
@@ -2447,11 +2454,6 @@ class TestMemory:
                     ],
                     "schema_id": "schema_id",
                 },
-                "rerank": {
-                    "enabled": True,
-                    "model": "model",
-                    "provider": "provider",
-                },
                 "risk": "none",
                 "vector": {
                     "domain_id": "domain_id",
@@ -2464,9 +2466,14 @@ class TestMemory:
             },
             rank_results=True,
             reranking_config={
+                "domain_id": "general",
                 "reranking_enabled": True,
-                "reranking_model": "gpt-5-nano",
-                "reranking_provider": "openai",
+                "reranking_model": "rerank-v3.5",
+                "reranking_provider": "cohere",
+                "return_debug": True,
+                "return_signal_scores": True,
+                "signal_multipliers": {"foo": 0},
+                "signal_thresholds": {"foo": 0},
             },
             schema_id="schema_id",
             search_acl={
@@ -3024,9 +3031,7 @@ class TestAsyncMemory:
     async def test_method_add_with_all_params(self, async_client: AsyncPapr) -> None:
         memory = await async_client.memory.add(
             content="Meeting with John Smith from Acme Corp about the Q4 project timeline",
-            enable_holographic=True,
             format="format",
-            frequency_schema_id="frequency_schema_id",
             skip_background_processing=True,
             webhook_secret="webhook_secret",
             webhook_url="webhook_url",
@@ -3040,7 +3045,7 @@ class TestAsyncMemory:
                     "role": "assistant",
                 },
             ],
-            external_user_id="external_user_id",
+            external_user_id="user_alice_123",
             graph_generation={
                 "auto": {
                     "property_overrides": [
@@ -3213,13 +3218,16 @@ class TestAsyncMemory:
                 "category": "preference",
                 "consent": "consent",
                 "conversation_id": "conv-123",
-                "created_at": "2024-10-04T10:00:00Z",
-                "custom_metadata": {"foo": "string"},
+                "created_at": "createdAt",
+                "custom_metadata": {
+                    "project_id": "q4-roadmap",
+                    "meeting_type": "planning",
+                },
                 "emoji_tags": ["string"],
                 "emotion_tags": ["string"],
-                "external_user_id": "external_user_123",
-                "external_user_read_access": ["external_user_123", "external_user_789"],
-                "external_user_write_access": ["external_user_123"],
+                "external_user_id": "external_user_id",
+                "external_user_read_access": ["string"],
+                "external_user_write_access": ["string"],
                 "goal_classification_scores": [0],
                 "hierarchical_structures": "Business/Meetings/Project Planning",
                 "location": "Conference Room A",
@@ -3242,7 +3250,7 @@ class TestAsyncMemory:
                 "source_type": "sourceType",
                 "source_url": "https://calendar.example.com/meeting/123",
                 "step_classification_scores": [0],
-                "topics": ["product", "planning"],
+                "topics": ["product", "planning", "meetings"],
                 "upload_id": "upload_id",
                 "use_case_classification_scores": [0],
                 "user_id": "user_id",
@@ -3257,10 +3265,10 @@ class TestAsyncMemory:
             organization_id="organization_id",
             policy={
                 "acl": {
-                    "read": ["external_user:alice_123", "organization:org_acme"],
-                    "write": ["external_user:alice_123"],
+                    "read": ["external_user:user_alice_123"],
+                    "write": ["external_user:user_alice_123"],
                 },
-                "consent": "explicit",
+                "consent": "implicit",
                 "graph": {
                     "edge_constraints": [
                         {
@@ -3315,8 +3323,12 @@ class TestAsyncMemory:
                             "when": {"foo": "bar"},
                         }
                     ],
-                    "link_to": "string",
-                    "mode": "none",
+                    "link_to": [
+                        "Person:name~John Smith",
+                        "Company:name~Acme Corp",
+                        "Meeting:title~Q4 project timeline",
+                    ],
+                    "mode": "auto",
                     "node_constraints": [
                         {
                             "create": "upsert",
@@ -3390,8 +3402,8 @@ class TestAsyncMemory:
                 },
                 "risk": "none",
                 "transform_embedding": {
-                    "domain_id": "domain_id",
-                    "mode": "none",
+                    "domain_id": "general",
+                    "mode": "auto",
                     "signals": {"foo": "string"},
                 },
             },
@@ -3463,7 +3475,7 @@ class TestAsyncMemory:
                             "role": "assistant",
                         },
                     ],
-                    "external_user_id": "external_user_id",
+                    "external_user_id": "user_alice_123",
                     "graph_generation": {
                         "auto": {
                             "property_overrides": [
@@ -3680,10 +3692,10 @@ class TestAsyncMemory:
                     "organization_id": "organization_id",
                     "policy": {
                         "acl": {
-                            "read": ["external_user:alice_123", "organization:org_acme"],
-                            "write": ["external_user:alice_123"],
+                            "read": ["external_user:user_alice_123"],
+                            "write": ["external_user:user_alice_123"],
                         },
-                        "consent": "explicit",
+                        "consent": "implicit",
                         "graph": {
                             "edge_constraints": [
                                 {
@@ -3738,8 +3750,12 @@ class TestAsyncMemory:
                                     "when": {"foo": "bar"},
                                 }
                             ],
-                            "link_to": "string",
-                            "mode": "none",
+                            "link_to": [
+                                "Person:name~John Smith",
+                                "Company:name~Acme Corp",
+                                "Meeting:title~Q4 project timeline",
+                            ],
+                            "mode": "auto",
                             "node_constraints": [
                                 {
                                     "create": "upsert",
@@ -3813,8 +3829,8 @@ class TestAsyncMemory:
                         },
                         "risk": "none",
                         "transform_embedding": {
-                            "domain_id": "domain_id",
-                            "mode": "none",
+                            "domain_id": "general",
+                            "mode": "auto",
                             "signals": {"foo": "string"},
                         },
                     },
@@ -3842,7 +3858,7 @@ class TestAsyncMemory:
                             "role": "assistant",
                         },
                     ],
-                    "external_user_id": "external_user_id",
+                    "external_user_id": "user_alice_123",
                     "graph_generation": {
                         "auto": {
                             "property_overrides": [
@@ -4059,10 +4075,10 @@ class TestAsyncMemory:
                     "organization_id": "organization_id",
                     "policy": {
                         "acl": {
-                            "read": ["external_user:alice_123", "organization:org_acme"],
-                            "write": ["external_user:alice_123"],
+                            "read": ["external_user:user_alice_123"],
+                            "write": ["external_user:user_alice_123"],
                         },
-                        "consent": "explicit",
+                        "consent": "implicit",
                         "graph": {
                             "edge_constraints": [
                                 {
@@ -4117,8 +4133,12 @@ class TestAsyncMemory:
                                     "when": {"foo": "bar"},
                                 }
                             ],
-                            "link_to": "string",
-                            "mode": "none",
+                            "link_to": [
+                                "Person:name~John Smith",
+                                "Company:name~Acme Corp",
+                                "Meeting:title~Q4 project timeline",
+                            ],
+                            "mode": "auto",
                             "node_constraints": [
                                 {
                                     "create": "upsert",
@@ -4192,8 +4212,8 @@ class TestAsyncMemory:
                         },
                         "risk": "none",
                         "transform_embedding": {
-                            "domain_id": "domain_id",
-                            "mode": "none",
+                            "domain_id": "general",
+                            "mode": "auto",
                             "signals": {"foo": "string"},
                         },
                     },
@@ -4210,8 +4230,6 @@ class TestAsyncMemory:
                     "user_id": "user_id",
                 },
             ],
-            enable_holographic=True,
-            frequency_schema_id="frequency_schema_id",
             skip_background_processing=True,
             batch_size=10,
             external_user_id="external_user_abcde",
@@ -4823,10 +4841,6 @@ class TestAsyncMemory:
             },
             organization_id="organization_id",
             policy={
-                "acl": {
-                    "read": ["external_user:alice_123", "organization:org_acme"],
-                    "write": ["external_user:alice_123"],
-                },
                 "consent": "explicit",
                 "graph": {
                     "edge_constraints": [
@@ -4955,11 +4969,6 @@ class TestAsyncMemory:
                     ],
                     "schema_id": "schema_id",
                 },
-                "rerank": {
-                    "enabled": True,
-                    "model": "model",
-                    "provider": "provider",
-                },
                 "risk": "none",
                 "vector": {
                     "domain_id": "domain_id",
@@ -4972,9 +4981,14 @@ class TestAsyncMemory:
             },
             rank_results=True,
             reranking_config={
+                "domain_id": "general",
                 "reranking_enabled": True,
-                "reranking_model": "gpt-5-nano",
-                "reranking_provider": "openai",
+                "reranking_model": "rerank-v3.5",
+                "reranking_provider": "cohere",
+                "return_debug": True,
+                "return_signal_scores": True,
+                "signal_multipliers": {"foo": 0},
+                "signal_thresholds": {"foo": 0},
             },
             schema_id="schema_id",
             search_acl={

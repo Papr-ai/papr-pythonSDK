@@ -16,7 +16,6 @@ __all__ = [
     "HolographicConfig",
     "OmoFilter",
     "Policy",
-    "PolicyRerank",
     "PolicyVector",
     "RerankingConfig",
     "SearchOverride",
@@ -108,7 +107,11 @@ class MemorySearchParams(TypedDict, total=False):
     """
 
     policy: Optional[Policy]
-    """Policy for POST /v1/memory/search."""
+    """Policy for POST /v1/memory/search.
+
+    External Cohere/OpenAI rerank and search-time ACL use top-level fields on
+    SearchRequest (`reranking_config`, `search_acl`) until wired here.
+    """
 
     rank_results: bool
     """DEPRECATED: Use 'reranking_config' instead.
@@ -122,7 +125,7 @@ class MemorySearchParams(TypedDict, total=False):
     """
 
     reranking_config: Optional[RerankingConfig]
-    """Configuration for reranking memory search results"""
+    """Ranking provider for search results (cosine candidates → ranked list)."""
 
     schema_id: Optional[str]
     """Optional user-defined schema ID to use for this search.
@@ -282,14 +285,6 @@ class OmoFilter(TypedDict, total=False):
     """
 
 
-class PolicyRerank(TypedDict, total=False):
-    enabled: bool
-
-    model: Optional[str]
-
-    provider: Optional[str]
-
-
 class PolicyVector(TypedDict, total=False):
     domain_id: Optional[str]
 
@@ -307,41 +302,10 @@ class PolicyVector(TypedDict, total=False):
 
 
 class Policy(TypedDict, total=False):
-    """Policy for POST /v1/memory/search."""
+    """Policy for POST /v1/memory/search.
 
-    acl: Optional[ACLConfig]
-    """Simplified Access Control List configuration.
-
-    Aligned with Open Memory Object (OMO) standard. See:
-    https://github.com/anthropics/open-memory-object
-
-    **Supported Entity Prefixes:**
-
-    | Prefix           | Description           | Validation                           |
-    | ---------------- | --------------------- | ------------------------------------ |
-    | `user:`          | Internal Papr user ID | Validated against Parse users        |
-    | `external_user:` | Your app's user ID    | Not validated (your responsibility)  |
-    | `organization:`  | Organization ID       | Validated against your organizations |
-    | `namespace:`     | Namespace ID          | Validated against your namespaces    |
-    | `workspace:`     | Workspace ID          | Validated against your workspaces    |
-    | `role:`          | Parse role ID         | Validated against your roles         |
-
-    **Examples:**
-
-    ```python
-    acl = ACLConfig(
-        read=["external_user:alice_123", "organization:org_acme"],
-        write=["external_user:alice_123"]
-    )
-    ```
-
-    **Validation Rules:**
-
-    - Internal entities (user, organization, namespace, workspace, role) are
-      validated
-    - External entities (external_user) are NOT validated - your app is responsible
-    - Invalid internal entities will return an error
-    - Unprefixed values default to `external_user:` for backwards compatibility
+    External Cohere/OpenAI rerank and search-time ACL use top-level fields on
+    SearchRequest (``reranking_config``, ``search_acl``) until wired here.
     """
 
     consent: Literal["explicit", "implicit", "terms", "none"]
@@ -351,8 +315,6 @@ class Policy(TypedDict, total=False):
     """
 
     graph: Optional[GraphPolicyBlock]
-
-    rerank: Optional[PolicyRerank]
 
     risk: Literal["none", "sensitive", "flagged"]
     """Post-ingest safety assessment of memory content.
@@ -364,24 +326,34 @@ class Policy(TypedDict, total=False):
 
 
 class RerankingConfig(TypedDict, total=False):
-    """Configuration for reranking memory search results"""
+    """Ranking provider for search results (cosine candidates → ranked list)."""
+
+    domain_id: Optional[str]
+    """Signal domain for papr_enhanced / papr_max (default general)."""
 
     reranking_enabled: bool
-    """Whether to enable reranking of search results"""
+    """When false, results stay in cosine order (same as provider=none)."""
 
     reranking_model: str
-    """Model to use for reranking.
+    """Model for cohere/openai providers.
 
-    OpenAI (LLM): 'gpt-5-nano' (fast reasoning, default), 'gpt-5-mini' (better
-    quality reasoning). Cohere (cross-encoder): 'rerank-v3.5' (latest),
-    'rerank-english-v3.0', 'rerank-multilingual-v3.0'
+    Cohere: rerank-v3.5. OpenAI: gpt-5-nano, gpt-5-mini.
     """
 
-    reranking_provider: Literal["openai", "cohere"]
+    reranking_provider: Literal["none", "cohere", "openai", "papr_enhanced", "papr_max"]
     """
-    Reranking provider: 'openai' (better quality, slower) or 'cohere' (faster,
-    optimized for reranking)
+    Ranking provider: none (cosine), cohere, openai, papr_enhanced (graph rerank),
+    papr_max (graph rerank + CE + EGR).
     """
+
+    return_debug: bool
+
+    return_signal_scores: bool
+
+    signal_multipliers: Optional[Dict[str, Union[float, str]]]
+
+    signal_thresholds: Optional[Dict[str, float]]
+    """Min per-band scores for papr providers."""
 
 
 class SearchOverridePattern(TypedDict, total=False):
