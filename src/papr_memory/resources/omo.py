@@ -20,6 +20,7 @@ from .._response import (
 from .._base_client import make_request_options
 from ..types.omo_export_memories_response import OmoExportMemoriesResponse
 from ..types.omo_import_memories_response import OmoImportMemoriesResponse
+from ..types.omo_export_memories_as_json_response import OmoExportMemoriesAsJsonResponse
 
 __all__ = ["OmoResource", "AsyncOmoResource"]
 
@@ -93,7 +94,7 @@ class OmoResource(SyncAPIResource):
         extra_query: Query | None = None,
         extra_body: Body | None = None,
         timeout: float | httpx.Timeout | None | NotGiven = not_given,
-    ) -> object:
+    ) -> OmoExportMemoriesAsJsonResponse:
         """
         Export memories in OMO JSON file format for download.
 
@@ -119,7 +120,7 @@ class OmoResource(SyncAPIResource):
                     {"memory_ids": memory_ids}, omo_export_memories_as_json_params.OmoExportMemoriesAsJsonParams
                 ),
             ),
-            cast_to=object,
+            cast_to=OmoExportMemoriesAsJsonResponse,
         )
 
     def import_memories(
@@ -241,7 +242,7 @@ class AsyncOmoResource(AsyncAPIResource):
         extra_query: Query | None = None,
         extra_body: Body | None = None,
         timeout: float | httpx.Timeout | None | NotGiven = not_given,
-    ) -> object:
+    ) -> OmoExportMemoriesAsJsonResponse:
         """
         Export memories in OMO JSON file format for download.
 
@@ -267,7 +268,7 @@ class AsyncOmoResource(AsyncAPIResource):
                     {"memory_ids": memory_ids}, omo_export_memories_as_json_params.OmoExportMemoriesAsJsonParams
                 ),
             ),
-            cast_to=object,
+            cast_to=OmoExportMemoriesAsJsonResponse,
         )
 
     async def import_memories(

@@ -57,6 +57,10 @@ class TestDomains:
                     "weight": 0,
                 }
             ],
+            catalog_config={
+                "enabled": True,
+                "refresh_every_n": 0,
+            },
             routing_config={
                 "caesar4_source": "caesar4_source",
                 "ce_gate_min_phi": 0,
@@ -168,6 +172,10 @@ class TestDomains:
     def test_method_update_with_all_params(self, client: Papr) -> None:
         domain = client.graph.domains.update(
             domain_id="domain_id",
+            catalog_config={
+                "enabled": True,
+                "refresh_every_n": 0,
+            },
             description="description",
             name="name",
             routing_config={
@@ -328,6 +336,10 @@ class TestAsyncDomains:
                     "weight": 0,
                 }
             ],
+            catalog_config={
+                "enabled": True,
+                "refresh_every_n": 0,
+            },
             routing_config={
                 "caesar4_source": "caesar4_source",
                 "ce_gate_min_phi": 0,
@@ -439,6 +451,10 @@ class TestAsyncDomains:
     async def test_method_update_with_all_params(self, async_client: AsyncPapr) -> None:
         domain = await async_client.graph.domains.update(
             domain_id="domain_id",
+            catalog_config={
+                "enabled": True,
+                "refresh_every_n": 0,
+            },
             description="description",
             name="name",
             routing_config={
