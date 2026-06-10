@@ -63,10 +63,11 @@ class MessagesResource(SyncAPIResource):
     def store(
         self,
         *,
-        content: Union[str, Iterable[Dict[str, object]]],
+        content: Union[str, Iterable[message_store_params.ContentUnionMember1]],
         role: Literal["user", "assistant"],
         session_id: str,
         context: Optional[Iterable[Dict[str, object]]] | Omit = omit,
+        external_user_id: Optional[str] | Omit = omit,
         graph_generation: Optional[GraphGenerationParam] | Omit = omit,
         memory_policy: Optional[MemoryPolicy] | Omit = omit,
         metadata: Optional[MemoryMetadataParam] | Omit = omit,
@@ -76,6 +77,7 @@ class MessagesResource(SyncAPIResource):
         process_messages: bool | Omit = omit,
         relationships_json: Optional[Iterable[Dict[str, object]]] | Omit = omit,
         title: Optional[str] | Omit = omit,
+        user_id: Optional[str] | Omit = omit,
         # Use the following arguments if you need to pass additional parameters to the API that aren't available via kwargs.
         # The extra values given here take precedence over values defined on the client or passed to this method.
         extra_headers: Headers | None = None,
@@ -118,6 +120,9 @@ class MessagesResource(SyncAPIResource):
 
           context: Optional context for the message (conversation history or relevant context)
 
+          external_user_id: Your application's external user identifier. Papr resolves or creates internal
+              users automatically. Use for third-party integrations.
+
           graph_generation: Graph generation configuration
 
           memory_policy: Unified memory processing policy.
@@ -158,6 +163,9 @@ class MessagesResource(SyncAPIResource):
           title: Optional title for the conversation session. Sets the Chat.title in Parse Server
               for easy identification.
 
+          user_id: Internal Papr Parse user ID (\\__User.objectId). Use when you already have the
+              resolved user, e.g. first-party Papr apps after login.
+
           extra_headers: Send extra headers
 
           extra_query: Add additional query parameters to the request
@@ -174,6 +182,7 @@ class MessagesResource(SyncAPIResource):
                     "role": role,
                     "session_id": session_id,
                     "context": context,
+                    "external_user_id": external_user_id,
                     "graph_generation": graph_generation,
                     "memory_policy": memory_policy,
                     "metadata": metadata,
@@ -183,6 +192,7 @@ class MessagesResource(SyncAPIResource):
                     "process_messages": process_messages,
                     "relationships_json": relationships_json,
                     "title": title,
+                    "user_id": user_id,
                 },
                 message_store_params.MessageStoreParams,
             ),
@@ -220,10 +230,11 @@ class AsyncMessagesResource(AsyncAPIResource):
     async def store(
         self,
         *,
-        content: Union[str, Iterable[Dict[str, object]]],
+        content: Union[str, Iterable[message_store_params.ContentUnionMember1]],
         role: Literal["user", "assistant"],
         session_id: str,
         context: Optional[Iterable[Dict[str, object]]] | Omit = omit,
+        external_user_id: Optional[str] | Omit = omit,
         graph_generation: Optional[GraphGenerationParam] | Omit = omit,
         memory_policy: Optional[MemoryPolicy] | Omit = omit,
         metadata: Optional[MemoryMetadataParam] | Omit = omit,
@@ -233,6 +244,7 @@ class AsyncMessagesResource(AsyncAPIResource):
         process_messages: bool | Omit = omit,
         relationships_json: Optional[Iterable[Dict[str, object]]] | Omit = omit,
         title: Optional[str] | Omit = omit,
+        user_id: Optional[str] | Omit = omit,
         # Use the following arguments if you need to pass additional parameters to the API that aren't available via kwargs.
         # The extra values given here take precedence over values defined on the client or passed to this method.
         extra_headers: Headers | None = None,
@@ -275,6 +287,9 @@ class AsyncMessagesResource(AsyncAPIResource):
 
           context: Optional context for the message (conversation history or relevant context)
 
+          external_user_id: Your application's external user identifier. Papr resolves or creates internal
+              users automatically. Use for third-party integrations.
+
           graph_generation: Graph generation configuration
 
           memory_policy: Unified memory processing policy.
@@ -315,6 +330,9 @@ class AsyncMessagesResource(AsyncAPIResource):
           title: Optional title for the conversation session. Sets the Chat.title in Parse Server
               for easy identification.
 
+          user_id: Internal Papr Parse user ID (\\__User.objectId). Use when you already have the
+              resolved user, e.g. first-party Papr apps after login.
+
           extra_headers: Send extra headers
 
           extra_query: Add additional query parameters to the request
@@ -331,6 +349,7 @@ class AsyncMessagesResource(AsyncAPIResource):
                     "role": role,
                     "session_id": session_id,
                     "context": context,
+                    "external_user_id": external_user_id,
                     "graph_generation": graph_generation,
                     "memory_policy": memory_policy,
                     "metadata": metadata,
@@ -340,6 +359,7 @@ class AsyncMessagesResource(AsyncAPIResource):
                     "process_messages": process_messages,
                     "relationships_json": relationships_json,
                     "title": title,
+                    "user_id": user_id,
                 },
                 message_store_params.MessageStoreParams,
             ),

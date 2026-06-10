@@ -516,7 +516,9 @@ class TestMemory:
     def test_method_add_with_all_params(self, client: Papr) -> None:
         memory = client.memory.add(
             content="Meeting with John Smith from Acme Corp about the Q4 project timeline",
+            enable_holographic=True,
             format="format",
+            frequency_schema_id="frequency_schema_id",
             skip_background_processing=True,
             webhook_secret="webhook_secret",
             webhook_url="webhook_url",
@@ -3031,7 +3033,9 @@ class TestAsyncMemory:
     async def test_method_add_with_all_params(self, async_client: AsyncPapr) -> None:
         memory = await async_client.memory.add(
             content="Meeting with John Smith from Acme Corp about the Q4 project timeline",
+            enable_holographic=True,
             format="format",
+            frequency_schema_id="frequency_schema_id",
             skip_background_processing=True,
             webhook_secret="webhook_secret",
             webhook_url="webhook_url",

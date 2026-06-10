@@ -264,7 +264,9 @@ class MemoryResource(SyncAPIResource):
         self,
         *,
         content: str,
+        enable_holographic: bool | Omit = omit,
         format: Optional[str] | Omit = omit,
+        frequency_schema_id: Optional[str] | Omit = omit,
         skip_background_processing: bool | Omit = omit,
         webhook_secret: Optional[str] | Omit = omit,
         webhook_url: Optional[str] | Omit = omit,
@@ -315,8 +317,14 @@ class MemoryResource(SyncAPIResource):
         Args:
           content: The content of the memory item you want to add to memory
 
+          enable_holographic: If True, applies holographic neural transforms and stores in holographic
+              collection
+
           format: Response format. Use 'omo' for Open Memory Object standard format (portable
               across platforms).
+
+          frequency_schema_id: Frequency schema for holographic embedding (e.g. 'cosqa', 'scifact'). Required
+              when enable_holographic=True. Call GET /v1/frequencies to see available schemas.
 
           skip_background_processing: If True, skips adding background tasks for processing
 
@@ -427,7 +435,9 @@ class MemoryResource(SyncAPIResource):
                 timeout=timeout,
                 query=maybe_transform(
                     {
+                        "enable_holographic": enable_holographic,
                         "format": format,
+                        "frequency_schema_id": frequency_schema_id,
                         "skip_background_processing": skip_background_processing,
                         "webhook_secret": webhook_secret,
                         "webhook_url": webhook_url,
@@ -1264,7 +1274,9 @@ class AsyncMemoryResource(AsyncAPIResource):
         self,
         *,
         content: str,
+        enable_holographic: bool | Omit = omit,
         format: Optional[str] | Omit = omit,
+        frequency_schema_id: Optional[str] | Omit = omit,
         skip_background_processing: bool | Omit = omit,
         webhook_secret: Optional[str] | Omit = omit,
         webhook_url: Optional[str] | Omit = omit,
@@ -1315,8 +1327,14 @@ class AsyncMemoryResource(AsyncAPIResource):
         Args:
           content: The content of the memory item you want to add to memory
 
+          enable_holographic: If True, applies holographic neural transforms and stores in holographic
+              collection
+
           format: Response format. Use 'omo' for Open Memory Object standard format (portable
               across platforms).
+
+          frequency_schema_id: Frequency schema for holographic embedding (e.g. 'cosqa', 'scifact'). Required
+              when enable_holographic=True. Call GET /v1/frequencies to see available schemas.
 
           skip_background_processing: If True, skips adding background tasks for processing
 
@@ -1427,7 +1445,9 @@ class AsyncMemoryResource(AsyncAPIResource):
                 timeout=timeout,
                 query=await async_maybe_transform(
                     {
+                        "enable_holographic": enable_holographic,
                         "format": format,
+                        "frequency_schema_id": frequency_schema_id,
                         "skip_background_processing": skip_background_processing,
                         "webhook_secret": webhook_secret,
                         "webhook_url": webhook_url,
