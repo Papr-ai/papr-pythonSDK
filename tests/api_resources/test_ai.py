@@ -9,6 +9,7 @@ import pytest
 
 from papr_memory import Papr, AsyncPapr
 from tests.utils import assert_matches_type
+from papr_memory.types import AIGetUsageResponse
 
 base_url = os.environ.get("TEST_API_BASE_URL", "http://127.0.0.1:4010")
 
@@ -20,7 +21,7 @@ class TestAI:
     @parametrize
     def test_method_get_usage(self, client: Papr) -> None:
         ai = client.ai.get_usage()
-        assert_matches_type(object, ai, path=["response"])
+        assert_matches_type(AIGetUsageResponse, ai, path=["response"])
 
     @pytest.mark.skip(reason="Mock server tests are disabled")
     @parametrize
@@ -30,7 +31,7 @@ class TestAI:
         assert response.is_closed is True
         assert response.http_request.headers.get("X-Stainless-Lang") == "python"
         ai = response.parse()
-        assert_matches_type(object, ai, path=["response"])
+        assert_matches_type(AIGetUsageResponse, ai, path=["response"])
 
     @pytest.mark.skip(reason="Mock server tests are disabled")
     @parametrize
@@ -40,7 +41,7 @@ class TestAI:
             assert response.http_request.headers.get("X-Stainless-Lang") == "python"
 
             ai = response.parse()
-            assert_matches_type(object, ai, path=["response"])
+            assert_matches_type(AIGetUsageResponse, ai, path=["response"])
 
         assert cast(Any, response.is_closed) is True
 
@@ -54,7 +55,7 @@ class TestAsyncAI:
     @parametrize
     async def test_method_get_usage(self, async_client: AsyncPapr) -> None:
         ai = await async_client.ai.get_usage()
-        assert_matches_type(object, ai, path=["response"])
+        assert_matches_type(AIGetUsageResponse, ai, path=["response"])
 
     @pytest.mark.skip(reason="Mock server tests are disabled")
     @parametrize
@@ -64,7 +65,7 @@ class TestAsyncAI:
         assert response.is_closed is True
         assert response.http_request.headers.get("X-Stainless-Lang") == "python"
         ai = await response.parse()
-        assert_matches_type(object, ai, path=["response"])
+        assert_matches_type(AIGetUsageResponse, ai, path=["response"])
 
     @pytest.mark.skip(reason="Mock server tests are disabled")
     @parametrize
@@ -74,6 +75,6 @@ class TestAsyncAI:
             assert response.http_request.headers.get("X-Stainless-Lang") == "python"
 
             ai = await response.parse()
-            assert_matches_type(object, ai, path=["response"])
+            assert_matches_type(AIGetUsageResponse, ai, path=["response"])
 
         assert cast(Any, response.is_closed) is True

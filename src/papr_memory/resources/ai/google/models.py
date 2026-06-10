@@ -15,6 +15,8 @@ from ...._response import (
     async_to_streamed_response_wrapper,
 )
 from ...._base_client import make_request_options
+from ....types.ai.google.model_generate_content_response import ModelGenerateContentResponse
+from ....types.ai.google.model_stream_generate_content_response import ModelStreamGenerateContentResponse
 
 __all__ = ["ModelsResource", "AsyncModelsResource"]
 
@@ -49,7 +51,7 @@ class ModelsResource(SyncAPIResource):
         extra_query: Query | None = None,
         extra_body: Body | None = None,
         timeout: float | httpx.Timeout | None | NotGiven = not_given,
-    ) -> object:
+    ) -> ModelGenerateContentResponse:
         """
         Google Gemini generateContent API proxy
 
@@ -69,7 +71,7 @@ class ModelsResource(SyncAPIResource):
             options=make_request_options(
                 extra_headers=extra_headers, extra_query=extra_query, extra_body=extra_body, timeout=timeout
             ),
-            cast_to=object,
+            cast_to=ModelGenerateContentResponse,
         )
 
     def stream_generate_content(
@@ -82,7 +84,7 @@ class ModelsResource(SyncAPIResource):
         extra_query: Query | None = None,
         extra_body: Body | None = None,
         timeout: float | httpx.Timeout | None | NotGiven = not_given,
-    ) -> object:
+    ) -> ModelStreamGenerateContentResponse:
         """
         Google Gemini streamGenerateContent API proxy
 
@@ -102,7 +104,7 @@ class ModelsResource(SyncAPIResource):
             options=make_request_options(
                 extra_headers=extra_headers, extra_query=extra_query, extra_body=extra_body, timeout=timeout
             ),
-            cast_to=object,
+            cast_to=ModelStreamGenerateContentResponse,
         )
 
 
@@ -136,7 +138,7 @@ class AsyncModelsResource(AsyncAPIResource):
         extra_query: Query | None = None,
         extra_body: Body | None = None,
         timeout: float | httpx.Timeout | None | NotGiven = not_given,
-    ) -> object:
+    ) -> ModelGenerateContentResponse:
         """
         Google Gemini generateContent API proxy
 
@@ -156,7 +158,7 @@ class AsyncModelsResource(AsyncAPIResource):
             options=make_request_options(
                 extra_headers=extra_headers, extra_query=extra_query, extra_body=extra_body, timeout=timeout
             ),
-            cast_to=object,
+            cast_to=ModelGenerateContentResponse,
         )
 
     async def stream_generate_content(
@@ -169,7 +171,7 @@ class AsyncModelsResource(AsyncAPIResource):
         extra_query: Query | None = None,
         extra_body: Body | None = None,
         timeout: float | httpx.Timeout | None | NotGiven = not_given,
-    ) -> object:
+    ) -> ModelStreamGenerateContentResponse:
         """
         Google Gemini streamGenerateContent API proxy
 
@@ -189,7 +191,7 @@ class AsyncModelsResource(AsyncAPIResource):
             options=make_request_options(
                 extra_headers=extra_headers, extra_query=extra_query, extra_body=extra_body, timeout=timeout
             ),
-            cast_to=object,
+            cast_to=ModelStreamGenerateContentResponse,
         )
 
 
