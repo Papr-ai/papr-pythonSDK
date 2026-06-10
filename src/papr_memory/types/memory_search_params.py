@@ -13,7 +13,6 @@ from .shared_params.graph_policy_block import GraphPolicyBlock
 
 __all__ = [
     "MemorySearchParams",
-    "HolographicConfig",
     "OmoFilter",
     "Policy",
     "PolicyVector",
@@ -75,14 +74,6 @@ class MemorySearchParams(TypedDict, total=False):
 
     This is the primary way to identify users. Use this for your app's user IDs
     (e.g., 'user_alice_123', UUID, email).
-    """
-
-    holographic_config: Optional[HolographicConfig]
-    """Configuration for holographic neural embedding transforms and H-COND scoring.
-
-    Neural holographic embeddings use 13 brain-inspired frequency bands to encode
-    hierarchical semantic metadata alongside the base embedding. H-COND (Holographic
-    CONDitional) scoring uses phase alignment for improved relevance ranking.
     """
 
     metadata: Optional[MemoryMetadataParam]
@@ -180,66 +171,6 @@ class MemorySearchParams(TypedDict, total=False):
     """
 
     accept_encoding: Annotated[str, PropertyInfo(alias="Accept-Encoding")]
-
-
-class HolographicConfig(TypedDict, total=False):
-    """Configuration for holographic neural embedding transforms and H-COND scoring.
-
-    Neural holographic embeddings use 13 brain-inspired frequency bands to encode
-    hierarchical semantic metadata alongside the base embedding. H-COND (Holographic
-    CONDitional) scoring uses phase alignment for improved relevance ranking.
-    """
-
-    enabled: bool
-    """Whether to enable holographic embedding transforms"""
-
-    frequency_filters: Optional[Dict[str, float]]
-    """Filter results by minimum alignment on specific frequency dimensions.
-
-    Keys are field names (e.g., 'programming_domain', 'primary_operation'), values
-    are minimum alignment scores (0.0-1.0). Example: {'programming_domain': 0.8,
-    'primary_operation': 0.7} Only returns results that match at least 80% on domain
-    AND 70% on operation. Call GET /v1/frequencies to see available field names for
-    each schema.
-    """
-
-    frequency_schema_id: Optional[str]
-    """Frequency schema for holographic scoring.
-
-    Use full ID (e.g. 'code_search:cosqa:2.0.0') or shorthand (e.g. 'cosqa'). Call
-    GET /v1/frequencies to see available schemas and shortcuts.
-    """
-
-    hcond_boost_factor: float
-    """Maximum boost to add for high alignment (0.0-0.5)"""
-
-    hcond_boost_threshold: float
-    """Phase alignment threshold above which to apply boost (0.0-1.0)"""
-
-    hcond_penalty_factor: float
-    """Maximum penalty for low alignment (0.0-0.5)"""
-
-    include_frequency_scores: bool
-    """
-    If true, each result includes a per-frequency score breakdown showing how well
-    the query matched the document on each dimension (e.g., programming_domain:
-    0.95, primary_operation: 0.72). Useful for understanding WHY a result ranked
-    high or low.
-    """
-
-    scoring_method: Optional[str]
-    """Scoring method for holographic search results.
-
-    Default: 'egr_rerank' (highest accuracy, requires GPU). Options include:
-    baseline, caesar8, egr_rerank, and 160+ others. If null, uses the schema's
-    default_scoring_method.
-    """
-
-    search_mode: Literal["disabled", "integrated", "post_search"]
-    """
-    Search mode: 'disabled' (off), 'integrated' (search transformed embeddings),
-    'post_search' (fetch then rerank with H-COND)
-    """
 
 
 class OmoFilter(TypedDict, total=False):

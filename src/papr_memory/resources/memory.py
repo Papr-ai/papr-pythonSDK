@@ -818,7 +818,6 @@ class MemoryResource(SyncAPIResource):
         response_format: Literal["json", "toon"] | Omit = omit,
         enable_agentic_graph: bool | Omit = omit,
         external_user_id: Optional[str] | Omit = omit,
-        holographic_config: Optional[memory_search_params.HolographicConfig] | Omit = omit,
         metadata: Optional[MemoryMetadataParam] | Omit = omit,
         namespace_id: Optional[str] | Omit = omit,
         omo_filter: Optional[memory_search_params.OmoFilter] | Omit = omit,
@@ -935,12 +934,6 @@ class MemoryResource(SyncAPIResource):
               way to identify users. Use this for your app's user IDs (e.g., 'user_alice_123',
               UUID, email).
 
-          holographic_config: Configuration for holographic neural embedding transforms and H-COND scoring.
-
-              Neural holographic embeddings use 13 brain-inspired frequency bands to encode
-              hierarchical semantic metadata alongside the base embedding. H-COND (Holographic
-              CONDitional) scoring uses phase alignment for improved relevance ranking.
-
           metadata: Metadata for memory request
 
           namespace_id: Optional namespace ID for multi-tenant search scoping. When provided, search is
@@ -1025,7 +1018,6 @@ class MemoryResource(SyncAPIResource):
                     "query": query,
                     "enable_agentic_graph": enable_agentic_graph,
                     "external_user_id": external_user_id,
-                    "holographic_config": holographic_config,
                     "metadata": metadata,
                     "namespace_id": namespace_id,
                     "omo_filter": omo_filter,
@@ -1828,7 +1820,6 @@ class AsyncMemoryResource(AsyncAPIResource):
         response_format: Literal["json", "toon"] | Omit = omit,
         enable_agentic_graph: bool | Omit = omit,
         external_user_id: Optional[str] | Omit = omit,
-        holographic_config: Optional[memory_search_params.HolographicConfig] | Omit = omit,
         metadata: Optional[MemoryMetadataParam] | Omit = omit,
         namespace_id: Optional[str] | Omit = omit,
         omo_filter: Optional[memory_search_params.OmoFilter] | Omit = omit,
@@ -1945,12 +1936,6 @@ class AsyncMemoryResource(AsyncAPIResource):
               way to identify users. Use this for your app's user IDs (e.g., 'user_alice_123',
               UUID, email).
 
-          holographic_config: Configuration for holographic neural embedding transforms and H-COND scoring.
-
-              Neural holographic embeddings use 13 brain-inspired frequency bands to encode
-              hierarchical semantic metadata alongside the base embedding. H-COND (Holographic
-              CONDitional) scoring uses phase alignment for improved relevance ranking.
-
           metadata: Metadata for memory request
 
           namespace_id: Optional namespace ID for multi-tenant search scoping. When provided, search is
@@ -2035,7 +2020,6 @@ class AsyncMemoryResource(AsyncAPIResource):
                     "query": query,
                     "enable_agentic_graph": enable_agentic_graph,
                     "external_user_id": external_user_id,
-                    "holographic_config": holographic_config,
                     "metadata": metadata,
                     "namespace_id": namespace_id,
                     "omo_filter": omo_filter,
