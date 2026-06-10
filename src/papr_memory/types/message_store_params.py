@@ -11,11 +11,11 @@ from .graph_generation_param import GraphGenerationParam
 from .shared_params.memory_policy import MemoryPolicy
 from .shared_params.memory_add_policy import MemoryAddPolicy
 
-__all__ = ["MessageStoreParams", "ContentUnionMember1"]
+__all__ = ["MessageStoreParams"]
 
 
 class MessageStoreParams(TypedDict, total=False):
-    content: Required[Union[str, Iterable[ContentUnionMember1]]]
+    content: Required[Union[str, object]]
     """
     The content of the chat message - can be a simple string or structured content
     objects
@@ -97,15 +97,3 @@ class MessageStoreParams(TypedDict, total=False):
     Use when you already have the resolved user, e.g. first-party Papr apps after
     login.
     """
-
-
-class ContentUnionMember1(TypedDict, total=False, extra_items=object):  # type: ignore[call-arg]
-    """
-    Structured message content block (OpenAPI-typed alternative to free-form dicts).
-    """
-
-    type: Required[str]
-    """Content block type (e.g. 'text')"""
-
-    text: Optional[str]
-    """Text payload when type is 'text'"""
