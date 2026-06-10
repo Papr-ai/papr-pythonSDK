@@ -21,10 +21,23 @@ class MemoryAddParams(TypedDict, total=False):
     content: Required[str]
     """The content of the memory item you want to add to memory"""
 
+    enable_holographic: bool
+    """
+    If True, applies holographic neural transforms and stores in holographic
+    collection
+    """
+
     format: Optional[str]
     """Response format.
 
     Use 'omo' for Open Memory Object standard format (portable across platforms).
+    """
+
+    frequency_schema_id: Optional[str]
+    """Frequency schema for holographic embedding (e.g.
+
+    'cosqa', 'scifact'). Required when enable_holographic=True. Call GET
+    /v1/frequencies to see available schemas.
     """
 
     skip_background_processing: bool

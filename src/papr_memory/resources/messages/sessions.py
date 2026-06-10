@@ -128,7 +128,8 @@ class SessionsResource(SyncAPIResource):
             - **medium_term**: Last ~100 messages compressed
             - **long_term**: Full session compressed
             - **topics**: Key topics discussed
-            - **enhanced_fields**: Project context, tech stack, key decisions, next steps, files accessed
+            - **session_intent / current_state / next_steps**: Structured session context for agents
+            - **project_context / files_accessed / technical_details**: Project and file operation metadata
 
             **Perfect for**:
             - Reducing token usage in LLM prompts (96% savings)
@@ -415,7 +416,8 @@ class AsyncSessionsResource(AsyncAPIResource):
             - **medium_term**: Last ~100 messages compressed
             - **long_term**: Full session compressed
             - **topics**: Key topics discussed
-            - **enhanced_fields**: Project context, tech stack, key decisions, next steps, files accessed
+            - **session_intent / current_state / next_steps**: Structured session context for agents
+            - **project_context / files_accessed / technical_details**: Project and file operation metadata
 
             **Perfect for**:
             - Reducing token usage in LLM prompts (96% savings)
