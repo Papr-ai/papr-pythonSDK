@@ -154,7 +154,7 @@ Methods:
 Types:
 
 ```python
-from papr_memory.types import MessageStoreResponse
+from papr_memory.types import MessageContentBlock, MessageStoreResponse
 ```
 
 Methods:
