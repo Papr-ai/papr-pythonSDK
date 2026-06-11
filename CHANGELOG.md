@@ -1,5 +1,23 @@
 # Changelog
 
+## 2.28.0 (2026-06-11)
+
+Full Changelog: [v2.27.0...v2.28.0](https://github.com/Papr-ai/papr-pythonSDK/compare/v2.27.0...v2.28.0)
+
+### Features
+
+* **api:** Inline message content schema without refs to fix ContentVariant1 Stainless error. ([395fa57](https://github.com/Papr-ai/papr-pythonSDK/commit/395fa57198740777c435b50aa6f50e83be8a8699))
+* **api:** manual updates ([653c997](https://github.com/Papr-ai/papr-pythonSDK/commit/653c997780cf298bdce0a598cabfd44919df6425))
+* **api:** manual updates ([71b24ff](https://github.com/Papr-ai/papr-pythonSDK/commit/71b24ff140818e9357e30ea625da2422a326e382))
+* **api:** manual updates ([5b9b45b](https://github.com/Papr-ai/papr-pythonSDK/commit/5b9b45b7b6fa12539a98d3c9921846909a8d3264))
+* **api:** manual updates ([cd9b02e](https://github.com/Papr-ai/papr-pythonSDK/commit/cd9b02e8be9cd29d8fe7552d3e816602a813ac30))
+* **api:** manual updates ([705ef0f](https://github.com/Papr-ai/papr-pythonSDK/commit/705ef0f73ea02fe1df4b7e15d2e1b4887fc8c09d))
+* **api:** manual updates ([301eeeb](https://github.com/Papr-ai/papr-pythonSDK/commit/301eeeb73e617a2cb396e25553543eed65198378))
+* **api:** manual updates ([c54319f](https://github.com/Papr-ai/papr-pythonSDK/commit/c54319f794907c45153ebbb1f0a4ca9ebecbfdf7))
+* **api:** manual updates ([7505ac8](https://github.com/Papr-ai/papr-pythonSDK/commit/7505ac88171df6e441a392cfefdb2d15bb7e829d))
+* **api:** manual updates ([65c165f](https://github.com/Papr-ai/papr-pythonSDK/commit/65c165f1a11cfa393352db743d6400a532296047))
+* **api:** Remove ContentVariant1 openapi transforms that caused self-referencing schema errors. ([3a4c6bd](https://github.com/Papr-ai/papr-pythonSDK/commit/3a4c6bd1d11da0d9386568344126d6e878a89e75))
+
 ## 2.27.0 (2026-06-01)
 
 Full Changelog: [v2.26.0...v2.27.0](https://github.com/Papr-ai/papr-pythonSDK/compare/v2.26.0...v2.27.0)
