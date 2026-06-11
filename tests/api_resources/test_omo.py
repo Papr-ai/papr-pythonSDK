@@ -12,7 +12,6 @@ from tests.utils import assert_matches_type
 from papr_memory.types import (
     OmoExportMemoriesResponse,
     OmoImportMemoriesResponse,
-    OmoExportMemoriesAsJsonResponse,
 )
 
 base_url = os.environ.get("TEST_API_BASE_URL", "http://127.0.0.1:4010")
@@ -61,7 +60,7 @@ class TestOmo:
         omo = client.omo.export_memories_as_json(
             memory_ids="memory_ids",
         )
-        assert_matches_type(OmoExportMemoriesAsJsonResponse, omo, path=["response"])
+        assert_matches_type(object, omo, path=["response"])
 
     @pytest.mark.skip(reason="Mock server tests are disabled")
     @parametrize
@@ -73,7 +72,7 @@ class TestOmo:
         assert response.is_closed is True
         assert response.http_request.headers.get("X-Stainless-Lang") == "python"
         omo = response.parse()
-        assert_matches_type(OmoExportMemoriesAsJsonResponse, omo, path=["response"])
+        assert_matches_type(object, omo, path=["response"])
 
     @pytest.mark.skip(reason="Mock server tests are disabled")
     @parametrize
@@ -85,7 +84,7 @@ class TestOmo:
             assert response.http_request.headers.get("X-Stainless-Lang") == "python"
 
             omo = response.parse()
-            assert_matches_type(OmoExportMemoriesAsJsonResponse, omo, path=["response"])
+            assert_matches_type(object, omo, path=["response"])
 
         assert cast(Any, response.is_closed) is True
 
@@ -178,7 +177,7 @@ class TestAsyncOmo:
         omo = await async_client.omo.export_memories_as_json(
             memory_ids="memory_ids",
         )
-        assert_matches_type(OmoExportMemoriesAsJsonResponse, omo, path=["response"])
+        assert_matches_type(object, omo, path=["response"])
 
     @pytest.mark.skip(reason="Mock server tests are disabled")
     @parametrize
@@ -190,7 +189,7 @@ class TestAsyncOmo:
         assert response.is_closed is True
         assert response.http_request.headers.get("X-Stainless-Lang") == "python"
         omo = await response.parse()
-        assert_matches_type(OmoExportMemoriesAsJsonResponse, omo, path=["response"])
+        assert_matches_type(object, omo, path=["response"])
 
     @pytest.mark.skip(reason="Mock server tests are disabled")
     @parametrize
@@ -202,7 +201,7 @@ class TestAsyncOmo:
             assert response.http_request.headers.get("X-Stainless-Lang") == "python"
 
             omo = await response.parse()
-            assert_matches_type(OmoExportMemoriesAsJsonResponse, omo, path=["response"])
+            assert_matches_type(object, omo, path=["response"])
 
         assert cast(Any, response.is_closed) is True
 

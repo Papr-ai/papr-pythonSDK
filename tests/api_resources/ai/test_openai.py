@@ -9,7 +9,6 @@ import pytest
 
 from papr_memory import Papr, AsyncPapr
 from tests.utils import assert_matches_type
-from papr_memory.types.ai import OpenAICreateResponseResponse
 
 base_url = os.environ.get("TEST_API_BASE_URL", "http://127.0.0.1:4010")
 
@@ -21,7 +20,7 @@ class TestOpenAI:
     @parametrize
     def test_method_create_response(self, client: Papr) -> None:
         openai = client.ai.openai.create_response()
-        assert_matches_type(OpenAICreateResponseResponse, openai, path=["response"])
+        assert_matches_type(object, openai, path=["response"])
 
     @pytest.mark.skip(reason="Mock server tests are disabled")
     @parametrize
@@ -31,7 +30,7 @@ class TestOpenAI:
         assert response.is_closed is True
         assert response.http_request.headers.get("X-Stainless-Lang") == "python"
         openai = response.parse()
-        assert_matches_type(OpenAICreateResponseResponse, openai, path=["response"])
+        assert_matches_type(object, openai, path=["response"])
 
     @pytest.mark.skip(reason="Mock server tests are disabled")
     @parametrize
@@ -41,7 +40,7 @@ class TestOpenAI:
             assert response.http_request.headers.get("X-Stainless-Lang") == "python"
 
             openai = response.parse()
-            assert_matches_type(OpenAICreateResponseResponse, openai, path=["response"])
+            assert_matches_type(object, openai, path=["response"])
 
         assert cast(Any, response.is_closed) is True
 
@@ -55,7 +54,7 @@ class TestAsyncOpenAI:
     @parametrize
     async def test_method_create_response(self, async_client: AsyncPapr) -> None:
         openai = await async_client.ai.openai.create_response()
-        assert_matches_type(OpenAICreateResponseResponse, openai, path=["response"])
+        assert_matches_type(object, openai, path=["response"])
 
     @pytest.mark.skip(reason="Mock server tests are disabled")
     @parametrize
@@ -65,7 +64,7 @@ class TestAsyncOpenAI:
         assert response.is_closed is True
         assert response.http_request.headers.get("X-Stainless-Lang") == "python"
         openai = await response.parse()
-        assert_matches_type(OpenAICreateResponseResponse, openai, path=["response"])
+        assert_matches_type(object, openai, path=["response"])
 
     @pytest.mark.skip(reason="Mock server tests are disabled")
     @parametrize
@@ -75,6 +74,6 @@ class TestAsyncOpenAI:
             assert response.http_request.headers.get("X-Stainless-Lang") == "python"
 
             openai = await response.parse()
-            assert_matches_type(OpenAICreateResponseResponse, openai, path=["response"])
+            assert_matches_type(object, openai, path=["response"])
 
         assert cast(Any, response.is_closed) is True

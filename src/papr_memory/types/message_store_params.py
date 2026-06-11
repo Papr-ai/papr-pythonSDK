@@ -30,13 +30,6 @@ class MessageStoreParams(TypedDict, total=False):
     context: Optional[Iterable[Dict[str, object]]]
     """Optional context for the message (conversation history or relevant context)"""
 
-    external_user_id: Optional[str]
-    """Your application's external user identifier.
-
-    Papr resolves or creates internal users automatically. Use for third-party
-    integrations.
-    """
-
     graph_generation: Optional[GraphGenerationParam]
     """Graph generation configuration"""
 
@@ -89,11 +82,4 @@ class MessageStoreParams(TypedDict, total=False):
     """Optional title for the conversation session.
 
     Sets the Chat.title in Parse Server for easy identification.
-    """
-
-    user_id: Optional[str]
-    """Internal Papr Parse user ID (\\__User.objectId).
-
-    Use when you already have the resolved user, e.g. first-party Papr apps after
-    login.
     """

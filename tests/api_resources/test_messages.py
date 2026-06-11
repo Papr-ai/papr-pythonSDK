@@ -35,7 +35,6 @@ class TestMessages:
             role="user",
             session_id="session_123",
             context=[{"foo": "bar"}],
-            external_user_id="external_user_id",
             graph_generation={
                 "auto": {
                     "property_overrides": [
@@ -392,7 +391,6 @@ class TestMessages:
             process_messages=True,
             relationships_json=[{"foo": "bar"}],
             title="Q4 Product Planning",
-            user_id="user_id",
         )
         assert_matches_type(MessageStoreResponse, message, path=["response"])
 
@@ -450,7 +448,6 @@ class TestAsyncMessages:
             role="user",
             session_id="session_123",
             context=[{"foo": "bar"}],
-            external_user_id="external_user_id",
             graph_generation={
                 "auto": {
                     "property_overrides": [
@@ -807,7 +804,6 @@ class TestAsyncMessages:
             process_messages=True,
             relationships_json=[{"foo": "bar"}],
             title="Q4 Product Planning",
-            user_id="user_id",
         )
         assert_matches_type(MessageStoreResponse, message, path=["response"])
 

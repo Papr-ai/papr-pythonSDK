@@ -10,10 +10,7 @@ import pytest
 from papr_memory import Papr, AsyncPapr
 from tests.utils import assert_matches_type
 from papr_memory.types.messages import (
-    SessionUpdateResponse,
-    SessionProcessResponse,
     SessionCompressResponse,
-    SessionRetrieveStatusResponse,
     SessionRetrieveHistoryResponse,
 )
 
@@ -29,7 +26,7 @@ class TestSessions:
         session = client.messages.sessions.update(
             session_id="session_id",
         )
-        assert_matches_type(SessionUpdateResponse, session, path=["response"])
+        assert_matches_type(object, session, path=["response"])
 
     @pytest.mark.skip(reason="Mock server tests are disabled")
     @parametrize
@@ -39,7 +36,7 @@ class TestSessions:
             metadata={"foo": "bar"},
             title="title",
         )
-        assert_matches_type(SessionUpdateResponse, session, path=["response"])
+        assert_matches_type(object, session, path=["response"])
 
     @pytest.mark.skip(reason="Mock server tests are disabled")
     @parametrize
@@ -51,7 +48,7 @@ class TestSessions:
         assert response.is_closed is True
         assert response.http_request.headers.get("X-Stainless-Lang") == "python"
         session = response.parse()
-        assert_matches_type(SessionUpdateResponse, session, path=["response"])
+        assert_matches_type(object, session, path=["response"])
 
     @pytest.mark.skip(reason="Mock server tests are disabled")
     @parametrize
@@ -63,7 +60,7 @@ class TestSessions:
             assert response.http_request.headers.get("X-Stainless-Lang") == "python"
 
             session = response.parse()
-            assert_matches_type(SessionUpdateResponse, session, path=["response"])
+            assert_matches_type(object, session, path=["response"])
 
         assert cast(Any, response.is_closed) is True
 
@@ -123,7 +120,7 @@ class TestSessions:
         session = client.messages.sessions.process(
             "session_id",
         )
-        assert_matches_type(SessionProcessResponse, session, path=["response"])
+        assert_matches_type(object, session, path=["response"])
 
     @pytest.mark.skip(reason="Mock server tests are disabled")
     @parametrize
@@ -135,7 +132,7 @@ class TestSessions:
         assert response.is_closed is True
         assert response.http_request.headers.get("X-Stainless-Lang") == "python"
         session = response.parse()
-        assert_matches_type(SessionProcessResponse, session, path=["response"])
+        assert_matches_type(object, session, path=["response"])
 
     @pytest.mark.skip(reason="Mock server tests are disabled")
     @parametrize
@@ -147,7 +144,7 @@ class TestSessions:
             assert response.http_request.headers.get("X-Stainless-Lang") == "python"
 
             session = response.parse()
-            assert_matches_type(SessionProcessResponse, session, path=["response"])
+            assert_matches_type(object, session, path=["response"])
 
         assert cast(Any, response.is_closed) is True
 
@@ -217,7 +214,7 @@ class TestSessions:
         session = client.messages.sessions.retrieve_status(
             "session_id",
         )
-        assert_matches_type(SessionRetrieveStatusResponse, session, path=["response"])
+        assert_matches_type(object, session, path=["response"])
 
     @pytest.mark.skip(reason="Mock server tests are disabled")
     @parametrize
@@ -229,7 +226,7 @@ class TestSessions:
         assert response.is_closed is True
         assert response.http_request.headers.get("X-Stainless-Lang") == "python"
         session = response.parse()
-        assert_matches_type(SessionRetrieveStatusResponse, session, path=["response"])
+        assert_matches_type(object, session, path=["response"])
 
     @pytest.mark.skip(reason="Mock server tests are disabled")
     @parametrize
@@ -241,7 +238,7 @@ class TestSessions:
             assert response.http_request.headers.get("X-Stainless-Lang") == "python"
 
             session = response.parse()
-            assert_matches_type(SessionRetrieveStatusResponse, session, path=["response"])
+            assert_matches_type(object, session, path=["response"])
 
         assert cast(Any, response.is_closed) is True
 
@@ -265,7 +262,7 @@ class TestAsyncSessions:
         session = await async_client.messages.sessions.update(
             session_id="session_id",
         )
-        assert_matches_type(SessionUpdateResponse, session, path=["response"])
+        assert_matches_type(object, session, path=["response"])
 
     @pytest.mark.skip(reason="Mock server tests are disabled")
     @parametrize
@@ -275,7 +272,7 @@ class TestAsyncSessions:
             metadata={"foo": "bar"},
             title="title",
         )
-        assert_matches_type(SessionUpdateResponse, session, path=["response"])
+        assert_matches_type(object, session, path=["response"])
 
     @pytest.mark.skip(reason="Mock server tests are disabled")
     @parametrize
@@ -287,7 +284,7 @@ class TestAsyncSessions:
         assert response.is_closed is True
         assert response.http_request.headers.get("X-Stainless-Lang") == "python"
         session = await response.parse()
-        assert_matches_type(SessionUpdateResponse, session, path=["response"])
+        assert_matches_type(object, session, path=["response"])
 
     @pytest.mark.skip(reason="Mock server tests are disabled")
     @parametrize
@@ -299,7 +296,7 @@ class TestAsyncSessions:
             assert response.http_request.headers.get("X-Stainless-Lang") == "python"
 
             session = await response.parse()
-            assert_matches_type(SessionUpdateResponse, session, path=["response"])
+            assert_matches_type(object, session, path=["response"])
 
         assert cast(Any, response.is_closed) is True
 
@@ -359,7 +356,7 @@ class TestAsyncSessions:
         session = await async_client.messages.sessions.process(
             "session_id",
         )
-        assert_matches_type(SessionProcessResponse, session, path=["response"])
+        assert_matches_type(object, session, path=["response"])
 
     @pytest.mark.skip(reason="Mock server tests are disabled")
     @parametrize
@@ -371,7 +368,7 @@ class TestAsyncSessions:
         assert response.is_closed is True
         assert response.http_request.headers.get("X-Stainless-Lang") == "python"
         session = await response.parse()
-        assert_matches_type(SessionProcessResponse, session, path=["response"])
+        assert_matches_type(object, session, path=["response"])
 
     @pytest.mark.skip(reason="Mock server tests are disabled")
     @parametrize
@@ -383,7 +380,7 @@ class TestAsyncSessions:
             assert response.http_request.headers.get("X-Stainless-Lang") == "python"
 
             session = await response.parse()
-            assert_matches_type(SessionProcessResponse, session, path=["response"])
+            assert_matches_type(object, session, path=["response"])
 
         assert cast(Any, response.is_closed) is True
 
@@ -453,7 +450,7 @@ class TestAsyncSessions:
         session = await async_client.messages.sessions.retrieve_status(
             "session_id",
         )
-        assert_matches_type(SessionRetrieveStatusResponse, session, path=["response"])
+        assert_matches_type(object, session, path=["response"])
 
     @pytest.mark.skip(reason="Mock server tests are disabled")
     @parametrize
@@ -465,7 +462,7 @@ class TestAsyncSessions:
         assert response.is_closed is True
         assert response.http_request.headers.get("X-Stainless-Lang") == "python"
         session = await response.parse()
-        assert_matches_type(SessionRetrieveStatusResponse, session, path=["response"])
+        assert_matches_type(object, session, path=["response"])
 
     @pytest.mark.skip(reason="Mock server tests are disabled")
     @parametrize
@@ -477,7 +474,7 @@ class TestAsyncSessions:
             assert response.http_request.headers.get("X-Stainless-Lang") == "python"
 
             session = await response.parse()
-            assert_matches_type(SessionRetrieveStatusResponse, session, path=["response"])
+            assert_matches_type(object, session, path=["response"])
 
         assert cast(Any, response.is_closed) is True
 

@@ -14,8 +14,6 @@ from .._response import (
     async_to_streamed_response_wrapper,
 )
 from .._base_client import make_request_options
-from ..types.graphql_query_response import GraphqlQueryResponse
-from ..types.graphql_playground_response import GraphqlPlaygroundResponse
 
 __all__ = ["GraphqlResource", "AsyncGraphqlResource"]
 
@@ -49,14 +47,14 @@ class GraphqlResource(SyncAPIResource):
         extra_query: Query | None = None,
         extra_body: Body | None = None,
         timeout: float | httpx.Timeout | None | NotGiven = not_given,
-    ) -> GraphqlPlaygroundResponse:
+    ) -> object:
         """GraphQL Playground (development only)"""
         return self._get(
             "/v1/graphql",
             options=make_request_options(
                 extra_headers=extra_headers, extra_query=extra_query, extra_body=extra_body, timeout=timeout
             ),
-            cast_to=GraphqlPlaygroundResponse,
+            cast_to=object,
         )
 
     def query(
@@ -68,13 +66,12 @@ class GraphqlResource(SyncAPIResource):
         extra_query: Query | None = None,
         extra_body: Body | None = None,
         timeout: float | httpx.Timeout | None | NotGiven = not_given,
-    ) -> GraphqlQueryResponse:
+    ) -> object:
         """
         GraphQL endpoint for querying PAPR Memory using GraphQL.
 
             This endpoint proxies GraphQL queries to Neo4j's hosted GraphQL endpoint,
-            automatically applying multi-tenant authorization filters based on user_id, workspace_id,
-            organization_id, and namespace_id.
+            automatically applying multi-tenant authorization filters based on user_id and workspace_id.
 
             **Authentication Required**:
             One of the following authentication methods must be used:
@@ -104,15 +101,14 @@ class GraphqlResource(SyncAPIResource):
             }
             ```
 
-            All queries are automatically filtered by user_id, workspace_id, organization_id,
-            and namespace_id for security.
+            All queries are automatically filtered by user_id and workspace_id for security.
         """
         return self._post(
             "/v1/graphql",
             options=make_request_options(
                 extra_headers=extra_headers, extra_query=extra_query, extra_body=extra_body, timeout=timeout
             ),
-            cast_to=GraphqlQueryResponse,
+            cast_to=object,
         )
 
 
@@ -145,14 +141,14 @@ class AsyncGraphqlResource(AsyncAPIResource):
         extra_query: Query | None = None,
         extra_body: Body | None = None,
         timeout: float | httpx.Timeout | None | NotGiven = not_given,
-    ) -> GraphqlPlaygroundResponse:
+    ) -> object:
         """GraphQL Playground (development only)"""
         return await self._get(
             "/v1/graphql",
             options=make_request_options(
                 extra_headers=extra_headers, extra_query=extra_query, extra_body=extra_body, timeout=timeout
             ),
-            cast_to=GraphqlPlaygroundResponse,
+            cast_to=object,
         )
 
     async def query(
@@ -164,13 +160,12 @@ class AsyncGraphqlResource(AsyncAPIResource):
         extra_query: Query | None = None,
         extra_body: Body | None = None,
         timeout: float | httpx.Timeout | None | NotGiven = not_given,
-    ) -> GraphqlQueryResponse:
+    ) -> object:
         """
         GraphQL endpoint for querying PAPR Memory using GraphQL.
 
             This endpoint proxies GraphQL queries to Neo4j's hosted GraphQL endpoint,
-            automatically applying multi-tenant authorization filters based on user_id, workspace_id,
-            organization_id, and namespace_id.
+            automatically applying multi-tenant authorization filters based on user_id and workspace_id.
 
             **Authentication Required**:
             One of the following authentication methods must be used:
@@ -200,15 +195,14 @@ class AsyncGraphqlResource(AsyncAPIResource):
             }
             ```
 
-            All queries are automatically filtered by user_id, workspace_id, organization_id,
-            and namespace_id for security.
+            All queries are automatically filtered by user_id and workspace_id for security.
         """
         return await self._post(
             "/v1/graphql",
             options=make_request_options(
                 extra_headers=extra_headers, extra_query=extra_query, extra_body=extra_body, timeout=timeout
             ),
-            cast_to=GraphqlQueryResponse,
+            cast_to=object,
         )
 
 

@@ -7,13 +7,10 @@ from typing_extensions import TypedDict
 
 from ..graph_domain_routing_config_param import GraphDomainRoutingConfigParam
 
-__all__ = ["DomainUpdateParams", "CatalogConfig"]
+__all__ = ["DomainUpdateParams"]
 
 
 class DomainUpdateParams(TypedDict, total=False):
-    catalog_config: Optional[CatalogConfig]
-    """Catalog settings on a domain."""
-
     description: Optional[str]
     """Updated description."""
 
@@ -29,13 +26,3 @@ class DomainUpdateParams(TypedDict, total=False):
     Pass an empty dict {} to clear all multipliers. Omit the field to leave existing
     multipliers unchanged.
     """
-
-
-class CatalogConfig(TypedDict, total=False):
-    """Catalog settings on a domain."""
-
-    enabled: bool
-    """Whether to auto-accumulate signals on transform."""
-
-    refresh_every_n: int
-    """Run LLM clustering after this many buffered entries."""

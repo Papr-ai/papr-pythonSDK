@@ -22,7 +22,6 @@ from ...._response import (
     async_to_streamed_response_wrapper,
 )
 from ...._base_client import make_request_options
-from ....types.ai.openai_create_response_response import OpenAICreateResponseResponse
 
 __all__ = ["OpenAIResource", "AsyncOpenAIResource"]
 
@@ -60,14 +59,14 @@ class OpenAIResource(SyncAPIResource):
         extra_query: Query | None = None,
         extra_body: Body | None = None,
         timeout: float | httpx.Timeout | None | NotGiven = not_given,
-    ) -> OpenAICreateResponseResponse:
+    ) -> object:
         """OpenAI Responses API proxy (GPT-5+, o-series reasoning models)"""
         return self._post(
             "/v1/ai/openai/responses",
             options=make_request_options(
                 extra_headers=extra_headers, extra_query=extra_query, extra_body=extra_body, timeout=timeout
             ),
-            cast_to=OpenAICreateResponseResponse,
+            cast_to=object,
         )
 
 
@@ -104,14 +103,14 @@ class AsyncOpenAIResource(AsyncAPIResource):
         extra_query: Query | None = None,
         extra_body: Body | None = None,
         timeout: float | httpx.Timeout | None | NotGiven = not_given,
-    ) -> OpenAICreateResponseResponse:
+    ) -> object:
         """OpenAI Responses API proxy (GPT-5+, o-series reasoning models)"""
         return await self._post(
             "/v1/ai/openai/responses",
             options=make_request_options(
                 extra_headers=extra_headers, extra_query=extra_query, extra_body=extra_body, timeout=timeout
             ),
-            cast_to=OpenAICreateResponseResponse,
+            cast_to=object,
         )
 
 

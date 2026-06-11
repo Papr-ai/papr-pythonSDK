@@ -56,7 +56,6 @@ class DomainsResource(SyncAPIResource):
         domain_id: str,
         name: str,
         signals: Iterable[SignalFieldParam],
-        catalog_config: Optional[domain_create_params.CatalogConfig] | Omit = omit,
         routing_config: Optional[GraphDomainRoutingConfigParam] | Omit = omit,
         signal_multipliers: Optional[Dict[str, float]] | Omit = omit,
         # Use the following arguments if you need to pass additional parameters to the API that aren't available via kwargs.
@@ -77,8 +76,6 @@ class DomainsResource(SyncAPIResource):
           name: Human-readable domain name.
 
           signals: Per-domain signal definitions.
-
-          catalog_config: Catalog settings on a domain.
 
           routing_config: Domain-scoped CAESAR-VIII routing overrides (stored on graph_domains).
 
@@ -104,7 +101,6 @@ class DomainsResource(SyncAPIResource):
                     "domain_id": domain_id,
                     "name": name,
                     "signals": signals,
-                    "catalog_config": catalog_config,
                     "routing_config": routing_config,
                     "signal_multipliers": signal_multipliers,
                 },
@@ -153,7 +149,6 @@ class DomainsResource(SyncAPIResource):
         self,
         domain_id: str,
         *,
-        catalog_config: Optional[domain_update_params.CatalogConfig] | Omit = omit,
         description: Optional[str] | Omit = omit,
         name: Optional[str] | Omit = omit,
         routing_config: Optional[GraphDomainRoutingConfigParam] | Omit = omit,
@@ -169,8 +164,6 @@ class DomainsResource(SyncAPIResource):
         Update name, description, or signal_multipliers for a custom domain
 
         Args:
-          catalog_config: Catalog settings on a domain.
-
           description: Updated description.
 
           name: Updated human-readable name.
@@ -194,7 +187,6 @@ class DomainsResource(SyncAPIResource):
             path_template("/v1/graph/domains/{domain_id}", domain_id=domain_id),
             body=maybe_transform(
                 {
-                    "catalog_config": catalog_config,
                     "description": description,
                     "name": name,
                     "routing_config": routing_config,
@@ -288,7 +280,6 @@ class AsyncDomainsResource(AsyncAPIResource):
         domain_id: str,
         name: str,
         signals: Iterable[SignalFieldParam],
-        catalog_config: Optional[domain_create_params.CatalogConfig] | Omit = omit,
         routing_config: Optional[GraphDomainRoutingConfigParam] | Omit = omit,
         signal_multipliers: Optional[Dict[str, float]] | Omit = omit,
         # Use the following arguments if you need to pass additional parameters to the API that aren't available via kwargs.
@@ -309,8 +300,6 @@ class AsyncDomainsResource(AsyncAPIResource):
           name: Human-readable domain name.
 
           signals: Per-domain signal definitions.
-
-          catalog_config: Catalog settings on a domain.
 
           routing_config: Domain-scoped CAESAR-VIII routing overrides (stored on graph_domains).
 
@@ -336,7 +325,6 @@ class AsyncDomainsResource(AsyncAPIResource):
                     "domain_id": domain_id,
                     "name": name,
                     "signals": signals,
-                    "catalog_config": catalog_config,
                     "routing_config": routing_config,
                     "signal_multipliers": signal_multipliers,
                 },
@@ -385,7 +373,6 @@ class AsyncDomainsResource(AsyncAPIResource):
         self,
         domain_id: str,
         *,
-        catalog_config: Optional[domain_update_params.CatalogConfig] | Omit = omit,
         description: Optional[str] | Omit = omit,
         name: Optional[str] | Omit = omit,
         routing_config: Optional[GraphDomainRoutingConfigParam] | Omit = omit,
@@ -401,8 +388,6 @@ class AsyncDomainsResource(AsyncAPIResource):
         Update name, description, or signal_multipliers for a custom domain
 
         Args:
-          catalog_config: Catalog settings on a domain.
-
           description: Updated description.
 
           name: Updated human-readable name.
@@ -426,7 +411,6 @@ class AsyncDomainsResource(AsyncAPIResource):
             path_template("/v1/graph/domains/{domain_id}", domain_id=domain_id),
             body=await async_maybe_transform(
                 {
-                    "catalog_config": catalog_config,
                     "description": description,
                     "name": name,
                     "routing_config": routing_config,

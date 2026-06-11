@@ -9,7 +9,6 @@ import pytest
 
 from papr_memory import Papr, AsyncPapr
 from tests.utils import assert_matches_type
-from papr_memory.types.ai.openai import ChatCreateCompletionResponse
 
 base_url = os.environ.get("TEST_API_BASE_URL", "http://127.0.0.1:4010")
 
@@ -21,7 +20,7 @@ class TestChat:
     @parametrize
     def test_method_create_completion(self, client: Papr) -> None:
         chat = client.ai.openai.chat.create_completion()
-        assert_matches_type(ChatCreateCompletionResponse, chat, path=["response"])
+        assert_matches_type(object, chat, path=["response"])
 
     @pytest.mark.skip(reason="Mock server tests are disabled")
     @parametrize
@@ -31,7 +30,7 @@ class TestChat:
         assert response.is_closed is True
         assert response.http_request.headers.get("X-Stainless-Lang") == "python"
         chat = response.parse()
-        assert_matches_type(ChatCreateCompletionResponse, chat, path=["response"])
+        assert_matches_type(object, chat, path=["response"])
 
     @pytest.mark.skip(reason="Mock server tests are disabled")
     @parametrize
@@ -41,7 +40,7 @@ class TestChat:
             assert response.http_request.headers.get("X-Stainless-Lang") == "python"
 
             chat = response.parse()
-            assert_matches_type(ChatCreateCompletionResponse, chat, path=["response"])
+            assert_matches_type(object, chat, path=["response"])
 
         assert cast(Any, response.is_closed) is True
 
@@ -55,7 +54,7 @@ class TestAsyncChat:
     @parametrize
     async def test_method_create_completion(self, async_client: AsyncPapr) -> None:
         chat = await async_client.ai.openai.chat.create_completion()
-        assert_matches_type(ChatCreateCompletionResponse, chat, path=["response"])
+        assert_matches_type(object, chat, path=["response"])
 
     @pytest.mark.skip(reason="Mock server tests are disabled")
     @parametrize
@@ -65,7 +64,7 @@ class TestAsyncChat:
         assert response.is_closed is True
         assert response.http_request.headers.get("X-Stainless-Lang") == "python"
         chat = await response.parse()
-        assert_matches_type(ChatCreateCompletionResponse, chat, path=["response"])
+        assert_matches_type(object, chat, path=["response"])
 
     @pytest.mark.skip(reason="Mock server tests are disabled")
     @parametrize
@@ -75,6 +74,6 @@ class TestAsyncChat:
             assert response.http_request.headers.get("X-Stainless-Lang") == "python"
 
             chat = await response.parse()
-            assert_matches_type(ChatCreateCompletionResponse, chat, path=["response"])
+            assert_matches_type(object, chat, path=["response"])
 
         assert cast(Any, response.is_closed) is True

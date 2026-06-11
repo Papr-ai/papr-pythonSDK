@@ -516,9 +516,7 @@ class TestMemory:
     def test_method_add_with_all_params(self, client: Papr) -> None:
         memory = client.memory.add(
             content="Meeting with John Smith from Acme Corp about the Q4 project timeline",
-            enable_holographic=True,
             format="format",
-            frequency_schema_id="frequency_schema_id",
             skip_background_processing=True,
             webhook_secret="webhook_secret",
             webhook_url="webhook_url",
@@ -707,8 +705,8 @@ class TestMemory:
                 "conversation_id": "conv-123",
                 "created_at": "createdAt",
                 "custom_metadata": {
-                    "meeting_type": "planning",
                     "project_id": "q4-roadmap",
+                    "meeting_type": "planning",
                 },
                 "emoji_tags": ["string"],
                 "emotion_tags": ["string"],
@@ -1717,8 +1715,6 @@ class TestMemory:
                     "user_id": "user_id",
                 },
             ],
-            enable_holographic=True,
-            frequency_schema_id="frequency_schema_id",
             skip_background_processing=True,
             batch_size=10,
             external_user_id="external_user_abcde",
@@ -3035,9 +3031,7 @@ class TestAsyncMemory:
     async def test_method_add_with_all_params(self, async_client: AsyncPapr) -> None:
         memory = await async_client.memory.add(
             content="Meeting with John Smith from Acme Corp about the Q4 project timeline",
-            enable_holographic=True,
             format="format",
-            frequency_schema_id="frequency_schema_id",
             skip_background_processing=True,
             webhook_secret="webhook_secret",
             webhook_url="webhook_url",
@@ -3226,8 +3220,8 @@ class TestAsyncMemory:
                 "conversation_id": "conv-123",
                 "created_at": "createdAt",
                 "custom_metadata": {
-                    "meeting_type": "planning",
                     "project_id": "q4-roadmap",
+                    "meeting_type": "planning",
                 },
                 "emoji_tags": ["string"],
                 "emotion_tags": ["string"],
@@ -4236,8 +4230,6 @@ class TestAsyncMemory:
                     "user_id": "user_id",
                 },
             ],
-            enable_holographic=True,
-            frequency_schema_id="frequency_schema_id",
             skip_background_processing=True,
             batch_size=10,
             external_user_id="external_user_abcde",
