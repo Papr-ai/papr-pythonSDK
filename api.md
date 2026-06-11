@@ -161,7 +161,7 @@ Methods:
 Types:
 
 ```python
-from papr_memory.types import MessageContentBlock, MessageStoreResponse
+from papr_memory.types import MessageStoreResponse
 ```
 
 Methods:
@@ -364,66 +364,6 @@ from papr_memory.types import TelemetryTrackEventResponse
 Methods:
 
 - <code title="post /v1/telemetry/events">client.telemetry.<a href="./src/papr_memory/resources/telemetry.py">track_event</a>(\*\*<a href="src/papr_memory/types/telemetry_track_event_params.py">params</a>) -> <a href="./src/papr_memory/types/telemetry_track_event_response.py">TelemetryTrackEventResponse</a></code>
-
-# Login
-
-Types:
-
-```python
-from papr_memory.types import LoginInitiateResponse
-```
-
-Methods:
-
-- <code title="get /login">client.login.<a href="./src/papr_memory/resources/login.py">initiate</a>() -> <a href="./src/papr_memory/types/login_initiate_response.py">LoginInitiateResponse</a></code>
-
-# Callback
-
-Types:
-
-```python
-from papr_memory.types import CallbackProcessResponse
-```
-
-Methods:
-
-- <code title="get /callback">client.callback.<a href="./src/papr_memory/resources/callback.py">process</a>() -> <a href="./src/papr_memory/types/callback_process_response.py">CallbackProcessResponse</a></code>
-
-# Token
-
-Types:
-
-```python
-from papr_memory.types import TokenCreateResponse
-```
-
-Methods:
-
-- <code title="post /token">client.token.<a href="./src/papr_memory/resources/token.py">create</a>() -> <a href="./src/papr_memory/types/token_create_response.py">TokenCreateResponse</a></code>
-
-# Me
-
-Types:
-
-```python
-from papr_memory.types import MeRetrieveResponse
-```
-
-Methods:
-
-- <code title="get /me">client.me.<a href="./src/papr_memory/resources/me.py">retrieve</a>() -> <a href="./src/papr_memory/types/me_retrieve_response.py">MeRetrieveResponse</a></code>
-
-# Logout
-
-Types:
-
-```python
-from papr_memory.types import LogoutPerformResponse
-```
-
-Methods:
-
-- <code title="get /logout">client.logout.<a href="./src/papr_memory/resources/logout.py">perform</a>() -> <a href="./src/papr_memory/types/logout_perform_response.py">LogoutPerformResponse</a></code>
 
 # Graph
 
