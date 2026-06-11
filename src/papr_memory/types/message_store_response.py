@@ -1,6 +1,6 @@
 # File generated from our OpenAPI spec by Stainless. See CONTRIBUTING.md for details.
 
-from typing import Union, Optional
+from typing import Dict, List, Union, Optional
 from datetime import datetime
 from typing_extensions import Literal
 
@@ -14,7 +14,7 @@ __all__ = ["MessageStoreResponse"]
 class MessageStoreResponse(BaseModel):
     """Response model for message storage"""
 
-    content: Union[str, object]
+    content: Union[str, List[Dict[str, object]]]
     """Content of the message - can be a simple string or structured content objects"""
 
     created_at: datetime = FieldInfo(alias="createdAt")

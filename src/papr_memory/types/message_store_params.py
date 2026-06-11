@@ -15,7 +15,7 @@ __all__ = ["MessageStoreParams"]
 
 
 class MessageStoreParams(TypedDict, total=False):
-    content: Required[Union[str, object]]
+    content: Required[Union[str, Iterable[Dict[str, object]]]]
     """
     The content of the chat message - can be a simple string or structured content
     objects

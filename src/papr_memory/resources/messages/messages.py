@@ -63,7 +63,7 @@ class MessagesResource(SyncAPIResource):
     def store(
         self,
         *,
-        content: Union[str, object],
+        content: Union[str, Iterable[Dict[str, object]]],
         role: Literal["user", "assistant"],
         session_id: str,
         context: Optional[Iterable[Dict[str, object]]] | Omit = omit,
@@ -220,7 +220,7 @@ class AsyncMessagesResource(AsyncAPIResource):
     async def store(
         self,
         *,
-        content: Union[str, object],
+        content: Union[str, Iterable[Dict[str, object]]],
         role: Literal["user", "assistant"],
         session_id: str,
         context: Optional[Iterable[Dict[str, object]]] | Omit = omit,
