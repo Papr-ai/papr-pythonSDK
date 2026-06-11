@@ -102,7 +102,7 @@ class AddMemoryParam(TypedDict, total=False):
     """Policy for add / batch / document / message ingestion."""
 
     relationships_json: Optional[Iterable[RelationshipItemParam]]
-    """DEPRECATED: Use 'policy' instead.
+    """DEPRECATED: Use 'memory_policy' instead.
 
     Migration options: 1. Specific memory: relationships=[{source: '$this', target:
     'mem_123', type: 'FOLLOWS'}] 2. Previous memory: link_to_previous_memory=True 3.
