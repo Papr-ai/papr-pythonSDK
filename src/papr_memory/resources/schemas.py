@@ -22,6 +22,7 @@ from .._response import (
 from .._base_client import make_request_options
 from ..types.schema_list_response import SchemaListResponse
 from ..types.schema_create_response import SchemaCreateResponse
+from ..types.schema_delete_response import SchemaDeleteResponse
 from ..types.schema_update_response import SchemaUpdateResponse
 from ..types.schema_retrieve_response import SchemaRetrieveResponse
 
@@ -362,7 +363,7 @@ class SchemasResource(SyncAPIResource):
         extra_query: Query | None = None,
         extra_body: Body | None = None,
         timeout: float | httpx.Timeout | None | NotGiven = not_given,
-    ) -> object:
+    ) -> SchemaDeleteResponse:
         """Delete a schema.
 
             Soft deletes the schema by marking it as archived.
@@ -387,7 +388,7 @@ class SchemasResource(SyncAPIResource):
             options=make_request_options(
                 extra_headers=extra_headers, extra_query=extra_query, extra_body=extra_body, timeout=timeout
             ),
-            cast_to=object,
+            cast_to=SchemaDeleteResponse,
         )
 
 
@@ -725,7 +726,7 @@ class AsyncSchemasResource(AsyncAPIResource):
         extra_query: Query | None = None,
         extra_body: Body | None = None,
         timeout: float | httpx.Timeout | None | NotGiven = not_given,
-    ) -> object:
+    ) -> SchemaDeleteResponse:
         """Delete a schema.
 
             Soft deletes the schema by marking it as archived.
@@ -750,7 +751,7 @@ class AsyncSchemasResource(AsyncAPIResource):
             options=make_request_options(
                 extra_headers=extra_headers, extra_query=extra_query, extra_body=extra_body, timeout=timeout
             ),
-            cast_to=object,
+            cast_to=SchemaDeleteResponse,
         )
 
 

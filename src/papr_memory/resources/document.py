@@ -7,7 +7,7 @@ from typing_extensions import Literal
 
 import httpx
 
-from ..types import document_upload_params
+from ..types import document_upload_params, document_get_status_params
 from .._files import deepcopy_with_paths
 from .._types import Body, Omit, Query, Headers, NotGiven, FileTypes, omit, not_given
 from .._utils import extract_files, path_template, maybe_transform, async_maybe_transform
@@ -84,6 +84,7 @@ class DocumentResource(SyncAPIResource):
         self,
         upload_id: str,
         *,
+        timeline: bool | Omit = omit,
         # Use the following arguments if you need to pass additional parameters to the API that aren't available via kwargs.
         # The extra values given here take precedence over values defined on the client or passed to this method.
         extra_headers: Headers | None = None,
@@ -92,9 +93,15 @@ class DocumentResource(SyncAPIResource):
         timeout: float | httpx.Timeout | None | NotGiven = not_given,
     ) -> DocumentGetStatusResponse:
         """
-        Get processing status for an uploaded document
+        Get processing status for an uploaded document.
+
+        Pass `?timeline=true` to include step-by-step processing detail without changing
+        the default flat status fields.
 
         Args:
+          timeline: When true, include a `timeline` object with ordered processing steps, per-step
+              status, and timing. Default response shape is unchanged.
+
           extra_headers: Send extra headers
 
           extra_query: Add additional query parameters to the request
@@ -108,7 +115,11 @@ class DocumentResource(SyncAPIResource):
         return self._get(
             path_template("/v1/document/status/{upload_id}", upload_id=upload_id),
             options=make_request_options(
-                extra_headers=extra_headers, extra_query=extra_query, extra_body=extra_body, timeout=timeout
+                extra_headers=extra_headers,
+                extra_query=extra_query,
+                extra_body=extra_body,
+                timeout=timeout,
+                query=maybe_transform({"timeline": timeline}, document_get_status_params.DocumentGetStatusParams),
             ),
             cast_to=DocumentGetStatusResponse,
         )
@@ -126,7 +137,7 @@ class DocumentResource(SyncAPIResource):
         metadata: Optional[str] | Omit = omit,
         namespace_id: Optional[str] | Omit = omit,
         policy: Optional[str] | Omit = omit,
-        preferred_provider: Optional[Literal["gemini", "tensorlake", "reducto", "auto"]] | Omit = omit,
+        preferred_provider: Optional[Literal["gemini", "tensorlake", "reducto", "paddleocr", "auto"]] | Omit = omit,
         property_overrides: Optional[str] | Omit = omit,
         schema_id: Optional[str] | Omit = omit,
         user_id: Optional[str] | Omit = omit,
@@ -278,6 +289,7 @@ class AsyncDocumentResource(AsyncAPIResource):
         self,
         upload_id: str,
         *,
+        timeline: bool | Omit = omit,
         # Use the following arguments if you need to pass additional parameters to the API that aren't available via kwargs.
         # The extra values given here take precedence over values defined on the client or passed to this method.
         extra_headers: Headers | None = None,
@@ -286,9 +298,15 @@ class AsyncDocumentResource(AsyncAPIResource):
         timeout: float | httpx.Timeout | None | NotGiven = not_given,
     ) -> DocumentGetStatusResponse:
         """
-        Get processing status for an uploaded document
+        Get processing status for an uploaded document.
+
+        Pass `?timeline=true` to include step-by-step processing detail without changing
+        the default flat status fields.
 
         Args:
+          timeline: When true, include a `timeline` object with ordered processing steps, per-step
+              status, and timing. Default response shape is unchanged.
+
           extra_headers: Send extra headers
 
           extra_query: Add additional query parameters to the request
@@ -302,7 +320,13 @@ class AsyncDocumentResource(AsyncAPIResource):
         return await self._get(
             path_template("/v1/document/status/{upload_id}", upload_id=upload_id),
             options=make_request_options(
-                extra_headers=extra_headers, extra_query=extra_query, extra_body=extra_body, timeout=timeout
+                extra_headers=extra_headers,
+                extra_query=extra_query,
+                extra_body=extra_body,
+                timeout=timeout,
+                query=await async_maybe_transform(
+                    {"timeline": timeline}, document_get_status_params.DocumentGetStatusParams
+                ),
             ),
             cast_to=DocumentGetStatusResponse,
         )
@@ -320,7 +344,7 @@ class AsyncDocumentResource(AsyncAPIResource):
         metadata: Optional[str] | Omit = omit,
         namespace_id: Optional[str] | Omit = omit,
         policy: Optional[str] | Omit = omit,
-        preferred_provider: Optional[Literal["gemini", "tensorlake", "reducto", "auto"]] | Omit = omit,
+        preferred_provider: Optional[Literal["gemini", "tensorlake", "reducto", "paddleocr", "auto"]] | Omit = omit,
         property_overrides: Optional[str] | Omit = omit,
         schema_id: Optional[str] | Omit = omit,
         user_id: Optional[str] | Omit = omit,
