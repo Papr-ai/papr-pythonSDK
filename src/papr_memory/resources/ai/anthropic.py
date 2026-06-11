@@ -14,7 +14,6 @@ from ..._response import (
     async_to_streamed_response_wrapper,
 )
 from ..._base_client import make_request_options
-from ...types.ai.anthropic_send_message_response import AnthropicSendMessageResponse
 
 __all__ = ["AnthropicResource", "AsyncAnthropicResource"]
 
@@ -48,14 +47,14 @@ class AnthropicResource(SyncAPIResource):
         extra_query: Query | None = None,
         extra_body: Body | None = None,
         timeout: float | httpx.Timeout | None | NotGiven = not_given,
-    ) -> AnthropicSendMessageResponse:
+    ) -> object:
         """Anthropic Messages API proxy (Claude models)"""
         return self._post(
             "/v1/ai/anthropic/messages",
             options=make_request_options(
                 extra_headers=extra_headers, extra_query=extra_query, extra_body=extra_body, timeout=timeout
             ),
-            cast_to=AnthropicSendMessageResponse,
+            cast_to=object,
         )
 
 
@@ -88,14 +87,14 @@ class AsyncAnthropicResource(AsyncAPIResource):
         extra_query: Query | None = None,
         extra_body: Body | None = None,
         timeout: float | httpx.Timeout | None | NotGiven = not_given,
-    ) -> AnthropicSendMessageResponse:
+    ) -> object:
         """Anthropic Messages API proxy (Claude models)"""
         return await self._post(
             "/v1/ai/anthropic/messages",
             options=make_request_options(
                 extra_headers=extra_headers, extra_query=extra_query, extra_body=extra_body, timeout=timeout
             ),
-            cast_to=AnthropicSendMessageResponse,
+            cast_to=object,
         )
 
 

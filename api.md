@@ -115,7 +115,7 @@ from papr_memory.types import (
 Methods:
 
 - <code title="delete /v1/document/{upload_id}">client.document.<a href="./src/papr_memory/resources/document.py">cancel_processing</a>(upload_id) -> <a href="./src/papr_memory/types/document_cancel_processing_response.py">DocumentCancelProcessingResponse</a></code>
-- <code title="get /v1/document/status/{upload_id}">client.document.<a href="./src/papr_memory/resources/document.py">get_status</a>(upload_id, \*\*<a href="src/papr_memory/types/document_get_status_params.py">params</a>) -> <a href="./src/papr_memory/types/document_get_status_response.py">DocumentGetStatusResponse</a></code>
+- <code title="get /v1/document/status/{upload_id}">client.document.<a href="./src/papr_memory/resources/document.py">get_status</a>(upload_id) -> <a href="./src/papr_memory/types/document_get_status_response.py">DocumentGetStatusResponse</a></code>
 - <code title="post /v1/document">client.document.<a href="./src/papr_memory/resources/document.py">upload</a>(\*\*<a href="src/papr_memory/types/document_upload_params.py">params</a>) -> <a href="./src/papr_memory/types/document_upload_response.py">DocumentUploadResponse</a></code>
 
 # Schemas
@@ -131,7 +131,6 @@ from papr_memory.types import (
     SchemaRetrieveResponse,
     SchemaUpdateResponse,
     SchemaListResponse,
-    SchemaDeleteResponse,
 )
 ```
 
@@ -141,27 +140,21 @@ Methods:
 - <code title="get /v1/schemas/{schema_id}">client.schemas.<a href="./src/papr_memory/resources/schemas.py">retrieve</a>(schema_id) -> <a href="./src/papr_memory/types/schema_retrieve_response.py">SchemaRetrieveResponse</a></code>
 - <code title="put /v1/schemas/{schema_id}">client.schemas.<a href="./src/papr_memory/resources/schemas.py">update</a>(schema_id, \*\*<a href="src/papr_memory/types/schema_update_params.py">params</a>) -> <a href="./src/papr_memory/types/schema_update_response.py">SchemaUpdateResponse</a></code>
 - <code title="get /v1/schemas">client.schemas.<a href="./src/papr_memory/resources/schemas.py">list</a>(\*\*<a href="src/papr_memory/types/schema_list_params.py">params</a>) -> <a href="./src/papr_memory/types/schema_list_response.py">SchemaListResponse</a></code>
-- <code title="delete /v1/schemas/{schema_id}">client.schemas.<a href="./src/papr_memory/resources/schemas.py">delete</a>(schema_id) -> <a href="./src/papr_memory/types/schema_delete_response.py">SchemaDeleteResponse</a></code>
+- <code title="delete /v1/schemas/{schema_id}">client.schemas.<a href="./src/papr_memory/resources/schemas.py">delete</a>(schema_id) -> object</code>
 
 # Graphql
 
-Types:
-
-```python
-from papr_memory.types import GraphqlPlaygroundResponse, GraphqlQueryResponse
-```
-
 Methods:
 
-- <code title="get /v1/graphql">client.graphql.<a href="./src/papr_memory/resources/graphql.py">playground</a>() -> <a href="./src/papr_memory/types/graphql_playground_response.py">GraphqlPlaygroundResponse</a></code>
-- <code title="post /v1/graphql">client.graphql.<a href="./src/papr_memory/resources/graphql.py">query</a>() -> <a href="./src/papr_memory/types/graphql_query_response.py">GraphqlQueryResponse</a></code>
+- <code title="get /v1/graphql">client.graphql.<a href="./src/papr_memory/resources/graphql.py">playground</a>() -> object</code>
+- <code title="post /v1/graphql">client.graphql.<a href="./src/papr_memory/resources/graphql.py">query</a>() -> object</code>
 
 # Messages
 
 Types:
 
 ```python
-from papr_memory.types import MessageContentBlock, MessageStoreResponse
+from papr_memory.types import MessageStoreResponse
 ```
 
 Methods:
@@ -175,38 +168,31 @@ Types:
 ```python
 from papr_memory.types.messages import (
     ConversationSummaryResponse,
-    SessionUpdateResponse,
     SessionCompressResponse,
-    SessionProcessResponse,
     SessionRetrieveHistoryResponse,
-    SessionRetrieveStatusResponse,
 )
 ```
 
 Methods:
 
-- <code title="patch /v1/messages/sessions/{session_id}">client.messages.sessions.<a href="./src/papr_memory/resources/messages/sessions.py">update</a>(session_id, \*\*<a href="src/papr_memory/types/messages/session_update_params.py">params</a>) -> <a href="./src/papr_memory/types/messages/session_update_response.py">SessionUpdateResponse</a></code>
+- <code title="patch /v1/messages/sessions/{session_id}">client.messages.sessions.<a href="./src/papr_memory/resources/messages/sessions.py">update</a>(session_id, \*\*<a href="src/papr_memory/types/messages/session_update_params.py">params</a>) -> object</code>
 - <code title="get /v1/messages/sessions/{session_id}/compress">client.messages.sessions.<a href="./src/papr_memory/resources/messages/sessions.py">compress</a>(session_id) -> <a href="./src/papr_memory/types/messages/session_compress_response.py">SessionCompressResponse</a></code>
-- <code title="post /v1/messages/sessions/{session_id}/process">client.messages.sessions.<a href="./src/papr_memory/resources/messages/sessions.py">process</a>(session_id) -> <a href="./src/papr_memory/types/messages/session_process_response.py">SessionProcessResponse</a></code>
+- <code title="post /v1/messages/sessions/{session_id}/process">client.messages.sessions.<a href="./src/papr_memory/resources/messages/sessions.py">process</a>(session_id) -> object</code>
 - <code title="get /v1/messages/sessions/{session_id}">client.messages.sessions.<a href="./src/papr_memory/resources/messages/sessions.py">retrieve_history</a>(session_id, \*\*<a href="src/papr_memory/types/messages/session_retrieve_history_params.py">params</a>) -> <a href="./src/papr_memory/types/messages/session_retrieve_history_response.py">SessionRetrieveHistoryResponse</a></code>
-- <code title="get /v1/messages/sessions/{session_id}/status">client.messages.sessions.<a href="./src/papr_memory/resources/messages/sessions.py">retrieve_status</a>(session_id) -> <a href="./src/papr_memory/types/messages/session_retrieve_status_response.py">SessionRetrieveStatusResponse</a></code>
+- <code title="get /v1/messages/sessions/{session_id}/status">client.messages.sessions.<a href="./src/papr_memory/resources/messages/sessions.py">retrieve_status</a>(session_id) -> object</code>
 
 # Omo
 
 Types:
 
 ```python
-from papr_memory.types import (
-    OmoExportMemoriesResponse,
-    OmoExportMemoriesAsJsonResponse,
-    OmoImportMemoriesResponse,
-)
+from papr_memory.types import OmoExportMemoriesResponse, OmoImportMemoriesResponse
 ```
 
 Methods:
 
 - <code title="post /v1/omo/export">client.omo.<a href="./src/papr_memory/resources/omo.py">export_memories</a>(\*\*<a href="src/papr_memory/types/omo_export_memories_params.py">params</a>) -> <a href="./src/papr_memory/types/omo_export_memories_response.py">OmoExportMemoriesResponse</a></code>
-- <code title="get /v1/omo/export.json">client.omo.<a href="./src/papr_memory/resources/omo.py">export_memories_as_json</a>(\*\*<a href="src/papr_memory/types/omo_export_memories_as_json_params.py">params</a>) -> <a href="./src/papr_memory/types/omo_export_memories_as_json_response.py">OmoExportMemoriesAsJsonResponse</a></code>
+- <code title="get /v1/omo/export.json">client.omo.<a href="./src/papr_memory/resources/omo.py">export_memories_as_json</a>(\*\*<a href="src/papr_memory/types/omo_export_memories_as_json_params.py">params</a>) -> object</code>
 - <code title="post /v1/omo/import">client.omo.<a href="./src/papr_memory/resources/omo.py">import_memories</a>(\*\*<a href="src/papr_memory/types/omo_import_memories_params.py">params</a>) -> <a href="./src/papr_memory/types/omo_import_memories_response.py">OmoImportMemoriesResponse</a></code>
 
 # Sync
@@ -289,69 +275,36 @@ Methods:
 
 # AI
 
-Types:
-
-```python
-from papr_memory.types import AIGetUsageResponse
-```
-
 Methods:
 
-- <code title="get /v1/ai/usage">client.ai.<a href="./src/papr_memory/resources/ai/ai.py">get_usage</a>() -> <a href="./src/papr_memory/types/ai_get_usage_response.py">AIGetUsageResponse</a></code>
+- <code title="get /v1/ai/usage">client.ai.<a href="./src/papr_memory/resources/ai/ai.py">get_usage</a>() -> object</code>
 
 ## OpenAI
 
-Types:
-
-```python
-from papr_memory.types.ai import OpenAICreateResponseResponse
-```
-
 Methods:
 
-- <code title="post /v1/ai/openai/responses">client.ai.openai.<a href="./src/papr_memory/resources/ai/openai/openai.py">create_response</a>() -> <a href="./src/papr_memory/types/ai/openai_create_response_response.py">OpenAICreateResponseResponse</a></code>
+- <code title="post /v1/ai/openai/responses">client.ai.openai.<a href="./src/papr_memory/resources/ai/openai/openai.py">create_response</a>() -> object</code>
 
 ### Chat
 
-Types:
-
-```python
-from papr_memory.types.ai.openai import ChatCreateCompletionResponse
-```
-
 Methods:
 
-- <code title="post /v1/ai/openai/chat/completions">client.ai.openai.chat.<a href="./src/papr_memory/resources/ai/openai/chat.py">create_completion</a>() -> <a href="./src/papr_memory/types/ai/openai/chat_create_completion_response.py">ChatCreateCompletionResponse</a></code>
+- <code title="post /v1/ai/openai/chat/completions">client.ai.openai.chat.<a href="./src/papr_memory/resources/ai/openai/chat.py">create_completion</a>() -> object</code>
 
 ## Anthropic
 
-Types:
-
-```python
-from papr_memory.types.ai import AnthropicSendMessageResponse
-```
-
 Methods:
 
-- <code title="post /v1/ai/anthropic/messages">client.ai.anthropic.<a href="./src/papr_memory/resources/ai/anthropic.py">send_message</a>() -> <a href="./src/papr_memory/types/ai/anthropic_send_message_response.py">AnthropicSendMessageResponse</a></code>
+- <code title="post /v1/ai/anthropic/messages">client.ai.anthropic.<a href="./src/papr_memory/resources/ai/anthropic.py">send_message</a>() -> object</code>
 
 ## Google
 
 ### Models
 
-Types:
-
-```python
-from papr_memory.types.ai.google import (
-    ModelGenerateContentResponse,
-    ModelStreamGenerateContentResponse,
-)
-```
-
 Methods:
 
-- <code title="post /v1/ai/google/models/{model_id}:generateContent">client.ai.google.models.<a href="./src/papr_memory/resources/ai/google/models.py">generate_content</a>(model_id) -> <a href="./src/papr_memory/types/ai/google/model_generate_content_response.py">ModelGenerateContentResponse</a></code>
-- <code title="post /v1/ai/google/models/{model_id}:streamGenerateContent">client.ai.google.models.<a href="./src/papr_memory/resources/ai/google/models.py">stream_generate_content</a>(model_id) -> <a href="./src/papr_memory/types/ai/google/model_stream_generate_content_response.py">ModelStreamGenerateContentResponse</a></code>
+- <code title="post /v1/ai/google/models/{model_id}:generateContent">client.ai.google.models.<a href="./src/papr_memory/resources/ai/google/models.py">generate_content</a>(model_id) -> object</code>
+- <code title="post /v1/ai/google/models/{model_id}:streamGenerateContent">client.ai.google.models.<a href="./src/papr_memory/resources/ai/google/models.py">stream_generate_content</a>(model_id) -> object</code>
 
 # Telemetry
 

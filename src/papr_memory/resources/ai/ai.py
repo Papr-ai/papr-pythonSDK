@@ -38,7 +38,6 @@ from .openai.openai import (
     AsyncOpenAIResourceWithStreamingResponse,
 )
 from ..._base_client import make_request_options
-from ...types.ai_get_usage_response import AIGetUsageResponse
 
 __all__ = ["AIResource", "AsyncAIResource"]
 
@@ -84,14 +83,14 @@ class AIResource(SyncAPIResource):
         extra_query: Query | None = None,
         extra_body: Body | None = None,
         timeout: float | httpx.Timeout | None | NotGiven = not_given,
-    ) -> AIGetUsageResponse:
+    ) -> object:
         """Get user's AI proxy usage stats and subscription info."""
         return self._get(
             "/v1/ai/usage",
             options=make_request_options(
                 extra_headers=extra_headers, extra_query=extra_query, extra_body=extra_body, timeout=timeout
             ),
-            cast_to=AIGetUsageResponse,
+            cast_to=object,
         )
 
 
@@ -136,14 +135,14 @@ class AsyncAIResource(AsyncAPIResource):
         extra_query: Query | None = None,
         extra_body: Body | None = None,
         timeout: float | httpx.Timeout | None | NotGiven = not_given,
-    ) -> AIGetUsageResponse:
+    ) -> object:
         """Get user's AI proxy usage stats and subscription info."""
         return await self._get(
             "/v1/ai/usage",
             options=make_request_options(
                 extra_headers=extra_headers, extra_query=extra_query, extra_body=extra_body, timeout=timeout
             ),
-            cast_to=AIGetUsageResponse,
+            cast_to=object,
         )
 
 

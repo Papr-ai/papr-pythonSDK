@@ -55,7 +55,7 @@ class DocumentUploadParams(TypedDict, total=False):
     link_to, consent, risk, acl). Applies to all chunks from this document.
     """
 
-    preferred_provider: Optional[Literal["gemini", "tensorlake", "reducto", "paddleocr", "auto"]]
+    preferred_provider: Optional[Literal["gemini", "tensorlake", "reducto", "auto"]]
     """Preferred provider for document processing."""
 
     property_overrides: Optional[str]

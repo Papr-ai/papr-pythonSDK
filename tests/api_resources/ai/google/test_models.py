@@ -9,7 +9,6 @@ import pytest
 
 from papr_memory import Papr, AsyncPapr
 from tests.utils import assert_matches_type
-from papr_memory.types.ai.google import ModelGenerateContentResponse, ModelStreamGenerateContentResponse
 
 base_url = os.environ.get("TEST_API_BASE_URL", "http://127.0.0.1:4010")
 
@@ -23,7 +22,7 @@ class TestModels:
         model = client.ai.google.models.generate_content(
             "model_id",
         )
-        assert_matches_type(ModelGenerateContentResponse, model, path=["response"])
+        assert_matches_type(object, model, path=["response"])
 
     @pytest.mark.skip(reason="Mock server tests are disabled")
     @parametrize
@@ -35,7 +34,7 @@ class TestModels:
         assert response.is_closed is True
         assert response.http_request.headers.get("X-Stainless-Lang") == "python"
         model = response.parse()
-        assert_matches_type(ModelGenerateContentResponse, model, path=["response"])
+        assert_matches_type(object, model, path=["response"])
 
     @pytest.mark.skip(reason="Mock server tests are disabled")
     @parametrize
@@ -47,7 +46,7 @@ class TestModels:
             assert response.http_request.headers.get("X-Stainless-Lang") == "python"
 
             model = response.parse()
-            assert_matches_type(ModelGenerateContentResponse, model, path=["response"])
+            assert_matches_type(object, model, path=["response"])
 
         assert cast(Any, response.is_closed) is True
 
@@ -65,7 +64,7 @@ class TestModels:
         model = client.ai.google.models.stream_generate_content(
             "model_id",
         )
-        assert_matches_type(ModelStreamGenerateContentResponse, model, path=["response"])
+        assert_matches_type(object, model, path=["response"])
 
     @pytest.mark.skip(reason="Mock server tests are disabled")
     @parametrize
@@ -77,7 +76,7 @@ class TestModels:
         assert response.is_closed is True
         assert response.http_request.headers.get("X-Stainless-Lang") == "python"
         model = response.parse()
-        assert_matches_type(ModelStreamGenerateContentResponse, model, path=["response"])
+        assert_matches_type(object, model, path=["response"])
 
     @pytest.mark.skip(reason="Mock server tests are disabled")
     @parametrize
@@ -89,7 +88,7 @@ class TestModels:
             assert response.http_request.headers.get("X-Stainless-Lang") == "python"
 
             model = response.parse()
-            assert_matches_type(ModelStreamGenerateContentResponse, model, path=["response"])
+            assert_matches_type(object, model, path=["response"])
 
         assert cast(Any, response.is_closed) is True
 
@@ -113,7 +112,7 @@ class TestAsyncModels:
         model = await async_client.ai.google.models.generate_content(
             "model_id",
         )
-        assert_matches_type(ModelGenerateContentResponse, model, path=["response"])
+        assert_matches_type(object, model, path=["response"])
 
     @pytest.mark.skip(reason="Mock server tests are disabled")
     @parametrize
@@ -125,7 +124,7 @@ class TestAsyncModels:
         assert response.is_closed is True
         assert response.http_request.headers.get("X-Stainless-Lang") == "python"
         model = await response.parse()
-        assert_matches_type(ModelGenerateContentResponse, model, path=["response"])
+        assert_matches_type(object, model, path=["response"])
 
     @pytest.mark.skip(reason="Mock server tests are disabled")
     @parametrize
@@ -137,7 +136,7 @@ class TestAsyncModels:
             assert response.http_request.headers.get("X-Stainless-Lang") == "python"
 
             model = await response.parse()
-            assert_matches_type(ModelGenerateContentResponse, model, path=["response"])
+            assert_matches_type(object, model, path=["response"])
 
         assert cast(Any, response.is_closed) is True
 
@@ -155,7 +154,7 @@ class TestAsyncModels:
         model = await async_client.ai.google.models.stream_generate_content(
             "model_id",
         )
-        assert_matches_type(ModelStreamGenerateContentResponse, model, path=["response"])
+        assert_matches_type(object, model, path=["response"])
 
     @pytest.mark.skip(reason="Mock server tests are disabled")
     @parametrize
@@ -167,7 +166,7 @@ class TestAsyncModels:
         assert response.is_closed is True
         assert response.http_request.headers.get("X-Stainless-Lang") == "python"
         model = await response.parse()
-        assert_matches_type(ModelStreamGenerateContentResponse, model, path=["response"])
+        assert_matches_type(object, model, path=["response"])
 
     @pytest.mark.skip(reason="Mock server tests are disabled")
     @parametrize
@@ -179,7 +178,7 @@ class TestAsyncModels:
             assert response.http_request.headers.get("X-Stainless-Lang") == "python"
 
             model = await response.parse()
-            assert_matches_type(ModelStreamGenerateContentResponse, model, path=["response"])
+            assert_matches_type(object, model, path=["response"])
 
         assert cast(Any, response.is_closed) is True
 

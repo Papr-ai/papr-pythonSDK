@@ -14,7 +14,6 @@ from ...._response import (
     async_to_streamed_response_wrapper,
 )
 from ...._base_client import make_request_options
-from ....types.ai.openai.chat_create_completion_response import ChatCreateCompletionResponse
 
 __all__ = ["ChatResource", "AsyncChatResource"]
 
@@ -48,14 +47,14 @@ class ChatResource(SyncAPIResource):
         extra_query: Query | None = None,
         extra_body: Body | None = None,
         timeout: float | httpx.Timeout | None | NotGiven = not_given,
-    ) -> ChatCreateCompletionResponse:
+    ) -> object:
         """OpenAI Chat Completions API proxy (GPT-4, GPT-4-turbo, etc.)"""
         return self._post(
             "/v1/ai/openai/chat/completions",
             options=make_request_options(
                 extra_headers=extra_headers, extra_query=extra_query, extra_body=extra_body, timeout=timeout
             ),
-            cast_to=ChatCreateCompletionResponse,
+            cast_to=object,
         )
 
 
@@ -88,14 +87,14 @@ class AsyncChatResource(AsyncAPIResource):
         extra_query: Query | None = None,
         extra_body: Body | None = None,
         timeout: float | httpx.Timeout | None | NotGiven = not_given,
-    ) -> ChatCreateCompletionResponse:
+    ) -> object:
         """OpenAI Chat Completions API proxy (GPT-4, GPT-4-turbo, etc.)"""
         return await self._post(
             "/v1/ai/openai/chat/completions",
             options=make_request_options(
                 extra_headers=extra_headers, extra_query=extra_query, extra_body=extra_body, timeout=timeout
             ),
-            cast_to=ChatCreateCompletionResponse,
+            cast_to=object,
         )
 
 

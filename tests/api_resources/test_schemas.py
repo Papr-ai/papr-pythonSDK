@@ -12,7 +12,6 @@ from tests.utils import assert_matches_type
 from papr_memory.types import (
     SchemaListResponse,
     SchemaCreateResponse,
-    SchemaDeleteResponse,
     SchemaUpdateResponse,
     SchemaRetrieveResponse,
 )
@@ -368,7 +367,7 @@ class TestSchemas:
         schema = client.schemas.delete(
             "schema_id",
         )
-        assert_matches_type(SchemaDeleteResponse, schema, path=["response"])
+        assert_matches_type(object, schema, path=["response"])
 
     @pytest.mark.skip(reason="Mock server tests are disabled")
     @parametrize
@@ -380,7 +379,7 @@ class TestSchemas:
         assert response.is_closed is True
         assert response.http_request.headers.get("X-Stainless-Lang") == "python"
         schema = response.parse()
-        assert_matches_type(SchemaDeleteResponse, schema, path=["response"])
+        assert_matches_type(object, schema, path=["response"])
 
     @pytest.mark.skip(reason="Mock server tests are disabled")
     @parametrize
@@ -392,7 +391,7 @@ class TestSchemas:
             assert response.http_request.headers.get("X-Stainless-Lang") == "python"
 
             schema = response.parse()
-            assert_matches_type(SchemaDeleteResponse, schema, path=["response"])
+            assert_matches_type(object, schema, path=["response"])
 
         assert cast(Any, response.is_closed) is True
 
@@ -754,7 +753,7 @@ class TestAsyncSchemas:
         schema = await async_client.schemas.delete(
             "schema_id",
         )
-        assert_matches_type(SchemaDeleteResponse, schema, path=["response"])
+        assert_matches_type(object, schema, path=["response"])
 
     @pytest.mark.skip(reason="Mock server tests are disabled")
     @parametrize
@@ -766,7 +765,7 @@ class TestAsyncSchemas:
         assert response.is_closed is True
         assert response.http_request.headers.get("X-Stainless-Lang") == "python"
         schema = await response.parse()
-        assert_matches_type(SchemaDeleteResponse, schema, path=["response"])
+        assert_matches_type(object, schema, path=["response"])
 
     @pytest.mark.skip(reason="Mock server tests are disabled")
     @parametrize
@@ -778,7 +777,7 @@ class TestAsyncSchemas:
             assert response.http_request.headers.get("X-Stainless-Lang") == "python"
 
             schema = await response.parse()
-            assert_matches_type(SchemaDeleteResponse, schema, path=["response"])
+            assert_matches_type(object, schema, path=["response"])
 
         assert cast(Any, response.is_closed) is True
 
