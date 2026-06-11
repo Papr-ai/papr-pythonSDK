@@ -18,7 +18,10 @@ from ..._response import (
 )
 from ..._base_client import make_request_options
 from ...types.messages import session_update_params, session_retrieve_history_params
+from ...types.messages.session_update_response import SessionUpdateResponse
+from ...types.messages.session_process_response import SessionProcessResponse
 from ...types.messages.session_compress_response import SessionCompressResponse
+from ...types.messages.session_retrieve_status_response import SessionRetrieveStatusResponse
 from ...types.messages.session_retrieve_history_response import SessionRetrieveHistoryResponse
 
 __all__ = ["SessionsResource", "AsyncSessionsResource"]
@@ -56,7 +59,7 @@ class SessionsResource(SyncAPIResource):
         extra_query: Query | None = None,
         extra_body: Body | None = None,
         timeout: float | httpx.Timeout | None | NotGiven = not_given,
-    ) -> object:
+    ) -> SessionUpdateResponse:
         """
         Update session properties (e.g., title, metadata).
 
@@ -101,7 +104,7 @@ class SessionsResource(SyncAPIResource):
             options=make_request_options(
                 extra_headers=extra_headers, extra_query=extra_query, extra_body=extra_body, timeout=timeout
             ),
-            cast_to=object,
+            cast_to=SessionUpdateResponse,
         )
 
     def compress(
@@ -128,7 +131,8 @@ class SessionsResource(SyncAPIResource):
             - **medium_term**: Last ~100 messages compressed
             - **long_term**: Full session compressed
             - **topics**: Key topics discussed
-            - **enhanced_fields**: Project context, tech stack, key decisions, next steps, files accessed
+            - **session_intent / current_state / next_steps**: Structured session context for agents
+            - **project_context / files_accessed / technical_details**: Project and file operation metadata
 
             **Perfect for**:
             - Reducing token usage in LLM prompts (96% savings)
@@ -167,7 +171,7 @@ class SessionsResource(SyncAPIResource):
         extra_query: Query | None = None,
         extra_body: Body | None = None,
         timeout: float | httpx.Timeout | None | NotGiven = not_given,
-    ) -> object:
+    ) -> SessionProcessResponse:
         """
         Process all stored messages in a session that were previously stored with
         process_messages=false.
@@ -201,7 +205,7 @@ class SessionsResource(SyncAPIResource):
             options=make_request_options(
                 extra_headers=extra_headers, extra_query=extra_query, extra_body=extra_body, timeout=timeout
             ),
-            cast_to=object,
+            cast_to=SessionProcessResponse,
         )
 
     def retrieve_history(
@@ -280,7 +284,7 @@ class SessionsResource(SyncAPIResource):
         extra_query: Query | None = None,
         extra_body: Body | None = None,
         timeout: float | httpx.Timeout | None | NotGiven = not_given,
-    ) -> object:
+    ) -> SessionRetrieveStatusResponse:
         """
         Get processing status for messages in a session.
 
@@ -307,7 +311,7 @@ class SessionsResource(SyncAPIResource):
             options=make_request_options(
                 extra_headers=extra_headers, extra_query=extra_query, extra_body=extra_body, timeout=timeout
             ),
-            cast_to=object,
+            cast_to=SessionRetrieveStatusResponse,
         )
 
 
@@ -343,7 +347,7 @@ class AsyncSessionsResource(AsyncAPIResource):
         extra_query: Query | None = None,
         extra_body: Body | None = None,
         timeout: float | httpx.Timeout | None | NotGiven = not_given,
-    ) -> object:
+    ) -> SessionUpdateResponse:
         """
         Update session properties (e.g., title, metadata).
 
@@ -388,7 +392,7 @@ class AsyncSessionsResource(AsyncAPIResource):
             options=make_request_options(
                 extra_headers=extra_headers, extra_query=extra_query, extra_body=extra_body, timeout=timeout
             ),
-            cast_to=object,
+            cast_to=SessionUpdateResponse,
         )
 
     async def compress(
@@ -415,7 +419,8 @@ class AsyncSessionsResource(AsyncAPIResource):
             - **medium_term**: Last ~100 messages compressed
             - **long_term**: Full session compressed
             - **topics**: Key topics discussed
-            - **enhanced_fields**: Project context, tech stack, key decisions, next steps, files accessed
+            - **session_intent / current_state / next_steps**: Structured session context for agents
+            - **project_context / files_accessed / technical_details**: Project and file operation metadata
 
             **Perfect for**:
             - Reducing token usage in LLM prompts (96% savings)
@@ -454,7 +459,7 @@ class AsyncSessionsResource(AsyncAPIResource):
         extra_query: Query | None = None,
         extra_body: Body | None = None,
         timeout: float | httpx.Timeout | None | NotGiven = not_given,
-    ) -> object:
+    ) -> SessionProcessResponse:
         """
         Process all stored messages in a session that were previously stored with
         process_messages=false.
@@ -488,7 +493,7 @@ class AsyncSessionsResource(AsyncAPIResource):
             options=make_request_options(
                 extra_headers=extra_headers, extra_query=extra_query, extra_body=extra_body, timeout=timeout
             ),
-            cast_to=object,
+            cast_to=SessionProcessResponse,
         )
 
     async def retrieve_history(
@@ -567,7 +572,7 @@ class AsyncSessionsResource(AsyncAPIResource):
         extra_query: Query | None = None,
         extra_body: Body | None = None,
         timeout: float | httpx.Timeout | None | NotGiven = not_given,
-    ) -> object:
+    ) -> SessionRetrieveStatusResponse:
         """
         Get processing status for messages in a session.
 
@@ -594,7 +599,7 @@ class AsyncSessionsResource(AsyncAPIResource):
             options=make_request_options(
                 extra_headers=extra_headers, extra_query=extra_query, extra_body=extra_body, timeout=timeout
             ),
-            cast_to=object,
+            cast_to=SessionRetrieveStatusResponse,
         )
 
 

@@ -11,11 +11,11 @@ from .graph_generation_param import GraphGenerationParam
 from .shared_params.memory_policy import MemoryPolicy
 from .shared_params.memory_add_policy import MemoryAddPolicy
 
-__all__ = ["MessageStoreParams"]
+__all__ = ["MessageStoreParams", "ContentUnionMember1"]
 
 
 class MessageStoreParams(TypedDict, total=False):
-    content: Required[Union[str, Iterable[Dict[str, object]]]]
+    content: Required[Union[str, Iterable[ContentUnionMember1]]]
     """
     The content of the chat message - can be a simple string or structured content
     objects
@@ -29,6 +29,13 @@ class MessageStoreParams(TypedDict, total=False):
 
     context: Optional[Iterable[Dict[str, object]]]
     """Optional context for the message (conversation history or relevant context)"""
+
+    external_user_id: Optional[str]
+    """Your application's external user identifier.
+
+    Papr resolves or creates internal users automatically. Use for third-party
+    integrations.
+    """
 
     graph_generation: Optional[GraphGenerationParam]
     """Graph generation configuration"""
@@ -83,3 +90,22 @@ class MessageStoreParams(TypedDict, total=False):
 
     Sets the Chat.title in Parse Server for easy identification.
     """
+
+    user_id: Optional[str]
+    """Internal Papr Parse user ID (\\__User.objectId).
+
+    Use when you already have the resolved user, e.g. first-party Papr apps after
+    login.
+    """
+
+
+class ContentUnionMember1(TypedDict, total=False):
+    """
+    Structured message content block (OpenAPI-typed alternative to free-form dicts).
+    """
+
+    type: Required[str]
+    """Content block type (e.g. 'text')"""
+
+    text: Optional[str]
+    """Text payload when type is 'text'"""

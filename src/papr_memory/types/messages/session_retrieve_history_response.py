@@ -1,6 +1,6 @@
 # File generated from our OpenAPI spec by Stainless. See CONTRIBUTING.md for details.
 
-from typing import Dict, List, Union, Optional
+from typing import List, Union, Optional
 from datetime import datetime
 from typing_extensions import Literal
 
@@ -9,13 +9,25 @@ from pydantic import Field as FieldInfo
 from ..._models import BaseModel
 from .conversation_summary_response import ConversationSummaryResponse
 
-__all__ = ["SessionRetrieveHistoryResponse", "Message"]
+__all__ = ["SessionRetrieveHistoryResponse", "Message", "MessageContentUnionMember1"]
+
+
+class MessageContentUnionMember1(BaseModel):
+    """
+    Structured message content block (OpenAPI-typed alternative to free-form dicts).
+    """
+
+    type: str
+    """Content block type (e.g. 'text')"""
+
+    text: Optional[str] = None
+    """Text payload when type is 'text'"""
 
 
 class Message(BaseModel):
     """Response model for message storage"""
 
-    content: Union[str, List[Dict[str, object]]]
+    content: Union[str, List[MessageContentUnionMember1]]
     """Content of the message - can be a simple string or structured content objects"""
 
     created_at: datetime = FieldInfo(alias="createdAt")

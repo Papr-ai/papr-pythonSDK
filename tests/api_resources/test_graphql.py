@@ -9,6 +9,7 @@ import pytest
 
 from papr_memory import Papr, AsyncPapr
 from tests.utils import assert_matches_type
+from papr_memory.types import GraphqlQueryResponse, GraphqlPlaygroundResponse
 
 base_url = os.environ.get("TEST_API_BASE_URL", "http://127.0.0.1:4010")
 
@@ -20,7 +21,7 @@ class TestGraphql:
     @parametrize
     def test_method_playground(self, client: Papr) -> None:
         graphql = client.graphql.playground()
-        assert_matches_type(object, graphql, path=["response"])
+        assert_matches_type(GraphqlPlaygroundResponse, graphql, path=["response"])
 
     @pytest.mark.skip(reason="Mock server tests are disabled")
     @parametrize
@@ -30,7 +31,7 @@ class TestGraphql:
         assert response.is_closed is True
         assert response.http_request.headers.get("X-Stainless-Lang") == "python"
         graphql = response.parse()
-        assert_matches_type(object, graphql, path=["response"])
+        assert_matches_type(GraphqlPlaygroundResponse, graphql, path=["response"])
 
     @pytest.mark.skip(reason="Mock server tests are disabled")
     @parametrize
@@ -40,7 +41,7 @@ class TestGraphql:
             assert response.http_request.headers.get("X-Stainless-Lang") == "python"
 
             graphql = response.parse()
-            assert_matches_type(object, graphql, path=["response"])
+            assert_matches_type(GraphqlPlaygroundResponse, graphql, path=["response"])
 
         assert cast(Any, response.is_closed) is True
 
@@ -48,7 +49,7 @@ class TestGraphql:
     @parametrize
     def test_method_query(self, client: Papr) -> None:
         graphql = client.graphql.query()
-        assert_matches_type(object, graphql, path=["response"])
+        assert_matches_type(GraphqlQueryResponse, graphql, path=["response"])
 
     @pytest.mark.skip(reason="Mock server tests are disabled")
     @parametrize
@@ -58,7 +59,7 @@ class TestGraphql:
         assert response.is_closed is True
         assert response.http_request.headers.get("X-Stainless-Lang") == "python"
         graphql = response.parse()
-        assert_matches_type(object, graphql, path=["response"])
+        assert_matches_type(GraphqlQueryResponse, graphql, path=["response"])
 
     @pytest.mark.skip(reason="Mock server tests are disabled")
     @parametrize
@@ -68,7 +69,7 @@ class TestGraphql:
             assert response.http_request.headers.get("X-Stainless-Lang") == "python"
 
             graphql = response.parse()
-            assert_matches_type(object, graphql, path=["response"])
+            assert_matches_type(GraphqlQueryResponse, graphql, path=["response"])
 
         assert cast(Any, response.is_closed) is True
 
@@ -82,7 +83,7 @@ class TestAsyncGraphql:
     @parametrize
     async def test_method_playground(self, async_client: AsyncPapr) -> None:
         graphql = await async_client.graphql.playground()
-        assert_matches_type(object, graphql, path=["response"])
+        assert_matches_type(GraphqlPlaygroundResponse, graphql, path=["response"])
 
     @pytest.mark.skip(reason="Mock server tests are disabled")
     @parametrize
@@ -92,7 +93,7 @@ class TestAsyncGraphql:
         assert response.is_closed is True
         assert response.http_request.headers.get("X-Stainless-Lang") == "python"
         graphql = await response.parse()
-        assert_matches_type(object, graphql, path=["response"])
+        assert_matches_type(GraphqlPlaygroundResponse, graphql, path=["response"])
 
     @pytest.mark.skip(reason="Mock server tests are disabled")
     @parametrize
@@ -102,7 +103,7 @@ class TestAsyncGraphql:
             assert response.http_request.headers.get("X-Stainless-Lang") == "python"
 
             graphql = await response.parse()
-            assert_matches_type(object, graphql, path=["response"])
+            assert_matches_type(GraphqlPlaygroundResponse, graphql, path=["response"])
 
         assert cast(Any, response.is_closed) is True
 
@@ -110,7 +111,7 @@ class TestAsyncGraphql:
     @parametrize
     async def test_method_query(self, async_client: AsyncPapr) -> None:
         graphql = await async_client.graphql.query()
-        assert_matches_type(object, graphql, path=["response"])
+        assert_matches_type(GraphqlQueryResponse, graphql, path=["response"])
 
     @pytest.mark.skip(reason="Mock server tests are disabled")
     @parametrize
@@ -120,7 +121,7 @@ class TestAsyncGraphql:
         assert response.is_closed is True
         assert response.http_request.headers.get("X-Stainless-Lang") == "python"
         graphql = await response.parse()
-        assert_matches_type(object, graphql, path=["response"])
+        assert_matches_type(GraphqlQueryResponse, graphql, path=["response"])
 
     @pytest.mark.skip(reason="Mock server tests are disabled")
     @parametrize
@@ -130,6 +131,6 @@ class TestAsyncGraphql:
             assert response.http_request.headers.get("X-Stainless-Lang") == "python"
 
             graphql = await response.parse()
-            assert_matches_type(object, graphql, path=["response"])
+            assert_matches_type(GraphqlQueryResponse, graphql, path=["response"])
 
         assert cast(Any, response.is_closed) is True

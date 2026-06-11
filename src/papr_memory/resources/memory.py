@@ -307,7 +307,9 @@ class MemoryResource(SyncAPIResource):
         self,
         *,
         content: str,
+        enable_holographic: bool | Omit = omit,
         format: Optional[str] | Omit = omit,
+        frequency_schema_id: Optional[str] | Omit = omit,
         skip_background_processing: bool | Omit = omit,
         webhook_secret: Optional[str] | Omit = omit,
         webhook_url: Optional[str] | Omit = omit,
@@ -358,8 +360,14 @@ class MemoryResource(SyncAPIResource):
         Args:
           content: The content of the memory item you want to add to memory
 
+          enable_holographic: If True, applies holographic neural transforms and stores in holographic
+              collection
+
           format: Response format. Use 'omo' for Open Memory Object standard format (portable
               across platforms).
+
+          frequency_schema_id: Frequency schema for holographic embedding (e.g. 'cosqa', 'scifact'). Required
+              when enable_holographic=True. Call GET /v1/frequencies to see available schemas.
 
           skip_background_processing: If True, skips adding background tasks for processing
 
@@ -425,7 +433,7 @@ class MemoryResource(SyncAPIResource):
           policy: Policy for add / batch / document / message ingestion.
 
           relationships_json:
-              DEPRECATED: Use 'policy' instead. Migration options: 1. Specific memory:
+              DEPRECATED: Use 'memory_policy' instead. Migration options: 1. Specific memory:
               relationships=[{source: '$this', target: 'mem_123', type: 'FOLLOWS'}] 2.
               Previous memory: link_to_previous_memory=True 3. Related memories:
               link_to_related_memories=3
@@ -470,7 +478,9 @@ class MemoryResource(SyncAPIResource):
                 timeout=timeout,
                 query=maybe_transform(
                     {
+                        "enable_holographic": enable_holographic,
                         "format": format,
+                        "frequency_schema_id": frequency_schema_id,
                         "skip_background_processing": skip_background_processing,
                         "webhook_secret": webhook_secret,
                         "webhook_url": webhook_url,
@@ -485,6 +495,8 @@ class MemoryResource(SyncAPIResource):
         self,
         *,
         memories: Iterable[AddMemoryParam],
+        enable_holographic: bool | Omit = omit,
+        frequency_schema_id: Optional[str] | Omit = omit,
         skip_background_processing: bool | Omit = omit,
         batch_size: Optional[int] | Omit = omit,
         external_user_id: Optional[str] | Omit = omit,
@@ -522,6 +534,12 @@ class MemoryResource(SyncAPIResource):
 
         Args:
           memories: List of memory items to add in batch
+
+          enable_holographic: If True, applies holographic neural transforms and stores in holographic
+              collection
+
+          frequency_schema_id: Frequency schema for holographic embedding (e.g. 'cosqa', 'scifact'). Required
+              when enable_holographic=True. Call GET /v1/frequencies to see available schemas.
 
           skip_background_processing: If True, skips adding background tasks for processing
 
@@ -618,7 +636,11 @@ class MemoryResource(SyncAPIResource):
                 extra_body=extra_body,
                 timeout=timeout,
                 query=maybe_transform(
-                    {"skip_background_processing": skip_background_processing},
+                    {
+                        "enable_holographic": enable_holographic,
+                        "frequency_schema_id": frequency_schema_id,
+                        "skip_background_processing": skip_background_processing,
+                    },
                     memory_add_batch_params.MemoryAddBatchParams,
                 ),
             ),
@@ -3901,7 +3923,9 @@ class AsyncMemoryResource(AsyncAPIResource):
         self,
         *,
         content: str,
+        enable_holographic: bool | Omit = omit,
         format: Optional[str] | Omit = omit,
+        frequency_schema_id: Optional[str] | Omit = omit,
         skip_background_processing: bool | Omit = omit,
         webhook_secret: Optional[str] | Omit = omit,
         webhook_url: Optional[str] | Omit = omit,
@@ -3952,8 +3976,14 @@ class AsyncMemoryResource(AsyncAPIResource):
         Args:
           content: The content of the memory item you want to add to memory
 
+          enable_holographic: If True, applies holographic neural transforms and stores in holographic
+              collection
+
           format: Response format. Use 'omo' for Open Memory Object standard format (portable
               across platforms).
+
+          frequency_schema_id: Frequency schema for holographic embedding (e.g. 'cosqa', 'scifact'). Required
+              when enable_holographic=True. Call GET /v1/frequencies to see available schemas.
 
           skip_background_processing: If True, skips adding background tasks for processing
 
@@ -4019,7 +4049,7 @@ class AsyncMemoryResource(AsyncAPIResource):
           policy: Policy for add / batch / document / message ingestion.
 
           relationships_json:
-              DEPRECATED: Use 'policy' instead. Migration options: 1. Specific memory:
+              DEPRECATED: Use 'memory_policy' instead. Migration options: 1. Specific memory:
               relationships=[{source: '$this', target: 'mem_123', type: 'FOLLOWS'}] 2.
               Previous memory: link_to_previous_memory=True 3. Related memories:
               link_to_related_memories=3
@@ -4064,7 +4094,9 @@ class AsyncMemoryResource(AsyncAPIResource):
                 timeout=timeout,
                 query=await async_maybe_transform(
                     {
+                        "enable_holographic": enable_holographic,
                         "format": format,
+                        "frequency_schema_id": frequency_schema_id,
                         "skip_background_processing": skip_background_processing,
                         "webhook_secret": webhook_secret,
                         "webhook_url": webhook_url,
@@ -4079,6 +4111,8 @@ class AsyncMemoryResource(AsyncAPIResource):
         self,
         *,
         memories: Iterable[AddMemoryParam],
+        enable_holographic: bool | Omit = omit,
+        frequency_schema_id: Optional[str] | Omit = omit,
         skip_background_processing: bool | Omit = omit,
         batch_size: Optional[int] | Omit = omit,
         external_user_id: Optional[str] | Omit = omit,
@@ -4116,6 +4150,12 @@ class AsyncMemoryResource(AsyncAPIResource):
 
         Args:
           memories: List of memory items to add in batch
+
+          enable_holographic: If True, applies holographic neural transforms and stores in holographic
+              collection
+
+          frequency_schema_id: Frequency schema for holographic embedding (e.g. 'cosqa', 'scifact'). Required
+              when enable_holographic=True. Call GET /v1/frequencies to see available schemas.
 
           skip_background_processing: If True, skips adding background tasks for processing
 
@@ -4212,7 +4252,11 @@ class AsyncMemoryResource(AsyncAPIResource):
                 extra_body=extra_body,
                 timeout=timeout,
                 query=await async_maybe_transform(
-                    {"skip_background_processing": skip_background_processing},
+                    {
+                        "enable_holographic": enable_holographic,
+                        "frequency_schema_id": frequency_schema_id,
+                        "skip_background_processing": skip_background_processing,
+                    },
                     memory_add_batch_params.MemoryAddBatchParams,
                 ),
             ),
