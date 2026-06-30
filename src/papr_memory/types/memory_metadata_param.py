@@ -11,7 +11,11 @@ from .._utils import PropertyInfo
 __all__ = ["MemoryMetadataParam"]
 
 
-class MemoryMetadataParam(TypedDict, total=False, extra_items=object):  # type: ignore[call-arg]
+class MemoryMetadataParam(  # type: ignore[call-arg]
+    TypedDict,
+    total=False,
+    extra_items=object,  # pyright: ignore[reportGeneralTypeIssues]
+):
     """Metadata for memory request"""
 
     acl: Optional[Dict[str, SequenceNotStr[str]]]
