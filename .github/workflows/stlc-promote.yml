@@ -1,8 +1,3 @@
-# NOTE(stlc migration, 2026-08-07): repo names below point at the
-# stainless-sdks placeholder repos used to validate the migration.
-# At cutover, replace:
-#   - the production repo with Papr-ai/papr-pythonSDK
-#   - the staging/config repo owner with your own org after transfer
 name: Promote SDKs
 
 # Promote staging to production by fast-forwarding production main up to staging,
@@ -19,12 +14,12 @@ jobs:
   promote:
     # Runner comes from the STLC_RUNNER repo/org variable when set; defaults to GitHub-hosted.
     runs-on: ${{ vars.STLC_RUNNER || 'ubuntu-latest' }}
-    if: github.repository == 'stainless-sdks/papr-memory-python-staging'
+    if: github.repository == 'Papr-ai/papr-memory-python-staging'
     # Optional gate: add required reviewers to this environment to approve each
     # promote. With none it only scopes secrets and adds no gate. Remove if unused.
     environment: production
     env:
-      PRODUCTION_REPO: stainless-sdks/papr-memory-python-prod
+      PRODUCTION_REPO: Papr-ai/papr-pythonSDK
       GH_TOKEN: ${{ secrets.PRODUCTION_REPO_TOKEN }}
     steps:
       - name: Check out staging
