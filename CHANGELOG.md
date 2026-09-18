@@ -1,5 +1,13 @@
 # Changelog
 
+## 2.29.1 (2026-09-18)
+
+Full Changelog: [v2.29.0...v2.29.1](https://github.com/Papr-ai/papr-pythonSDK/compare/v2.29.0...v2.29.1)
+
+### Bug Fixes
+
+* **schema:** emit unique_identifiers for @upsert/[@lookup](https://github.com/lookup) nodes ([#53](https://github.com/Papr-ai/papr-pythonSDK/issues/53)) ([05fdf2d](https://github.com/Papr-ai/papr-pythonSDK/commit/05fdf2da14bd8b13102f7e4363f168d2cc868bc6))
+
 ## 2.29.0 (2026-07-18)
 
 Full Changelog: [v2.28.0...v2.29.0](https://github.com/Papr-ai/papr-pythonSDK/compare/v2.28.0...v2.29.0)
