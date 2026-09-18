@@ -112,11 +112,25 @@ def _build_node_type(meta: NodeMetadata) -> Dict[str, Any]:
         if search_prop is not None:
             search_properties.append(search_prop)
 
+    # Derive unique_identifiers from properties marked required + search=exact().
+    # These are used server-side as the MERGE key for upsert/lookup nodes,
+    # ensuring entity de-duplication. (Equivalent to @upsert/@lookup semantics.)
+    unique_identifiers: List[str] = [
+        prop_name
+        for prop_name, prop_desc in meta.properties.items()
+        if prop_desc.required
+        and prop_desc.search is not None
+        and getattr(prop_desc.search, "mode", None) == "exact"
+    ]
+
     node_type: Dict[str, Any] = {
         "name": meta.name,
         "label": meta.label,
         "properties": properties,
     }
+    if unique_identifiers and meta.create_policy in ("upsert", "lookup"):
+        node_type["unique_identifiers"] = unique_identifiers
+
 
     if meta.description:
         node_type["description"] = meta.description
