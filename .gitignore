@@ -27,3 +27,5 @@ coreml/
 
 # ChromaDB local storage
 chroma_db/
+.testvenv
+*.testvenv/

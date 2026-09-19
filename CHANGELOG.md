@@ -1,5 +1,18 @@
 # Changelog
 
+## 2.29.0 (2026-07-18)
+
+Full Changelog: [v2.28.0...v2.29.0](https://github.com/Papr-ai/papr-pythonSDK/compare/v2.28.0...v2.29.0)
+
+### Features
+
+* **stlc:** configurable CI runner and private-production-repo support in workflow templates ([1432c64](https://github.com/Papr-ai/papr-pythonSDK/commit/1432c64e9450ba18c7ec31bbfddda0859479897c))
+
+
+### Bug Fixes
+
+* **types:** avoid type-checker errors on params with additional properties ([c5f1d18](https://github.com/Papr-ai/papr-pythonSDK/commit/c5f1d185bcf5b0643ba316a45ce8d1847f5d1f6f))
+
 ## 2.28.0 (2026-06-11)
 
 Full Changelog: [v2.27.0...v2.28.0](https://github.com/Papr-ai/papr-pythonSDK/compare/v2.27.0...v2.28.0)
