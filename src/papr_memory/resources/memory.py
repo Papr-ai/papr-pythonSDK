@@ -332,7 +332,7 @@ class MemoryResource(SyncAPIResource):
     ) -> AddMemoryResponse:
         """
         Add a new memory item to the system with size validation and background
-        processing.
+        processing. Supports text, code, and document content types.
 
             **Authentication Required**:
             One of the following authentication methods must be used:
@@ -3938,7 +3938,7 @@ class AsyncMemoryResource(AsyncAPIResource):
     ) -> AddMemoryResponse:
         """
         Add a new memory item to the system with size validation and background
-        processing.
+        processing. Supports text, code, and document content types.
 
             **Authentication Required**:
             One of the following authentication methods must be used:
