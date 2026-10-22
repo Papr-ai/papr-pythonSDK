@@ -199,6 +199,9 @@ def build_memory_policy(
     edge_constraints: Optional[List[EdgeConstraintInput]] = None,
     schema_id: Optional[str] = None,
     mode: Optional[Literal["auto", "manual"]] = None,
+    risk: Optional[Literal["none", "sensitive", "flagged"]] = None,
+    consent: Optional[Literal["explicit", "implicit", "terms", "none"]] = None,
+    acl: Optional[Dict[str, List[str]]] = None,
 ) -> MemoryPolicy:
     """Build a ``memory_policy`` dict from structured inputs.
 
@@ -218,6 +221,9 @@ def build_memory_policy(
         edge_constraints: List of EdgeConstraintInput dicts.
         schema_id: Schema ID to reference.
         mode: Graph generation mode ("auto" or "manual").
+        risk: OMO risk level. The server never lowers it below the schema's floor.
+        consent: OMO consent level.
+        acl: ``{"read": [...], "write": [...]}``; cannot widen a schema's ACL floor.
 
     Returns:
         Dict matching the ``MemoryPolicy`` structure.
@@ -231,6 +237,12 @@ def build_memory_policy(
         policy["node_constraints"] = node_constraints
     if edge_constraints:
         policy["edge_constraints"] = edge_constraints
+    if risk is not None:
+        policy["risk"] = risk  # type: ignore[typeddict-unknown-key]
+    if consent is not None:
+        policy["consent"] = consent  # type: ignore[typeddict-unknown-key]
+    if acl is not None:
+        policy["acl"] = acl  # type: ignore[typeddict-unknown-key,typeddict-item]
     return policy
 
 
