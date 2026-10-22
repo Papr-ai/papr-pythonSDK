@@ -41,6 +41,8 @@ Quick Start::
 """
 
 # Decorators
+# Schema packs
+from ._packs import SchemaPacks, schema_packs, parse_pack_ref
 from ._schema import node, lookup, schema, upsert, resolve, constraint
 
 # Builders
@@ -77,4 +79,8 @@ __all__ = [
     "build_schema_params",
     "build_memory_policy",
     "serialize_set_values",
+    # Schema packs
+    "schema_packs",
+    "SchemaPacks",
+    "parse_pack_ref",
 ]
