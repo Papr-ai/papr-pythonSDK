@@ -51,8 +51,12 @@ from ._conditions import Or, And, Not
 
 # Property/search helpers
 from ._properties import Auto, PropertyRef, edge, prop, exact, fuzzy, semantic
+from ._code_context import CodeChunk, CodeContext, git_blob_sha
 
 __all__ = [
+    "CodeChunk",
+    "CodeContext",
+    "git_blob_sha",
     # Decorators
     "schema",
     "node",
