@@ -16,7 +16,7 @@ hits through it, so renames never re-embed and a stale path never points at the 
 from __future__ import annotations
 
 import hashlib
-from typing import Any, Dict, Iterable, List, Optional, Sequence, TypedDict, Union
+from typing import Any, Dict, List, Union, Iterable, Optional, Sequence, TypedDict
 
 MAX_BATCH = 256
 MAX_SHAS = 5000

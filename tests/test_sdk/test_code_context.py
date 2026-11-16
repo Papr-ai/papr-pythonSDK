@@ -8,7 +8,7 @@ class Fake:
         self.responses = responses or {}
         self.calls = []
 
-    def post(self, path, *, body, cast_to=None):
+    def post(self, path, *, body, cast_to=None):  # noqa: ARG002  (same signature as the real client)
         self.calls.append((path, body))
         r = self.responses.get(path)
         return r(body) if callable(r) else r
